@@ -7,6 +7,8 @@ import unittest
 from lovv_agent.agents.festival_verifier import (
     FestivalVerifierAgent,
     build_festival_verifier_input,
+    normalize_festival_date,
+    verify_festival_candidate,
 )
 from lovv_agent.models.schemas import CandidateEvidencePackage, SelectedCity
 
@@ -123,6 +125,82 @@ class FestivalVerifierScopeTest(unittest.TestCase):
         self.assertEqual(verifier_input.travel_year, 2026)
         self.assertEqual(verifier_input.travel_month, 10)
         self.assertEqual(len(verifier_input.selected_festival_candidates), 1)
+
+
+class FestivalVerifierDatePolicyTest(unittest.TestCase):
+    """Validate Task 7.2 date normalization and initial policy."""
+
+    def test_normalize_date_accepts_event_start_date_variants(self) -> None:
+        self.assertEqual(normalize_festival_date("2026-10-10").isoformat(), "2026-10-10")
+        self.assertEqual(normalize_festival_date("2026.10.10").isoformat(), "2026-10-10")
+        self.assertEqual(normalize_festival_date("2026/10/10").isoformat(), "2026-10-10")
+        self.assertEqual(normalize_festival_date("20261010").isoformat(), "2026-10-10")
+
+    def test_confirmed_requires_start_year_matching_travel_year(self) -> None:
+        verification = verify_festival_candidate(
+            festival_payload("F-A", event_start_date="2026-10-10"),
+            travel_year=2026,
+            travel_month=10,
+        )
+
+        self.assertEqual(verification.date_status, "confirmed")
+        self.assertTrue(verification.is_applicable_to_trip)
+        self.assertEqual(verification.planner_policy, "placeable")
+        self.assertEqual(verification.start_date, "2026-10-10")
+
+    def test_outdated_when_start_year_differs_from_travel_year(self) -> None:
+        verification = verify_festival_candidate(
+            festival_payload("F-A", event_start_date="2025-10-10"),
+            travel_year=2026,
+            travel_month=10,
+        )
+
+        self.assertEqual(verification.date_status, "outdated")
+        self.assertEqual(verification.planner_policy, "not_placeable")
+        self.assertTrue(verification.is_applicable_to_trip)
+
+    def test_unknown_without_start_date(self) -> None:
+        payload = festival_payload("F-A")
+        payload.pop("event_start_date")
+
+        verification = verify_festival_candidate(
+            payload,
+            travel_year=2026,
+            travel_month=10,
+        )
+
+        self.assertEqual(verification.date_status, "unknown")
+        self.assertFalse(verification.is_applicable_to_trip)
+        self.assertEqual(verification.planner_policy, "not_placeable")
+
+    def test_month_overlap_uses_start_and_end_date_range(self) -> None:
+        payload = festival_payload("F-A", event_start_date="2026-09-29")
+        payload["event_end_date"] = "2026-10-03"
+
+        verification = verify_festival_candidate(
+            payload,
+            travel_year=2026,
+            travel_month=10,
+        )
+
+        self.assertEqual(verification.date_status, "confirmed")
+        self.assertTrue(verification.is_applicable_to_trip)
+        self.assertEqual(verification.planner_policy, "placeable")
+
+    def test_agent_verify_returns_verification_tuple(self) -> None:
+        agent = FestivalVerifierAgent()
+        verifier_input = agent.build_input(
+            include_festivals=True,
+            travel_year=2026,
+            travel_month=10,
+            candidate_evidence_package=package_with_festivals(),
+        )
+
+        result = agent.verify(verifier_input)
+
+        self.assertEqual(result.status, "ok")
+        self.assertEqual(len(result.verifications), 1)
+        self.assertEqual(result.verifications[0].date_status, "confirmed")
 
 
 if __name__ == "__main__":
