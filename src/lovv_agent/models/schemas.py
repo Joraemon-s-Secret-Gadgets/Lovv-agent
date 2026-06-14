@@ -38,6 +38,15 @@ EXECUTION_MODES: tuple[str, ...] = (
     "festival_seeded_city_discovery",
 )
 
+CANDIDATE_REASON_CLAIM_SCOPES: tuple[str, ...] = (
+    "city_selection",
+    "place_pool",
+    "festival_anchor",
+    "candidate_shortage",
+    "external_link_policy",
+    "fallback_notice",
+)
+
 FESTIVAL_DATE_STATUSES: tuple[str, ...] = (
     "confirmed",
     "tentative",
@@ -380,260 +389,64 @@ class SelectedCity:
 
 
 @dataclass(frozen=True, slots=True)
-class QueryContext:
-    """Compact user-query context for grounded explanation generation."""
+class CandidateReasonClaim:
+    """LLM-compressed, evidence-referenced reason claim candidate.
 
-    cleaned_raw_query: str = ""
-    soft_preference_query: str = ""
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "cleaned_raw_query",
-            _free_text(self.cleaned_raw_query, "cleaned_raw_query"),
-        )
-        object.__setattr__(
-            self,
-            "soft_preference_query",
-            _free_text(self.soft_preference_query, "soft_preference_query"),
-        )
-
-    @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "QueryContext":
-        """Build a query context from a Candidate Evidence mapping."""
-
-        return cls(
-            cleaned_raw_query=_mapping_get(payload, "cleaned_raw_query", default=""),
-            soft_preference_query=_mapping_get(
-                payload,
-                "soft_preference_query",
-                default="",
-            ),
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class PlaceAlignmentFact:
-    """Planner-facing explanation fact for one selected attraction.
-
-    The fact stores the selected place overview and query-alignment notes,
-    not raw scoring numbers. Planner prompts should use these compact fields
-    to write recommendation copy without exposing internal ranking logic.
+    Candidate Evidence may generate these Korean claim snippets from structured
+    audit fields. Planner must still verify each claim against final placed
+    items and detail enrichment before using it in public copy.
     """
 
-    place_id: str
-    title: str
-    overview: str | None = None
-    matched_themes: tuple[str, ...] = ()
-    raw_query_alignment: str = ""
-    soft_query_alignment: str = ""
-    reason_codes: tuple[str, ...] = ()
+    claim_id: str
+    scope: str
+    text_ko: str
+    evidence_refs: tuple[str, ...] = ()
+    required_place_ids: tuple[str, ...] = ()
+    public_eligible: bool = True
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "place_id", _required_text(self.place_id, "place_id"))
-        object.__setattr__(self, "title", _required_text(self.title, "title"))
-        object.__setattr__(self, "overview", _optional_text(self.overview, "overview"))
+        object.__setattr__(self, "claim_id", _required_text(self.claim_id, "claim_id"))
         object.__setattr__(
             self,
-            "matched_themes",
-            _string_tuple(self.matched_themes, "matched_themes"),
+            "scope",
+            _validate_choice(
+                self.scope,
+                CANDIDATE_REASON_CLAIM_SCOPES,
+                "scope",
+            ),
+        )
+        object.__setattr__(self, "text_ko", _required_text(self.text_ko, "text_ko"))
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _string_tuple(self.evidence_refs, "evidence_refs"),
         )
         object.__setattr__(
             self,
-            "raw_query_alignment",
-            _free_text(self.raw_query_alignment, "raw_query_alignment"),
+            "required_place_ids",
+            _string_tuple(self.required_place_ids, "required_place_ids"),
         )
         object.__setattr__(
             self,
-            "soft_query_alignment",
-            _free_text(self.soft_query_alignment, "soft_query_alignment"),
-        )
-        object.__setattr__(
-            self,
-            "reason_codes",
-            _string_tuple(self.reason_codes, "reason_codes"),
+            "public_eligible",
+            _bool(self.public_eligible, "public_eligible"),
         )
 
     @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "PlaceAlignmentFact":
-        """Build a selected-place explanation fact from a mapping."""
+    def from_mapping(cls, payload: Mapping[str, Any]) -> "CandidateReasonClaim":
+        """Build one Candidate Evidence reason claim from a mapping."""
 
         return cls(
-            place_id=_mapping_get(payload, "place_id", "placeId"),
-            title=_mapping_get(payload, "title", "name"),
-            overview=_mapping_get(payload, "overview", default=None),
-            matched_themes=_mapping_get(payload, "matched_themes", default=()),
-            raw_query_alignment=_mapping_get(
+            claim_id=_mapping_get(payload, "claim_id", "id"),
+            scope=_mapping_get(payload, "scope"),
+            text_ko=_mapping_get(payload, "text_ko", "text"),
+            evidence_refs=_mapping_get(payload, "evidence_refs", default=()),
+            required_place_ids=_mapping_get(
                 payload,
-                "raw_query_alignment",
-                default="",
-            ),
-            soft_query_alignment=_mapping_get(
-                payload,
-                "soft_query_alignment",
-                default="",
-            ),
-            reason_codes=_mapping_get(payload, "reason_codes", default=()),
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class CityChoiceFact:
-    """Compact city-selection explanation fact for Planner copy."""
-
-    city_id: str
-    city_name_ko: str
-    reason_codes: tuple[str, ...] = ()
-    representative_place_ids: tuple[str, ...] = ()
-    summary: str = ""
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "city_id", _required_text(self.city_id, "city_id"))
-        object.__setattr__(
-            self,
-            "city_name_ko",
-            _required_text(self.city_name_ko, "city_name_ko"),
-        )
-        object.__setattr__(
-            self,
-            "reason_codes",
-            _string_tuple(self.reason_codes, "reason_codes"),
-        )
-        object.__setattr__(
-            self,
-            "representative_place_ids",
-            _string_tuple(self.representative_place_ids, "representative_place_ids"),
-        )
-        object.__setattr__(self, "summary", _free_text(self.summary, "summary"))
-
-    @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "CityChoiceFact":
-        """Build a selected-city explanation fact from a mapping."""
-
-        return cls(
-            city_id=_mapping_get(payload, "city_id", "destinationId"),
-            city_name_ko=_mapping_get(payload, "city_name_ko", "city_name"),
-            reason_codes=_mapping_get(payload, "reason_codes", default=()),
-            representative_place_ids=_mapping_get(
-                payload,
-                "representative_place_ids",
+                "required_place_ids",
                 default=(),
             ),
-            summary=_mapping_get(payload, "summary", default=""),
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class FestivalAnchorFact:
-    """Compact festival explanation fact for festival-included flows."""
-
-    used: bool
-    matched_month: int | None = None
-    matched_themes: tuple[str, ...] = ()
-    selected_festival_ids: tuple[str, ...] = ()
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "used", _bool(self.used, "used"))
-        if self.matched_month is not None:
-            object.__setattr__(
-                self,
-                "matched_month",
-                _month(self.matched_month, "matched_month"),
-            )
-        object.__setattr__(
-            self,
-            "matched_themes",
-            _string_tuple(self.matched_themes, "matched_themes"),
-        )
-        object.__setattr__(
-            self,
-            "selected_festival_ids",
-            _string_tuple(self.selected_festival_ids, "selected_festival_ids"),
-        )
-
-    @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "FestivalAnchorFact":
-        """Build a festival explanation fact from a mapping."""
-
-        return cls(
-            used=_mapping_get(payload, "used"),
-            matched_month=_mapping_get(payload, "matched_month", default=None),
-            matched_themes=_mapping_get(payload, "matched_themes", default=()),
-            selected_festival_ids=_mapping_get(
-                payload,
-                "selected_festival_ids",
-                default=(),
-            ),
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class ExplanationFacts:
-    """Planner-facing, token-bounded facts for natural-language explanations."""
-
-    query_context: QueryContext
-    place_alignment: tuple[PlaceAlignmentFact, ...] = ()
-    city_choice: CityChoiceFact | None = None
-    festival_anchor: FestivalAnchorFact | None = None
-    limitations: tuple[str, ...] = ()
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.query_context, QueryContext):
-            raise SchemaValidationError("query_context must be a QueryContext")
-        place_alignment = tuple(
-            item
-            if isinstance(item, PlaceAlignmentFact)
-            else PlaceAlignmentFact.from_mapping(item)
-            for item in self.place_alignment
-        )
-        object.__setattr__(self, "place_alignment", place_alignment)
-        if self.city_choice is not None and not isinstance(
-            self.city_choice,
-            CityChoiceFact,
-        ):
-            object.__setattr__(
-                self,
-                "city_choice",
-                CityChoiceFact.from_mapping(self.city_choice),
-            )
-        if self.festival_anchor is not None and not isinstance(
-            self.festival_anchor,
-            FestivalAnchorFact,
-        ):
-            object.__setattr__(
-                self,
-                "festival_anchor",
-                FestivalAnchorFact.from_mapping(self.festival_anchor),
-            )
-        object.__setattr__(self, "limitations", _string_tuple(self.limitations, "limitations"))
-
-    @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "ExplanationFacts":
-        """Build compact Planner-facing explanation facts from a mapping."""
-
-        query_context = _mapping_get(payload, "query_context")
-        if not isinstance(query_context, Mapping):
-            raise SchemaValidationError("query_context must be an object")
-
-        city_choice = _mapping_get(payload, "city_choice", default=None)
-        festival_anchor = _mapping_get(payload, "festival_anchor", default=None)
-        return cls(
-            query_context=QueryContext.from_mapping(query_context),
-            place_alignment=tuple(
-                PlaceAlignmentFact.from_mapping(item)
-                for item in _mapping_get(payload, "place_alignment", default=())
-            ),
-            city_choice=(
-                CityChoiceFact.from_mapping(city_choice)
-                if city_choice is not None
-                else None
-            ),
-            festival_anchor=(
-                FestivalAnchorFact.from_mapping(festival_anchor)
-                if festival_anchor is not None
-                else None
-            ),
-            limitations=_mapping_get(payload, "limitations", default=()),
+            public_eligible=_mapping_get(payload, "public_eligible", default=True),
         )
 
 
@@ -659,7 +472,7 @@ class CandidateEvidencePackage:
     candidate_counts: dict[str, Any] = field(default_factory=dict)
     warnings: dict[str, Any] = field(default_factory=dict)
     fallback_audit: dict[str, Any] = field(default_factory=dict)
-    explanation_facts: ExplanationFacts | None = None
+    candidate_reason_claims: tuple[CandidateReasonClaim, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(
@@ -705,15 +518,13 @@ class CandidateEvidencePackage:
                 "selected_festival_candidates",
             ),
         )
-        if self.explanation_facts is not None and not isinstance(
-            self.explanation_facts,
-            ExplanationFacts,
-        ):
-            object.__setattr__(
-                self,
-                "explanation_facts",
-                ExplanationFacts.from_mapping(self.explanation_facts),
-            )
+        reason_claims = tuple(
+            item
+            if isinstance(item, CandidateReasonClaim)
+            else CandidateReasonClaim.from_mapping(item)
+            for item in self.candidate_reason_claims
+        )
+        object.__setattr__(self, "candidate_reason_claims", reason_claims)
 
     @classmethod
     def from_mapping(cls, payload: Mapping[str, Any]) -> "CandidateEvidencePackage":
@@ -755,17 +566,13 @@ class CandidateEvidencePackage:
             candidate_counts=_mapping_get(payload, "candidate_counts", default={}),
             warnings=_mapping_get(payload, "warnings", default={}),
             fallback_audit=_mapping_get(payload, "fallback_audit", default={}),
-            explanation_facts=(
-                ExplanationFacts.from_mapping(explanation_facts)
-                if (
-                    explanation_facts := _mapping_get(
-                        payload,
-                        "explanation_facts",
-                        default=None,
-                    )
+            candidate_reason_claims=tuple(
+                CandidateReasonClaim.from_mapping(item)
+                for item in _mapping_get(
+                    payload,
+                    "candidate_reason_claims",
+                    default=(),
                 )
-                is not None
-                else None
             ),
         )
 
@@ -1064,16 +871,13 @@ __all__ = [
     "SCHEMA_GROUPS",
     "CandidateEvidenceInput",
     "CandidateEvidencePackage",
-    "CityChoiceFact",
-    "ExplanationFacts",
+    "CandidateReasonClaim",
+    "CANDIDATE_REASON_CLAIM_SCOPES",
     "ExplanationReasonRef",
-    "FestivalAnchorFact",
     "FestivalVerification",
     "GeoPoint",
-    "PlaceAlignmentFact",
     "PlannerOutput",
     "PlannerExplanationAudit",
-    "QueryContext",
     "SchemaValidationError",
     "SelectedCity",
     "WorkerOutputState",

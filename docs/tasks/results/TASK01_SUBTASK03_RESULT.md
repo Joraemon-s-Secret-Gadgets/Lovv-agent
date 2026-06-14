@@ -15,7 +15,7 @@ The implementation uses standard-library dataclasses and explicit validation hel
 
 - Added Candidate Evidence input schema with camelCase/snake_case mapping support.
 - Added Candidate Evidence Package schema with limited status values.
-- Added Candidate Evidence `explanation_facts` schema for compact raw/soft query and selected place overview alignment.
+- Added Candidate Evidence `candidate_reason_claims` schema for evidence-referenced reason claim candidates.
 - Added Festival Verification output schema.
 - Added Planner Output schema.
 - Added Planner internal `explanation_audit` schema for mapping generated reasons to evidence refs.
@@ -50,7 +50,7 @@ docs/tasks/results/TASK01_SUBTASK03_RESULT.md
 - `needs_clarification` requires `clarifying_question` across worker outputs: done.
 - Candidate Evidence input sample payload validates: done.
 - Candidate Evidence Package sample payload validates: done.
-- Candidate Evidence `explanation_facts` sample validates: done.
+- Candidate Evidence `candidate_reason_claims` sample validates: done.
 - Festival Verification sample payload validates: done.
 - Planner Output sample payload validates: done.
 - Planner `explanation_audit` sample validates: done.
@@ -96,11 +96,7 @@ uv run pytest
 Result:
 
 ```text
-tests/test_config.py ........                                            [ 42%]
-tests/test_import_skeleton.py ...                                        [ 57%]
-tests/test_schemas.py ........                                           [100%]
-
-19 passed
+87 passed
 ```
 
 ## Notes and Constraints

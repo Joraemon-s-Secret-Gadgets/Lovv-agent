@@ -8,7 +8,7 @@ from lovv_agent.models.schemas import (
     CANDIDATE_EVIDENCE_STATUSES,
     CandidateEvidenceInput,
     CandidateEvidencePackage,
-    ExplanationFacts,
+    CandidateReasonClaim,
     PlannerExplanationAudit,
     FestivalVerification,
     PlannerOutput,
@@ -153,7 +153,7 @@ class SchemaContractTest(unittest.TestCase):
         self.assertEqual(package.selected_city.city_id, "city-1")
         self.assertEqual(package.recommended_places[0]["place_id"], "P-1")
 
-    def test_explanation_facts_ground_query_and_place_overview(self) -> None:
+    def test_candidate_reason_claims_keep_evidence_refs(self) -> None:
         package = CandidateEvidencePackage.from_mapping(
             {
                 "status": "ok",
@@ -167,54 +167,38 @@ class SchemaContractTest(unittest.TestCase):
                     {
                         "place_id": "P-1",
                         "title": "Quiet Coast",
-                        "overview": "A calm seaside walking area with sunset views.",
+                        "evidence_reason_code": ["raw_query_match", "theme_match"],
                     },
                 ],
-                "explanation_facts": {
-                    "query_context": {
-                        "cleaned_raw_query": "바다 산책을 하고 싶다",
-                        "soft_preference_query": "너무 붐비지 않는 분위기",
+                "candidate_reason_claims": [
+                    {
+                        "claim_id": "city_reason_1",
+                        "scope": "city_selection",
+                        "text_ko": "선택 도시는 바다·해안 테마 후보가 충분합니다.",
+                        "evidence_refs": ["selected_city", "coverage_audit"],
+                        "required_place_ids": [],
+                        "public_eligible": True,
                     },
-                    "city_choice": {
-                        "city_id": "city-1",
-                        "city_name_ko": "Sample City",
-                        "reason_codes": ["theme_coverage", "candidate_sufficiency"],
-                        "representative_place_ids": ["P-1"],
-                        "summary": "바다 산책 후보가 충분한 도시입니다.",
+                    {
+                        "claim_id": "place_pool_1",
+                        "scope": "place_pool",
+                        "text_ko": "대표 후보들은 사용자의 바다 산책 요청과 연결됩니다.",
+                        "evidence_refs": ["recommended_places:P-1"],
+                        "required_place_ids": ["P-1"],
+                        "public_eligible": True,
                     },
-                    "place_alignment": [
-                        {
-                            "place_id": "P-1",
-                            "title": "Quiet Coast",
-                            "overview": "A calm seaside walking area with sunset views.",
-                            "matched_themes": ["바다·해안"],
-                            "raw_query_alignment": "바다 산책 요청과 직접 연결됩니다.",
-                            "soft_query_alignment": "조용한 분위기 선호와 맞습니다.",
-                            "reason_codes": [
-                                "raw_query_match",
-                                "overview_theme_match",
-                            ],
-                        },
-                    ],
-                    "festival_anchor": {
-                        "used": False,
-                        "matched_month": None,
-                        "matched_themes": [],
-                        "selected_festival_ids": [],
-                    },
-                    "limitations": [],
-                },
+                ],
             },
         )
 
-        self.assertIsInstance(package.explanation_facts, ExplanationFacts)
+        self.assertIsInstance(package.candidate_reason_claims[0], CandidateReasonClaim)
         self.assertEqual(
-            package.explanation_facts.query_context.soft_preference_query,
-            "너무 붐비지 않는 분위기",
+            package.candidate_reason_claims[0].scope,
+            "city_selection",
         )
         self.assertEqual(
-            package.explanation_facts.place_alignment[0].overview,
-            "A calm seaside walking area with sunset views.",
+            package.candidate_reason_claims[1].required_place_ids,
+            ("P-1",),
         )
 
     def test_festival_and_planner_payload_samples_validate(self) -> None:
