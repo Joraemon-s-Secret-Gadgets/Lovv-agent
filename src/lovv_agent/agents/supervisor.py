@@ -7,7 +7,8 @@ Planned responsibility:
 
 Task 3.1 implements fulfilled-matrix validation and transition helpers.
 Task 3.2 adds deterministic route decisions and clarification stops.
-Graph compilation and retry-limit behavior are handled in later subtasks.
+Task 3.3 enforces Planner validation retry limits.
+Graph compilation is handled in later subtasks.
 
 The MVP Supervisor is deterministic. Later tasks may wrap this module behind a
 swappable routing boundary so an experimental LLM Supervisor can be compared
@@ -48,6 +49,7 @@ MATRIX_PARTIAL = "△"
 MATRIX_NOT_APPLICABLE = "N/A"
 
 MATRIX_ROUTING_ORDER = ("evidence", "festival", "planning")
+MAX_PLANNER_VALIDATION_RETRIES = 2
 
 NODE_CANDIDATE_EVIDENCE = "candidate_evidence_agent"
 NODE_FESTIVAL_VERIFIER = "festival_verifier_agent"
@@ -71,6 +73,7 @@ class SupervisorRouteDecision:
 
     next_node: str
     fulfilled_matrix: dict[str, str]
+    validation_retry_count: int = 0
     needs_clarification: bool = False
     clarifying_question: str | None = None
     reason: str = ""
@@ -81,6 +84,11 @@ class SupervisorRouteDecision:
             self,
             "fulfilled_matrix",
             validate_fulfilled_matrix(self.fulfilled_matrix),
+        )
+        object.__setattr__(
+            self,
+            "validation_retry_count",
+            _normalize_retry_count(self.validation_retry_count),
         )
         object.__setattr__(self, "reason", _free_text(self.reason, "reason"))
         validate_clarification(self.needs_clarification, self.clarifying_question)
@@ -101,6 +109,9 @@ class SupervisorRouter:
         include_festivals: bool,
         completed_group: str | None = None,
         worker_status: str | None = None,
+        validation_retry_count: int = 0,
+        planner_validation_passed: bool | None = None,
+        planner_validation_result: Mapping[str, Any] | None = None,
         needs_clarification: bool = False,
         clarifying_question: str | None = None,
         candidate_evidence_package: (
@@ -114,6 +125,9 @@ class SupervisorRouter:
             include_festivals=include_festivals,
             completed_group=completed_group,
             worker_status=worker_status,
+            validation_retry_count=validation_retry_count,
+            planner_validation_passed=planner_validation_passed,
+            planner_validation_result=planner_validation_result,
             needs_clarification=needs_clarification,
             clarifying_question=clarifying_question,
             candidate_evidence_package=candidate_evidence_package,
@@ -190,6 +204,9 @@ def decide_supervisor_route(
     include_festivals: bool,
     completed_group: str | None = None,
     worker_status: str | None = None,
+    validation_retry_count: int = 0,
+    planner_validation_passed: bool | None = None,
+    planner_validation_result: Mapping[str, Any] | None = None,
     needs_clarification: bool = False,
     clarifying_question: str | None = None,
     candidate_evidence_package: (
@@ -199,6 +216,7 @@ def decide_supervisor_route(
     """Decide the next graph node from matrix state and worker output."""
 
     matrix = _normalize_matrix_for_request(fulfilled_matrix, include_festivals)
+    retry_count = _normalize_retry_count(validation_retry_count)
     package = _coerce_candidate_evidence_package(candidate_evidence_package)
     clarified, question = _resolve_clarification(
         needs_clarification=needs_clarification,
@@ -209,25 +227,40 @@ def decide_supervisor_route(
         return SupervisorRouteDecision(
             next_node=NODE_END_WAIT_USER,
             fulfilled_matrix=matrix,
+            validation_retry_count=retry_count,
             needs_clarification=True,
             clarifying_question=question,
             reason="clarification_requested",
         )
 
     terminal_reason: str | None = None
+    route_override: tuple[str, str] | None = None
     if completed_group is not None:
-        matrix, terminal_reason = _apply_completed_group(
+        matrix, retry_count, terminal_reason, route_override = _apply_completed_group(
             matrix=matrix,
             completed_group=completed_group,
             include_festivals=include_festivals,
             worker_status=worker_status,
+            validation_retry_count=retry_count,
+            planner_validation_passed=planner_validation_passed,
+            planner_validation_result=planner_validation_result,
             candidate_evidence_package=package,
+        )
+
+    if route_override is not None:
+        next_node, reason = route_override
+        return SupervisorRouteDecision(
+            next_node=next_node,
+            fulfilled_matrix=matrix,
+            validation_retry_count=retry_count,
+            reason=reason,
         )
 
     if terminal_reason is not None:
         return SupervisorRouteDecision(
             next_node=NODE_RESPONSE_PACKAGER,
             fulfilled_matrix=matrix,
+            validation_retry_count=retry_count,
             reason=terminal_reason,
         )
 
@@ -235,6 +268,7 @@ def decide_supervisor_route(
     return SupervisorRouteDecision(
         next_node=next_node,
         fulfilled_matrix=matrix,
+        validation_retry_count=retry_count,
         reason=reason,
     )
 
@@ -284,23 +318,34 @@ def _apply_completed_group(
     completed_group: str,
     include_festivals: bool,
     worker_status: str | None,
+    validation_retry_count: int,
+    planner_validation_passed: bool | None,
+    planner_validation_result: Mapping[str, Any] | None,
     candidate_evidence_package: CandidateEvidencePackage | None,
-) -> tuple[dict[str, str], str | None]:
+) -> tuple[dict[str, str], int, str | None, tuple[str, str] | None]:
     """Apply one worker result to the matrix and return an optional terminal reason."""
 
     _validate_matrix_key(completed_group)
     if completed_group == "evidence":
-        return _apply_candidate_evidence_result(
+        matrix, terminal_reason = _apply_candidate_evidence_result(
             matrix=matrix,
             worker_status=worker_status,
             candidate_evidence_package=candidate_evidence_package,
         )
+        return matrix, validation_retry_count, terminal_reason, None
     if completed_group == "festival" and not include_festivals:
         updated, _ = mark_matrix_not_applicable(matrix, "festival")
-        return updated, None
+        return updated, validation_retry_count, None, None
+    if completed_group == "planning":
+        return _apply_planner_result(
+            matrix=matrix,
+            validation_retry_count=validation_retry_count,
+            planner_validation_passed=planner_validation_passed,
+            planner_validation_result=planner_validation_result,
+        )
 
     updated, _ = mark_matrix_complete(matrix, completed_group)
-    return updated, None
+    return updated, validation_retry_count, None, None
 
 
 def _apply_candidate_evidence_result(
@@ -346,6 +391,82 @@ def _candidate_package_can_feed_planner(
     return (
         candidate_evidence_package.selected_city is not None
         and bool(candidate_evidence_package.recommended_places)
+    )
+
+
+def _apply_planner_result(
+    *,
+    matrix: Mapping[str, str],
+    validation_retry_count: int,
+    planner_validation_passed: bool | None,
+    planner_validation_result: Mapping[str, Any] | None,
+) -> tuple[dict[str, str], int, str | None, tuple[str, str] | None]:
+    """Apply Planner validation status and enforce bounded retry behavior."""
+
+    validation_passed = _resolve_planner_validation_passed(
+        planner_validation_passed=planner_validation_passed,
+        planner_validation_result=planner_validation_result,
+    )
+    if validation_passed:
+        updated, _ = mark_matrix_complete(matrix, "planning")
+        return updated, validation_retry_count, None, None
+
+    if validation_retry_count < MAX_PLANNER_VALIDATION_RETRIES:
+        next_retry_count = validation_retry_count + 1
+        return (
+            validate_fulfilled_matrix(matrix),
+            next_retry_count,
+            None,
+            (NODE_PLANNER, "planner_validation_retry"),
+        )
+
+    updated, _ = mark_matrix_partial(matrix, "planning")
+    return (
+        updated,
+        MAX_PLANNER_VALIDATION_RETRIES,
+        None,
+        (NODE_RESPONSE_PACKAGER, "planner_validation_retry_exhausted"),
+    )
+
+
+def _resolve_planner_validation_passed(
+    *,
+    planner_validation_passed: bool | None,
+    planner_validation_result: Mapping[str, Any] | None,
+) -> bool:
+    """Read Planner validation success from an explicit flag or result mapping."""
+
+    if planner_validation_passed is not None:
+        if not isinstance(planner_validation_passed, bool):
+            raise SchemaValidationError("planner_validation_passed must be a boolean")
+        return planner_validation_passed
+
+    if planner_validation_result is None:
+        raise SchemaValidationError(
+            "planner_validation_result is required for planning routing",
+        )
+    if not isinstance(planner_validation_result, Mapping):
+        raise SchemaValidationError("planner_validation_result must be a mapping")
+
+    for key in ("is_valid", "valid", "passed"):
+        value = planner_validation_result.get(key)
+        if value is not None:
+            if not isinstance(value, bool):
+                raise SchemaValidationError(
+                    f"planner_validation_result.{key} must be a boolean",
+                )
+            return value
+
+    status = planner_validation_result.get("status")
+    if isinstance(status, str):
+        normalized_status = status.strip().lower()
+        if normalized_status in {"ok", "valid", "passed", "success"}:
+            return True
+        if normalized_status in {"invalid", "failed", "failure", "error"}:
+            return False
+
+    raise SchemaValidationError(
+        "planner_validation_result must include a boolean valid flag or status",
     )
 
 
@@ -395,6 +516,16 @@ def _free_text(value: str, field_name: str) -> str:
     return value.strip()
 
 
+def _normalize_retry_count(value: int) -> int:
+    """Validate retry count and clamp any stale over-limit state to the limit."""
+
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise SchemaValidationError("validation_retry_count must be an integer")
+    if value < 0:
+        raise SchemaValidationError("validation_retry_count must be zero or positive")
+    return min(value, MAX_PLANNER_VALIDATION_RETRIES)
+
+
 def _validate_matrix_key(key: str) -> None:
     """Validate a fulfilled-matrix key."""
 
@@ -417,6 +548,7 @@ __all__ = [
     "MATRIX_PARTIAL",
     "MATRIX_PENDING",
     "MATRIX_ROUTING_ORDER",
+    "MAX_PLANNER_VALIDATION_RETRIES",
     "NODE_NAME",
     "NODE_CANDIDATE_EVIDENCE",
     "NODE_END_WAIT_USER",

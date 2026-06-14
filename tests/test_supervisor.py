@@ -9,6 +9,7 @@ from lovv_agent.agents.supervisor import (
     MATRIX_NOT_APPLICABLE,
     MATRIX_PARTIAL,
     MATRIX_PENDING,
+    MAX_PLANNER_VALIDATION_RETRIES,
     NODE_CANDIDATE_EVIDENCE,
     NODE_END_WAIT_USER,
     NODE_FESTIVAL_VERIFIER,
@@ -240,6 +241,116 @@ class SupervisorRoutingTest(unittest.TestCase):
         self.assertEqual(decision.next_node, NODE_RESPONSE_PACKAGER)
         self.assertEqual(decision.reason, "candidate_evidence_not_safe_for_planner")
         self.assertEqual(decision.fulfilled_matrix["evidence"], MATRIX_PARTIAL)
+
+
+class SupervisorRetryTest(unittest.TestCase):
+    """Validate Planner validation retry limits for Task 3.3."""
+
+    def test_planner_validation_failure_retries_until_limit(self) -> None:
+        matrix = {
+            "evidence": MATRIX_COMPLETE,
+            "festival": MATRIX_NOT_APPLICABLE,
+            "planning": MATRIX_PENDING,
+        }
+
+        first_retry = decide_supervisor_route(
+            fulfilled_matrix=matrix,
+            include_festivals=False,
+            completed_group="planning",
+            validation_retry_count=0,
+            planner_validation_passed=False,
+        )
+        second_retry = decide_supervisor_route(
+            fulfilled_matrix=first_retry.fulfilled_matrix,
+            include_festivals=False,
+            completed_group="planning",
+            validation_retry_count=first_retry.validation_retry_count,
+            planner_validation_result={"valid": False},
+        )
+
+        self.assertEqual(first_retry.next_node, NODE_PLANNER)
+        self.assertEqual(first_retry.validation_retry_count, 1)
+        self.assertEqual(first_retry.fulfilled_matrix["planning"], MATRIX_PENDING)
+        self.assertEqual(second_retry.next_node, NODE_PLANNER)
+        self.assertEqual(
+            second_retry.validation_retry_count,
+            MAX_PLANNER_VALIDATION_RETRIES,
+        )
+        self.assertEqual(second_retry.reason, "planner_validation_retry")
+
+    def test_planner_validation_retry_exhaustion_routes_to_safe_fallback(self) -> None:
+        matrix = {
+            "evidence": MATRIX_COMPLETE,
+            "festival": MATRIX_NOT_APPLICABLE,
+            "planning": MATRIX_PENDING,
+        }
+
+        decision = decide_supervisor_route(
+            fulfilled_matrix=matrix,
+            include_festivals=False,
+            completed_group="planning",
+            validation_retry_count=MAX_PLANNER_VALIDATION_RETRIES,
+            planner_validation_result={"status": "invalid"},
+        )
+
+        self.assertEqual(decision.next_node, NODE_RESPONSE_PACKAGER)
+        self.assertEqual(decision.validation_retry_count, MAX_PLANNER_VALIDATION_RETRIES)
+        self.assertEqual(decision.fulfilled_matrix["planning"], MATRIX_PARTIAL)
+        self.assertEqual(decision.reason, "planner_validation_retry_exhausted")
+
+    def test_stale_over_limit_retry_count_is_clamped_to_limit(self) -> None:
+        matrix = {
+            "evidence": MATRIX_COMPLETE,
+            "festival": MATRIX_NOT_APPLICABLE,
+            "planning": MATRIX_PENDING,
+        }
+
+        decision = decide_supervisor_route(
+            fulfilled_matrix=matrix,
+            include_festivals=False,
+            completed_group="planning",
+            validation_retry_count=99,
+            planner_validation_passed=False,
+        )
+
+        self.assertEqual(decision.next_node, NODE_RESPONSE_PACKAGER)
+        self.assertEqual(decision.validation_retry_count, MAX_PLANNER_VALIDATION_RETRIES)
+
+    def test_planner_validation_success_completes_planning(self) -> None:
+        matrix = {
+            "evidence": MATRIX_COMPLETE,
+            "festival": MATRIX_NOT_APPLICABLE,
+            "planning": MATRIX_PENDING,
+        }
+
+        decision = decide_supervisor_route(
+            fulfilled_matrix=matrix,
+            include_festivals=False,
+            completed_group="planning",
+            validation_retry_count=1,
+            planner_validation_result={"passed": True},
+        )
+
+        self.assertEqual(decision.next_node, NODE_RESPONSE_PACKAGER)
+        self.assertEqual(decision.validation_retry_count, 1)
+        self.assertEqual(decision.fulfilled_matrix["planning"], MATRIX_COMPLETE)
+        self.assertEqual(decision.reason, "ready_to_package")
+
+    def test_invalid_retry_count_fails_validation(self) -> None:
+        matrix = {
+            "evidence": MATRIX_COMPLETE,
+            "festival": MATRIX_NOT_APPLICABLE,
+            "planning": MATRIX_PENDING,
+        }
+
+        with self.assertRaises(SchemaValidationError):
+            decide_supervisor_route(
+                fulfilled_matrix=matrix,
+                include_festivals=False,
+                completed_group="planning",
+                validation_retry_count=-1,
+                planner_validation_passed=False,
+            )
 
 
 if __name__ == "__main__":
