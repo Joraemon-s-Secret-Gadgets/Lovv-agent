@@ -13,10 +13,18 @@ from lovv_agent.config import (
     DynamoDbSettings,
     RuntimeConfig,
     S3VectorSettings,
+    SearchBudgetSettings,
 )
 from lovv_agent.models.schemas import SchemaValidationError
 from lovv_agent.repositories.dynamodb import DynamoDbRepository
 from lovv_agent.repositories.s3_vectors import S3VectorRepository
+from lovv_agent.tools.destination_search import (
+    ATTRACTION_ENTITY_TYPE,
+    DestinationSearchTool,
+    build_attraction_filter,
+    build_attraction_search_request,
+    normalize_attraction_candidate,
+)
 
 
 class RecordingAwsFactory:
@@ -33,12 +41,13 @@ class RecordingAwsFactory:
 class RecordingS3VectorClient:
     """Mock S3 Vector client used by repository tests."""
 
-    def __init__(self) -> None:
+    def __init__(self, response: dict[str, Any] | None = None) -> None:
         self.requests: list[dict[str, Any]] = []
+        self.response = {"vectors": [{"key": "chunk-1"}]} if response is None else response
 
     def query_vectors(self, **request: Any) -> dict[str, Any]:
         self.requests.append(dict(request))
-        return {"vectors": [{"key": "chunk-1"}]}
+        return self.response
 
 
 class RecordingDynamoDbClient:
@@ -149,6 +158,149 @@ class RepositoryBoundaryTest(unittest.TestCase):
 
         with self.assertRaises(SchemaValidationError):
             dynamodb_repository.get_item(["not", "a", "mapping"])  # type: ignore[arg-type]
+
+
+class AttractionSearchTest(unittest.TestCase):
+    """Validate attraction search request construction for Task 4.2."""
+
+    def test_search_candidates_builds_attraction_only_filter(self) -> None:
+        client = RecordingS3VectorClient(
+            response={
+                "vectors": [
+                    {
+                        "key": "place-1::chunk-3",
+                        "distance": 0.12,
+                        "metadata": {
+                            "entity_type": ATTRACTION_ENTITY_TYPE,
+                            "city_id": "city-1",
+                            "city_name_ko": "샘플시",
+                            "theme_tags": ["sea_coast", "walk"],
+                            "title": "조용한 해변 산책로",
+                            "latitude": 35.1,
+                            "longitude": 129.1,
+                            "ddb_pk": "PLACE#1",
+                            "ddb_sk": "DETAIL#1",
+                        },
+                    },
+                ],
+            },
+        )
+        repository = S3VectorRepository(client=client, settings=S3VectorSettings())
+        tool = DestinationSearchTool(
+            s3_vectors=repository,
+            search_budget=SearchBudgetSettings(per_theme_attraction_top_k=7),
+        )
+
+        candidates = tool.search_candidates(
+            [0.1, 0.2, 0.3],
+            city_id="city-1",
+            theme_tags=["sea_coast", "walk"],
+        )
+
+        request = client.requests[0]
+        self.assertEqual(request["top_k"], 7)
+        self.assertTrue(request["return_metadata"])
+        self.assertTrue(request["return_distance"])
+        self.assertEqual(
+            request["filter"],
+            {
+                "and": [
+                    {
+                        "field": "entity_type",
+                        "operator": "eq",
+                        "value": "attraction",
+                    },
+                    {"field": "city_id", "operator": "eq", "value": "city-1"},
+                    {
+                        "field": "theme_tags",
+                        "operator": "contains_any",
+                        "values": ["sea_coast", "walk"],
+                    },
+                ],
+            },
+        )
+        self.assertEqual(candidates[0].place_id, "place-1")
+        self.assertEqual(candidates[0].city_id, "city-1")
+
+    def test_search_candidates_top_k_call_argument_overrides_runtime_budget(self) -> None:
+        request = build_attraction_search_request(
+            query_vector=[0.1],
+            top_k=3,
+            search_budget=SearchBudgetSettings(per_theme_attraction_top_k=9),
+        )
+
+        self.assertEqual(request["top_k"], 3)
+
+    def test_filter_combines_city_and_single_theme(self) -> None:
+        metadata_filter = build_attraction_filter(city_id="city-7", theme="history")
+
+        self.assertEqual(
+            metadata_filter,
+            {
+                "and": [
+                    {
+                        "field": "entity_type",
+                        "operator": "eq",
+                        "value": "attraction",
+                    },
+                    {"field": "city_id", "operator": "eq", "value": "city-7"},
+                    {
+                        "field": "theme_tags",
+                        "operator": "contains_any",
+                        "values": ["history"],
+                    },
+                ],
+            },
+        )
+
+    def test_chunk_key_normalizes_to_stable_place_id(self) -> None:
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "place-99#chunk-12",
+                "distance": 0.5,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "명소",
+                    "theme_tags": "history",
+                },
+            },
+        )
+
+        self.assertEqual(candidate.place_id, "place-99")
+        self.assertEqual(candidate.theme_tags, ("history",))
+
+    def test_normalize_metadata_place_id_overrides_chunk_key(self) -> None:
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "chunk-only-1",
+                "distance": 0.5,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "place_id": "place-from-metadata",
+                    "city_id": "city-1",
+                    "title": "명소",
+                    "theme_tags": ["history"],
+                },
+            },
+        )
+
+        self.assertEqual(candidate.place_id, "place-from-metadata")
+
+    def test_normalize_non_attraction_candidate_fails(self) -> None:
+        with self.assertRaises(SchemaValidationError):
+            normalize_attraction_candidate(
+                {
+                    "key": "festival-1::chunk-1",
+                    "distance": 0.5,
+                    "metadata": {
+                        "entity_type": "festival",
+                        "city_id": "city-1",
+                        "title": "축제",
+                        "theme_tags": ["festival"],
+                    },
+                },
+            )
 
 
 if __name__ == "__main__":

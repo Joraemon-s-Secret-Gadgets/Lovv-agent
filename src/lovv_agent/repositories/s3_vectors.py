@@ -47,9 +47,35 @@ class S3VectorRepository:
         return dict(response)
 
 
+def extract_vector_records(response: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+    """Extract raw vector records from common S3 Vector response shapes."""
+
+    if not isinstance(response, Mapping):
+        raise SchemaValidationError("s3 vector response must be a mapping")
+    for field_name in ("vectors", "matches", "results"):
+        records = response.get(field_name)
+        if records is None:
+            continue
+        if not isinstance(records, (list, tuple)):
+            raise SchemaValidationError(f"s3 vector response.{field_name} must be a list")
+        return tuple(_copy_record(record, field_name) for record in records)
+    return ()
+
+
+def _copy_record(record: Any, field_name: str) -> dict[str, Any]:
+    """Validate and copy one raw vector record."""
+
+    if not isinstance(record, Mapping):
+        raise SchemaValidationError(
+            f"s3 vector response.{field_name} item must be a mapping",
+        )
+    return dict(record)
+
+
 __all__ = [
     "REPOSITORY_NAME",
     "RESPONSIBILITY",
     "S3VectorClient",
     "S3VectorRepository",
+    "extract_vector_records",
 ]
