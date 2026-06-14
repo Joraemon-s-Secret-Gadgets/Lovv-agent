@@ -24,6 +24,7 @@ from lovv_agent.tools.destination_search import (
     build_attraction_filter,
     build_attraction_search_request,
     normalize_attraction_candidate,
+    normalize_festival_candidate,
 )
 
 
@@ -53,9 +54,17 @@ class RecordingS3VectorClient:
 class RecordingDynamoDbClient:
     """Mock DynamoDB client used by repository tests."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        query_response: dict[str, Any] | None = None,
+    ) -> None:
         self.get_item_requests: list[dict[str, Any]] = []
         self.query_requests: list[dict[str, Any]] = []
+        self.query_response = (
+            {"Items": [{"pk": {"S": "FESTIVAL#1"}}]}
+            if query_response is None
+            else query_response
+        )
 
     def get_item(self, **request: Any) -> dict[str, Any]:
         self.get_item_requests.append(dict(request))
@@ -63,7 +72,27 @@ class RecordingDynamoDbClient:
 
     def query(self, **request: Any) -> dict[str, Any]:
         self.query_requests.append(dict(request))
-        return {"Items": [{"pk": {"S": "FESTIVAL#1"}}]}
+        return self.query_response
+
+
+def make_destination_search_tool(
+    dynamodb_client: RecordingDynamoDbClient,
+    *,
+    search_budget: SearchBudgetSettings | None = None,
+) -> DestinationSearchTool:
+    """Build a DestinationSearchTool with mock AWS repositories."""
+
+    return DestinationSearchTool(
+        s3_vectors=S3VectorRepository(
+            client=RecordingS3VectorClient(),
+            settings=S3VectorSettings(),
+        ),
+        dynamodb=DynamoDbRepository(
+            client=dynamodb_client,
+            settings=DynamoDbSettings(table_name="lovv-table"),
+        ),
+        search_budget=search_budget or SearchBudgetSettings(),
+    )
 
 
 class AwsClientProviderTest(unittest.TestCase):
@@ -301,6 +330,189 @@ class AttractionSearchTest(unittest.TestCase):
                     },
                 },
             )
+
+
+class FestivalSeedTest(unittest.TestCase):
+    """Validate festival city seed lookup rules for Task 4.3."""
+
+    def test_festival_seed_empty_theme_pool_reports_clarification(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient()
+        tool = make_destination_search_tool(dynamodb_client)
+
+        result = tool.search_festival_city_seeds(
+            country="KR",
+            travel_month=6,
+            theme_pool=["festival_event", "축제·이벤트"],
+        )
+
+        self.assertEqual(result.status, "no_candidate")
+        self.assertTrue(result.needs_clarification)
+        self.assertEqual(
+            result.failure_signals,
+            ("no_required_theme_for_festival_seed",),
+        )
+        self.assertEqual(dynamodb_client.query_requests, [])
+
+    def test_festival_seed_applies_month_and_theme_or_matching(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            query_response={
+                "Items": [
+                    {
+                        "festival_id": "festival-1",
+                        "name": "바다 축제",
+                        "country": "KR",
+                        "city_id": "city-1",
+                        "city_name": "해변시",
+                        "month": 6,
+                        "assigned_theme": "sea_coast",
+                        "theme_tags": ["festival"],
+                    },
+                    {
+                        "festival_id": "festival-2",
+                        "name": "역사 야행",
+                        "country": "KR",
+                        "city_id": "city-2",
+                        "city_name": "고도시",
+                        "month": 6,
+                        "assigned_theme": "night_view",
+                        "theme_tags": ["history"],
+                    },
+                    {
+                        "festival_id": "festival-3",
+                        "name": "다음달 축제",
+                        "country": "KR",
+                        "city_id": "city-3",
+                        "city_name": "달력시",
+                        "month": 7,
+                        "assigned_theme": "sea_coast",
+                        "theme_tags": ["history"],
+                    },
+                    {
+                        "festival_id": "festival-4",
+                        "name": "다른 테마 축제",
+                        "country": "KR",
+                        "city_id": "city-4",
+                        "city_name": "테마시",
+                        "month": 6,
+                        "assigned_theme": "shopping",
+                        "theme_tags": ["shopping"],
+                    },
+                ],
+            },
+        )
+        tool = make_destination_search_tool(dynamodb_client)
+
+        result = tool.search_festival_city_seeds(
+            country="KR",
+            travel_month=6,
+            theme_pool=["sea_coast", "history"],
+            max_candidates=10,
+        )
+
+        self.assertEqual(result.status, "ok")
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.seeded_city_ids, ("city-1", "city-2"))
+        self.assertEqual(
+            [candidate.festival_id for candidate in result.candidates],
+            ["festival-1", "festival-2"],
+        )
+        request = dynamodb_client.query_requests[0]
+        self.assertEqual(request["TableName"], "lovv-table")
+        self.assertEqual(request["Limit"], 10)
+        self.assertEqual(request["ExpressionAttributeValues"][":month"], {"N": "6"})
+
+    def test_fixed_city_festival_seed_restricts_to_anchor_city(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            query_response={
+                "Items": [
+                    {
+                        "festival_id": "festival-1",
+                        "name": "첫 도시 축제",
+                        "country": "KR",
+                        "city_id": "city-1",
+                        "month": 6,
+                        "assigned_theme": "history",
+                        "theme_tags": ["history"],
+                    },
+                    {
+                        "festival_id": "festival-2",
+                        "name": "고정 도시 축제",
+                        "country": "KR",
+                        "city_id": "city-2",
+                        "month": 6,
+                        "assigned_theme": "history",
+                        "theme_tags": ["history"],
+                    },
+                ],
+            },
+        )
+        tool = make_destination_search_tool(dynamodb_client)
+
+        result = tool.search_festival_city_seeds(
+            country="KR",
+            travel_month=6,
+            theme_pool=["history"],
+            city_id="city-2",
+        )
+
+        self.assertEqual(result.status, "ok")
+        self.assertEqual(result.seeded_city_ids, ("city-2",))
+        self.assertEqual(result.candidates[0].festival_id, "festival-2")
+        request = dynamodb_client.query_requests[0]
+        self.assertEqual(request["FilterExpression"], "#city_id = :city_id")
+        self.assertEqual(
+            request["ExpressionAttributeValues"][":city_id"],
+            {"S": "city-2"},
+        )
+
+    def test_festival_seed_empty_city_discovery_reports_failure(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
+        tool = make_destination_search_tool(dynamodb_client)
+
+        result = tool.search_festival_city_seeds(
+            country="KR",
+            travel_month=6,
+            theme_pool=["history"],
+        )
+
+        self.assertEqual(result.status, "no_candidate")
+        self.assertTrue(result.needs_clarification)
+        self.assertEqual(result.failure_signals, ("no_festival_city_seed",))
+
+    def test_fixed_city_empty_lookup_reports_anchor_failure(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
+        tool = make_destination_search_tool(dynamodb_client)
+
+        result = tool.search_festival_city_seeds(
+            country="KR",
+            travel_month=6,
+            theme_pool=["history"],
+            city_id="city-1",
+        )
+
+        self.assertEqual(result.status, "no_candidate")
+        self.assertTrue(result.needs_clarification)
+        self.assertEqual(result.failure_signals, ("no_festival_in_anchor_city",))
+
+    def test_festival_seed_normalizes_dynamodb_attribute_values(self) -> None:
+        candidate = normalize_festival_candidate(
+            {
+                "festival_id": {"S": "festival-1"},
+                "name": {"S": "바다 축제"},
+                "country": {"S": "KR"},
+                "city_id": {"S": "city-1"},
+                "city_name": {"S": "해변시"},
+                "month": {"N": "6"},
+                "assigned_theme": {"S": "sea_coast"},
+                "theme_tags": {"SS": ["sea_coast", "walk"]},
+                "eventstartdate": {"S": "2026-06-01"},
+            },
+        )
+
+        self.assertEqual(candidate.festival_id, "festival-1")
+        self.assertEqual(candidate.month, 6)
+        self.assertEqual(candidate.theme_tags, ("sea_coast", "walk"))
+        self.assertEqual(candidate.event_start_date, "2026-06-01")
 
 
 if __name__ == "__main__":

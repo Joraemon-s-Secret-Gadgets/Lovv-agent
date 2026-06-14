@@ -1,8 +1,8 @@
 """DynamoDB repository boundary.
 
-Task 4.1 keeps this layer as a mockable pass-through wrapper around an injected
-client. Primary key construction, festival query expressions, and failure
-warning policies are implemented in later retrieval subtasks.
+This layer stays mockable by accepting an injected client. It owns only request
+shape construction for DynamoDB reads; business fallback decisions remain in
+the caller-facing tools.
 """
 
 from __future__ import annotations
@@ -66,6 +66,75 @@ class DynamoDbRepository:
         if not isinstance(response, Mapping):
             raise SchemaValidationError("dynamodb query response must be a mapping")
         return dict(response)
+
+    def query_festival_candidates(
+        self,
+        *,
+        country: str,
+        travel_month: int,
+        city_id: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """Query candidate festival rows by country/month and optional city."""
+
+        request: dict[str, Any] = {
+            "KeyConditionExpression": "#country = :country AND #month = :month",
+            "ExpressionAttributeNames": {
+                "#country": "country",
+                "#month": "month",
+            },
+            "ExpressionAttributeValues": {
+                ":country": {"S": _required_text(country, "country")},
+                ":month": {"N": str(_month(travel_month, "travel_month"))},
+            },
+        }
+        normalized_city_id = _optional_text(city_id, "city_id")
+        if normalized_city_id is not None:
+            request["FilterExpression"] = "#city_id = :city_id"
+            request["ExpressionAttributeNames"]["#city_id"] = "city_id"
+            request["ExpressionAttributeValues"][":city_id"] = {"S": normalized_city_id}
+        if limit is not None:
+            request["Limit"] = _positive_int(limit, "limit")
+        return self.query_items(request)
+
+
+def _required_text(value: Any, field_name: str) -> str:
+    """Validate a non-empty text value for repository requests."""
+
+    if not isinstance(value, str):
+        raise SchemaValidationError(f"{field_name} must be a string")
+    normalized = value.strip()
+    if not normalized:
+        raise SchemaValidationError(f"{field_name} must be a non-empty string")
+    return normalized
+
+
+def _optional_text(value: Any, field_name: str) -> str | None:
+    """Validate optional text and normalize blanks to ``None``."""
+
+    if value is None:
+        return None
+    return _required_text(value, field_name)
+
+
+def _month(value: Any, field_name: str) -> int:
+    """Validate a 1-12 month number."""
+
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise SchemaValidationError(f"{field_name} must be an integer")
+    if value < 1 or value > 12:
+        raise SchemaValidationError(f"{field_name} must be between 1 and 12")
+    return value
+
+
+def _positive_int(value: Any, field_name: str) -> int:
+    """Validate a positive integer request option."""
+
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise SchemaValidationError(f"{field_name} must be a positive integer")
+    if value <= 0:
+        raise SchemaValidationError(f"{field_name} must be a positive integer")
+    return value
 
 
 __all__ = [
