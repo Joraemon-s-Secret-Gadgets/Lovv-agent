@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 
 ADAPTER_NAME = "BedrockConverseAdapter"
 
@@ -38,6 +38,44 @@ class StructuredOutputResult:
     raw_response: Mapping[str, Any] | str | None = None
 
 
+class BedrockConverseClient(Protocol):
+    """Runtime client shape for Bedrock Converse-compatible calls."""
+
+    def converse(self, **request: Any) -> Mapping[str, Any]:
+        """Invoke Bedrock Converse and return a provider response."""
+
+
+@dataclass(frozen=True, slots=True)
+class BedrockConverseRuntime:
+    """Callable wrapper that injects the configured Bedrock model id."""
+
+    client: BedrockConverseClient
+    model_id: str
+
+    def __call__(self, request: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Invoke the configured Bedrock Converse model."""
+
+        if not isinstance(request, Mapping):
+            raise StructuredOutputError("converse request must be a mapping")
+        model_id = _required_text(self.model_id, "model_id")
+        payload = dict(request)
+        payload.setdefault("modelId", model_id)
+        response = self.client.converse(**payload)
+        if not isinstance(response, Mapping):
+            raise StructuredOutputError("converse response must be a mapping")
+        return dict(response)
+
+
+def create_bedrock_converse_runtime(
+    *,
+    client: BedrockConverseClient,
+    model_id: str,
+) -> RuntimeInvoker:
+    """Build a structured-output runtime over Bedrock Converse."""
+
+    return BedrockConverseRuntime(client=client, model_id=model_id)
+
+
 def build_json_schema_text_format(
     *,
     name: str,
@@ -52,7 +90,7 @@ def build_json_schema_text_format(
             "jsonSchema": {
                 "name": _required_text(name, "name"),
                 "description": _required_text(description, "description"),
-                "schema": dict(schema),
+                "schema": json.dumps(dict(schema), ensure_ascii=False),
             },
         },
     }
@@ -207,12 +245,33 @@ def _first_mapping_value(
 
 
 def _json_object(text: str) -> Mapping[str, Any]:
-    """Parse a JSON object string."""
+    """Parse a JSON object, including one recoverable provider text wrapper.
+
+    Some Converse models return a valid JSON object after a malformed textual
+    prefix even when JSON Schema output is requested. This boundary extracts a
+    syntactically valid inner object only; the caller's schema/business
+    validator must still approve every field before it enters graph state.
+    """
 
     try:
         value = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise StructuredOutputError("structured output text is not valid JSON") from exc
+    except json.JSONDecodeError as direct_error:
+        decoder = json.JSONDecoder()
+        value = None
+        for index, character in enumerate(text):
+            if character != "{":
+                continue
+            try:
+                candidate, _ = decoder.raw_decode(text[index:])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(candidate, Mapping):
+                value = candidate
+                break
+        if value is None:
+            raise StructuredOutputError(
+                "structured output text is not valid JSON",
+            ) from direct_error
     if not isinstance(value, Mapping):
         raise StructuredOutputError("structured output JSON must be an object")
     return value
@@ -235,10 +294,13 @@ __all__ = [
     "STRUCTURED_OUTPUT_TEXT_FORMAT",
     "OutputValidator",
     "RuntimeInvoker",
+    "BedrockConverseClient",
+    "BedrockConverseRuntime",
     "StructuredOutputError",
     "StructuredOutputResult",
     "build_json_schema_text_format",
     "build_structured_converse_request",
+    "create_bedrock_converse_runtime",
     "extract_structured_output",
     "invoke_structured_output",
 ]

@@ -8,7 +8,10 @@ version = "0.1.0"
 description = "Lovv LangGraph agent implementation before AgentCore Runtime migration."
 readme = "README.md"
 requires-python = "==3.12.*"
-dependencies = []
+dependencies = [
+    "boto3>=1.34,<2",
+    "langgraph>=0.6,<2",
+]
 
 [dependency-groups]
 dev = [
@@ -17,6 +20,11 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/lovv_agent"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/lovv_agent/prompts/candidate_reason_claim.v1.md" = "lovv_agent/prompts/candidate_reason_claim.v1.md"
+"src/lovv_agent/prompts/intent_normalization.v1.md" = "lovv_agent/prompts/intent_normalization.v1.md"
+"src/lovv_agent/prompts/planner_copy_explanation.v1.md" = "lovv_agent/prompts/planner_copy_explanation.v1.md"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

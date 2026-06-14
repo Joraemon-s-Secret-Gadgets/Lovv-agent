@@ -10,11 +10,14 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TypedDict
+
+from langgraph.graph import END, START, StateGraph
 
 from lovv_agent.agents.supervisor import (
     NODE_CANDIDATE_EVIDENCE,
     NODE_END_WAIT_USER,
+    NODE_FESTIVAL_VERIFIER,
     NODE_PLANNER,
     NODE_RESPONSE_PACKAGER,
     NODE_NAME as SUPERVISOR_NODE_NAME,
@@ -56,6 +59,15 @@ FestivalVerifierNode = Callable[
 ]
 PlannerNode = Callable[[UnifiedAgentState], PlannerOutput | Mapping[str, Any]]
 ResponsePackagerNode = Callable[[UnifiedAgentState], Mapping[str, Any]]
+
+
+class LangGraphState(TypedDict, total=False):
+    """Small graph envelope around the canonical mutable agent state."""
+
+    state: UnifiedAgentState
+    completed_group: str | None
+    worker_status: str | None
+    terminal_status: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,6 +167,175 @@ def build_local_graph(nodes: GraphNodeSet) -> LocalGraphRuntime:
     """Build a local graph runtime from injectable node implementations."""
 
     return LocalGraphRuntime(nodes=nodes)
+
+
+def build_langgraph(
+    nodes: GraphNodeSet,
+    *,
+    supervisor: SupervisorRouter | None = None,
+) -> Any:
+    """Compile the real LangGraph workflow with injectable business nodes.
+
+    The graph envelope keeps orchestration-only metadata out of
+    ``UnifiedAgentState`` while preserving the existing agent and tool
+    contracts. Worker nodes always return to the Supervisor, and the
+    Supervisor selects the next worker through conditional edges.
+    """
+
+    router = supervisor or SupervisorRouter()
+    builder = StateGraph(LangGraphState)
+
+    def intent_node(envelope: LangGraphState) -> LangGraphState:
+        state = _langgraph_state(envelope)
+        state.routing.fulfilled_matrix = create_fulfilled_matrix(
+            include_festivals=state.request.include_festivals,
+        )
+        _record_visit(state, "intent_agent")
+        state.intent = _coerce_intent_state(nodes.intent(state))
+        return {
+            "state": state,
+            "completed_group": None,
+            "worker_status": None,
+            "terminal_status": None,
+        }
+
+    def supervisor_node(envelope: LangGraphState) -> LangGraphState:
+        state = _langgraph_state(envelope)
+        _record_visit(state, SUPERVISOR_NODE_NAME)
+        package = state.evidence.candidate_evidence_package
+        decision = router.decide(
+            fulfilled_matrix=state.routing.fulfilled_matrix,
+            include_festivals=state.request.include_festivals,
+            completed_group=envelope.get("completed_group"),
+            worker_status=envelope.get("worker_status"),
+            validation_retry_count=state.routing.validation_retry_count,
+            planner_validation_result=(
+                state.planning.validation_result
+                if envelope.get("completed_group") == "planning"
+                else None
+            ),
+            needs_clarification=state.routing.needs_clarification,
+            clarifying_question=state.routing.clarifying_question,
+            candidate_evidence_package=package,
+        )
+        _apply_route_decision(state, decision)
+        if (
+            envelope.get("completed_group") == "planning"
+            and decision.next_node != NODE_PLANNER
+            and state.planning.planner_output is not None
+            and not _planner_validation_passed(
+                state.planning.planner_output.validation_result,
+            )
+        ):
+            state.planning.planner_output = None
+        terminal_status = (
+            CLARIFICATION_TERMINAL
+            if decision.next_node == NODE_END_WAIT_USER
+            else envelope.get("terminal_status")
+        )
+        return {
+            "state": state,
+            "completed_group": None,
+            "worker_status": None,
+            "terminal_status": terminal_status,
+        }
+
+    def candidate_node(envelope: LangGraphState) -> LangGraphState:
+        state = _langgraph_state(envelope)
+        _record_visit(state, NODE_CANDIDATE_EVIDENCE)
+        package = _coerce_candidate_package(nodes.candidate_evidence(state))
+        state.evidence.candidate_evidence_package = package
+        return {
+            "state": state,
+            "completed_group": "evidence",
+            "worker_status": package.status,
+        }
+
+    def festival_node(envelope: LangGraphState) -> LangGraphState:
+        state = _langgraph_state(envelope)
+        _record_visit(state, NODE_FESTIVAL_VERIFIER)
+        state.festival.festival_verifications = _coerce_festival_verifications(
+            nodes.festival_verifier(state),
+        )
+        return {
+            "state": state,
+            "completed_group": "festival",
+            "worker_status": "ok",
+        }
+
+    def planner_node(envelope: LangGraphState) -> LangGraphState:
+        state = _langgraph_state(envelope)
+        _record_visit(state, NODE_PLANNER)
+        planner_output = _coerce_planner_output(nodes.planner(state))
+        state.planning.planner_output = planner_output
+        state.planning.validation_result = dict(planner_output.validation_result)
+        return {
+            "state": state,
+            "completed_group": "planning",
+            "worker_status": None,
+        }
+
+    def response_node(envelope: LangGraphState) -> LangGraphState:
+        state = _langgraph_state(envelope)
+        _record_visit(state, NODE_RESPONSE_PACKAGER)
+        status = envelope.get("terminal_status") or "completed"
+        state.serving.response_status = status
+        state.serving = ServingState(
+            response_payload=dict(nodes.response_packager(state)),
+            response_status=status,
+        )
+        return {"state": state, "terminal_status": status}
+
+    builder.add_node("intent_agent", intent_node)
+    builder.add_node(SUPERVISOR_NODE_NAME, supervisor_node)
+    builder.add_node(NODE_CANDIDATE_EVIDENCE, candidate_node)
+    builder.add_node(NODE_FESTIVAL_VERIFIER, festival_node)
+    builder.add_node(NODE_PLANNER, planner_node)
+    builder.add_node(NODE_RESPONSE_PACKAGER, response_node)
+
+    builder.add_edge(START, "intent_agent")
+    builder.add_edge("intent_agent", SUPERVISOR_NODE_NAME)
+    builder.add_edge(NODE_CANDIDATE_EVIDENCE, SUPERVISOR_NODE_NAME)
+    builder.add_edge(NODE_FESTIVAL_VERIFIER, SUPERVISOR_NODE_NAME)
+    builder.add_edge(NODE_PLANNER, SUPERVISOR_NODE_NAME)
+    builder.add_conditional_edges(
+        SUPERVISOR_NODE_NAME,
+        lambda envelope: _langgraph_state(envelope).routing.next_node,
+        {
+            NODE_CANDIDATE_EVIDENCE: NODE_CANDIDATE_EVIDENCE,
+            NODE_FESTIVAL_VERIFIER: NODE_FESTIVAL_VERIFIER,
+            NODE_PLANNER: NODE_PLANNER,
+            NODE_RESPONSE_PACKAGER: NODE_RESPONSE_PACKAGER,
+            NODE_END_WAIT_USER: NODE_RESPONSE_PACKAGER,
+        },
+    )
+    builder.add_edge(NODE_RESPONSE_PACKAGER, END)
+    return builder.compile()
+
+
+def invoke_langgraph(
+    graph: Any,
+    state: UnifiedAgentState,
+    *,
+    config: Mapping[str, Any] | None = None,
+) -> UnifiedAgentState:
+    """Invoke a compiled Lovv LangGraph and return its canonical state."""
+
+    if not isinstance(state, UnifiedAgentState):
+        raise SchemaValidationError("state must be a UnifiedAgentState")
+    result = graph.invoke({"state": state}, config=dict(config or {}))
+    if not isinstance(result, Mapping):
+        raise SchemaValidationError("compiled graph must return a mapping")
+    return _langgraph_state(result)
+
+
+def _langgraph_state(envelope: Mapping[str, Any]) -> UnifiedAgentState:
+    """Read and validate the canonical state from a graph envelope."""
+
+    state = envelope.get("state")
+    if not isinstance(state, UnifiedAgentState):
+        raise SchemaValidationError("LangGraph envelope.state must be UnifiedAgentState")
+    return state
 
 
 def _route_next(state: UnifiedAgentState, supervisor: SupervisorRouter) -> None:
@@ -303,7 +484,10 @@ __all__ = [
     "CLARIFICATION_TERMINAL",
     "GRAPH_NODE_ORDER",
     "GraphNodeSet",
+    "LangGraphState",
     "LocalGraphRuntime",
+    "build_langgraph",
     "build_local_graph",
     "get_graph_skeleton",
+    "invoke_langgraph",
 ]

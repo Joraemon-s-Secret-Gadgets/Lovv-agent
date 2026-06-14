@@ -39,6 +39,7 @@ class AwsRuntimeClients:
 
     s3_vectors: Any
     dynamodb: Any
+    bedrock_runtime: Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,12 +72,18 @@ class AwsClientProvider:
 
         return self._create_client("dynamodb")
 
+    def create_bedrock_runtime_client(self) -> Any:
+        """Create the Bedrock Runtime client on demand."""
+
+        return self._create_client("bedrock-runtime")
+
     def create_runtime_clients(self) -> AwsRuntimeClients:
-        """Create runtime clients used by search and Dynamo lookup tools."""
+        """Create runtime clients used by AWS-backed graph adapters."""
 
         return AwsRuntimeClients(
             s3_vectors=self.create_s3_vectors_client(),
             dynamodb=self.create_dynamodb_client(),
+            bedrock_runtime=self.create_bedrock_runtime_client(),
         )
 
     def _create_client(self, service_name: str) -> Any:

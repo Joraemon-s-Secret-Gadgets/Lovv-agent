@@ -322,7 +322,9 @@ class IntentNormalizationTest(unittest.TestCase):
             text_format["structure"]["jsonSchema"]["name"],
             "intent_agent_output",
         )
-        self.assertIn("schema", text_format["structure"]["jsonSchema"])
+        schema_text = text_format["structure"]["jsonSchema"]["schema"]
+        self.assertIsInstance(schema_text, str)
+        self.assertEqual(json.loads(schema_text)["type"], "object")
 
     def test_structured_output_adapter_accepts_tool_output_style(self) -> None:
         payload = _intent_structured_output_payload()
@@ -354,6 +356,23 @@ class IntentNormalizationTest(unittest.TestCase):
 
         self.assertFalse(result.needs_clarification)
         self.assertEqual(result.candidate_evidence_input.country, "KR")
+
+    def test_structured_output_adapter_recovers_valid_inner_json_object(self) -> None:
+        payload = _intent_structured_output_payload()
+        malformed_wrapper = '{\n  "{\n' + json.dumps(payload, ensure_ascii=False) + "\n}"
+        runtime = FakeStructuredRuntime(
+            [{"output": {"message": {"content": [{"text": malformed_wrapper}]}}}],
+        )
+
+        result = invoke_intent_structured_output(
+            runtime=runtime,
+            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
+            structured_request=_base_request(),
+            retry_limit=0,
+        )
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.cleaned_raw_query, "조용한 바다 산책")
 
     def test_structured_output_retry_accepts_second_valid_payload(self) -> None:
         payload = _intent_structured_output_payload()

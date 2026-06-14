@@ -13,6 +13,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from lovv_agent.adapters.bedrock_converse import RuntimeInvoker
 from lovv_agent.models.schemas import (
     CandidateEvidencePackage,
     ExplanationReasonRef,
@@ -21,11 +22,13 @@ from lovv_agent.models.schemas import (
     PlannerOutput,
     SchemaValidationError,
 )
+from lovv_agent.tools.destination_search import AttractionCandidate
 from lovv_agent.tools.links import (
     FOOD_SEARCH_LINK_TYPE,
     GOURMET_THEME_LABEL,
     build_default_city_links,
 )
+from lovv_agent.tools.explanation_composer import compose_planner_copy_explanation
 from lovv_agent.tools.validation import validate_planner_output
 
 NODE_NAME = "planner_agent"
@@ -47,6 +50,8 @@ EXPLANATION_INTERNAL_TERMS = (
     "랭킹 공식",
     "ranking formula",
 )
+
+DEFAULT_PLANNER_SCHEMA_RETRY_LIMIT = 2
 
 TRIP_SLOT_TEMPLATES: dict[str, tuple[tuple[int, str], ...]] = {
     "daytrip": ((1, "morning"), (1, "afternoon"), (1, "evening")),
@@ -103,6 +108,10 @@ TRIP_SLOT_TEMPLATES: dict[str, tuple[tuple[int, str], ...]] = {
 class PlannerAgent:
     """Build grounded itinerary internals from Candidate Evidence."""
 
+    dynamo_lookup: Any | None = None
+    explanation_runtime: RuntimeInvoker | None = None
+    schema_retry_limit: int = DEFAULT_PLANNER_SCHEMA_RETRY_LIMIT
+
     def plan(
         self,
         candidate_evidence_package: CandidateEvidencePackage | Mapping[str, Any],
@@ -119,6 +128,9 @@ class PlannerAgent:
             trip_type=trip_type,
             include_festivals=include_festivals,
             festival_verifications=festival_verifications,
+            dynamo_lookup=self.dynamo_lookup,
+            explanation_runtime=self.explanation_runtime,
+            schema_retry_limit=self.schema_retry_limit,
         )
 
 
@@ -128,6 +140,9 @@ def build_planner_output(
     trip_type: str,
     include_festivals: bool = False,
     festival_verifications: Sequence[Any] = (),
+    dynamo_lookup: Any | None = None,
+    explanation_runtime: RuntimeInvoker | None = None,
+    schema_retry_limit: int = DEFAULT_PLANNER_SCHEMA_RETRY_LIMIT,
 ) -> PlannerOutput:
     """Build safe itinerary internals from one Candidate Evidence package."""
 
@@ -176,6 +191,13 @@ def build_planner_output(
     if skipped_festivals:
         user_notice.append("확정되지 않았거나 일정에 맞지 않는 축제 후보는 일정에 배치하지 않았습니다.")
 
+    detail_warnings: tuple[Mapping[str, Any], ...] = ()
+    if dynamo_lookup is not None:
+        itinerary, detail_warnings = _enrich_final_itinerary_details(
+            itinerary,
+            dynamo_lookup=dynamo_lookup,
+        )
+
     validation_result = validate_planner_output(
         itinerary,
         package=package,
@@ -189,13 +211,34 @@ def build_planner_output(
             "festival_placed_count": len(festival_items),
             "festival_skipped_count": skipped_festivals,
             "food_search_link_required": FOOD_SEARCH_LINK_TYPE in external_links,
+            "detail_enrichment_warning_count": len(detail_warnings),
         },
     )
+    if detail_warnings:
+        validation_result["detail_enrichment_warnings"] = [dict(warning) for warning in detail_warnings]
     explanation = _build_grounded_explanation(
         package,
         itinerary=itinerary,
         validation_result=validation_result,
     )
+    if explanation_runtime is not None:
+        composed = compose_planner_copy_explanation(
+            package,
+            itinerary=itinerary,
+            validation_result=validation_result,
+            runtime=explanation_runtime,
+            retry_limit=schema_retry_limit,
+            fallback_recommendation_reasons=explanation["recommendation_reasons"],
+            fallback_itinerary_flow_reason=explanation["itinerary_flow_reason"],
+            fallback_explanation_audit=explanation["explanation_audit"],
+        )
+        itinerary = composed.itinerary
+        explanation = {
+            "recommendation_reasons": composed.recommendation_reasons,
+            "itinerary_flow_reason": composed.itinerary_flow_reason,
+            "explanation_audit": composed.explanation_audit,
+        }
+        validation_result["planner_copy_generation_used_llm"] = composed.used_llm
 
     return PlannerOutput(
         itinerary=itinerary,
@@ -251,7 +294,94 @@ def _attraction_slot(*, day: int, slot_name: str, place: Mapping[str, Any]) -> d
         "latitude": place.get("latitude"),
         "longitude": place.get("longitude"),
         "moveMinutes": place.get("moveMinutes") or place.get("move_minutes"),
+        "ddb_pk": place.get("ddb_pk"),
+        "ddb_sk": place.get("ddb_sk"),
     }
+
+
+def _enrich_final_itinerary_details(
+    itinerary: Sequence[Mapping[str, Any]],
+    *,
+    dynamo_lookup: Any,
+) -> tuple[tuple[dict[str, Any], ...], tuple[Mapping[str, Any], ...]]:
+    """Attach DynamoDB details to final placed attraction items only."""
+
+    attraction_indexes: list[int] = []
+    candidates: list[AttractionCandidate] = []
+    for index, item in enumerate(itinerary):
+        if item.get("item_type") != "attraction":
+            continue
+        attraction_indexes.append(index)
+        candidates.append(_itinerary_item_to_attraction_candidate(item))
+
+    if not candidates:
+        return tuple(dict(item) for item in itinerary), ()
+
+    enrichment = dynamo_lookup.enrich_final_places(tuple(candidates))
+    enriched_places = tuple(enrichment.places)
+    updated = [dict(item) for item in itinerary]
+    for index, enriched_place in zip(attraction_indexes, enriched_places, strict=False):
+        updated[index] = _apply_enriched_place(updated[index], enriched_place)
+
+    warnings = tuple(
+        warning.to_dict() if hasattr(warning, "to_dict") else dict(warning)
+        for warning in getattr(enrichment, "warnings", ())
+    )
+    return tuple(updated), warnings
+
+
+def _itinerary_item_to_attraction_candidate(item: Mapping[str, Any]) -> AttractionCandidate:
+    """Convert a final attraction item into the Dynamo enrichment candidate shape."""
+
+    place_id = _required_text(item.get("placeId"), "placeId")
+    title = _required_text(item.get("title"), "title")
+    city_id = _required_text(item.get("city_id"), "city_id")
+    return AttractionCandidate(
+        key=_optional_text(item.get("key"), "key") or place_id,
+        place_id=place_id,
+        distance=0.0,
+        entity_type="attraction",
+        city_id=city_id,
+        city_name_ko=_optional_text(item.get("city_name_ko"), "city_name_ko"),
+        title=title,
+        theme_tags=tuple(str(theme) for theme in item.get("theme_tags", ())),
+        latitude=_optional_number(item.get("latitude")),
+        longitude=_optional_number(item.get("longitude")),
+        ddb_pk=_optional_text(item.get("ddb_pk"), "ddb_pk"),
+        ddb_sk=_optional_text(item.get("ddb_sk"), "ddb_sk"),
+        metadata={
+            "source": item.get("source"),
+            "slot": item.get("slot"),
+            "day": item.get("day"),
+        },
+        details=item.get("details") if isinstance(item.get("details"), dict) else None,
+    )
+
+
+def _apply_enriched_place(
+    item: Mapping[str, Any],
+    enriched_place: AttractionCandidate,
+) -> dict[str, Any]:
+    """Copy Dynamo-enriched detail fields back to a final itinerary item."""
+
+    updated = dict(item)
+    updated["details"] = enriched_place.details
+    if enriched_place.latitude is not None:
+        updated["latitude"] = enriched_place.latitude
+    elif isinstance(enriched_place.details, Mapping):
+        updated["latitude"] = _optional_number(
+            enriched_place.details.get("latitude")
+            or enriched_place.details.get("lat"),
+        )
+    if enriched_place.longitude is not None:
+        updated["longitude"] = enriched_place.longitude
+    elif isinstance(enriched_place.details, Mapping):
+        updated["longitude"] = _optional_number(
+            enriched_place.details.get("longitude")
+            or enriched_place.details.get("lng")
+            or enriched_place.details.get("lon"),
+        )
+    return updated
 
 
 def _festival_overlay_items(
@@ -601,6 +731,32 @@ def _required_text(value: Any, field_name: str) -> str:
     if not normalized:
         raise SchemaValidationError(f"{field_name} must be a non-empty string")
     return normalized
+
+
+def _optional_text(value: Any, field_name: str) -> str | None:
+    """Validate optional text and normalize blanks to ``None``."""
+
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise SchemaValidationError(f"{field_name} must be a string")
+    normalized = value.strip()
+    return normalized or None
+
+
+def _optional_number(value: Any) -> float | int | None:
+    """Return a numeric value from optional item/detail fields."""
+
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return value
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
 
 
 __all__ = [

@@ -5,6 +5,8 @@ from __future__ import annotations
 ADAPTER_MODULES: tuple[str, ...] = (
     "bedrock_converse",
     "aws_clients",
+    "aws_runtime",
+    "boto3_clients",
     "embeddings",
 )
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import unittest
 
 from lovv_agent.agents.planner import PlannerAgent, TRIP_SLOT_TEMPLATES
@@ -12,7 +13,43 @@ from lovv_agent.models.schemas import (
     PlannerExplanationAudit,
     SelectedCity,
 )
+from lovv_agent.tools.dynamo_lookup import DetailEnrichmentResult
 from lovv_agent.tools.validation import validate_planner_output
+
+
+class PlannerCopyRuntime:
+    """Fake structured-output runtime for Planner copy tests."""
+
+    def __init__(self, response: dict[str, object]) -> None:
+        self.response = response
+        self.requests: list[dict[str, object]] = []
+
+    def __call__(self, request: dict[str, object]) -> dict[str, object]:
+        self.requests.append(dict(request))
+        return self.response
+
+
+class RecordingDynamoLookup:
+    """Fake Dynamo lookup that enriches only final placed candidates."""
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[object, ...]] = []
+
+    def enrich_final_places(self, final_places: tuple[object, ...]) -> DetailEnrichmentResult:
+        self.calls.append(tuple(final_places))
+        return DetailEnrichmentResult(
+            places=tuple(
+                replace(
+                    place,
+                    details={
+                        "overview": f"{place.title}의 Dynamo 상세 설명입니다.",
+                        "latitude": 36.2,
+                        "longitude": 128.3,
+                    },
+                )
+                for place in final_places
+            ),
+        )
 
 
 def place(
@@ -450,6 +487,133 @@ class PlannerExplanationTest(unittest.TestCase):
         self.assertIn("tripType 기본 시간대", output.itinerary_flow_reason)
         self.assertNotIn("top", output.itinerary_flow_reason.lower())
         self.assertNotIn("점수", output.itinerary_flow_reason)
+
+    def test_planner_llm_composer_updates_item_copy_and_reasons(self) -> None:
+        runtime = PlannerCopyRuntime(
+            {
+                "structured_output": {
+                    "item_copies": [
+                        {
+                            "item_ref": "item:0",
+                            "title": "잔잔한 해안 산책",
+                            "body": "조용한 해안 산책로 설명을 바탕으로 오전에 걷기 좋게 배치했습니다.",
+                            "reason": "사용자의 조용한 바다 산책 선호와 직접 맞닿아 있습니다.",
+                        },
+                    ],
+                    "recommendation_reasons": [
+                        "에이군은 조용한 바다 산책 요청과 배치된 대표 장소가 잘 맞습니다.",
+                    ],
+                    "itinerary_flow_reason": "오전 산책 후 같은 도시 안에서 가볍게 이어지는 흐름입니다.",
+                },
+            },
+        )
+
+        output = PlannerAgent(explanation_runtime=runtime, schema_retry_limit=0).plan(
+            reason_claim_package(),
+            trip_type="daytrip",
+        )
+
+        self.assertEqual(output.itinerary[0]["title"], "잔잔한 해안 산책")
+        self.assertEqual(
+            output.itinerary[0]["reason"],
+            "사용자의 조용한 바다 산책 선호와 직접 맞닿아 있습니다.",
+        )
+        self.assertEqual(
+            output.recommendation_reasons[0],
+            "에이군은 조용한 바다 산책 요청과 배치된 대표 장소가 잘 맞습니다.",
+        )
+        self.assertEqual(
+            output.itinerary_flow_reason,
+            "오전 산책 후 같은 도시 안에서 가볍게 이어지는 흐름입니다.",
+        )
+        self.assertIn(
+            "planner_copy_generation:llm_used:ok",
+            output.explanation_audit.hidden_internal_notes,
+        )
+        self.assertIn("Planner Agent", runtime.requests[0]["system"][0]["text"])
+
+    def test_planner_llm_composer_schema_failure_uses_deterministic_fallback(self) -> None:
+        runtime = PlannerCopyRuntime(
+            {
+                "structured_output": {
+                    "item_copies": [
+                        {
+                            "item_ref": "item:0",
+                            "title": "내부 top_k 점수 추천",
+                            "body": "점수 기준입니다.",
+                            "reason": "top_k 때문입니다.",
+                        },
+                    ],
+                    "recommendation_reasons": ["내부 점수와 top_k 기준입니다."],
+                    "itinerary_flow_reason": "점수 기준입니다.",
+                },
+            },
+        )
+
+        output = PlannerAgent(explanation_runtime=runtime, schema_retry_limit=0).plan(
+            reason_claim_package(),
+            trip_type="daytrip",
+        )
+
+        self.assertNotIn("top_k", output.recommendation_reasons[0])
+        self.assertEqual(output.itinerary[0]["title"], "장소 P-0")
+        self.assertIn(
+            "planner_copy_generation:schema_failure:1",
+            output.explanation_audit.hidden_internal_notes,
+        )
+
+    def test_planner_enriches_only_final_placed_attractions_before_explanation(self) -> None:
+        dynamo_lookup = RecordingDynamoLookup()
+        package = reason_claim_package()
+
+        output = PlannerAgent(dynamo_lookup=dynamo_lookup).plan(
+            package,
+            trip_type="daytrip",
+        )
+
+        self.assertEqual(len(dynamo_lookup.calls), 1)
+        enriched_candidates = dynamo_lookup.calls[0]
+        self.assertEqual(
+            [candidate.place_id for candidate in enriched_candidates],
+            ["P-0", "P-1", "P-2"],
+        )
+        self.assertEqual(output.itinerary[0]["details"]["latitude"], 36.2)
+        self.assertEqual(output.itinerary[0]["details"]["longitude"], 128.3)
+        self.assertIn(
+            "Dynamo 상세 설명",
+            output.recommendation_reasons[0],
+        )
+        self.assertEqual(output.validation_result["detail_enrichment_warning_count"], 0)
+
+    def test_planner_composer_receives_dynamo_enriched_final_items(self) -> None:
+        dynamo_lookup = RecordingDynamoLookup()
+        runtime = PlannerCopyRuntime(
+            {
+                "structured_output": {
+                    "item_copies": [
+                        {
+                            "item_ref": "item:0",
+                            "title": "Dynamo 보강 산책지",
+                            "body": "Dynamo 상세 설명을 바탕으로 작성한 본문입니다.",
+                            "reason": "보강된 장소 설명이 요청과 맞습니다.",
+                        },
+                    ],
+                    "recommendation_reasons": ["보강된 최종 배치 항목을 기준으로 추천했습니다."],
+                    "itinerary_flow_reason": "보강된 최종 항목만 사용해 일정 흐름을 정리했습니다.",
+                },
+            },
+        )
+
+        output = PlannerAgent(
+            dynamo_lookup=dynamo_lookup,
+            explanation_runtime=runtime,
+            schema_retry_limit=0,
+        ).plan(reason_claim_package(), trip_type="daytrip")
+
+        prompt_text = runtime.requests[0]["messages"][0]["content"][0]["text"]
+        self.assertIn("Dynamo 상세 설명", prompt_text)
+        self.assertEqual(output.itinerary[0]["title"], "Dynamo 보강 산책지")
+        self.assertTrue(output.validation_result["planner_copy_generation_used_llm"])
 
 
 if __name__ == "__main__":

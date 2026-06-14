@@ -28,6 +28,10 @@ from lovv_agent.models.schemas import (
     SchemaValidationError,
     SelectedCity,
 )
+from lovv_agent.prompts.registry import (
+    CANDIDATE_REASON_CLAIM_PROMPT_ID,
+    prompt_text,
+)
 from lovv_agent.tools.candidate_selection import (
     CandidateSelectionHelper,
     candidate_budgets_for_trip,
@@ -526,11 +530,7 @@ def build_candidate_reason_claim_request(
         ],
         system=[
             {
-                "text": (
-                    "당신은 Lovv Candidate Evidence Agent의 내부 근거 압축기입니다. "
-                    "도시 선택이나 후보 순위를 바꾸지 말고, 제공된 evidence_refs만 "
-                    "사용해 짧은 한국어 claim 후보를 JSON Schema로 반환하세요."
-                ),
+                "text": prompt_text(CANDIDATE_REASON_CLAIM_PROMPT_ID),
             },
         ],
         schema_name=CANDIDATE_REASON_CLAIM_SCHEMA_NAME,
