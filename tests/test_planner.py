@@ -5,11 +5,22 @@ from __future__ import annotations
 import unittest
 
 from lovv_agent.agents.planner import PlannerAgent, TRIP_SLOT_TEMPLATES
-from lovv_agent.models.schemas import CandidateEvidencePackage, FestivalVerification, SelectedCity
+from lovv_agent.models.schemas import (
+    CandidateEvidencePackage,
+    CandidateReasonClaim,
+    FestivalVerification,
+    PlannerExplanationAudit,
+    SelectedCity,
+)
 from lovv_agent.tools.validation import validate_planner_output
 
 
-def place(place_id: str, *, title: str | None = None) -> dict[str, object]:
+def place(
+    place_id: str,
+    *,
+    title: str | None = None,
+    details: dict[str, object] | None = None,
+) -> dict[str, object]:
     """Return one lightweight Candidate Evidence place payload."""
 
     return {
@@ -20,6 +31,7 @@ def place(place_id: str, *, title: str | None = None) -> dict[str, object]:
         "theme_tags": ["바다·해안"],
         "ddb_pk": f"CITY#KR-A",
         "ddb_sk": f"ATTRACTION#{place_id}",
+        "details": details,
     }
 
 
@@ -74,6 +86,39 @@ def gourmet_package() -> CandidateEvidencePackage:
         selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
         recommended_places=tuple(place(f"P-{index}") for index in range(4)),
         coverage_audit={"external_link_themes": ["미식·노포"]},
+    )
+
+
+def reason_claim_package(
+    *,
+    claim_required_ids: tuple[str, ...] = ("P-0",),
+    public_eligible: bool = True,
+    claim_text: str = "조용한 바다 산책 요청과 대표 후보가 잘 맞습니다.",
+) -> CandidateEvidencePackage:
+    """Build a package with Candidate Evidence reason claims."""
+
+    return CandidateEvidencePackage(
+        status="ok",
+        mode="city_discovery",
+        selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
+        recommended_places=(
+            place(
+                "P-0",
+                details={"overview": "조용한 해안 산책로가 있는 대표 관광지입니다."},
+            ),
+            place("P-1"),
+            place("P-2"),
+        ),
+        candidate_reason_claims=(
+            CandidateReasonClaim(
+                claim_id="claim-1",
+                scope="place_pool",
+                text_ko=claim_text,
+                evidence_refs=("recommended_places:P-0",),
+                required_place_ids=claim_required_ids,
+                public_eligible=public_eligible,
+            ),
+        ),
     )
 
 
@@ -333,6 +378,56 @@ class PlannerValidationTest(unittest.TestCase):
 
         self.assertEqual(result["status"], "invalid")
         self.assertEqual(result["errors"][0]["code"], "unconfirmed_festival")
+
+
+class PlannerExplanationTest(unittest.TestCase):
+    """Validate Task 8.5 grounded explanation generation."""
+
+    def test_recommendation_reason_uses_verified_claim_and_overview(self) -> None:
+        output = PlannerAgent().plan(reason_claim_package(), trip_type="daytrip")
+
+        self.assertIn("조용한 바다 산책", output.recommendation_reasons[0])
+        self.assertIn("조용한 해안 산책로", output.recommendation_reasons[0])
+        self.assertIsInstance(output.explanation_audit, PlannerExplanationAudit)
+        self.assertEqual(
+            output.explanation_audit.reason_refs[0].evidence_refs,
+            ("recommended_places:P-0",),
+        )
+        self.assertEqual(
+            output.explanation_audit.reason_refs[0].reason_codes,
+            ("place_pool",),
+        )
+
+    def test_recommendation_reason_skips_claim_when_required_place_is_not_placed(self) -> None:
+        output = PlannerAgent().plan(
+            reason_claim_package(claim_required_ids=("P-9",)),
+            trip_type="daytrip",
+        )
+
+        self.assertIn("확인 가능한 정보만", output.recommendation_reasons[0])
+        self.assertIn(
+            "skipped_missing_place_ids:claim-1",
+            output.explanation_audit.hidden_internal_notes,
+        )
+
+    def test_recommendation_reason_skips_internal_score_terms(self) -> None:
+        output = PlannerAgent().plan(
+            reason_claim_package(claim_text="내부 점수와 top_k 기준으로 높은 후보입니다."),
+            trip_type="daytrip",
+        )
+
+        self.assertNotIn("top_k", output.recommendation_reasons[0])
+        self.assertIn(
+            "skipped_internal_term:claim-1",
+            output.explanation_audit.hidden_internal_notes,
+        )
+
+    def test_itinerary_flow_reason_stays_public_safe(self) -> None:
+        output = PlannerAgent().plan(reason_claim_package(), trip_type="daytrip")
+
+        self.assertIn("tripType 기본 시간대", output.itinerary_flow_reason)
+        self.assertNotIn("top", output.itinerary_flow_reason.lower())
+        self.assertNotIn("점수", output.itinerary_flow_reason)
 
 
 if __name__ == "__main__":

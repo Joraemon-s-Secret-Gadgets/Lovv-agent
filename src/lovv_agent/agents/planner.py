@@ -15,7 +15,9 @@ from typing import Any
 
 from lovv_agent.models.schemas import (
     CandidateEvidencePackage,
+    ExplanationReasonRef,
     FestivalVerification,
+    PlannerExplanationAudit,
     PlannerOutput,
     SchemaValidationError,
 )
@@ -34,6 +36,16 @@ OUT_OF_SCOPE = (
     "new_place_search",
     "ungrounded_restaurant_generation",
     "festival_date_confirmation",
+)
+
+EXPLANATION_INTERNAL_TERMS = (
+    "top k",
+    "top_k",
+    "topk",
+    "점수",
+    "스코어",
+    "랭킹 공식",
+    "ranking formula",
 )
 
 TRIP_SLOT_TEMPLATES: dict[str, tuple[tuple[int, str], ...]] = {
@@ -180,18 +192,22 @@ def build_planner_output(
             "food_search_link_required": FOOD_SEARCH_LINK_TYPE in external_links,
         },
     )
+    explanation = _build_grounded_explanation(
+        package,
+        itinerary=itinerary,
+        validation_result=validation_result,
+    )
 
     return PlannerOutput(
         itinerary=itinerary,
-        recommendation_reasons=(
-            f"{package.selected_city.city_name_ko}의 검증된 후보지를 중심으로 일정을 구성했습니다.",
-        ),
-        itinerary_flow_reason="tripType별 기본 시간대 템플릿에 후보지를 순서대로 배치했습니다.",
+        recommendation_reasons=explanation["recommendation_reasons"],
+        itinerary_flow_reason=explanation["itinerary_flow_reason"],
         external_links=external_links,
         confidence=0.72 if package.status == "ok" else 0.5,
         user_notice=tuple(user_notice),
         validation_result=validation_result,
         alternative_itinerary=(),
+        explanation_audit=explanation["explanation_audit"],
     )
 
 
@@ -319,6 +335,167 @@ def _meal_placeholder_item(package: CandidateEvidencePackage) -> dict[str, Any]:
         "source": "placeholder",
         "linkRef": FOOD_SEARCH_LINK_TYPE,
     }
+
+
+def _build_grounded_explanation(
+    package: CandidateEvidencePackage,
+    *,
+    itinerary: Sequence[Mapping[str, Any]],
+    validation_result: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Select public reasons from verified claim candidates and placed items."""
+
+    if package.selected_city is None:
+        raise SchemaValidationError("selected_city is required for explanation")
+    placed_ids = _placed_place_ids(itinerary)
+    reasons: list[str] = []
+    reason_refs: list[ExplanationReasonRef] = []
+    hidden_notes: list[str] = []
+    for claim in package.candidate_reason_claims:
+        if len(reasons) >= 3:
+            break
+        if not claim.public_eligible:
+            hidden_notes.append(f"skipped_non_public_claim:{claim.claim_id}")
+            continue
+        if not set(claim.required_place_ids).issubset(placed_ids):
+            hidden_notes.append(f"skipped_missing_place_ids:{claim.claim_id}")
+            continue
+        if _contains_internal_explanation_term(claim.text_ko):
+            hidden_notes.append(f"skipped_internal_term:{claim.claim_id}")
+            continue
+
+        reason_text = _claim_reason_text(claim.text_ko, claim.required_place_ids, itinerary)
+        reason_id = f"recommendationReasons[{len(reasons)}]"
+        reasons.append(reason_text)
+        reason_refs.append(
+            ExplanationReasonRef(
+                reason_id=reason_id,
+                reason_text=reason_text,
+                evidence_refs=claim.evidence_refs,
+                reason_codes=(claim.scope,),
+            ),
+        )
+
+    if not reasons:
+        hidden_notes.append("fallback_reason_used:no_public_claims")
+        fallback_reason = (
+            f"{package.selected_city.city_name_ko}의 최종 배치 후보를 중심으로 "
+            "확인 가능한 정보만 사용해 추천했습니다."
+        )
+        reasons.append(fallback_reason)
+        reason_refs.append(
+            ExplanationReasonRef(
+                reason_id="recommendationReasons[0]",
+                reason_text=fallback_reason,
+                evidence_refs=("selected_city", "itinerary"),
+                reason_codes=("conservative_fallback",),
+            ),
+        )
+
+    if not _has_overview(itinerary):
+        hidden_notes.append("conservative_wording:no_item_overview")
+
+    flow_reason = _itinerary_flow_reason(itinerary, validation_result)
+    audit = PlannerExplanationAudit(
+        reason_refs=tuple(reason_refs),
+        itinerary_flow_refs=_itinerary_flow_refs(itinerary),
+        hidden_internal_notes=tuple(hidden_notes),
+    )
+    return {
+        "recommendation_reasons": tuple(reasons),
+        "itinerary_flow_reason": flow_reason,
+        "explanation_audit": audit,
+    }
+
+
+def _claim_reason_text(
+    claim_text: str,
+    required_place_ids: Sequence[str],
+    itinerary: Sequence[Mapping[str, Any]],
+) -> str:
+    """Attach one grounded overview snippet when available."""
+
+    overview = _first_required_place_overview(required_place_ids, itinerary)
+    if overview is None:
+        return claim_text
+    return f"{claim_text} 배치된 대표 장소 설명도 '{overview}'로 확인됩니다."
+
+
+def _first_required_place_overview(
+    required_place_ids: Sequence[str],
+    itinerary: Sequence[Mapping[str, Any]],
+) -> str | None:
+    """Return a short overview for a placed required place when present."""
+
+    required = set(required_place_ids)
+    if not required:
+        return None
+    for item in itinerary:
+        if item.get("placeId") not in required:
+            continue
+        details = item.get("details")
+        if not isinstance(details, Mapping):
+            continue
+        overview = details.get("overview") or details.get("overview_ko")
+        if isinstance(overview, str) and overview.strip():
+            return overview.strip()[:80]
+    return None
+
+
+def _itinerary_flow_reason(
+    itinerary: Sequence[Mapping[str, Any]],
+    validation_result: Mapping[str, Any],
+) -> str:
+    """Build a concise public flow reason without exposing internal scoring."""
+
+    attraction_count = sum(1 for item in itinerary if item.get("item_type") == "attraction")
+    festival_count = int(validation_result.get("festival_placed_count", 0) or 0)
+    if festival_count:
+        return (
+            f"관광지 {attraction_count}곳을 기본 시간대에 먼저 배치하고, "
+            "확정된 축제만 중간 일정으로 더했습니다."
+        )
+    return f"관광지 {attraction_count}곳을 tripType 기본 시간대에 맞춰 간결하게 배치했습니다."
+
+
+def _itinerary_flow_refs(itinerary: Sequence[Mapping[str, Any]]) -> tuple[str, ...]:
+    """Return internal refs for items that shaped itinerary flow."""
+
+    refs: list[str] = []
+    for item in itinerary:
+        if item.get("item_type") == "attraction" and isinstance(item.get("placeId"), str):
+            refs.append(f"place:{item['placeId']}")
+        elif item.get("item_type") == "festival" and isinstance(item.get("festivalId"), str):
+            refs.append(f"festival:{item['festivalId']}")
+    return tuple(refs)
+
+
+def _placed_place_ids(itinerary: Sequence[Mapping[str, Any]]) -> set[str]:
+    """Collect placed attraction ids."""
+
+    return {
+        str(item["placeId"])
+        for item in itinerary
+        if item.get("item_type") == "attraction" and isinstance(item.get("placeId"), str)
+    }
+
+
+def _has_overview(itinerary: Sequence[Mapping[str, Any]]) -> bool:
+    """Return whether any placed item has an overview detail."""
+
+    return any(
+        isinstance(item.get("details"), Mapping)
+        and isinstance(item["details"].get("overview"), str)
+        and item["details"].get("overview", "").strip()
+        for item in itinerary
+    )
+
+
+def _contains_internal_explanation_term(text: str) -> bool:
+    """Block raw scoring or retrieval mechanics from public explanation text."""
+
+    normalized = text.lower()
+    return any(term in normalized for term in EXPLANATION_INTERNAL_TERMS)
 
 
 def _skipped_festival_count(
