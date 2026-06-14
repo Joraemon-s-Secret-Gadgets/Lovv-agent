@@ -198,6 +198,11 @@ In that state the Supervisor:
   - `soft_preference_query`
   - unsupported conditions
   - explicit change-request signals
+- MVP natural-language policy is intentionally conservative:
+  - if trimmed `naturalLanguageQuery` is empty or shorter than the configured minimum, default `5` characters, skip Intent LLM extraction,
+  - set `cleaned_raw_query=""`, `soft_preference_query=""`, and `unsupported_conditions=[]`,
+  - continue from valid structured API input instead of asking a clarification question.
+- Short or weak natural-language input is not a fallback/stop condition by itself.
 - Normalize API `userLocation` into internal `user_location`.
 - Convert canonical theme IDs into Candidate Evidence labels.
 - Keep festival intent out of `active_required_themes`; festival inclusion is controlled only by `includeFestivals`.
@@ -268,6 +273,13 @@ In that state the Supervisor:
   - `candidate_counts`
   - `warnings`
   - `fallback_audit`
+- Build `explanation_facts` as compact Planner-facing grounding material:
+  - `query_context`: `cleaned_raw_query` and `soft_preference_query`
+  - `place_alignment`: selected place `overview` plus raw/soft query match notes
+  - `city_choice`: city-level reason codes and representative place IDs
+  - `festival_anchor`: whether festival seed/fixed-city lookup influenced the city flow
+  - `limitations`: shortage or unsupported-condition notes that may affect wording
+- Keep scoring values and retrieval details in internal audits; do not expose them as user-facing explanation text.
 - Must not create itinerary text or user-facing recommendation copy.
 
 ### R4. Festival Candidate Channel
@@ -405,6 +417,9 @@ year(start_date) == travelYear
 - Do not generate named restaurants from model knowledge.
 - For gourmet themes, provide a selected-city food search link, meal CTA, or placeholder/user notice according to available response packaging.
 - Use `source=placeholder` and `placeId=null` for unavoidable free-time or meal-choice placeholders.
+- Generate user-facing recommendation reasons from `explanation_facts`, especially the raw/soft query and selected attraction overview alignment.
+- Do not mention raw scores, ranking formulas, top K values, or internal audit fields in user-facing explanation text.
+- Produce `explanation_audit` that maps public explanation sentences to evidence refs and reason codes for internal validation.
 - Generate `user_notice` when candidate shortage, unsupported conditions, unconfirmed festivals, or live-info limitations affect the result.
 - Validate that output does not contain ungrounded place/festival claims.
 
@@ -412,7 +427,7 @@ year(start_date) == travelYear
 
 - Convert Planner internal output to the current `/recommendations` response shape.
 - Remain deterministic: do not call an LLM, run recommendation reasoning, or alter selected evidence.
-- Hide internal Candidate Evidence Package, raw retrieval audit, raw evidence, raw tool payloads, and internal reasoning.
+- Hide internal Candidate Evidence Package, `explanation_facts`, `explanation_audit`, raw retrieval audit, raw evidence, raw tool payloads, and internal reasoning.
 - Expose only safe user-facing fields:
   - destination
   - itinerary
@@ -475,6 +490,9 @@ Task breakdown may refine exact filenames, but responsibility boundaries must re
 
 Rules:
 
+- Python runtime is pinned to Python 3.12.
+- `pyproject.toml` must keep `requires-python = "==3.12.*"`.
+- `.python-version` must stay aligned with Python 3.12 for `uv` interpreter selection.
 - `pyproject.toml` is the single source of truth for Python package metadata and dependencies.
 - `uv.lock` is the reproducibility artifact and should be updated whenever dependencies change.
 - Verification commands must run through `uv run ...` from the `Lovv-agent` root.
@@ -659,7 +677,38 @@ Implementation may add:
   "retrieval_audit": {},
   "candidate_counts": {},
   "warnings": {},
-  "fallback_audit": {}
+  "fallback_audit": {},
+  "explanation_facts": {
+    "query_context": {
+      "cleaned_raw_query": "바다 산책을 하고 싶다",
+      "soft_preference_query": "너무 붐비지 않는 분위기"
+    },
+    "city_choice": {
+      "city_id": "uuid",
+      "city_name_ko": "도시명",
+      "reason_codes": ["theme_coverage", "candidate_sufficiency"],
+      "representative_place_ids": ["place-1"],
+      "summary": "선택 테마를 충족하는 관광지 후보가 충분한 도시이다."
+    },
+    "place_alignment": [
+      {
+        "place_id": "place-1",
+        "title": "관광지명",
+        "overview": "선택된 관광지의 요약 설명",
+        "matched_themes": ["바다·해안"],
+        "raw_query_alignment": "바다 산책 요청과 직접 연결된다.",
+        "soft_query_alignment": "조용한 분위기 선호와 맞는다.",
+        "reason_codes": ["raw_query_match", "overview_theme_match"]
+      }
+    ],
+    "festival_anchor": {
+      "used": false,
+      "matched_month": null,
+      "matched_themes": [],
+      "selected_festival_ids": []
+    },
+    "limitations": []
+  }
 }
 ```
 
@@ -703,8 +752,9 @@ Planner internal output must include:
 - `confidence`
 - `user_notice`
 - `validation_result`
+- `explanation_audit`
 
-Response Packager maps this to the public `/recommendations` response and hides internal evidence packages.
+`explanation_audit` maps generated explanation text back to evidence refs and reason codes. Response Packager maps safe public fields to the `/recommendations` response and hides internal evidence packages, `explanation_facts`, and `explanation_audit`.
 
 ## Runtime Retrieval and Tool Boundaries
 
@@ -754,6 +804,7 @@ Implementation tests should cover small budgets and sufficient budgets. This SPE
 | Condition | Required behavior |
 | --- | --- |
 | Missing required structured input | Intent returns `needs_clarification=true` |
+| Empty or short `naturalLanguageQuery` | Intent skips LLM extraction, sets raw/soft query fields empty, and proceeds from structured API input |
 | Natural language conflicts with structured core fields | Intent records clarification/change request; do not silently override |
 | LLM output schema failure | bounded retry, then safe clarification/fallback |
 | Query embedding failure | Candidate Evidence `status=error` |
@@ -776,6 +827,8 @@ This SPEC is accepted when:
 - It preserves `User Request Original`.
 - It contains a `Structured Agent Contract`.
 - It lists current primary Lovv Agent reference documents.
+- It pins the local Python runtime to Python 3.12.
+- It defines short `naturalLanguageQuery` handling as LLM extraction skip, not a clarification fallback.
 - It defines the LangGraph node sequence and Supervisor matrix routing.
 - It defines `END_WAIT_USER` clarification behavior.
 - It defines responsibilities for Intent, Candidate Evidence, Festival Verifier, Planner, Response Packager, DestinationSearchTool, and ScoringTool.
@@ -838,6 +891,7 @@ This SPEC is accepted when:
   - `tests/test_intent.py`
 - Acceptance Criteria:
   - API core fields are not re-parsed from natural language.
+  - Empty or shorter-than-threshold natural language skips LLM extraction and proceeds from structured input.
   - `includeFestivals` is preserved independently from themes.
   - `userLocation` is normalized to `user_location`.
   - Missing or conflicting core input returns `needs_clarification=true`.
@@ -893,6 +947,7 @@ This SPEC is accepted when:
   - ScoringTool has no AWS or LLM calls.
   - Festival and gourmet external-link themes are not scored.
   - Score breakdown is present.
+  - Score and ranking audits remain internal and are not used verbatim as user-facing explanation text.
   - Selection audit records quota shortfall and relaxation.
 - Verification: deterministic scoring and selection unit tests.
 
@@ -909,6 +964,7 @@ This SPEC is accepted when:
   - Festival-included city discovery excludes non-seeded cities before attraction scoring.
   - Anchored search never mixes another city.
   - Seed failures return `needs_clarification=true`.
+  - `explanation_facts` summarize query/place-overview alignment without exposing raw scores.
   - Package schema validates for `ok`, `insufficient_candidates`, `no_candidate`, and `error`.
 - Verification: mocked orchestration tests for normal, anchored, festival seed, and fallback paths.
 
@@ -946,6 +1002,7 @@ This SPEC is accepted when:
   - Unconfirmed festivals are not placed.
   - Gourmet intent does not produce named restaurants from model knowledge.
   - Placeholder items use `placeId=null`.
+  - Recommendation reasons use `explanation_facts` and produce an internal `explanation_audit`.
 - Verification: Planner normal/fallback/festival/gourmet/validation tests.
 
 ### Task 9. Response Packaging and Graph Integration
@@ -960,7 +1017,7 @@ This SPEC is accepted when:
 - Acceptance Criteria:
   - Graph executes the canonical node sequence.
   - Clarification path ends at `END_WAIT_USER`.
-  - Internal evidence and audit are hidden from default response.
+  - Internal evidence, `explanation_facts`, `explanation_audit`, and audit are hidden from default response.
   - Response shape aligns with the MVP `/recommendations` contract.
   - Retry limit is enforced.
 - Verification: end-to-end mocked graph tests for normal, festival-included, anchored, insufficient, no-candidate, and clarification paths.

@@ -55,6 +55,7 @@ Primary reference documents to read only when the Subtask requires them:
 - If a Subtask conflicts with the Full Spec or canonical reference documents, stop and ask the user before editing code.
 - If tests fail three consecutive times for the same root cause, stop and escalate instead of repeatedly retrying.
 - Use `uv` as the canonical Python project and verification runner.
+- Pin the project to Python 3.12; do not widen runtime support without a separate decision.
 - Use `pyproject.toml` as the single source of truth for Python dependencies and package metadata.
 - Run Python and tests from the `Lovv-agent` root with `uv run ...`; do not rely on global Python packages as the normal workflow.
 - Run `uv sync` after dependency changes and update `uv.lock` with the dependency change.
@@ -105,6 +106,7 @@ Primary reference documents to read only when the Subtask requires them:
   - `## Non-Goals`
 - Target Files:
   - `.gitignore`
+  - `.python-version`
   - `pyproject.toml`
   - `uv.lock`
   - `src/lovv_agent/__init__.py`
@@ -126,6 +128,7 @@ Primary reference documents to read only when the Subtask requires them:
   - `lovv_agent` package imports without runtime side effects.
   - Empty module layout matches the Spec responsibility boundaries.
   - No network, AWS, or model client is initialized at import time.
+  - Python runtime is pinned to 3.12 in `.python-version` and `pyproject.toml`.
   - `pyproject.toml` defines the package metadata and dev test dependency boundary.
 - Verification:
   - `uv run python -c "import lovv_agent; print(lovv_agent.__version__)"`
@@ -157,6 +160,7 @@ Primary reference documents to read only when the Subtask requires them:
   - AgentCore deployment config.
 - Acceptance Criteria:
   - Runtime config includes AWS region, vector resource names, DynamoDB table name, embedding adapter identifier, top K budgets, verifier candidate K, retries, and timeouts.
+  - Runtime config includes the Intent natural-language minimum character threshold, default `5`.
   - Defaults are safe for local tests and do not require real AWS credentials.
   - Config can be injected into tools/nodes.
 - Verification:
@@ -166,7 +170,7 @@ Primary reference documents to read only when the Subtask requires them:
 
 - Purpose: graph state and node handoff payload을 schema로 고정해 downstream 오염을 막는다.
 - Required Context:
-  - Full Spec의 `UnifiedAgentState`, Candidate Evidence input/package, Festival Verification output, Planner output.
+  - Full Spec의 `UnifiedAgentState`, Candidate Evidence input/package, Candidate Evidence `explanation_facts`, Festival Verification output, Planner output, Planner `explanation_audit`.
 - Context Budget:
   - Must read: Full Spec `## State and Data Contracts`, `## Error Handling and Fallback`.
   - Do not read: full Planner or Candidate Evidence canonical docs unless schema ambiguity appears.
@@ -193,6 +197,8 @@ Primary reference documents to read only when the Subtask requires them:
   - State schema contains request, conversation, trace, intent, routing, evidence, festival, planning, and serving groups.
   - Candidate Evidence statuses are limited to `ok`, `insufficient_candidates`, `no_candidate`, `error`.
   - `needs_clarification` and `clarifying_question` are valid across worker outputs.
+  - Candidate Evidence `explanation_facts` validates raw/soft query and selected place overview alignment facts.
+  - Planner `explanation_audit` validates internal evidence refs for generated recommendation reasons.
   - Sample payloads validate.
 - Verification:
   - `uv run pytest tests/test_schemas.py`
@@ -205,7 +211,7 @@ Primary reference documents to read only when the Subtask requires them:
 - Scope: Intent node, theme mapping, raw/soft query extraction, unsupported condition extraction, schema-enforced LLM adapter.
 - Dependencies: Task 1.
 - Context Budget: Intent 관련 SPEC 섹션과 `intent_agent.md`만 우선 읽는다.
-- Acceptance Criteria: API core field 보존, `includeFestivals` 분리, schema validation, bounded retry.
+- Acceptance Criteria: API core field 보존, short natural-language LLM skip, `includeFestivals` 분리, schema validation, bounded retry.
 - Verification: Intent unit tests.
 
 ### Subtask 2.1: API Input Normalization and Theme Mapping
@@ -244,7 +250,7 @@ Primary reference documents to read only when the Subtask requires them:
 
 ### Subtask 2.2: Raw/Soft Query and Unsupported Condition Extraction
 
-- Purpose: 자연어에서 검색 가능한 문장, 분위기 선호, 지원 불가 조건만 추출한다.
+- Purpose: 자연어에서 검색 가능한 문장, 분위기 선호, 지원 불가 조건만 추출하되, 짧은 입력은 보수적으로 무시한다.
 - Required Context:
   - Intent Agent scope and natural-language boundary.
 - Context Budget:
@@ -268,6 +274,8 @@ Primary reference documents to read only when the Subtask requires them:
   - `cleaned_raw_query` preserves searchable travel intent.
   - `soft_preference_query` captures atmosphere/preference terms.
   - Unsupported live or unavailable conditions are separated into `unsupported_conditions`.
+  - Empty or shorter-than-threshold natural language, default fewer than `5` trimmed characters, skips LLM extraction.
+  - Short natural language sets `cleaned_raw_query=""`, `soft_preference_query=""`, and `unsupported_conditions=[]`, then proceeds from structured API input.
   - Natural-language conflicts with structured core fields create clarification or handoff notes, not silent overrides.
 - Verification:
   - `uv run pytest tests/test_intent.py -k "raw_soft or unsupported or conflict"`
@@ -552,7 +560,7 @@ Primary reference documents to read only when the Subtask requires them:
 - Scope: score breakdown, distance helper, quota selection, audit fields.
 - Dependencies: Task 4.
 - Context Budget: ScoringTool and Candidate Selection sections only.
-- Acceptance Criteria: no AWS/LLM, excluded categories not scored, deterministic audit.
+- Acceptance Criteria: no AWS/LLM, excluded categories not scored, deterministic audit, score values kept out of user-facing explanation text.
 - Verification: scoring and selection unit tests.
 
 ### Subtask 5.1: Place and City Scoring
@@ -654,7 +662,7 @@ Primary reference documents to read only when the Subtask requires them:
 - Scope: Candidate Evidence node, theme splitting, festival seed gate, selected city/package builder.
 - Dependencies: Tasks 2, 4, 5.
 - Context Budget: Candidate Evidence and runtime retrieval sections only.
-- Acceptance Criteria: all three modes, festival seed hard gate, anchored city isolation, package schema.
+- Acceptance Criteria: all three modes, festival seed hard gate, anchored city isolation, package schema, compact `explanation_facts`.
 - Verification: Candidate Evidence orchestration tests.
 
 ### Subtask 6.1: Mode Resolution and Theme Splitting
@@ -748,13 +756,13 @@ Primary reference documents to read only when the Subtask requires them:
 - Verification:
   - `uv run pytest tests/test_candidate_evidence.py -k "festival_seed or fixed_city_festival"`
 
-### Subtask 6.4: Package Builder, Status, and Audit
+### Subtask 6.4: Package Builder, Status, Audit, and Explanation Facts
 
-- Purpose: Candidate Evidence Package의 status, counts, warnings, audits를 일관되게 구성한다.
+- Purpose: Candidate Evidence Package의 status, counts, warnings, audits와 Planner용 `explanation_facts`를 일관되게 구성한다.
 - Required Context:
-  - Candidate Evidence Package schema and fallback policy.
+  - Candidate Evidence Package schema, explanation facts schema, and fallback policy.
 - Context Budget:
-  - Must read: Full Spec `### Candidate Evidence Package`, `## Error Handling and Fallback`, `## Review Checklist`.
+  - Must read: Full Spec `### Candidate Evidence Package`, `### R3. Candidate Evidence Agent`, `## Error Handling and Fallback`, `## Review Checklist`.
   - Do not read: Response Packager response mapping.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_agent.md` package/audit sections.
 - Source of Truth:
@@ -774,6 +782,8 @@ Primary reference documents to read only when the Subtask requires them:
   - Package validates for `ok`, `insufficient_candidates`, `no_candidate`, and `error`.
   - `needs_clarification` is set only when user input is required.
   - Retrieval and fallback audit fields are populated enough for review/debug.
+  - `explanation_facts` contains only compact query context, selected place overview alignment, city choice summary, festival anchor summary, and limitations.
+  - Raw score values, top K details, and raw retrieval payloads are not copied into `explanation_facts`.
   - Package is clearly internal and not formatted as public API response.
 - Verification:
   - `uv run pytest tests/test_candidate_evidence.py -k "package or status or audit"`
@@ -884,10 +894,10 @@ Primary reference documents to read only when the Subtask requires them:
 ## Task 8. Planner Agent and Validation
 
 - Purpose: grounded evidence를 안전한 itinerary internals로 변환한다.
-- Scope: Planner node, status gates, slot templates, festival overlay, food link/CTA policy, validation helper.
+- Scope: Planner node, status gates, slot templates, festival overlay, food link/CTA policy, grounded explanation generation, validation helper.
 - Dependencies: Tasks 6 and 7.
 - Context Budget: Planner sections and public API response shape only when mapping is needed.
-- Acceptance Criteria: no hallucinated places/restaurants/festivals, status gates, festival overlay, placeholders.
+- Acceptance Criteria: no hallucinated places/restaurants/festivals, status gates, festival overlay, placeholders, grounded recommendation reasons.
 - Verification: Planner unit tests.
 
 ### Subtask 8.1: Status Gates and Slot Templates
@@ -1018,6 +1028,40 @@ Primary reference documents to read only when the Subtask requires them:
 - Verification:
   - `uv run pytest tests/test_planner.py -k "validation"`
 
+### Subtask 8.5: Grounded Explanation Generation
+
+- Purpose: `explanation_facts`를 사용해 사용자에게 보일 추천 근거와 일정 흐름 설명을 짧고 안전하게 생성한다.
+- Required Context:
+  - Candidate Evidence explanation facts and Planner output explanation fields.
+- Context Budget:
+  - Must read: Full Spec `### R9. Planner Agent`, `### Candidate Evidence Package`, `### Planner Output`, `### R10. Response Packager`.
+  - Do not read: raw retrieval payloads or scoring implementation internals.
+  - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` explanation/validation sections.
+- Source of Truth:
+  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- Required Sections:
+  - `### R9. Planner Agent`
+  - `### Candidate Evidence Package`
+  - `### Planner Output`
+- Must Read Before Implementation:
+  - `### R9. Planner Agent`
+  - `### Planner Output`
+- Target Files:
+  - `src/lovv_agent/agents/planner.py`
+  - `src/lovv_agent/tools/validation.py`
+  - `tests/test_planner.py`
+- Out of Scope:
+  - Exposing raw scores or ranking formulas to users.
+  - Creating new facts beyond `explanation_facts`, verified festivals, and grounded itinerary items.
+- Acceptance Criteria:
+  - Planner prompt/input uses compact `explanation_facts`, not full raw retrieval or score audit payloads.
+  - `recommendationReasons` explain how selected city/place overviews match `cleaned_raw_query` and `soft_preference_query`.
+  - `itineraryFlowReason` stays concise and does not mention internal score values, top K values, or ranking formulas.
+  - `explanation_audit` maps generated explanation text to evidence refs and reason codes for internal validation.
+  - Missing overview or weak alignment produces conservative wording or `user_notice`, not invented detail.
+- Verification:
+  - `uv run pytest tests/test_planner.py -k "explanation or recommendation_reason"`
+
 ---
 
 ## Task 9. Response Packaging and Graph Integration
@@ -1026,7 +1070,7 @@ Primary reference documents to read only when the Subtask requires them:
 - Scope: graph compile, deterministic response packaging, response masking, integration tests.
 - Dependencies: Tasks 1-8.
 - Context Budget: graph and response packaging sections only.
-- Acceptance Criteria: canonical node sequence, internal evidence hidden, API response compatible, clarification path.
+- Acceptance Criteria: canonical node sequence, internal evidence/`explanation_facts`/`explanation_audit` hidden, API response compatible, clarification path.
 - Verification: mocked graph integration tests.
 
 ### Subtask 9.1: Graph Wiring
@@ -1087,7 +1131,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Durable recommendation storage beyond current TTL behavior.
 - Acceptance Criteria:
   - Public response includes only safe destination, itinerary, explainability, festivalDateVerifications, and links fields.
-  - Candidate Evidence Package, raw retrieval audit, raw tool payloads, and internal reasoning are hidden.
+  - Candidate Evidence Package, `explanation_facts`, `explanation_audit`, raw retrieval audit, raw tool payloads, and internal reasoning are hidden.
   - `foodSearch` packaging uses the existing response link strategy without creating a new endpoint.
 - Verification:
   - `uv run pytest tests/test_graph_integration.py -k "response_packager or response_masking"`
