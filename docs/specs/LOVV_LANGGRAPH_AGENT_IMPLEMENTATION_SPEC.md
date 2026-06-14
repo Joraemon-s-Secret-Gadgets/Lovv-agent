@@ -559,6 +559,8 @@ worker returns needs_clarification=true
 - LLM calls must go through a replaceable Bedrock Converse-compatible adapter.
 - This SPEC does not fix a concrete model ID.
 - Prompt contracts must be Korean-capable and schema-oriented.
+- Prompt assets used by live LLM calls must be versioned and stored as explicit project artifacts, not hidden inside ad hoc call sites.
+- Planner copy/explanation prompts must be grounded in schema-limited inputs: final placed items, Dynamo-enriched detail fields, verified festival outputs, raw/soft query, and `candidate_reason_claims`.
 - Structured output should be enforced by tool/schema features where available.
 - Every LLM output that enters graph state must pass local schema validation.
 - On schema failure:
@@ -578,7 +580,9 @@ query embedding adapter
 → Candidate Evidence Package
 → Planner final placement
 → DynamoLookupTool.enrich_final_places()
-→ Planner explanation generation
+→ prompt-backed Planner copy/explanation composer
+→ Planner validation
+→ Response Packager
 ```
 
 Festival seed boundary:
@@ -599,6 +603,8 @@ Runtime config must come from environment/config injection:
 - S3 Vector bucket/index
 - DynamoDB table name
 - embedding model or embedding adapter identifier
+- Bedrock Converse-compatible LLM adapter/model identifier
+- prompt version selectors
 - search top K budgets
 - verifier candidate K
 - retry and timeout settings
@@ -616,7 +622,7 @@ No real credentials or secrets may be hardcoded.
 | DynamoLookupTool | DynamoDB festival seed helper, final placed item detail enrichment | S3 Vector search, scoring, quota, itinerary, public response |
 | ScoringTool | deterministic place/city scores and score audit | AWS calls, search, quota, itinerary |
 | Festival Verifier | selected-city festival year/date verification and Planner policy | city seed creation, city reranking, itinerary writing |
-| Planner Agent | itinerary internals, DynamoLookupTool final item detail enrichment call, explanation, validation, notices, festival overlay, food link/CTA policy | broad candidate retrieval, ungrounded live facts |
+| Planner Agent | itinerary internals, DynamoLookupTool final item detail enrichment call, prompt-backed copy/explanation composer integration, validation, notices, festival overlay, food link/CTA policy | broad candidate retrieval, ungrounded live facts |
 | Response Packager | deterministic API response packaging and internal payload hiding | LLM calls, recommendation reasoning changes |
 
 ## State and Data Contracts
@@ -1046,21 +1052,28 @@ This SPEC is accepted when:
   - After baseline E2E passes, the same fixture suite can be reused for an optional LLM Supervisor swap experiment that compares routing outcomes against deterministic hard rules.
 - Verification: end-to-end mocked graph tests for normal, festival-included, anchored, insufficient, no-candidate, and clarification paths.
 
-### Task 10. AgentCore-Ready Harness Boundary
+### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary
 
-- Purpose: Prepare the implementation for later AgentCore Runtime migration without coupling the first implementation to AgentCore.
-- Scope: handler boundary, request/response adapter, state summary policy, trace IDs, memory-safe payload selection.
+- Purpose: Connect the local LangGraph implementation to real AWS/LLM runtime boundaries while keeping later AgentCore Runtime migration isolated behind a harness boundary.
+- Scope: handler boundary, request/response adapter, AWS/LLM runtime adapter injection, prompt registry, prompt-backed Planner copy/explanation composer, final DynamoDB detail enrichment, state summary policy, trace IDs, memory-safe payload selection.
 - Dependencies: Task 9.
 - Target Files:
   - `src/lovv_agent/graph.py`
   - `src/lovv_agent/adapters/`
-  - future harness files defined by approved AgentCore task
+  - `src/lovv_agent/prompts/`
+  - `src/lovv_agent/tools/explanation_composer.py`
+  - `tests/test_harness.py`
+  - `tests/test_aws_smoke.py`
 - Acceptance Criteria:
   - Graph can be invoked by a local test harness.
-  - Runtime adapters are injected, not global singletons.
+  - Bedrock Converse-compatible LLM, embedding, S3 Vector, and DynamoDB adapters are injected, not global singletons.
+  - Prompt assets are versioned, Korean-capable, and schema-oriented.
+  - LLM-generated `title`, `body`, `reason`, recommendation reasons, and itinerary flow text are schema-validated before entering graph state.
+  - Schema failure, timeout, or unavailable LLM falls back to deterministic grounded copy.
+  - DynamoDB detail enrichment runs after final itinerary placement and before prompt-backed copy/explanation generation.
   - Long-term memory candidates exclude raw evidence, full Candidate Evidence Package, raw web content, secrets, and PII.
-  - No AgentCore deployment config is required for local tests.
-- Verification: local harness smoke test and memory-safety unit tests.
+  - No AgentCore deployment config is required for local or AWS smoke tests.
+- Verification: local harness smoke test, prompt contract tests, mocked AWS/LLM adapter tests, optional AWS smoke test when non-secret runtime config is available, and memory-safety unit tests.
 
 ## Verification
 
@@ -1076,6 +1089,7 @@ Minimum verification suite:
 - Festival Verifier tests for date status and planner policy.
 - Planner tests for status gates, slot templates, festival overlay, gourmet link/CTA policy, placeholder safety, and validation failure.
 - Graph integration tests with mocked adapters.
+- Prompt contract and composer tests for schema-validated user-facing copy generation.
 - Optional LLM Supervisor swap experiment after deterministic graph integration passes; it must use the same E2E fixtures and compare route decisions against deterministic hard-rule validation.
 - Optional AWS smoke test using non-secret environment config after deterministic tests pass.
 
@@ -1086,6 +1100,7 @@ Minimum verification suite:
 - Primary reference documents are listed.
 - Candidate Evidence Package remains internal.
 - Runtime retrieval uses S3 Vector for candidate evidence and DynamoDB detail enrichment after Planner final placement.
+- Prompt assets and live LLM copy/explanation generation are explicit Task 10 responsibilities, not hidden implementation details.
 - JSON/local fixture runtime retrieval is not introduced.
 - No concrete LLM model ID is fixed.
 - `includeFestivals` is not modeled as a travel theme.
@@ -1094,4 +1109,4 @@ Minimum verification suite:
 - Planner cannot create ungrounded places, named restaurants, festivals, or live facts.
 - Candidate Evidence `needs_clarification=true` routes to user wait, not Planner.
 - Deterministic Supervisor remains the MVP default; any LLM Supervisor is an optional post-baseline experiment guarded by deterministic route validation.
-- Task Breakdown is implementation-ready but no code has been written.
+- Task Breakdown remains implementation-ready and tracks the current code-facing responsibilities.

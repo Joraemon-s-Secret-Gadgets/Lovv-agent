@@ -73,7 +73,7 @@ Primary reference documents to read only when the Subtask requires them:
 | 7 | Festival Verifier Agent | Task 6 |
 | 8 | Planner Agent and Validation | Tasks 6, 7 |
 | 9 | Response Packaging and Graph Integration | Tasks 1-8 |
-| 10 | AgentCore-Ready Harness Boundary | Task 9 |
+| 10 | AWS/LLM Integration and AgentCore-Ready Harness Boundary | Task 9 |
 
 ---
 
@@ -1189,22 +1189,22 @@ Optional follow-up after this baseline passes:
 
 ---
 
-## Task 10. AgentCore-Ready Harness Boundary
+## Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary
 
-- Purpose: 첫 구현은 local LangGraph로 검증하되, AgentCore Runtime 전환이 쉬운 harness boundary를 둔다.
-- Scope: handler boundary, request/response adapter, runtime injection, state summary, memory-safe payload selection.
+- Purpose: local LangGraph 검증을 유지하면서 실제 AWS runtime adapter, Bedrock Converse-compatible LLM 호출, prompt asset, 그리고 future AgentCore Runtime 전환이 쉬운 harness boundary를 연결한다.
+- Scope: handler boundary, request/response adapter, runtime injection, AWS config boundary, Bedrock/embedding/S3 Vector/DynamoDB adapter wiring, prompt registry, Planner copy/explanation composer, state summary, memory-safe payload selection.
 - Dependencies: Task 9.
-- Context Budget: AgentCore-ready boundary and memory safety only.
-- Acceptance Criteria: local harness invocation, injected adapters, memory-safe summaries, no deployment coupling.
-- Verification: harness smoke test and memory-safety tests.
+- Context Budget: AWS/LLM adapter와 prompt contract, harness boundary, memory safety만 읽는다.
+- Acceptance Criteria: local harness invocation, injected AWS/LLM adapters, versioned prompt assets, schema-validated LLM copy/explanation output, memory-safe summaries, no AgentCore deployment coupling.
+- Verification: harness smoke test, prompt contract tests, mocked AWS/LLM adapter tests, memory-safety tests.
 
 ### Subtask 10.1: Local Harness Entrypoint
 
 - Purpose: graph를 local test harness와 future runtime handler에서 같은 방식으로 호출할 수 있게 한다.
 - Required Context:
-  - Full Spec AgentCore-ready and graph integration sections.
+  - Full Spec AWS/LLM runtime and graph integration sections.
 - Context Budget:
-  - Must read: Full Spec `### Model Adapter Boundary`, `### AWS Runtime Boundary`, `### Task 10. AgentCore-Ready Harness Boundary`.
+  - Must read: Full Spec `### Model Adapter Boundary`, `### AWS Runtime Boundary`, `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`.
   - Do not read: AgentCore deployment docs unless a later deployment task is approved.
   - Optional read: `oh_my_documents/docs/05_agent_spec/agent_harness_design.md`.
 - Source of Truth:
@@ -1212,9 +1212,9 @@ Optional follow-up after this baseline passes:
 - Required Sections:
   - `### Model Adapter Boundary`
   - `### AWS Runtime Boundary`
-  - `### Task 10. AgentCore-Ready Harness Boundary`
+  - `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`
 - Must Read Before Implementation:
-  - `### Task 10. AgentCore-Ready Harness Boundary`
+  - `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`
 - Target Files:
   - `src/lovv_agent/graph.py`
   - `src/lovv_agent/adapters/`
@@ -1229,20 +1229,135 @@ Optional follow-up after this baseline passes:
 - Verification:
   - `uv run pytest tests/test_harness.py -k "local_harness"`
 
-### Subtask 10.2: Memory-Safe Summary Boundary
+### Subtask 10.2: AWS Runtime Adapter Boundary
+
+- Purpose: 실제 AWS 연결을 graph business logic과 분리된 adapter/config boundary로 고정한다.
+- Required Context:
+  - AWS runtime boundary and existing tool adapter contracts.
+- Context Budget:
+  - Must read: Full Spec `### AWS Runtime Boundary`, `### R5. DestinationSearchTool`, `### R5b. DynamoLookupTool`, `### Model Adapter Boundary`.
+  - Do not read: AgentCore deployment docs or infrastructure templates.
+  - Optional read: existing mocked AWS adapter tests from Tasks 4 and 9.
+- Source of Truth:
+  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- Required Sections:
+  - `### AWS Runtime Boundary`
+  - `### Model Adapter Boundary`
+  - `## Runtime Retrieval and Tool Boundaries`
+- Must Read Before Implementation:
+  - `### AWS Runtime Boundary`
+  - `### Model Adapter Boundary`
+- Target Files:
+  - `src/lovv_agent/adapters/`
+  - `src/lovv_agent/config.py`
+  - `src/lovv_agent/graph.py`
+  - `tests/test_harness.py`
+  - `tests/test_aws_smoke.py`
+- Out of Scope:
+  - Concrete model ID selection in the Spec.
+  - Hardcoded bucket, index, table, profile, or credential values.
+  - AgentCore Runtime deployment configuration.
+- Acceptance Criteria:
+  - Bedrock Converse-compatible LLM, embedding, S3 Vector, and DynamoDB clients are created through injected adapters/config.
+  - Local tests can still run with mocked adapters and no AWS credentials.
+  - Runtime config is read from environment/config injection and validated before use.
+  - Live AWS smoke tests are optional and skipped unless non-secret runtime config is present.
+- Verification:
+  - `uv run pytest tests/test_harness.py -k "adapter or runtime"`
+  - Optional: `uv run pytest tests/test_aws_smoke.py`
+
+### Subtask 10.3: Prompt Registry and Structured LLM Contracts
+
+- Purpose: 실제 LLM 호출에 사용할 prompt asset을 코드 밖의 명시적 contract로 분리하고, 출력 schema/fallback을 강제한다.
+- Required Context:
+  - Model adapter boundary and Planner explanation contract.
+- Context Budget:
+  - Must read: Full Spec `### Model Adapter Boundary`, `### R9. Planner Agent`, `### Planner Output`, `### R10. Response Packager`.
+  - Do not read: raw retrieval payloads or full scoring internals.
+  - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` prompt/grounding policy.
+- Source of Truth:
+  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- Required Sections:
+  - `### Model Adapter Boundary`
+  - `### R9. Planner Agent`
+  - `### Planner Output`
+- Must Read Before Implementation:
+  - `### Model Adapter Boundary`
+  - `### R9. Planner Agent`
+- Target Files:
+  - `src/lovv_agent/prompts/`
+  - `src/lovv_agent/adapters/`
+  - `src/lovv_agent/tools/explanation_composer.py`
+  - `src/lovv_agent/agents/planner.py`
+  - `tests/test_harness.py`
+  - `tests/test_planner.py`
+- Out of Scope:
+  - Exposing raw scores, top K, or ranking formulas to the user.
+  - Generating named restaurants from model knowledge.
+  - Allowing malformed JSON or free-form text into graph state.
+- Acceptance Criteria:
+  - Prompt assets are versioned and Korean-capable.
+  - Planner copy/explanation prompt input is limited to final placed items, detail-enriched item fields, verified festival outputs, raw/soft query, and `candidate_reason_claims`.
+  - LLM output is schema-validated before entering graph state.
+  - Generated fields cover user-facing itinerary `title`, `body`, `reason`, recommendation reasons, and concise itinerary flow text where applicable.
+  - Schema failure, timeout, or unavailable LLM falls back to deterministic copy without inventing facts.
+- Verification:
+  - `uv run pytest tests/test_planner.py -k "explanation or composer or fallback"`
+  - `uv run pytest tests/test_harness.py -k "prompt or llm"`
+
+### Subtask 10.4: Final Detail Enrichment and Copy Composer Integration
+
+- Purpose: Planner가 최종 배치한 항목에 대해서만 DynamoDB detail을 보강한 뒤, 그 보강된 근거로 사용자-facing copy를 생성한다.
+- Required Context:
+  - Planner output, Dynamo final item enrichment, response packaging contract.
+- Context Budget:
+  - Must read: Full Spec `### AWS Runtime Boundary`, `### R5b. DynamoLookupTool`, `### R9. Planner Agent`, `### R10. Response Packager`.
+  - Do not read: public API redesign or DB schema creation.
+  - Optional read: `oh_my_documents/docs/07_api_spec/mvp_confirmed_api_contract.md` `/recommendations` response section.
+- Source of Truth:
+  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- Required Sections:
+  - `### AWS Runtime Boundary`
+  - `### R5b. DynamoLookupTool`
+  - `### R9. Planner Agent`
+  - `### R10. Response Packager`
+- Must Read Before Implementation:
+  - `### AWS Runtime Boundary`
+  - `### R9. Planner Agent`
+- Target Files:
+  - `src/lovv_agent/tools/dynamo_lookup.py`
+  - `src/lovv_agent/tools/explanation_composer.py`
+  - `src/lovv_agent/agents/planner.py`
+  - `src/lovv_agent/tools/response_packager.py`
+  - `tests/test_planner.py`
+  - `tests/test_graph_integration.py`
+- Out of Scope:
+  - Candidate Evidence broad detail hydration.
+  - Restaurant table lookup.
+  - Weather replacement planning.
+- Acceptance Criteria:
+  - Dynamo detail lookup is performed after final itinerary placement, not during broad retrieval.
+  - Latitude/longitude and supported detail fields are copied into final itinerary items when available.
+  - LLM composer uses only enriched final items and approved grounding fields.
+  - Response packaging preserves API-compatible `links`, `latitude`, `longitude`, `title`, `body`, and `reason` fields.
+- Verification:
+  - `uv run pytest tests/test_planner.py -k "detail or composer or coordinate"`
+  - `uv run pytest tests/test_graph_integration.py -k "response_packager or coordinate"`
+
+### Subtask 10.5: Memory-Safe Summary Boundary
 
 - Purpose: future AgentCore Memory에 넘길 수 있는 summary 후보와 금지 payload를 코드 경계로 분리한다.
 - Required Context:
   - State storage and memory-safety policy.
 - Context Budget:
-  - Must read: Full Spec `### UnifiedAgentState`, `### Model Adapter Boundary`, `### Task 10. AgentCore-Ready Harness Boundary`.
+  - Must read: Full Spec `### UnifiedAgentState`, `### Model Adapter Boundary`, `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`.
   - Do not read: long-term persistence design beyond the Spec.
   - Optional read: `oh_my_documents/docs/05_agent_spec/agent_harness_design.md`.
 - Source of Truth:
   - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### UnifiedAgentState`
-  - `### Task 10. AgentCore-Ready Harness Boundary`
+  - `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`
   - `## Non-Goals`
 - Must Read Before Implementation:
   - `### UnifiedAgentState`
@@ -1261,7 +1376,7 @@ Optional follow-up after this baseline passes:
 - Verification:
   - `uv run pytest tests/test_harness.py -k "memory_safe"`
 
-### Subtask 10.3: Runtime Adapter Injection Tests
+### Subtask 10.6: Runtime Adapter Injection Tests
 
 - Purpose: local, mocked, and future runtime adapters can be swapped without changing graph business logic.
 - Required Context:
@@ -1285,7 +1400,7 @@ Optional follow-up after this baseline passes:
   - `tests/test_harness.py`
 - Out of Scope:
   - Concrete model ID selection.
-  - Live AWS smoke tests.
+  - Mandatory live AWS smoke tests.
 - Acceptance Criteria:
   - Graph tests can run with mocked LLM, embedding, S3 Vector, and DynamoDB adapters.
   - No adapter is created as an import-time global singleton.
@@ -1321,9 +1436,11 @@ uv run pytest tests/test_aws_smoke.py
 - Every Subtask has purpose, required context, context budget, target files, out of scope, acceptance criteria, and verification.
 - Subtasks are ordered by dependency.
 - No Subtask requires public API redesign, DB schema creation, fixed model IDs, or AgentCore deployment.
+- Task 10 owns real AWS/LLM adapter wiring, prompt assets, and prompt-backed copy/explanation composer before any AgentCore deployment task.
 - `includeFestivals` remains a boolean outside travel themes.
 - Festival seed/fixed-city lookup remains Candidate Evidence responsibility.
 - Festival Verifier only verifies selected-city festival candidates.
 - Gourmet handling avoids restaurant DB/vector lookup and named restaurant hallucination.
+- User-facing title/body/reason text is either schema-validated LLM output grounded in final enriched items or deterministic fallback copy.
 - Candidate Evidence Package remains internal.
 - `needs_clarification=true` blocks downstream Planner consumption.
