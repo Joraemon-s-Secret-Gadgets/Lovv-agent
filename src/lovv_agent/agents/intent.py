@@ -7,9 +7,9 @@ Planned responsibility:
 - skip LLM extraction for empty or too-short natural-language input and
   continue from valid structured API fields.
 
-Task 2.1 implements only deterministic API input normalization and theme
-mapping. Natural-language extraction, LLM structured output, retrieval, and
-planning stay out of this module for now.
+Task 2 implements API input normalization, conservative natural-language
+extraction, and schema-enforced structured-output validation. Retrieval,
+scoring, and planning stay out of this module.
 """
 
 from __future__ import annotations
@@ -19,7 +19,15 @@ from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from lovv_agent.config import DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS
+from lovv_agent.adapters.bedrock_converse import (
+    RuntimeInvoker,
+    build_structured_converse_request,
+    invoke_structured_output,
+)
+from lovv_agent.config import (
+    DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS,
+    DEFAULT_SCHEMA_RETRY_LIMIT,
+)
 from lovv_agent.models.schemas import CandidateEvidenceInput, GeoPoint, SchemaValidationError
 
 NODE_NAME = "intent_agent"
@@ -82,6 +90,111 @@ TRIP_TYPE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "3d2n": ("2박 3일", "2박3일"),
     "4d3n": ("3박 4일", "3박4일"),
     "5d4n": ("4박 5일", "4박5일"),
+}
+
+INTENT_AGENT_OUTPUT_SCHEMA_NAME = "intent_agent_output"
+_NULLABLE_TEXT_SCHEMA: dict[str, Any] = {"anyOf": [{"type": "string"}, {"type": "null"}]}
+_USER_LOCATION_SCHEMA: dict[str, Any] = {
+    "anyOf": [
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["latitude", "longitude"],
+            "properties": {
+                "latitude": {"type": "number"},
+                "longitude": {"type": "number"},
+            },
+        },
+        {"type": "null"},
+    ],
+}
+_FULFILLED_MATRIX_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["evidence", "festival", "planning"],
+    "properties": {
+        "evidence": {"type": "string", "enum": ["X", "O", "△", "N/A"]},
+        "festival": {"type": "string", "enum": ["X", "O", "△", "N/A"]},
+        "planning": {"type": "string", "enum": ["X", "O", "△", "N/A"]},
+    },
+}
+_EXTRACTED_INPUTS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "country",
+        "travelMonth",
+        "travelYear",
+        "tripType",
+        "destinationId",
+        "includeFestivals",
+    ],
+    "properties": {
+        "country": {"type": "string", "enum": list(COUNTRY_CODES)},
+        "travelMonth": {"type": "integer"},
+        "travelYear": {"type": "integer"},
+        "tripType": {"type": "string", "enum": list(TRIP_TYPES)},
+        "destinationId": _NULLABLE_TEXT_SCHEMA,
+        "includeFestivals": {"type": "boolean"},
+    },
+}
+_CANDIDATE_EVIDENCE_INPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "country",
+        "travelMonth",
+        "travelYear",
+        "tripType",
+        "destinationId",
+        "active_required_themes",
+        "cleaned_raw_query",
+        "soft_preference_query",
+        "unsupported_conditions",
+        "user_location",
+        "includeFestivals",
+    ],
+    "properties": {
+        "country": {"type": "string", "enum": list(COUNTRY_CODES)},
+        "travelMonth": {"type": "integer"},
+        "travelYear": {"type": "integer"},
+        "tripType": {"type": "string", "enum": list(TRIP_TYPES)},
+        "destinationId": _NULLABLE_TEXT_SCHEMA,
+        "active_required_themes": {"type": "array", "items": {"type": "string"}},
+        "cleaned_raw_query": {"type": "string"},
+        "soft_preference_query": {"type": "string"},
+        "unsupported_conditions": {"type": "array", "items": {"type": "string"}},
+        "user_location": _USER_LOCATION_SCHEMA,
+        "includeFestivals": {"type": "boolean"},
+    },
+}
+INTENT_AGENT_OUTPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "needs_clarification",
+        "clarifying_question",
+        "extracted_inputs",
+        "candidate_evidence_input",
+        "active_required_themes",
+        "soft_preferences",
+        "unsupported_conditions",
+        "fulfilled_matrix",
+        "handoff_notes",
+    ],
+    "properties": {
+        "needs_clarification": {"type": "boolean"},
+        "clarifying_question": _NULLABLE_TEXT_SCHEMA,
+        "extracted_inputs": _EXTRACTED_INPUTS_SCHEMA,
+        "candidate_evidence_input": {
+            "anyOf": [_CANDIDATE_EVIDENCE_INPUT_SCHEMA, {"type": "null"}],
+        },
+        "active_required_themes": {"type": "array", "items": {"type": "string"}},
+        "soft_preferences": {"type": "array", "items": {"type": "string"}},
+        "unsupported_conditions": {"type": "array", "items": {"type": "string"}},
+        "fulfilled_matrix": _FULFILLED_MATRIX_SCHEMA,
+        "handoff_notes": {"type": "array", "items": {"type": "string"}},
+    },
 }
 
 _MISSING = object()
@@ -335,6 +448,117 @@ def extract_natural_language_query(
     )
 
 
+def build_intent_structured_output_request(
+    *,
+    messages: Sequence[Mapping[str, Any]],
+    system: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build an Intent Agent Converse request with JSON Schema output enforced."""
+
+    return build_structured_converse_request(
+        messages=messages,
+        system=system,
+        schema_name=INTENT_AGENT_OUTPUT_SCHEMA_NAME,
+        schema=INTENT_AGENT_OUTPUT_SCHEMA,
+        schema_description="Lovv Intent Agent structured output",
+    )
+
+
+def invoke_intent_structured_output(
+    *,
+    runtime: RuntimeInvoker,
+    messages: Sequence[Mapping[str, Any]],
+    structured_request: Mapping[str, Any] | None = None,
+    retry_limit: int = DEFAULT_SCHEMA_RETRY_LIMIT,
+    system: Sequence[Mapping[str, Any]] | None = None,
+) -> IntentNormalizationResult:
+    """Invoke Intent structured output and return a safe local result.
+
+    Final parse/schema failure does not leak malformed model output into graph
+    state. Instead the function returns a clarification result with validation
+    errors recorded as handoff notes for review/debugging.
+    """
+
+    request = build_intent_structured_output_request(messages=messages, system=system)
+    result = invoke_structured_output(
+        runtime=runtime,
+        request=request,
+        retry_limit=retry_limit,
+        validator=lambda payload: validate_intent_agent_output(
+            payload,
+            structured_request=structured_request,
+        ),
+    )
+    if result.ok:
+        return result.value
+
+    return IntentNormalizationResult(
+        needs_clarification=True,
+        clarifying_question=(
+            "입력 조건을 안전하게 정규화하지 못했습니다. 조건을 조금 더 명확히 다시 보내주세요."
+        ),
+        handoff_notes=(
+            "intent_structured_output_schema_failure",
+            *result.validation_errors,
+        ),
+        fulfilled_matrix={"evidence": "X", "festival": "N/A", "planning": "X"},
+    )
+
+
+def validate_intent_agent_output(
+    payload: Mapping[str, Any],
+    *,
+    structured_request: Mapping[str, Any] | None = None,
+) -> IntentNormalizationResult:
+    """Validate model-produced Intent output before it enters graph state."""
+
+    if not isinstance(payload, Mapping):
+        raise SchemaValidationError("Intent structured output must be an object")
+
+    needs_clarification = _bool(
+        _get(payload, "needs_clarification"),
+        "needs_clarification",
+    )
+    clarifying_question = _optional_text(
+        _get(payload, "clarifying_question", default=None),
+        "clarifying_question",
+    )
+    extracted_inputs = _mapping(_get(payload, "extracted_inputs"), "extracted_inputs")
+    candidate_payload = _get(payload, "candidate_evidence_input", default=None)
+    candidate_input = None
+    if candidate_payload is not None:
+        candidate_input = CandidateEvidenceInput.from_mapping(
+            _mapping(candidate_payload, "candidate_evidence_input"),
+        )
+        if structured_request is not None:
+            _validate_no_core_override(candidate_input, structured_request)
+
+    return IntentNormalizationResult(
+        needs_clarification=needs_clarification,
+        clarifying_question=clarifying_question,
+        extracted_inputs=extracted_inputs,
+        candidate_evidence_input=candidate_input,
+        active_required_themes=_string_tuple(
+            _get(payload, "active_required_themes"),
+            "active_required_themes",
+        ),
+        searchable_place_themes=(),
+        external_link_themes=(),
+        cleaned_raw_query=(
+            candidate_input.cleaned_raw_query if candidate_input is not None else ""
+        ),
+        soft_preference_query=(
+            candidate_input.soft_preference_query if candidate_input is not None else ""
+        ),
+        unsupported_conditions=_string_tuple(
+            _get(payload, "unsupported_conditions"),
+            "unsupported_conditions",
+        ),
+        handoff_notes=_string_tuple(_get(payload, "handoff_notes"), "handoff_notes"),
+        fulfilled_matrix=_mapping(_get(payload, "fulfilled_matrix"), "fulfilled_matrix"),
+    )
+
+
 def _validate_request_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
     """Validate and normalize the structured MVP recommendation request."""
 
@@ -467,6 +691,28 @@ def _detect_trip_type_mentions(query: str) -> tuple[str, ...]:
     return tuple(detected)
 
 
+def _validate_no_core_override(
+    candidate_input: CandidateEvidenceInput,
+    structured_request: Mapping[str, Any],
+) -> None:
+    """Reject LLM output that mutates structured API core fields."""
+
+    expected = _validate_request_payload(structured_request)
+    comparisons: tuple[tuple[str, Any, Any], ...] = (
+        ("country", candidate_input.country, expected["country"]),
+        ("travelMonth", candidate_input.travel_month, expected["travelMonth"]),
+        ("travelYear", candidate_input.travel_year, expected["travelYear"]),
+        ("tripType", candidate_input.trip_type, expected["tripType"]),
+        ("destinationId", candidate_input.destination_id, expected["destinationId"]),
+        ("includeFestivals", candidate_input.include_festivals, expected["includeFestivals"]),
+    )
+    for field_name, actual, expected_value in comparisons:
+        if actual != expected_value:
+            raise SchemaValidationError(
+                f"Intent structured output attempted to override {field_name}",
+            )
+
+
 def _validate_theme_count(canonical_theme_ids: tuple[str, ...]) -> None:
     """Validate API canonical theme count after removing legacy festival tokens."""
 
@@ -530,6 +776,24 @@ def _required_text(value: Any, field_name: str) -> str:
     return normalized
 
 
+def _mapping(value: Any, field_name: str) -> dict[str, Any]:
+    """Validate a mapping and copy it to a plain dict."""
+
+    if not isinstance(value, Mapping):
+        raise SchemaValidationError(f"{field_name} must be an object")
+    return dict(value)
+
+
+def _string_tuple(value: Any, field_name: str) -> tuple[str, ...]:
+    """Validate a string sequence."""
+
+    if value is None:
+        return ()
+    if isinstance(value, str) or not isinstance(value, Sequence):
+        raise SchemaValidationError(f"{field_name} must be a list of strings")
+    return tuple(_required_text(item, field_name) for item in value)
+
+
 def _optional_text(value: Any, field_name: str) -> str | None:
     """Validate optional text and normalize blank values to None."""
 
@@ -589,6 +853,8 @@ __all__ = [
     "COUNTRY_CODES",
     "ENTRY_TYPES",
     "EXTERNAL_LINK_THEME_IDS",
+    "INTENT_AGENT_OUTPUT_SCHEMA",
+    "INTENT_AGENT_OUTPUT_SCHEMA_NAME",
     "LEGACY_FESTIVAL_THEME_IDS",
     "NODE_NAME",
     "OUT_OF_SCOPE",
@@ -598,8 +864,11 @@ __all__ = [
     "IntentNormalizationResult",
     "NaturalLanguageExtraction",
     "ThemeMappingResult",
+    "build_intent_structured_output_request",
     "extract_natural_language_query",
+    "invoke_intent_structured_output",
     "map_theme_ids",
     "normalize_recommendation_request",
     "resolve_execution_mode",
+    "validate_intent_agent_output",
 ]

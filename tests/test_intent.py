@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import unittest
 
 from lovv_agent.agents.intent import (
+    build_intent_structured_output_request,
     extract_natural_language_query,
+    invoke_intent_structured_output,
     map_theme_ids,
     normalize_recommendation_request,
     resolve_execution_mode,
@@ -31,6 +34,58 @@ def _base_request() -> dict[str, object]:
             "longitude": 126.978,
         },
     }
+
+
+def _intent_structured_output_payload() -> dict[str, object]:
+    """Return a valid model-like Intent structured output payload."""
+
+    return {
+        "needs_clarification": False,
+        "clarifying_question": None,
+        "extracted_inputs": {
+            "country": "KR",
+            "travelMonth": 10,
+            "travelYear": 2026,
+            "tripType": "2d1n",
+            "destinationId": None,
+            "includeFestivals": False,
+        },
+        "candidate_evidence_input": {
+            "country": "KR",
+            "travelMonth": 10,
+            "travelYear": 2026,
+            "tripType": "2d1n",
+            "destinationId": None,
+            "active_required_themes": ["바다·해안", "미식·노포"],
+            "cleaned_raw_query": "조용한 바다 산책",
+            "soft_preference_query": "조용한 분위기",
+            "unsupported_conditions": [],
+            "user_location": None,
+            "includeFestivals": False,
+        },
+        "active_required_themes": ["바다·해안", "미식·노포"],
+        "soft_preferences": ["조용한 분위기"],
+        "unsupported_conditions": [],
+        "fulfilled_matrix": {
+            "evidence": "X",
+            "festival": "N/A",
+            "planning": "X",
+        },
+        "handoff_notes": [],
+    }
+
+
+class FakeStructuredRuntime:
+    """Small injected runtime for retry and response-shape tests."""
+
+    def __init__(self, responses: list[object]) -> None:
+        self.responses = responses
+        self.calls: list[dict[str, object]] = []
+
+    def __call__(self, request: dict[str, object]) -> object:
+        self.calls.append(request)
+        index = min(len(self.calls) - 1, len(self.responses) - 1)
+        return self.responses[index]
 
 
 class IntentNormalizationTest(unittest.TestCase):
@@ -255,6 +310,208 @@ class IntentNormalizationTest(unittest.TestCase):
 
         self.assertTrue(extraction.skipped)
         self.assertEqual(extraction.cleaned_raw_query, "")
+
+    def test_structured_output_request_uses_json_schema_text_format(self) -> None:
+        request = build_intent_structured_output_request(
+            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
+        )
+
+        text_format = request["outputConfig"]["textFormat"]
+        self.assertEqual(text_format["type"], "json_schema")
+        self.assertEqual(
+            text_format["structure"]["jsonSchema"]["name"],
+            "intent_agent_output",
+        )
+        self.assertIn("schema", text_format["structure"]["jsonSchema"])
+
+    def test_structured_output_adapter_accepts_tool_output_style(self) -> None:
+        payload = _intent_structured_output_payload()
+        runtime = FakeStructuredRuntime(
+            [
+                {
+                    "output": {
+                        "message": {
+                            "content": [
+                                {
+                                    "toolUse": {
+                                        "name": "emit_intent_agent_output",
+                                        "input": payload,
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            ],
+        )
+
+        result = invoke_intent_structured_output(
+            runtime=runtime,
+            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
+            structured_request=_base_request(),
+            retry_limit=0,
+        )
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.candidate_evidence_input.country, "KR")
+
+    def test_structured_output_retry_accepts_second_valid_payload(self) -> None:
+        payload = _intent_structured_output_payload()
+        runtime = FakeStructuredRuntime(
+            [
+                "not valid json",
+                {"structured_output": payload},
+            ],
+        )
+
+        result = invoke_intent_structured_output(
+            runtime=runtime,
+            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
+            structured_request=_base_request(),
+            retry_limit=1,
+        )
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.cleaned_raw_query, "조용한 바다 산책")
+        self.assertEqual(len(runtime.calls), 2)
+
+    def test_schema_failure_returns_safe_fallback_after_retries(self) -> None:
+        runtime = FakeStructuredRuntime(
+            [
+                {"structured_output": {"needs_clarification": "no"}},
+                {"structured_output": {"needs_clarification": "still no"}},
+            ],
+        )
+
+        result = invoke_intent_structured_output(
+            runtime=runtime,
+            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
+            structured_request=_base_request(),
+            retry_limit=1,
+        )
+
+        self.assertTrue(result.needs_clarification)
+        self.assertIsNone(result.candidate_evidence_input)
+        self.assertIn("intent_structured_output_schema_failure", result.handoff_notes)
+        self.assertEqual(len(runtime.calls), 2)
+
+    def test_schema_failure_rejects_core_field_override(self) -> None:
+        payload = _intent_structured_output_payload()
+        overridden = dict(payload)
+        candidate_input = dict(overridden["candidate_evidence_input"])
+        candidate_input["country"] = "JP"
+        overridden["candidate_evidence_input"] = candidate_input
+        runtime = FakeStructuredRuntime([{"text": json.dumps(overridden, ensure_ascii=False)}])
+
+        result = invoke_intent_structured_output(
+            runtime=runtime,
+            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
+            structured_request=_base_request(),
+            retry_limit=0,
+        )
+
+        self.assertTrue(result.needs_clarification)
+        self.assertIsNone(result.candidate_evidence_input)
+        self.assertIn("override country", " ".join(result.handoff_notes))
+
+    def test_fixture_like_autumn_festival_chat_case(self) -> None:
+        """Translate the legacy chatbot fixture into the current API contract."""
+
+        request = {
+            "entryType": "chat",
+            "destinationId": None,
+            "country": "KR",
+            "travelMonth": 10,
+            "travelYear": 2026,
+            "themes": ["nature_trekking"],
+            "tripType": "2d1n",
+            "includeFestivals": True,
+            "naturalLanguageQuery": "가을에 단풍 구경하기 좋은 조용한 경상북도 소도시 추천해줘",
+            "userLocation": {"latitude": 36.5760, "longitude": 128.5056},
+        }
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.active_required_themes, ("자연·트레킹",))
+        self.assertEqual(result.searchable_place_themes, ("자연·트레킹",))
+        self.assertEqual(result.external_link_themes, ())
+        self.assertEqual(result.fulfilled_matrix["festival"], "X")
+        self.assertEqual(
+            result.candidate_evidence_input.execution_mode,
+            "festival_seeded_city_discovery",
+        )
+        self.assertIn("단풍", result.cleaned_raw_query)
+        self.assertIn("조용", result.soft_preference_query)
+
+    def test_fixture_like_anchored_map_marker_case(self) -> None:
+        """Translate the legacy map marker fixture into anchored_place_search."""
+
+        request = {
+            "entryType": "map_marker",
+            "destinationId": "KR-Cheongsong",
+            "country": "KR",
+            "travelMonth": 11,
+            "travelYear": 2026,
+            "themes": ["nature_trekking", "healing_rest"],
+            "tripType": "3d2n",
+            "includeFestivals": False,
+            "naturalLanguageQuery": "",
+            "userLocation": None,
+        }
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(
+            result.active_required_themes,
+            ("자연·트레킹", "온천·휴양"),
+        )
+        self.assertEqual(
+            result.searchable_place_themes,
+            ("자연·트레킹", "온천·휴양"),
+        )
+        self.assertEqual(result.fulfilled_matrix["festival"], "N/A")
+        self.assertEqual(
+            result.candidate_evidence_input.execution_mode,
+            "anchored_place_search",
+        )
+        self.assertEqual(result.candidate_evidence_input.fixed_city_id, "KR-Cheongsong")
+        self.assertEqual(result.cleaned_raw_query, "")
+        self.assertEqual(result.soft_preference_query, "")
+
+    def test_fixture_like_gourmet_healing_festival_case(self) -> None:
+        """Translate the legacy personalized fixture into current theme IDs."""
+
+        request = {
+            "entryType": "chat",
+            "destinationId": None,
+            "country": "KR",
+            "travelMonth": 12,
+            "travelYear": 2026,
+            "themes": ["healing_rest", "food_local"],
+            "tripType": "2d1n",
+            "includeFestivals": True,
+            "naturalLanguageQuery": "온천할 수 있고 맛있는 음식 먹을 수 있는 곳으로 추천해줘",
+            "userLocation": {"latitude": 37.5665, "longitude": 126.9780},
+        }
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(
+            result.active_required_themes,
+            ("온천·휴양", "미식·노포"),
+        )
+        self.assertEqual(result.searchable_place_themes, ("온천·휴양",))
+        self.assertEqual(result.external_link_themes, ("미식·노포",))
+        self.assertTrue(result.candidate_evidence_input.include_festivals)
+        self.assertEqual(
+            result.candidate_evidence_input.execution_mode,
+            "festival_seeded_city_discovery",
+        )
+        self.assertIn("온천", result.cleaned_raw_query)
+        self.assertIn("맛있는 음식", result.cleaned_raw_query)
 
 
 if __name__ == "__main__":
