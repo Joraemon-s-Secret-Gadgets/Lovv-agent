@@ -9,15 +9,57 @@ from lovv_agent.agents.supervisor import (
     MATRIX_NOT_APPLICABLE,
     MATRIX_PARTIAL,
     MATRIX_PENDING,
+    NODE_CANDIDATE_EVIDENCE,
+    NODE_END_WAIT_USER,
+    NODE_FESTIVAL_VERIFIER,
+    NODE_PLANNER,
+    NODE_RESPONSE_PACKAGER,
+    SupervisorRouter,
     create_fulfilled_matrix,
+    decide_supervisor_route,
     mark_matrix_complete,
     mark_matrix_not_applicable,
     mark_matrix_partial,
     matrix_has_pending_work,
     set_matrix_status,
 )
-from lovv_agent.models.schemas import SchemaValidationError
+from lovv_agent.models.schemas import (
+    CandidateEvidencePackage,
+    SchemaValidationError,
+    SelectedCity,
+)
 from lovv_agent.state import FULFILLED_MATRIX_KEYS, FULFILLED_MATRIX_STATUSES
+
+
+def _candidate_package(
+    *,
+    status: str = "ok",
+    selected_city: bool = True,
+    recommended_places: bool = True,
+    needs_clarification: bool = False,
+    clarifying_question: str | None = None,
+) -> CandidateEvidencePackage:
+    """Create a compact Candidate Evidence package for routing tests."""
+
+    return CandidateEvidencePackage(
+        status=status,
+        selected_city=(
+            SelectedCity(
+                city_id="city-1",
+                city_name_ko="샘플시",
+                country="KR",
+            )
+            if selected_city
+            else None
+        ),
+        recommended_places=(
+            ({"place_id": "place-1", "title": "샘플 명소"},)
+            if recommended_places
+            else ()
+        ),
+        needs_clarification=needs_clarification,
+        clarifying_question=clarifying_question,
+    )
 
 
 class SupervisorMatrixTest(unittest.TestCase):
@@ -94,6 +136,110 @@ class SupervisorMatrixTest(unittest.TestCase):
 
         with self.assertRaises(SchemaValidationError):
             matrix_has_pending_work({"evidence": "X", "festival": "X", "planning": "DONE"})
+
+
+class SupervisorRoutingTest(unittest.TestCase):
+    """Validate deterministic route decisions for Task 3.2."""
+
+    def test_routing_starts_with_candidate_evidence(self) -> None:
+        decision = SupervisorRouter().decide(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=True),
+            include_festivals=True,
+        )
+
+        self.assertEqual(decision.next_node, NODE_CANDIDATE_EVIDENCE)
+        self.assertEqual(decision.reason, "pending_evidence")
+
+    def test_clarification_routes_to_user_wait_and_blocks_downstream(self) -> None:
+        decision = decide_supervisor_route(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=True),
+            include_festivals=True,
+            completed_group="evidence",
+            candidate_evidence_package=_candidate_package(
+                status="no_candidate",
+                selected_city=False,
+                recommended_places=False,
+                needs_clarification=True,
+                clarifying_question="축제 조건 없이 계속할까요?",
+            ),
+        )
+
+        self.assertEqual(decision.next_node, NODE_END_WAIT_USER)
+        self.assertTrue(decision.needs_clarification)
+        self.assertEqual(decision.clarifying_question, "축제 조건 없이 계속할까요?")
+        self.assertEqual(decision.fulfilled_matrix["festival"], MATRIX_PENDING)
+        self.assertEqual(decision.fulfilled_matrix["planning"], MATRIX_PENDING)
+
+    def test_include_festivals_false_skips_verifier_after_evidence(self) -> None:
+        decision = decide_supervisor_route(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=True),
+            include_festivals=False,
+            completed_group="evidence",
+            candidate_evidence_package=_candidate_package(status="ok"),
+        )
+
+        self.assertEqual(decision.next_node, NODE_PLANNER)
+        self.assertEqual(decision.fulfilled_matrix["evidence"], MATRIX_COMPLETE)
+        self.assertEqual(decision.fulfilled_matrix["festival"], MATRIX_NOT_APPLICABLE)
+
+    def test_routing_order_sends_festival_before_planning_when_included(self) -> None:
+        after_evidence = decide_supervisor_route(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=True),
+            include_festivals=True,
+            completed_group="evidence",
+            candidate_evidence_package=_candidate_package(status="ok"),
+        )
+
+        self.assertEqual(after_evidence.next_node, NODE_FESTIVAL_VERIFIER)
+        self.assertEqual(after_evidence.reason, "pending_festival")
+
+        after_festival = decide_supervisor_route(
+            fulfilled_matrix=after_evidence.fulfilled_matrix,
+            include_festivals=True,
+            completed_group="festival",
+        )
+
+        self.assertEqual(after_festival.next_node, NODE_PLANNER)
+        self.assertEqual(after_festival.reason, "pending_planning")
+
+    def test_safe_insufficient_candidates_can_proceed_to_planner(self) -> None:
+        decision = decide_supervisor_route(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=False),
+            include_festivals=False,
+            completed_group="evidence",
+            candidate_evidence_package=_candidate_package(status="insufficient_candidates"),
+        )
+
+        self.assertEqual(decision.next_node, NODE_PLANNER)
+        self.assertEqual(decision.fulfilled_matrix["evidence"], MATRIX_PARTIAL)
+
+    def test_unsafe_insufficient_candidates_do_not_call_planner(self) -> None:
+        decision = decide_supervisor_route(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=False),
+            include_festivals=False,
+            completed_group="evidence",
+            candidate_evidence_package=_candidate_package(
+                status="insufficient_candidates",
+                selected_city=False,
+                recommended_places=False,
+            ),
+        )
+
+        self.assertEqual(decision.next_node, NODE_RESPONSE_PACKAGER)
+        self.assertEqual(decision.reason, "candidate_evidence_not_safe_for_planner")
+        self.assertEqual(decision.fulfilled_matrix["evidence"], MATRIX_PARTIAL)
+
+    def test_evidence_status_without_package_does_not_call_planner(self) -> None:
+        decision = decide_supervisor_route(
+            fulfilled_matrix=create_fulfilled_matrix(include_festivals=False),
+            include_festivals=False,
+            completed_group="evidence",
+            worker_status="ok",
+        )
+
+        self.assertEqual(decision.next_node, NODE_RESPONSE_PACKAGER)
+        self.assertEqual(decision.reason, "candidate_evidence_not_safe_for_planner")
+        self.assertEqual(decision.fulfilled_matrix["evidence"], MATRIX_PARTIAL)
 
 
 if __name__ == "__main__":
