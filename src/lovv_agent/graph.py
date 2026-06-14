@@ -133,6 +133,8 @@ class LocalGraphRuntime:
             )
             if state.routing.next_node == NODE_PLANNER:
                 continue
+            if not _planner_validation_passed(planner_output.validation_result):
+                state.planning.planner_output = None
             break
 
         status = (
@@ -199,6 +201,22 @@ def _apply_route_decision(state: UnifiedAgentState, decision: Any) -> None:
     state.routing.validation_retry_count = decision.validation_retry_count
     state.routing.needs_clarification = decision.needs_clarification
     state.routing.clarifying_question = decision.clarifying_question
+
+
+def _planner_validation_passed(validation_result: Mapping[str, Any]) -> bool:
+    """Return whether Planner validation passed for safe response packaging."""
+
+    for key in ("is_valid", "valid", "passed"):
+        value = validation_result.get(key)
+        if isinstance(value, bool):
+            return value
+    status = validation_result.get("status")
+    return isinstance(status, str) and status.strip().lower() in {
+        "valid",
+        "ok",
+        "passed",
+        "success",
+    }
 
 
 def _package_and_finish(

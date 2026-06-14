@@ -16,6 +16,7 @@ from lovv_agent.graph import (
 from lovv_agent.models.schemas import (
     CandidateEvidencePackage,
     FestivalVerification,
+    PlannerOutput,
     SelectedCity,
 )
 from lovv_agent.state import IntentState, RequestState, UnifiedAgentState
@@ -25,7 +26,13 @@ from lovv_agent.tools.response_packager import (
 )
 
 
-def request_state(*, include_festivals: bool = False) -> UnifiedAgentState:
+def request_state(
+    *,
+    include_festivals: bool = False,
+    destination_id: str | None = None,
+    trip_type: str = "daytrip",
+    themes: tuple[str, ...] = ("sea_coast",),
+) -> UnifiedAgentState:
     """Return one typed graph state seeded with request fields."""
 
     return UnifiedAgentState(
@@ -35,28 +42,41 @@ def request_state(*, include_festivals: bool = False) -> UnifiedAgentState:
             country="KR",
             travel_year=2026,
             travel_month=10,
-            trip_type="daytrip",
-            destination_id=None,
-            themes=("sea_coast",),
+            trip_type=trip_type,
+            destination_id=destination_id,
+            themes=themes,
             include_festivals=include_festivals,
             natural_language_query="조용한 바다 산책",
         ),
     )
 
 
-def place(place_id: str) -> dict[str, object]:
+def place(
+    place_id: str,
+    *,
+    city_id: str = "KR-A",
+    city_name_ko: str = "에이군",
+) -> dict[str, object]:
     """Return one grounded attraction candidate."""
 
     return {
         "place_id": place_id,
         "title": f"장소 {place_id}",
-        "city_id": "KR-A",
-        "city_name_ko": "에이군",
+        "city_id": city_id,
+        "city_name_ko": city_name_ko,
         "theme_tags": ["바다·해안"],
     }
 
 
-def evidence_package(*, include_festival_candidate: bool = False) -> CandidateEvidencePackage:
+def evidence_package(
+    *,
+    include_festival_candidate: bool = False,
+    status: str = "ok",
+    mode: str | None = None,
+    selected_city_id: str = "KR-A",
+    selected_city_name: str = "에이군",
+    recommended_count: int = 3,
+) -> CandidateEvidencePackage:
     """Return a Planner-safe Candidate Evidence package."""
 
     selected_festivals = (
@@ -69,14 +89,24 @@ def evidence_package(*, include_festival_candidate: bool = False) -> CandidateEv
         },
     )
     return CandidateEvidencePackage(
-        status="ok",
+        status=status,
         mode=(
-            "festival_seeded_city_discovery"
-            if include_festival_candidate
-            else "city_discovery"
+            mode
+            or (
+                "festival_seeded_city_discovery"
+                if include_festival_candidate
+                else "city_discovery"
+            )
         ),
-        selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
-        recommended_places=(place("P-0"), place("P-1"), place("P-2")),
+        selected_city=SelectedCity(
+            city_id=selected_city_id,
+            city_name_ko=selected_city_name,
+            country="KR",
+        ),
+        recommended_places=tuple(
+            place(f"P-{index}", city_id=selected_city_id, city_name_ko=selected_city_name)
+            for index in range(recommended_count)
+        ),
         selected_festival_candidates=selected_festivals if include_festival_candidate else (),
     )
 
@@ -303,6 +333,163 @@ class ResponsePackagerMaskingTest(unittest.TestCase):
             "evidence_summary",
             json.dumps(response["festivalDateVerifications"], ensure_ascii=False),
         )
+
+
+class MockedGraphE2ETest(unittest.TestCase):
+    """Validate Task 9.3 mocked end-to-end graph paths."""
+
+    def test_e2e_normal_city_discovery_returns_public_response(self) -> None:
+        graph = build_local_graph(
+            GraphNodeSet(
+                intent=lambda state: IntentState(),
+                candidate_evidence=lambda state: evidence_package(),
+                festival_verifier=lambda state: (),
+                planner=planner_node,
+            ),
+        )
+
+        final_state = graph.invoke(request_state())
+
+        self.assertEqual(final_state.serving.response_status, "completed")
+        self.assertEqual(final_state.serving.response_payload["destination"]["destinationId"], "KR-A")
+        self.assertTrue(final_state.serving.response_payload["itinerary"]["days"])
+
+    def test_e2e_festival_included_city_discovery_returns_festival_fields(self) -> None:
+        graph = build_local_graph(
+            GraphNodeSet(
+                intent=lambda state: IntentState(),
+                candidate_evidence=lambda state: evidence_package(
+                    include_festival_candidate=True,
+                ),
+                festival_verifier=lambda state: (festival_verification(),),
+                planner=planner_node,
+            ),
+        )
+
+        final_state = graph.invoke(request_state(include_festivals=True))
+
+        self.assertEqual(
+            final_state.serving.response_payload["festivalDateVerifications"][0]["festivalId"],
+            "F-A",
+        )
+        festival_items = [
+            item
+            for day in final_state.serving.response_payload["itinerary"]["days"]
+            for item in day["items"]
+            if item["contentId"] == "F-A"
+        ]
+        self.assertEqual(len(festival_items), 1)
+
+    def test_e2e_anchored_place_search_keeps_anchored_city(self) -> None:
+        graph = build_local_graph(
+            GraphNodeSet(
+                intent=lambda state: IntentState(),
+                candidate_evidence=lambda state: evidence_package(
+                    mode="anchored_place_search",
+                    selected_city_id="KR-ANCHOR",
+                    selected_city_name="앵커군",
+                ),
+                festival_verifier=lambda state: (),
+                planner=planner_node,
+            ),
+        )
+
+        final_state = graph.invoke(request_state(destination_id="KR-ANCHOR"))
+
+        self.assertEqual(
+            final_state.serving.response_payload["destination"]["destinationId"],
+            "KR-ANCHOR",
+        )
+        self.assertEqual(final_state.evidence.candidate_evidence_package.mode, "anchored_place_search")
+
+    def test_e2e_insufficient_candidates_returns_reduced_itinerary(self) -> None:
+        graph = build_local_graph(
+            GraphNodeSet(
+                intent=lambda state: IntentState(),
+                candidate_evidence=lambda state: evidence_package(
+                    status="insufficient_candidates",
+                    recommended_count=2,
+                ),
+                festival_verifier=lambda state: (),
+                planner=planner_node,
+            ),
+        )
+
+        final_state = graph.invoke(request_state())
+        item_count = sum(
+            len(day["items"])
+            for day in final_state.serving.response_payload["itinerary"]["days"]
+        )
+
+        self.assertEqual(item_count, 2)
+        self.assertIn(
+            "후보 수가 적어",
+            final_state.serving.response_payload["explainability"]["userNotice"],
+        )
+
+    def test_e2e_no_candidate_without_clarification_skips_planner(self) -> None:
+        planner_calls: list[str] = []
+        graph = build_local_graph(
+            GraphNodeSet(
+                intent=lambda state: IntentState(),
+                candidate_evidence=lambda state: CandidateEvidencePackage(
+                    status="no_candidate",
+                    mode="city_discovery",
+                    failure_signals=("no_city_after_theme_gate",),
+                ),
+                festival_verifier=lambda state: (),
+                planner=lambda state: planner_calls.append("called") or planner_node(state),
+            ),
+        )
+
+        final_state = graph.invoke(request_state())
+
+        self.assertEqual(planner_calls, [])
+        self.assertEqual(final_state.serving.response_payload["itinerary"]["days"], [])
+        self.assertEqual(final_state.routing.fulfilled_matrix["evidence"], "△")
+
+    def test_e2e_planner_validation_retry_exhaustion_masks_invalid_output(self) -> None:
+        planner_calls: list[str] = []
+
+        def invalid_planner(state: UnifiedAgentState) -> PlannerOutput:
+            planner_calls.append("called")
+            return PlannerOutput(
+                itinerary=(
+                    {
+                        "day": 1,
+                        "slot": "morning",
+                        "item_type": "attraction",
+                        "placeId": "UNKNOWN",
+                        "title": "근거 없는 장소",
+                    },
+                ),
+                recommendation_reasons=("검증 실패 출력입니다.",),
+                itinerary_flow_reason="검증 실패 출력입니다.",
+                external_links={},
+                confidence=0.1,
+                validation_result={
+                    "status": "invalid",
+                    "is_valid": False,
+                    "valid": False,
+                    "errors": [{"code": "ungrounded_attraction"}],
+                },
+            )
+
+        graph = build_local_graph(
+            GraphNodeSet(
+                intent=lambda state: IntentState(),
+                candidate_evidence=lambda state: evidence_package(),
+                festival_verifier=lambda state: (),
+                planner=invalid_planner,
+            ),
+        )
+
+        final_state = graph.invoke(request_state())
+
+        self.assertEqual(len(planner_calls), 3)
+        self.assertEqual(final_state.routing.validation_retry_count, 2)
+        self.assertEqual(final_state.routing.fulfilled_matrix["planning"], "△")
+        self.assertEqual(final_state.serving.response_payload["itinerary"]["days"], [])
 
 
 if __name__ == "__main__":
