@@ -72,7 +72,7 @@ class AwsClientProvider:
         return self._create_client("dynamodb")
 
     def create_runtime_clients(self) -> AwsRuntimeClients:
-        """Create the runtime client pair used by DestinationSearchTool."""
+        """Create runtime clients used by search and Dynamo lookup tools."""
 
         return AwsRuntimeClients(
             s3_vectors=self.create_s3_vectors_client(),

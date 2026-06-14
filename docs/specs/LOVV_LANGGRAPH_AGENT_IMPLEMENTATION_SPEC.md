@@ -65,11 +65,11 @@ Rules:
 The implementation must keep four boundaries strict:
 
 - `Intent_Agent` structures input. It does not search, score, or plan.
-- `Candidate_Evidence_Agent` searches and ranks grounded city/place evidence. Its package is internal Planner input, not an external API response.
+- `Candidate_Evidence_Agent` searches and ranks grounded city/place evidence. Its package is internal Planner input, not an external API response or user-facing explanation.
 - `Festival_Verifier_Agent` verifies selected-city festival candidates only. It does not create festival city seeds, rerank cities, or change the selected city.
 - `Planner_Agent` writes itinerary internals from grounded evidence. It must not invent missing places, named restaurants, festivals, prices, opening hours, or live conditions.
 
-Runtime retrieval uses S3 Vector search and DynamoDB primary-only rehydration. JSON/local fixture search must not be introduced as the runtime source.
+Runtime retrieval uses S3 Vector search for candidate evidence and DynamoDB detail enrichment only after Planner final placement. JSON/local fixture search must not be introduced as the runtime source.
 
 ## Goals
 
@@ -84,6 +84,7 @@ Runtime retrieval uses S3 Vector search and DynamoDB primary-only rehydration. J
   - `Response_Packager` deterministic terminal component
 - Implement these tool/helper boundaries:
   - `DestinationSearchTool`
+  - `DynamoLookupTool`
   - `ScoringTool`
   - query embedding adapter
   - candidate selection helper
@@ -253,12 +254,12 @@ In that state the Supervisor:
   - It is not used for attraction S3 Vector search.
   - It is not a scoring target.
   - It is passed to Planner as a selected-city `foodSearch`/meal CTA requirement.
-- Use `DestinationSearchTool` for runtime retrieval.
+- Use `DestinationSearchTool` for S3 Vector attraction retrieval.
+- Use `DynamoLookupTool` for DynamoDB festival seed lookup and final item detail enrichment.
 - Use `ScoringTool` for deterministic place/city scoring.
 - Merge duplicate candidates by stable `place_id`.
 - Apply searchable-place theme AND gate to searchable themes only.
 - Select primary and reserve attraction candidates based on trip budget and theme quota.
-- Rehydrate primary candidates from DynamoDB by default.
 - Return a Candidate Evidence Package with:
   - `status`
   - `needs_clarification`
@@ -276,14 +277,18 @@ In that state the Supervisor:
   - `candidate_counts`
   - `warnings`
   - `fallback_audit`
-- Build `explanation_facts` as compact Planner-facing grounding material:
-  - `query_context`: `cleaned_raw_query` and `soft_preference_query`
-  - `place_alignment`: selected place `overview` plus raw/soft query match notes
-  - `city_choice`: city-level reason codes and representative place IDs
-  - `festival_anchor`: whether festival seed/fixed-city lookup influenced the city flow
-  - `limitations`: shortage or unsupported-condition notes that may affect wording
+  - `candidate_reason_claims`
+- Use the Candidate Evidence LLM to build `candidate_reason_claims` as compact, evidence-referenced Korean claim candidates when `status` permits Planner consumption:
+  - `claim_id`
+  - `scope`
+  - `text_ko`
+  - `evidence_refs`
+  - `required_place_ids`
+  - `public_eligible`
+- Candidate Evidence LLM must not change retrieval, scoring, city selection, quota, or fallback decisions.
+- If claim generation fails schema validation after bounded retry, keep the package valid with empty or templated non-public claims and record a warning.
 - Keep scoring values and retrieval details in internal audits; do not expose them as user-facing explanation text.
-- Must not create itinerary text or user-facing recommendation copy.
+- Must not create itinerary text or final user-facing recommendation copy.
 
 ### R4. Festival Candidate Channel
 
@@ -328,8 +333,7 @@ AND
 
 ### R5. DestinationSearchTool
 
-- Wrap S3 Vector attraction search, city grouping, searchable theme gate, and DynamoDB primary rehydration.
-- Provide `search_festival_city_seeds(country, travel_month, theme_pool, city_id=None, max_candidates=...)`.
+- Wrap S3 Vector attraction search, attraction candidate normalization, city grouping, and searchable theme gate.
 - Provide `search_candidates(query_vector, city_id=None, theme=None, top_k=...)`.
 - `top_k` must be configuration-driven and test-covered. This SPEC does not hardcode a universal value.
 - Use S3 Vector query configuration through environment/runtime config:
@@ -347,8 +351,17 @@ AND
 - `미식·노포` must not trigger S3 Vector place search; it is handled later as
   a selected-city external food search/link requirement.
 - Normalize chunk keys into stable `place_id`.
-- Use `ddb_pk` and `ddb_sk` for DynamoDB `GetItem`.
-- Missing rehydration keys or detail lookup failures must produce warnings and `details=null`, not graph crashes.
+
+### R5b. DynamoLookupTool
+
+- Wrap DynamoDB-backed festival seed lookup and final placed item detail enrichment.
+- Provide `search_festival_city_seeds(country, travel_month, theme_pool, city_id=None, max_candidates=...)`.
+- Provide `enrich_final_places(final_places)`.
+- Festival seed lookup runs before attraction retrieval when `includeFestivals=true`.
+- Use `ddb_pk` and `ddb_sk` for final item DynamoDB `GetItem`.
+- Detail enrichment is called only after Planner final placement, not during Candidate Evidence package construction.
+- Missing detail keys or lookup failures must produce warnings and `details=null`, not graph crashes.
+- Must not perform S3 Vector search, scoring, quota selection, or itinerary writing.
 
 ### R6. ScoringTool
 
@@ -422,7 +435,9 @@ year(start_date) == travelYear
 - Do not generate named restaurants from model knowledge.
 - For gourmet themes, provide a selected-city food search link, meal CTA, or placeholder/user notice according to available response packaging.
 - Use `source=placeholder` and `placeId=null` for unavoidable free-time or meal-choice placeholders.
-- Generate user-facing recommendation reasons from `explanation_facts`, especially the raw/soft query and selected attraction overview alignment.
+- Enrich final placed attraction items from DynamoDB before generating user-facing reasons when detail keys are available.
+- Generate user-facing recommendation reasons from verified `candidate_reason_claims`, raw/soft query, enriched itinerary items, verified festivals, and validation results.
+- Reject or rewrite any claim whose `required_place_ids` are not present in the final itinerary or whose `evidence_refs`/details do not support the text.
 - Do not mention raw scores, ranking formulas, top K values, or internal audit fields in user-facing explanation text.
 - Produce `explanation_audit` that maps public explanation sentences to evidence refs and reason codes for internal validation.
 - Generate `user_notice` when candidate shortage, unsupported conditions, unconfirmed festivals, or live-info limitations affect the result.
@@ -432,7 +447,7 @@ year(start_date) == travelYear
 
 - Convert Planner internal output to the current `/recommendations` response shape.
 - Remain deterministic: do not call an LLM, run recommendation reasoning, or alter selected evidence.
-- Hide internal Candidate Evidence Package, `explanation_facts`, `explanation_audit`, raw retrieval audit, raw evidence, raw tool payloads, and internal reasoning.
+- Hide internal Candidate Evidence Package, `candidate_reason_claims`, `explanation_audit`, raw retrieval audit, raw evidence, raw tool payloads, and internal reasoning.
 - Expose only safe user-facing fields:
   - destination
   - itinerary
@@ -472,6 +487,7 @@ Lovv-agent/
         planner.py
       tools/
         destination_search.py
+        dynamo_lookup.py
         scoring.py
         candidate_selection.py
         validation.py
@@ -559,15 +575,17 @@ query embedding adapter
 → city grouping and searchable theme gate
 → ScoringTool
 → candidate selection
-→ DynamoDB primary-only rehydration
 → Candidate Evidence Package
+→ Planner final placement
+→ DynamoLookupTool.enrich_final_places()
+→ Planner explanation generation
 ```
 
 Festival seed boundary:
 
 ```text
 includeFestivals=true
-→ DestinationSearchTool.search_festival_city_seeds()
+→ DynamoLookupTool.search_festival_city_seeds()
 → DynamoDB festival candidates
 → seed city pool or fixed-city festival candidates
 → Candidate Evidence Package.selected_festival_candidates
@@ -593,11 +611,12 @@ No real credentials or secrets may be hardcoded.
 | --- | --- | --- |
 | Intent Agent | API input normalization, raw/soft query split, unsupported conditions, initial matrix | search, scoring, itinerary |
 | Supervisor Router | routing, matrix transitions, retry/clarification stop | raw retrieval or raw web interpretation |
-| Candidate Evidence Agent | evidence package, mode selection, festival seed/fixed-city lookup, city/place ranking, primary/reserve, audit | final user response, festival date verification |
-| DestinationSearchTool | S3 Vector attraction search, DynamoDB festival seed helper, DynamoDB primary rehydration | scoring, itinerary, public response |
+| Candidate Evidence Agent | evidence package, mode selection, festival seed/fixed-city lookup, city/place ranking, primary/reserve, evidence-referenced reason claim candidates, fallback audit | final user response, final recommendation reasons, festival date verification |
+| DestinationSearchTool | S3 Vector attraction search, attraction candidate normalization, city grouping, searchable theme gate | DynamoDB reads, scoring, itinerary, public response |
+| DynamoLookupTool | DynamoDB festival seed helper, final placed item detail enrichment | S3 Vector search, scoring, quota, itinerary, public response |
 | ScoringTool | deterministic place/city scores and score audit | AWS calls, search, quota, itinerary |
 | Festival Verifier | selected-city festival year/date verification and Planner policy | city seed creation, city reranking, itinerary writing |
-| Planner Agent | itinerary internals, explanation, validation, notices, festival overlay, food link/CTA policy | new retrieval, ungrounded live facts |
+| Planner Agent | itinerary internals, DynamoLookupTool final item detail enrichment call, explanation, validation, notices, festival overlay, food link/CTA policy | broad candidate retrieval, ungrounded live facts |
 | Response Packager | deterministic API response packaging and internal payload hiding | LLM calls, recommendation reasoning changes |
 
 ## State and Data Contracts
@@ -683,37 +702,24 @@ Implementation may add:
   "candidate_counts": {},
   "warnings": {},
   "fallback_audit": {},
-  "explanation_facts": {
-    "query_context": {
-      "cleaned_raw_query": "바다 산책을 하고 싶다",
-      "soft_preference_query": "너무 붐비지 않는 분위기"
+  "candidate_reason_claims": [
+    {
+      "claim_id": "city_reason_1",
+      "scope": "city_selection",
+      "text_ko": "선택 도시는 바다·해안 테마 후보가 충분합니다.",
+      "evidence_refs": ["selected_city", "city_rankings[0]", "coverage_audit"],
+      "required_place_ids": [],
+      "public_eligible": true
     },
-    "city_choice": {
-      "city_id": "uuid",
-      "city_name_ko": "도시명",
-      "reason_codes": ["theme_coverage", "candidate_sufficiency"],
-      "representative_place_ids": ["place-1"],
-      "summary": "선택 테마를 충족하는 관광지 후보가 충분한 도시이다."
-    },
-    "place_alignment": [
-      {
-        "place_id": "place-1",
-        "title": "관광지명",
-        "overview": "선택된 관광지의 요약 설명",
-        "matched_themes": ["바다·해안"],
-        "raw_query_alignment": "바다 산책 요청과 직접 연결된다.",
-        "soft_query_alignment": "조용한 분위기 선호와 맞는다.",
-        "reason_codes": ["raw_query_match", "overview_theme_match"]
-      }
-    ],
-    "festival_anchor": {
-      "used": false,
-      "matched_month": null,
-      "matched_themes": [],
-      "selected_festival_ids": []
-    },
-    "limitations": []
-  }
+    {
+      "claim_id": "place_pool_1",
+      "scope": "place_pool",
+      "text_ko": "대표 후보들은 사용자의 바다 산책 요청과 연결됩니다.",
+      "evidence_refs": ["recommended_places:place-1"],
+      "required_place_ids": ["place-1"],
+      "public_eligible": true
+    }
+  ]
 }
 ```
 
@@ -725,6 +731,12 @@ Allowed `status` values:
 - `error`
 
 Downstream agents must branch on `status` and `needs_clarification` before assuming `selected_city` or places exist.
+
+`candidate_reason_claims` are not final public explanation text. Candidate
+Evidence may use an LLM to compress deterministic audits into these short
+Korean claim candidates, but each claim must carry evidence references and
+place requirements so Planner can verify it against final placed,
+detail-enriched items before public use.
 
 ### Festival Verification Output
 
@@ -759,7 +771,7 @@ Planner internal output must include:
 - `validation_result`
 - `explanation_audit`
 
-`explanation_audit` maps generated explanation text back to evidence refs and reason codes. Response Packager maps safe public fields to the `/recommendations` response and hides internal evidence packages, `explanation_facts`, and `explanation_audit`.
+`explanation_audit` maps generated explanation text back to evidence refs and reason codes. Response Packager maps safe public fields to the `/recommendations` response and hides internal evidence packages, `candidate_reason_claims`, and `explanation_audit`.
 
 ## Runtime Retrieval and Tool Boundaries
 
@@ -778,7 +790,7 @@ Attraction candidate records must support at least:
 | `metadata.theme_tags` | active theme filter, searchable theme gate, and quota |
 | `metadata.title` | display and dedup |
 | `metadata.latitude`, `metadata.longitude` | scoring and route hints |
-| `metadata.ddb_pk`, `metadata.ddb_sk` | DynamoDB detail rehydration |
+| `metadata.ddb_pk`, `metadata.ddb_sk` | DynamoDB detail enrichment after final placement |
 
 Festival seed records come from DynamoDB and must preserve:
 
@@ -819,8 +831,8 @@ Implementation tests should cover small budgets and sufficient budgets. This SPE
 | `includeFestivals=true` but theme pool empty | `no_required_theme_for_festival_seed`, `needs_clarification=true` |
 | Festival city seed empty | `no_festival_city_seed`, `needs_clarification=true` |
 | Anchored city has no matching festival | `no_festival_in_anchor_city`, `needs_clarification=true` |
-| Missing `ddb_pk`/`ddb_sk` | warning, `details=null`, no crash |
-| DynamoDB detail failure | warning, `details=null`, confidence impact |
+| Missing `ddb_pk`/`ddb_sk` on final placed item | warning, `details=null`, no crash |
+| DynamoDB detail failure on final placed item | warning, `details=null`, confidence impact |
 | Festival unconfirmed | Planner must not place festival block |
 | Planner validation failure | rewrite/remove offending item; stop after retry limit |
 | Candidate Evidence `needs_clarification=true` | Supervisor routes to `END_WAIT_USER`; Planner not called |
@@ -836,7 +848,7 @@ This SPEC is accepted when:
 - It defines short `naturalLanguageQuery` handling as LLM extraction skip, not a clarification fallback.
 - It defines the LangGraph node sequence and Supervisor matrix routing.
 - It defines `END_WAIT_USER` clarification behavior.
-- It defines responsibilities for Intent, Candidate Evidence, Festival Verifier, Planner, Response Packager, DestinationSearchTool, and ScoringTool.
+- It defines responsibilities for Intent, Candidate Evidence, Festival Verifier, Planner, Response Packager, DestinationSearchTool, DynamoLookupTool, and ScoringTool.
 - It keeps Candidate Evidence Package internal.
 - It uses S3 Vector and DynamoDB as runtime retrieval/detail sources.
 - It rejects JSON/local fixture runtime retrieval.
@@ -922,13 +934,14 @@ This SPEC is accepted when:
   - `needs_clarification=true` prevents downstream calls.
 - Verification: unit tests for routing states and retry limits.
 
-### Task 4. DestinationSearchTool and AWS Retrieval Adapters
+### Task 4. DestinationSearchTool, DynamoLookupTool, and AWS Retrieval Adapters
 
-- Purpose: Implement S3 Vector attraction search, DynamoDB festival seed helper, and primary-only rehydration facade.
-- Scope: S3 Vector repository, DynamoDB repository, tool methods, filter construction, warning handling.
+- Purpose: Implement S3 Vector attraction search through `DestinationSearchTool` and DynamoDB lookup through `DynamoLookupTool`.
+- Scope: S3 Vector repository, DynamoDB repository, S3 filter construction, festival seed lookup, final detail enrichment warning handling.
 - Dependencies: Task 1.
 - Target Files:
   - `src/lovv_agent/tools/destination_search.py`
+  - `src/lovv_agent/tools/dynamo_lookup.py`
   - `src/lovv_agent/repositories/s3_vectors.py`
   - `src/lovv_agent/repositories/dynamodb.py`
   - `src/lovv_agent/adapters/aws_clients.py`
@@ -938,7 +951,8 @@ This SPEC is accepted when:
   - Does not use festival or restaurant entity search for general place retrieval.
   - Implements festival seed/fixed-city lookup logical contract.
   - Normalizes chunk key to `place_id`.
-  - Missing DynamoDB keys produce warnings.
+  - Keeps DynamoDB reads out of `DestinationSearchTool`.
+  - Missing DynamoDB keys on final placed items produce warnings.
 - Verification: mocked S3/DynamoDB unit tests.
 
 ### Task 5. ScoringTool and Candidate Selection
@@ -972,7 +986,7 @@ This SPEC is accepted when:
   - Festival-included city discovery excludes non-seeded cities before attraction scoring.
   - Anchored search never mixes another city.
   - Seed failures return `needs_clarification=true`.
-  - `explanation_facts` summarize query/place-overview alignment without exposing raw scores.
+  - `candidate_reason_claims` contain evidence-referenced Korean claim candidates without exposing raw scores or finalizing public explanation text.
   - Package schema validates for `ok`, `insufficient_candidates`, `no_candidate`, and `error`.
 - Verification: mocked orchestration tests for normal, anchored, festival seed, and fallback paths.
 
@@ -1010,7 +1024,7 @@ This SPEC is accepted when:
   - Unconfirmed festivals are not placed.
   - Gourmet intent does not produce named restaurants from model knowledge.
   - Placeholder items use `placeId=null`.
-  - Recommendation reasons use `explanation_facts` and produce an internal `explanation_audit`.
+  - Recommendation reasons use verified `candidate_reason_claims`, raw/soft query, detail-enriched final itinerary items, and verified festival outputs, and produce an internal `explanation_audit`.
 - Verification: Planner normal/fallback/festival/gourmet/validation tests.
 
 ### Task 9. Response Packaging and Graph Integration
@@ -1026,7 +1040,7 @@ This SPEC is accepted when:
   - Graph executes the canonical node sequence.
   - Baseline E2E graph tests use the deterministic Supervisor.
   - Clarification path ends at `END_WAIT_USER`.
-  - Internal evidence, `explanation_facts`, `explanation_audit`, and audit are hidden from default response.
+  - Internal evidence, `candidate_reason_claims`, `explanation_audit`, and audit are hidden from default response.
   - Response shape aligns with the MVP `/recommendations` contract.
   - Retry limit is enforced.
   - After baseline E2E passes, the same fixture suite can be reused for an optional LLM Supervisor swap experiment that compares routing outcomes against deterministic hard rules.
@@ -1055,7 +1069,8 @@ Minimum verification suite:
 - Schema tests for `UnifiedAgentState`, Candidate Evidence input/package, Festival verification, Planner output.
 - Intent tests for structured API priority, conflict handling, theme mapping, `includeFestivals`, and schema-enforced output.
 - Supervisor tests for matrix transition, retry limit, and `END_WAIT_USER`.
-- DestinationSearchTool mocked AWS tests for filter payload, key normalization, festival seed lookup, and rehydration warnings.
+- DestinationSearchTool mocked AWS tests for S3 filter payload and key normalization.
+- DynamoLookupTool mocked AWS tests for festival seed lookup and final item detail enrichment warnings.
 - ScoringTool deterministic tests for place/city scores and excluded categories.
 - Candidate Evidence orchestration tests for `city_discovery`, `anchored_place_search`, `festival_seeded_city_discovery`, and clarification fallbacks.
 - Festival Verifier tests for date status and planner policy.
@@ -1070,7 +1085,7 @@ Minimum verification suite:
 - `Structured Agent Contract` is included.
 - Primary reference documents are listed.
 - Candidate Evidence Package remains internal.
-- Runtime retrieval uses S3 Vector and DynamoDB primary-only rehydration.
+- Runtime retrieval uses S3 Vector for candidate evidence and DynamoDB detail enrichment after Planner final placement.
 - JSON/local fixture runtime retrieval is not introduced.
 - No concrete LLM model ID is fixed.
 - `includeFestivals` is not modeled as a travel theme.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 TOOL_MODULES: tuple[str, ...] = (
     "destination_search",
+    "dynamo_lookup",
     "scoring",
     "candidate_selection",
     "validation",

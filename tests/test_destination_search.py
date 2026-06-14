@@ -1,4 +1,4 @@
-"""Tests for DestinationSearchTool AWS repository boundaries."""
+"""Tests for DestinationSearchTool and DynamoLookupTool boundaries."""
 
 from __future__ import annotations
 
@@ -18,13 +18,16 @@ from lovv_agent.config import (
 from lovv_agent.models.schemas import SchemaValidationError
 from lovv_agent.repositories.dynamodb import DynamoDbRepository
 from lovv_agent.repositories.s3_vectors import S3VectorRepository
+from lovv_agent.tools.dynamo_lookup import (
+    DynamoLookupTool,
+    normalize_festival_candidate,
+)
 from lovv_agent.tools.destination_search import (
     ATTRACTION_ENTITY_TYPE,
     DestinationSearchTool,
     build_attraction_filter,
     build_attraction_search_request,
     normalize_attraction_candidate,
-    normalize_festival_candidate,
     prune_cities,
 )
 
@@ -58,6 +61,8 @@ class RecordingDynamoDbClient:
     def __init__(
         self,
         query_response: dict[str, Any] | None = None,
+        get_item_response: dict[str, Any] | None = None,
+        get_item_exception: Exception | None = None,
     ) -> None:
         self.get_item_requests: list[dict[str, Any]] = []
         self.query_requests: list[dict[str, Any]] = []
@@ -66,28 +71,32 @@ class RecordingDynamoDbClient:
             if query_response is None
             else query_response
         )
+        self.get_item_response = (
+            {"Item": {"pk": {"S": "PLACE#1"}}}
+            if get_item_response is None
+            else get_item_response
+        )
+        self.get_item_exception = get_item_exception
 
     def get_item(self, **request: Any) -> dict[str, Any]:
         self.get_item_requests.append(dict(request))
-        return {"Item": {"pk": {"S": "PLACE#1"}}}
+        if self.get_item_exception is not None:
+            raise self.get_item_exception
+        return self.get_item_response
 
     def query(self, **request: Any) -> dict[str, Any]:
         self.query_requests.append(dict(request))
         return self.query_response
 
 
-def make_destination_search_tool(
+def make_dynamo_lookup_tool(
     dynamodb_client: RecordingDynamoDbClient,
     *,
     search_budget: SearchBudgetSettings | None = None,
-) -> DestinationSearchTool:
-    """Build a DestinationSearchTool with mock AWS repositories."""
+) -> DynamoLookupTool:
+    """Build a DynamoLookupTool with a mock DynamoDB repository."""
 
-    return DestinationSearchTool(
-        s3_vectors=S3VectorRepository(
-            client=RecordingS3VectorClient(),
-            settings=S3VectorSettings(),
-        ),
+    return DynamoLookupTool(
         dynamodb=DynamoDbRepository(
             client=dynamodb_client,
             settings=DynamoDbSettings(table_name="lovv-table"),
@@ -385,7 +394,7 @@ class FestivalSeedTest(unittest.TestCase):
 
     def test_festival_seed_empty_theme_pool_reports_clarification(self) -> None:
         dynamodb_client = RecordingDynamoDbClient()
-        tool = make_destination_search_tool(dynamodb_client)
+        tool = make_dynamo_lookup_tool(dynamodb_client)
 
         result = tool.search_festival_city_seeds(
             country="KR",
@@ -449,7 +458,7 @@ class FestivalSeedTest(unittest.TestCase):
                 ],
             },
         )
-        tool = make_destination_search_tool(dynamodb_client)
+        tool = make_dynamo_lookup_tool(dynamodb_client)
 
         result = tool.search_festival_city_seeds(
             country="KR",
@@ -501,7 +510,7 @@ class FestivalSeedTest(unittest.TestCase):
                 ],
             },
         )
-        tool = make_destination_search_tool(dynamodb_client)
+        tool = make_dynamo_lookup_tool(dynamodb_client)
 
         result = tool.search_festival_city_seeds(
             country="KR",
@@ -525,7 +534,7 @@ class FestivalSeedTest(unittest.TestCase):
 
     def test_festival_seed_empty_city_discovery_reports_failure(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
-        tool = make_destination_search_tool(dynamodb_client)
+        tool = make_dynamo_lookup_tool(dynamodb_client)
 
         result = tool.search_festival_city_seeds(
             country="KR",
@@ -539,7 +548,7 @@ class FestivalSeedTest(unittest.TestCase):
 
     def test_fixed_city_empty_lookup_reports_anchor_failure(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
-        tool = make_destination_search_tool(dynamodb_client)
+        tool = make_dynamo_lookup_tool(dynamodb_client)
 
         result = tool.search_festival_city_seeds(
             country="KR",
@@ -573,6 +582,170 @@ class FestivalSeedTest(unittest.TestCase):
         self.assertEqual(candidate.theme, "sea_coast")
         self.assertEqual(candidate.theme_tags, ("sea_coast", "walk"))
         self.assertEqual(candidate.event_start_date, "2026-06-01")
+
+
+class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
+    """Validate final placed item detail enrichment warnings for Task 4.4."""
+
+    def test_enrich_final_places_reads_placed_item_details(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            get_item_response={
+                "Item": {
+                    "PK": {"S": "PLACE#1"},
+                    "SK": {"S": "DETAIL#1"},
+                    "overview": {"S": "조용한 바다 산책지"},
+                    "visitor_count": {"N": "12"},
+                },
+            },
+        )
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "attraction#place-1#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "바다 산책로",
+                    "theme_tags": ["바다·해안"],
+                    "ddb_pk": "PLACE#1",
+                    "ddb_sk": "DETAIL#1",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((candidate,))
+
+        self.assertEqual(result.warnings, ())
+        self.assertEqual(
+            result.places[0].details,
+            {
+                "PK": "PLACE#1",
+                "SK": "DETAIL#1",
+                "overview": "조용한 바다 산책지",
+                "visitor_count": 12,
+            },
+        )
+        self.assertEqual(
+            dynamodb_client.get_item_requests[0]["Key"],
+            {
+                "PK": {"S": "PLACE#1"},
+                "SK": {"S": "DETAIL#1"},
+            },
+        )
+        self.assertEqual(dynamodb_client.get_item_requests[0]["TableName"], "lovv-table")
+
+    def test_enrich_final_places_only_calls_for_passed_final_items(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient()
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        placed = normalize_attraction_candidate(
+            {
+                "key": "attraction#placed#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "Placed",
+                    "theme_tags": ["history"],
+                    "ddb_pk": "PLACE#PLACED",
+                    "ddb_sk": "DETAIL#PLACED",
+                },
+            },
+        )
+        not_placed = normalize_attraction_candidate(
+            {
+                "key": "attraction#not-placed#1",
+                "distance": 0.2,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "Not Placed",
+                    "theme_tags": ["history"],
+                    "ddb_pk": "PLACE#R",
+                    "ddb_sk": "DETAIL#R",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((placed,))
+
+        self.assertEqual(len(result.places), 1)
+        self.assertEqual(result.places[0].place_id, placed.place_id)
+        self.assertNotEqual(result.places[0].place_id, not_placed.place_id)
+        self.assertEqual(len(dynamodb_client.get_item_requests), 1)
+
+    def test_enrich_final_places_missing_keys_warns_and_keeps_null_details(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient()
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "attraction#place-1#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "키 없는 장소",
+                    "theme_tags": ["history"],
+                    "ddb_pk": "PLACE#1",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((candidate,))
+
+        self.assertIsNone(result.places[0].details)
+        self.assertEqual(result.warnings[0].code, "missing_detail_key")
+        self.assertEqual(result.warnings[0].place_id, "attraction#place-1")
+        self.assertEqual(dynamodb_client.get_item_requests, [])
+
+    def test_enrich_final_places_dynamodb_failure_creates_warning(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            get_item_exception=RuntimeError("network failed"),
+        )
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "attraction#place-1#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "조회 실패 장소",
+                    "theme_tags": ["history"],
+                    "ddb_pk": "PLACE#1",
+                    "ddb_sk": "DETAIL#1",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((candidate,))
+
+        self.assertIsNone(result.places[0].details)
+        self.assertEqual(result.warnings[0].code, "dynamodb_detail_failure")
+        self.assertEqual(result.warnings[0].error_type, "RuntimeError")
+
+    def test_enrich_final_places_missing_item_creates_warning(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(get_item_response={})
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "attraction#place-1#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "city-1",
+                    "title": "빈 상세 장소",
+                    "theme_tags": ["history"],
+                    "ddb_pk": "PLACE#1",
+                    "ddb_sk": "DETAIL#1",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((candidate,))
+
+        self.assertIsNone(result.places[0].details)
+        self.assertEqual(result.warnings[0].code, "missing_detail_item")
 
 
 if __name__ == "__main__":

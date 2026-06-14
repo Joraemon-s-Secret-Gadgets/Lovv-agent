@@ -55,6 +55,23 @@ class DynamoDbRepository:
             raise SchemaValidationError("dynamodb get_item response must be a mapping")
         return dict(response)
 
+    def get_detail_item(
+        self,
+        *,
+        pk: str,
+        sk: str,
+        consistent_read: bool = False,
+    ) -> dict[str, Any]:
+        """Read one detail item by the canonical `PK`/`SK` key pair."""
+
+        return self.get_item(
+            {
+                "PK": {"S": _required_text(pk, "pk")},
+                "SK": {"S": _required_text(sk, "sk")},
+            },
+            consistent_read=consistent_read,
+        )
+
     def query_items(self, request: Mapping[str, Any]) -> dict[str, Any]:
         """Run a query against the configured table."""
 

@@ -140,7 +140,7 @@ class S3VectorSettings:
 
 @dataclass(frozen=True, slots=True)
 class DynamoDbSettings:
-    """DynamoDB table boundary for primary-only rehydration and festivals."""
+    """DynamoDB table boundary for festivals and final item detail enrichment."""
 
     table_name: str = DEFAULT_DYNAMODB_TABLE
 

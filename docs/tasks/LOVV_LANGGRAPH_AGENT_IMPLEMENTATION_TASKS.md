@@ -67,7 +67,7 @@ Primary reference documents to read only when the Subtask requires them:
 | 1 | Project Skeleton and Schemas | Spec approval |
 | 2 | Intent Agent and Structured Output Adapter | Task 1 |
 | 3 | Supervisor Router | Task 1 |
-| 4 | DestinationSearchTool and AWS Retrieval Adapters | Task 1 |
+| 4 | DestinationSearchTool, DynamoLookupTool, and AWS Retrieval Adapters | Task 1 |
 | 5 | ScoringTool and Candidate Selection | Task 4 |
 | 6 | Candidate Evidence Agent | Tasks 2, 4, 5 |
 | 7 | Festival Verifier Agent | Task 6 |
@@ -170,7 +170,7 @@ Primary reference documents to read only when the Subtask requires them:
 
 - Purpose: graph state and node handoff payload을 schema로 고정해 downstream 오염을 막는다.
 - Required Context:
-  - Full Spec의 `UnifiedAgentState`, Candidate Evidence input/package, Candidate Evidence `explanation_facts`, Festival Verification output, Planner output, Planner `explanation_audit`.
+  - Full Spec의 `UnifiedAgentState`, Candidate Evidence input/package, Candidate Evidence `candidate_reason_claims`, Festival Verification output, Planner output, Planner `explanation_audit`.
 - Context Budget:
   - Must read: Full Spec `## State and Data Contracts`, `## Error Handling and Fallback`.
   - Do not read: full Planner or Candidate Evidence canonical docs unless schema ambiguity appears.
@@ -197,7 +197,7 @@ Primary reference documents to read only when the Subtask requires them:
   - State schema contains request, conversation, trace, intent, routing, evidence, festival, planning, and serving groups.
   - Candidate Evidence statuses are limited to `ok`, `insufficient_candidates`, `no_candidate`, `error`.
   - `needs_clarification` and `clarifying_question` are valid across worker outputs.
-  - Candidate Evidence `explanation_facts` validates raw/soft query and selected place overview alignment facts.
+  - Candidate Evidence `candidate_reason_claims` validates evidence-referenced Korean claim candidates without finalizing public explanation text.
   - Planner `explanation_audit` validates internal evidence refs for generated recommendation reasons.
   - Sample payloads validate.
 - Verification:
@@ -423,13 +423,13 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 
 ---
 
-## Task 4. DestinationSearchTool and AWS Retrieval Adapters
+## Task 4. DestinationSearchTool, DynamoLookupTool, and AWS Retrieval Adapters
 
-- Purpose: S3 Vector attraction search, DynamoDB festival seed helper, primary-only rehydration facade를 만든다.
+- Purpose: `DestinationSearchTool`은 S3 Vector attraction search로 한정하고, `DynamoLookupTool`은 DynamoDB festival seed lookup과 final placed item detail enrichment를 전담하게 만든다.
 - Scope: AWS client adapters, repository interfaces, filter construction, warning handling.
 - Dependencies: Task 1.
-- Context Budget: DestinationSearchTool and runtime retrieval specs only.
-- Acceptance Criteria: attraction-only place search, festival seed/fixed-city lookup, no restaurant/festival general search, primary rehydrate.
+- Context Budget: DestinationSearchTool, DynamoLookupTool, and runtime retrieval specs only.
+- Acceptance Criteria: attraction-only place search, festival seed/fixed-city lookup, no restaurant/festival general search, final item detail enrichment, and no DynamoDB reads inside `DestinationSearchTool`.
 - Verification: mocked AWS unit tests.
 
 ### Subtask 4.1: AWS Client and Repository Interfaces
@@ -438,7 +438,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Required Context:
   - Full Spec AWS runtime boundary.
 - Context Budget:
-  - Must read: Full Spec `### AWS Runtime Boundary`, `### R5. DestinationSearchTool`.
+  - Must read: Full Spec `### AWS Runtime Boundary`, `### R5. DestinationSearchTool`, `### R5b. DynamoLookupTool`.
   - Do not read: deployment docs or credentials.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_runtime_retrieval.md`.
 - Source of Truth:
@@ -446,6 +446,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Required Sections:
   - `### AWS Runtime Boundary`
   - `### R5. DestinationSearchTool`
+  - `### R5b. DynamoLookupTool`
 - Must Read Before Implementation:
   - `### AWS Runtime Boundary`
 - Target Files:
@@ -498,24 +499,24 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Verification:
   - `uv run pytest tests/test_destination_search.py -k "search_candidates or filter or normalize"`
 
-### Subtask 4.3: Festival Seed and Fixed-City Lookup Helper
+### Subtask 4.3: DynamoLookupTool Festival Seed and Fixed-City Lookup Helper
 
 - Purpose: `includeFestivals=true`에서 장소 검색 전에 월·테마 축제 후보를 찾는 helper를 구현한다.
 - Required Context:
-  - Festival Candidate Channel and DestinationSearchTool festival helper.
+  - Festival Candidate Channel and DynamoLookupTool festival helper.
 - Context Budget:
-  - Must read: Full Spec `### R4. Festival Candidate Channel`, `### R5. DestinationSearchTool`.
+  - Must read: Full Spec `### R4. Festival Candidate Channel`, `### R5b. DynamoLookupTool`.
   - Do not read: Festival Verifier date verification implementation.
-  - Optional read: `oh_my_documents/docs/05_agent_spec/destination_search_tool.md` festival seed section.
+  - Optional read: `oh_my_documents/docs/05_agent_spec/dynamo_lookup_tool.md` festival seed section.
 - Source of Truth:
   - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R4. Festival Candidate Channel`
-  - `### R5. DestinationSearchTool`
+  - `### R5b. DynamoLookupTool`
 - Must Read Before Implementation:
   - `### R4. Festival Candidate Channel`
 - Target Files:
-  - `src/lovv_agent/tools/destination_search.py`
+  - `src/lovv_agent/tools/dynamo_lookup.py`
   - `src/lovv_agent/repositories/dynamodb.py`
   - `tests/test_destination_search.py`
 - Out of Scope:
@@ -530,15 +531,15 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Verification:
   - `uv run pytest tests/test_destination_search.py -k "festival_seed or fixed_city"`
 
-### Subtask 4.4: Primary-Only Rehydration and Warning Policy
+### Subtask 4.4: Final Item Detail Enrichment and Warning Policy
 
-- Purpose: selected primary candidates만 DynamoDB detail로 보강하고 실패를 구조화 warning으로 남긴다.
+- Purpose: Planner가 최종 일정에 배치한 attraction item만 DynamoDB detail로 보강하고 실패를 구조화 warning으로 남긴다.
 - Required Context:
-  - Primary-only rehydration and error policy.
+  - Final item detail enrichment and error policy.
 - Context Budget:
   - Must read: Full Spec `### AWS Runtime Boundary`, `## Runtime Retrieval and Tool Boundaries`, `## Error Handling and Fallback`.
-  - Do not read: Planner output packaging.
-  - Optional read: `oh_my_documents/docs/05_agent_spec/destination_search_tool.md`.
+  - Do not read: Candidate Evidence package implementation beyond the boundary contract.
+  - Optional read: `oh_my_documents/docs/05_agent_spec/dynamo_lookup_tool.md`.
 - Source of Truth:
   - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
@@ -547,17 +548,18 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Must Read Before Implementation:
   - `## Error Handling and Fallback`
 - Target Files:
-  - `src/lovv_agent/tools/destination_search.py`
+  - `src/lovv_agent/tools/dynamo_lookup.py`
   - `src/lovv_agent/repositories/dynamodb.py`
   - `tests/test_destination_search.py`
 - Out of Scope:
-  - Reserve rehydration unless a later task explicitly adds it.
+  - Candidate Evidence primary/reserve package detail lookup.
+  - Scoring-stage or broad candidate detail lookup.
 - Acceptance Criteria:
-  - Only primary/recommended candidates are rehydrated by default.
+  - Only final placed attraction items are enriched by default.
   - Missing `ddb_pk`/`ddb_sk` creates warning and `details=null`.
   - DynamoDB failures create warning and do not crash the whole graph.
 - Verification:
-  - `uv run pytest tests/test_destination_search.py -k "rehydrate or warning"`
+  - `uv run pytest tests/test_destination_search.py -k "enrich or warning"`
 
 ---
 
@@ -669,7 +671,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Scope: Candidate Evidence node, theme splitting, festival seed gate, selected city/package builder.
 - Dependencies: Tasks 2, 4, 5.
 - Context Budget: Candidate Evidence and runtime retrieval sections only.
-- Acceptance Criteria: all three modes, festival seed hard gate, anchored city isolation, package schema, compact `explanation_facts`.
+- Acceptance Criteria: all three modes, festival seed hard gate, anchored city isolation, package schema, compact `candidate_reason_claims`.
 - Verification: Candidate Evidence orchestration tests.
 
 ### Subtask 6.1: Mode Resolution and Theme Splitting
@@ -705,7 +707,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 
 - Purpose: non-festival city discovery와 anchored search를 retrieval/scoring/selection helper로 연결한다.
 - Required Context:
-  - Candidate Evidence orchestration, DestinationSearchTool, ScoringTool contracts.
+  - Candidate Evidence orchestration, DestinationSearchTool, DynamoLookupTool, ScoringTool contracts.
 - Context Budget:
   - Must read: Full Spec `### R3. Candidate Evidence Agent`, `### AWS Runtime Boundary`, `### Candidate Evidence Package`.
   - Do not read: Festival Verifier implementation.
@@ -728,7 +730,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Acceptance Criteria:
   - City discovery uses retrieval, scoring, and candidate selection helpers.
   - Anchored search applies fixed city filter and never mixes another city.
-  - Primary candidates are rehydrated through DestinationSearchTool.
+  - Candidate Evidence passes lightweight candidates and does not call final detail enrichment.
   - Package validates for `ok` and `insufficient_candidates`.
 - Verification:
   - `uv run pytest tests/test_candidate_evidence.py -k "city_discovery or anchored"`
@@ -763,11 +765,11 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Verification:
   - `uv run pytest tests/test_candidate_evidence.py -k "festival_seed or fixed_city_festival"`
 
-### Subtask 6.4: Package Builder, Status, Audit, and Explanation Facts
+### Subtask 6.4: Package Builder, Status, Audit, and Reason Claim Candidates
 
-- Purpose: Candidate Evidence Package의 status, counts, warnings, audits와 Planner용 `explanation_facts`를 일관되게 구성한다.
+- Purpose: Candidate Evidence Package의 status, counts, warnings, audits와 Planner가 검증할 `candidate_reason_claims`를 일관되게 구성한다.
 - Required Context:
-  - Candidate Evidence Package schema, explanation facts schema, and fallback policy.
+  - Candidate Evidence Package schema, candidate reason claim schema, and fallback policy.
 - Context Budget:
   - Must read: Full Spec `### Candidate Evidence Package`, `### R3. Candidate Evidence Agent`, `## Error Handling and Fallback`, `## Review Checklist`.
   - Do not read: Response Packager response mapping.
@@ -789,8 +791,10 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Package validates for `ok`, `insufficient_candidates`, `no_candidate`, and `error`.
   - `needs_clarification` is set only when user input is required.
   - Retrieval and fallback audit fields are populated enough for review/debug.
-  - `explanation_facts` contains only compact query context, selected place overview alignment, city choice summary, festival anchor summary, and limitations.
-  - Raw score values, top K details, and raw retrieval payloads are not copied into `explanation_facts`.
+  - `candidate_reason_claims` contains compact Korean claim candidates with `claim_id`, `scope`, `text_ko`, `evidence_refs`, `required_place_ids`, and `public_eligible`.
+  - Candidate Evidence LLM does not change retrieval, scoring, selected city, quota, or fallback decisions.
+  - Claim generation schema failure is retried within the configured bound and then recorded as a warning without corrupting the package.
+  - Raw score values, top K details, and raw retrieval payloads are not copied into `candidate_reason_claims`.
   - Package is clearly internal and not formatted as public API response.
 - Verification:
   - `uv run pytest tests/test_candidate_evidence.py -k "package or status or audit"`
@@ -813,7 +817,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Festival Verifier ownership boundary.
 - Context Budget:
   - Must read: Full Spec `### R8. Festival Verifier Agent`, `### Festival Verification Output`.
-  - Do not read: DestinationSearchTool seed implementation.
+  - Do not read: DynamoLookupTool seed implementation.
   - Optional read: `oh_my_documents/docs/05_agent_spec/festival_verifier_agent.md` responsibility section.
 - Source of Truth:
   - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
@@ -1037,9 +1041,9 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 
 ### Subtask 8.5: Grounded Explanation Generation
 
-- Purpose: `explanation_facts`를 사용해 사용자에게 보일 추천 근거와 일정 흐름 설명을 짧고 안전하게 생성한다.
+- Purpose: verified `candidate_reason_claims`, raw/soft query, detail-enriched final itinerary items, and verified festivals를 사용해 사용자에게 보일 추천 근거와 일정 흐름 설명을 짧고 안전하게 생성한다.
 - Required Context:
-  - Candidate Evidence explanation facts and Planner output explanation fields.
+  - Candidate Evidence reason claim candidates and Planner output explanation fields.
 - Context Budget:
   - Must read: Full Spec `### R9. Planner Agent`, `### Candidate Evidence Package`, `### Planner Output`, `### R10. Response Packager`.
   - Do not read: raw retrieval payloads or scoring implementation internals.
@@ -1059,9 +1063,9 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - `tests/test_planner.py`
 - Out of Scope:
   - Exposing raw scores or ranking formulas to users.
-  - Creating new facts beyond `explanation_facts`, verified festivals, and grounded itinerary items.
+  - Creating new facts beyond verified `candidate_reason_claims`, raw/soft query, detail-enriched final itinerary items, verified festivals, and grounded itinerary items.
 - Acceptance Criteria:
-  - Planner prompt/input uses compact `explanation_facts`, not full raw retrieval or score audit payloads.
+  - Planner prompt/input uses verified `candidate_reason_claims`, raw/soft query, and enriched final item details, not full raw retrieval or score audit payloads.
   - `recommendationReasons` explain how selected city/place overviews match `cleaned_raw_query` and `soft_preference_query`.
   - `itineraryFlowReason` stays concise and does not mention internal score values, top K values, or ranking formulas.
   - `explanation_audit` maps generated explanation text to evidence refs and reason codes for internal validation.
@@ -1077,7 +1081,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
 - Scope: graph compile, deterministic response packaging, response masking, integration tests.
 - Dependencies: Tasks 1-8.
 - Context Budget: graph and response packaging sections only.
-- Acceptance Criteria: canonical node sequence, deterministic Supervisor baseline, internal evidence/`explanation_facts`/`explanation_audit` hidden, API response compatible, clarification path.
+- Acceptance Criteria: canonical node sequence, deterministic Supervisor baseline, internal evidence/`candidate_reason_claims`/`explanation_audit` hidden, API response compatible, clarification path.
 - Verification: mocked graph integration tests.
 
 ### Subtask 9.1: Graph Wiring
@@ -1139,7 +1143,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Durable recommendation storage beyond current TTL behavior.
 - Acceptance Criteria:
   - Public response includes only safe destination, itinerary, explainability, festivalDateVerifications, and links fields.
-  - Candidate Evidence Package, `explanation_facts`, `explanation_audit`, raw retrieval audit, raw tool payloads, and internal reasoning are hidden.
+  - Candidate Evidence Package, `candidate_reason_claims`, `explanation_audit`, raw retrieval audit, raw tool payloads, and internal reasoning are hidden.
   - `foodSearch` packaging uses the existing response link strategy without creating a new endpoint.
 - Verification:
   - `uv run pytest tests/test_graph_integration.py -k "response_packager or response_masking"`

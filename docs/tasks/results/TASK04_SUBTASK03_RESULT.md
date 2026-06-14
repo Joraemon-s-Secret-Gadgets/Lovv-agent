@@ -7,8 +7,8 @@
 
 ## Summary
 
-Task 4.3 added the festival seed lookup path used before attraction retrieval
-when `includeFestivals=true`.
+Task 4.3 added the `DynamoLookupTool` festival seed lookup path used before
+attraction retrieval when `includeFestivals=true`.
 
 The implementation treats festivals as a city-seeding channel, not as attraction
 search or city scoring records. It applies the month/theme gate, supports an
@@ -18,7 +18,9 @@ no-candidate cases.
 ## Completed Scope
 
 - Added `DynamoDbRepository.query_festival_candidates`.
-- Added `DestinationSearchTool.search_festival_city_seeds`.
+- Added `DynamoLookupTool.search_festival_city_seeds`.
+- Added standalone `search_festival_city_seeds` and
+  `normalize_festival_candidate` helpers under `dynamo_lookup.py`.
 - Added `FestivalCandidate` and `FestivalSeedResult`.
 - Added festival theme-pool normalization that excludes festival-only labels.
 - Added month matching through `festival.month == travelMonth`.
@@ -28,6 +30,7 @@ no-candidate cases.
   - any `festival.theme_tags in theme_pool`.
 - Added `entity_type == festival` to the DynamoDB festival seed query request.
 - Added anchored-city filtering for `anchored_place_search`.
+- Kept `DestinationSearchTool` scoped to S3 Vector attraction search.
 - Added fallback signals:
   - `no_required_theme_for_festival_seed`
   - `no_festival_city_seed`
@@ -38,7 +41,9 @@ no-candidate cases.
 
 ```text
 src/lovv_agent/repositories/dynamodb.py
+src/lovv_agent/tools/dynamo_lookup.py
 src/lovv_agent/tools/destination_search.py
+src/lovv_agent/tools/__init__.py
 tests/test_destination_search.py
 docs/tasks/results/TASK04_SUBTASK03_RESULT.md
 ```
@@ -112,4 +117,4 @@ Result:
   live adapter may map the same logical request to a production table/GSI shape.
 - City ranking and final festival verification are still handled by later
   stages, not by this helper.
-- Primary-only detail rehydration and warning policy are left for Task 4.4.
+- Final item detail enrichment and warning policy are handled by Task 4.4.
