@@ -132,6 +132,36 @@ class CandidateSelectionTest(unittest.TestCase):
         self.assertEqual(result.coverage_audit["unfilled_primary_slots"], 4)
         self.assertEqual(result.coverage_audit["candidate_sufficiency"], "insufficient")
 
+    def test_total_candidate_shortage_keeps_available_primary_and_empty_reserve(self) -> None:
+        result = select_primary_with_theme_quotas(
+            [candidate("P-1", "Only", 1.0, ["자연"])],
+            ["자연", "역사·문화"],
+            primary_budget=4,
+            reserve_budget=2,
+        )
+
+        self.assertEqual([item["place_id"] for item in result.primary], ["P-1"])
+        self.assertEqual(result.reserve, ())
+        self.assertEqual(result.coverage_audit["min_quota_shortfalls"], {"역사·문화": 1})
+        self.assertEqual(result.coverage_audit["unfilled_primary_slots"], 3)
+        self.assertEqual(result.coverage_audit["candidate_sufficiency"], "insufficient")
+
+    def test_soft_max_relaxation_is_audit_not_failure_signal(self) -> None:
+        result = select_primary_with_theme_quotas(
+            [
+                candidate("P-1", "A", 1.0, ["자연"]),
+                candidate("P-2", "B", 0.9, ["자연"]),
+                candidate("P-3", "C", 0.8, ["자연"]),
+            ],
+            ["자연", "역사·문화"],
+            primary_budget=4,
+            reserve_budget=0,
+        )
+
+        self.assertTrue(result.coverage_audit["max_quota_relaxed"])
+        self.assertGreater(result.coverage_audit["relaxed_slots"], 0)
+        self.assertIn("역사·문화", result.coverage_audit["min_quota_shortfalls"])
+
     def test_no_searchable_themes_selects_by_score_without_quota(self) -> None:
         result = select_primary_with_theme_quotas(
             [

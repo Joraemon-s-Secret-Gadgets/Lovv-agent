@@ -97,6 +97,24 @@ class PlaceScoringTest(unittest.TestCase):
                     f"unsupported_entity_type:{entity_type}",
                 )
 
+    def test_gourmet_only_theme_does_not_receive_theme_bonus(self) -> None:
+        result = score_place(
+            attraction("food-like", themes=["미식·노포"]),
+            ["미식·노포"],
+        )
+
+        self.assertTrue(result.scored)
+        self.assertEqual(result.score_components["theme_match_score"], 0.0)
+
+    def test_festival_theme_label_does_not_receive_theme_bonus(self) -> None:
+        result = score_place(
+            attraction("festival-like", themes=["festival_event"]),
+            ["festival_event"],
+        )
+
+        self.assertTrue(result.scored)
+        self.assertEqual(result.score_components["theme_match_score"], 0.0)
+
     def test_haversine_distance_returns_kilometers(self) -> None:
         distance = haversine_distance(37.5665, 126.9780, 35.1796, 129.0756)
 
