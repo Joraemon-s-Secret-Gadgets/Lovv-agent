@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import date
 from typing import Any
 
@@ -63,7 +63,7 @@ class FestivalVerifierResult:
         return {
             "status": self.status,
             "verifications": [
-                item.to_dict() if hasattr(item, "to_dict") else item
+                asdict(item) if isinstance(item, FestivalVerification) else item
                 for item in self.verifications
             ],
             "failure_signals": list(self.failure_signals),
@@ -73,6 +73,9 @@ class FestivalVerifierResult:
 
 class FestivalVerifierAgent:
     """Verify selected-city festival candidates before Planner placement."""
+
+    def __init__(self, *, cache_adapter: Any | None = None) -> None:
+        self.cache_adapter = cache_adapter
 
     def build_input(
         self,
@@ -113,6 +116,7 @@ class FestivalVerifierAgent:
                 candidate,
                 travel_year=verifier_input.travel_year,
                 travel_month=verifier_input.travel_month,
+                cache_adapter=self.cache_adapter,
             )
             for candidate in verifier_input.selected_festival_candidates
         )
@@ -124,6 +128,7 @@ def verify_festival_candidate(
     *,
     travel_year: int,
     travel_month: int,
+    cache_adapter: Any | None = None,
 ) -> FestivalVerification:
     """Verify one selected festival candidate from normalized DynamoDB fields."""
 
@@ -132,13 +137,28 @@ def verify_festival_candidate(
     payload = _mapping(candidate, "festival_candidate")
     festival_id = _required_text(_first_present(payload, "festival_id", "id"), "festival_id")
     name = _required_text(_first_present(payload, "name", "title"), "name")
+    cache_key = build_festival_cache_key(festival_id=festival_id, travel_year=normalized_year)
+    cached = _cache_get(cache_adapter, cache_key)
+    if cached is not None:
+        return _verification_from_cached_policy(
+            cached,
+            festival_id=festival_id,
+            name=name,
+            travel_year=normalized_year,
+            travel_month=normalized_month,
+        )
+
     start_date = normalize_festival_date(
         _first_optional(payload, "start_date", "event_start_date", "eventstartdate"),
     )
     end_date = normalize_festival_date(
         _first_optional(payload, "end_date", "event_end_date", "eventenddate"),
     )
-    date_status = _date_status(start_date=start_date, travel_year=normalized_year)
+    date_status = _date_status(
+        start_date=start_date,
+        travel_year=normalized_year,
+        explicit_status=_optional_text(_first_optional(payload, "date_status")),
+    )
     is_applicable = _is_applicable_to_month(
         start_date=start_date,
         end_date=end_date,
@@ -152,7 +172,7 @@ def verify_festival_candidate(
     source_type = _optional_text(_first_optional(payload, "source_type", "source", "provenance"))
     confidence = 0.8 if planner_policy == "placeable" else 0.4
 
-    return FestivalVerification(
+    verification = FestivalVerification(
         festival_id=festival_id,
         name=name,
         date_status=date_status,
@@ -170,6 +190,16 @@ def verify_festival_candidate(
             is_applicable=is_applicable,
         ),
     )
+    _cache_set(cache_adapter, cache_key, _cacheable_verification_policy(verification))
+    return verification
+
+
+def build_festival_cache_key(*, festival_id: str, travel_year: int) -> str:
+    """Return the cache key for year-scoped festival date verification."""
+
+    normalized_festival_id = _required_text(festival_id, "festival_id")
+    normalized_year = _positive_int(travel_year, "travel_year")
+    return f"{normalized_festival_id}:{normalized_year}"
 
 
 def normalize_festival_date(value: Any) -> date | None:
@@ -234,14 +264,105 @@ def _coerce_candidate_evidence_package(
     raise SchemaValidationError("candidate_evidence_package must be a schema or mapping")
 
 
-def _date_status(*, start_date: date | None, travel_year: int) -> str:
+def _date_status(
+    *,
+    start_date: date | None,
+    travel_year: int,
+    explicit_status: str | None = None,
+) -> str:
     """Return initial date status from normalized DynamoDB start date."""
 
+    if explicit_status in {"tentative", "unknown"}:
+        return explicit_status
     if start_date is None:
         return "unknown"
     if start_date.year == travel_year:
         return "confirmed"
     return "outdated"
+
+
+def _verification_from_cached_policy(
+    cached: Mapping[str, Any],
+    *,
+    festival_id: str,
+    name: str,
+    travel_year: int,
+    travel_month: int,
+) -> FestivalVerification:
+    """Rebuild verification from cache while recalculating applicability."""
+
+    cached_payload = _mapping(cached, "cached_festival_verification")
+    start_date = normalize_festival_date(cached_payload.get("start_date"))
+    end_date = normalize_festival_date(cached_payload.get("end_date"))
+    date_status = _required_text(
+        cached_payload.get("date_status", "unknown"),
+        "cached.date_status",
+    )
+    is_applicable = _is_applicable_to_month(
+        start_date=start_date,
+        end_date=end_date,
+        travel_month=travel_month,
+    )
+    planner_policy = (
+        "placeable"
+        if date_status == "confirmed" and is_applicable
+        else "not_placeable"
+    )
+    return FestivalVerification(
+        festival_id=festival_id,
+        name=name,
+        date_status=date_status,
+        start_date=start_date.isoformat() if start_date is not None else None,
+        end_date=end_date.isoformat() if end_date is not None else None,
+        is_applicable_to_trip=is_applicable,
+        planner_policy=planner_policy,
+        source_type=_optional_text(cached_payload.get("source_type")) or "cache",
+        confidence=float(cached_payload.get("confidence", 0.7)),
+        evidence_summary=_evidence_summary(
+            date_status=date_status,
+            start_date=start_date,
+            travel_year=travel_year,
+            travel_month=travel_month,
+            is_applicable=is_applicable,
+        ),
+    )
+
+
+def _cacheable_verification_policy(verification: FestivalVerification) -> dict[str, Any]:
+    """Return the year-scoped fields safe to cache."""
+
+    return {
+        "date_status": verification.date_status,
+        "start_date": verification.start_date,
+        "end_date": verification.end_date,
+        "source_type": verification.source_type,
+        "confidence": verification.confidence,
+    }
+
+
+def _cache_get(cache_adapter: Any | None, key: str) -> Mapping[str, Any] | None:
+    """Read from an optional cache adapter."""
+
+    if cache_adapter is None:
+        return None
+    getter = getattr(cache_adapter, "get", None)
+    if getter is None:
+        raise SchemaValidationError("cache_adapter must expose get(key)")
+    value = getter(key)
+    if value is None:
+        return None
+    return _mapping(value, "cached_festival_verification")
+
+
+def _cache_set(cache_adapter: Any | None, key: str, value: Mapping[str, Any]) -> None:
+    """Write to an optional cache adapter when supported."""
+
+    if cache_adapter is None:
+        return
+    setter = getattr(cache_adapter, "set", None)
+    if setter is None:
+        raise SchemaValidationError("cache_adapter must expose set(key, value)")
+    setter(key, dict(value))
 
 
 def _is_applicable_to_month(
@@ -389,6 +510,7 @@ __all__ = [
     "FestivalVerifierAgent",
     "FestivalVerifierInput",
     "FestivalVerifierResult",
+    "build_festival_cache_key",
     "build_festival_verifier_input",
     "normalize_festival_date",
     "verify_festival_candidate",

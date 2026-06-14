@@ -6,6 +6,7 @@ import unittest
 
 from lovv_agent.agents.festival_verifier import (
     FestivalVerifierAgent,
+    build_festival_cache_key,
     build_festival_verifier_input,
     normalize_festival_date,
     verify_festival_candidate,
@@ -201,6 +202,118 @@ class FestivalVerifierDatePolicyTest(unittest.TestCase):
         self.assertEqual(result.status, "ok")
         self.assertEqual(len(result.verifications), 1)
         self.assertEqual(result.verifications[0].date_status, "confirmed")
+
+
+class FakeCache:
+    """Tiny cache adapter for verifier cache-boundary tests."""
+
+    def __init__(self) -> None:
+        self.values: dict[str, dict[str, object]] = {}
+        self.get_calls: list[str] = []
+        self.set_calls: list[tuple[str, dict[str, object]]] = []
+
+    def get(self, key: str) -> dict[str, object] | None:
+        self.get_calls.append(key)
+        return self.values.get(key)
+
+    def set(self, key: str, value: dict[str, object]) -> None:
+        self.set_calls.append((key, value))
+        self.values[key] = dict(value)
+
+
+class FestivalVerifierCacheBoundaryTest(unittest.TestCase):
+    """Validate Task 7.3 cache key and status policy."""
+
+    def test_cache_key_uses_festival_id_and_travel_year(self) -> None:
+        self.assertEqual(
+            build_festival_cache_key(festival_id="F-A", travel_year=2026),
+            "F-A:2026",
+        )
+
+    def test_verified_result_is_written_to_cache(self) -> None:
+        cache = FakeCache()
+
+        verification = verify_festival_candidate(
+            festival_payload("F-A"),
+            travel_year=2026,
+            travel_month=10,
+            cache_adapter=cache,
+        )
+
+        self.assertEqual(verification.date_status, "confirmed")
+        self.assertEqual(cache.get_calls, ["F-A:2026"])
+        self.assertEqual(cache.set_calls[0][0], "F-A:2026")
+        self.assertEqual(cache.values["F-A:2026"]["date_status"], "confirmed")
+
+    def test_cached_date_status_recalculates_request_month_applicability(self) -> None:
+        cache = FakeCache()
+        cache.values["F-A:2026"] = {
+            "date_status": "confirmed",
+            "start_date": "2026-10-10",
+            "end_date": "2026-10-12",
+            "source_type": "cache",
+            "confidence": 0.7,
+        }
+
+        verification = verify_festival_candidate(
+            festival_payload("F-A"),
+            travel_year=2026,
+            travel_month=11,
+            cache_adapter=cache,
+        )
+
+        self.assertEqual(verification.date_status, "confirmed")
+        self.assertFalse(verification.is_applicable_to_trip)
+        self.assertEqual(verification.planner_policy, "not_placeable")
+
+    def test_tentative_status_is_not_placeable(self) -> None:
+        payload = festival_payload("F-A")
+        payload["date_status"] = "tentative"
+
+        verification = verify_festival_candidate(
+            payload,
+            travel_year=2026,
+            travel_month=10,
+        )
+
+        self.assertEqual(verification.date_status, "tentative")
+        self.assertTrue(verification.is_applicable_to_trip)
+        self.assertEqual(verification.planner_policy, "not_placeable")
+
+    def test_full_status_suite_covers_skipped_unknown_outdated_and_no_candidate(self) -> None:
+        skipped = FestivalVerifierAgent().verify(
+            build_festival_verifier_input(
+                include_festivals=False,
+                travel_year=2026,
+                travel_month=10,
+                candidate_evidence_package=package_with_festivals(),
+            ),
+        )
+        no_candidate = FestivalVerifierAgent().verify(
+            build_festival_verifier_input(
+                include_festivals=True,
+                travel_year=2026,
+                travel_month=10,
+                candidate_evidence_package=None,
+            ),
+        )
+        unknown_payload = festival_payload("F-UNKNOWN")
+        unknown_payload.pop("event_start_date")
+        unknown = verify_festival_candidate(
+            unknown_payload,
+            travel_year=2026,
+            travel_month=10,
+        )
+        outdated = verify_festival_candidate(
+            festival_payload("F-OLD", event_start_date="2025-10-10"),
+            travel_year=2026,
+            travel_month=10,
+        )
+
+        self.assertEqual(skipped.status, "skipped")
+        self.assertEqual(no_candidate.status, "no_candidate")
+        self.assertEqual(unknown.date_status, "unknown")
+        self.assertEqual(outdated.date_status, "outdated")
 
 
 if __name__ == "__main__":
