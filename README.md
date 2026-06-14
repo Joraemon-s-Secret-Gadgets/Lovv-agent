@@ -3,6 +3,9 @@ LangGraph로 Lovv multi agent 구현 (AgentCore migration 이전)
 
 ## Setup
 
+This project is pinned to Python 3.12 through `.python-version` and
+`pyproject.toml`.
+
 ```powershell
 uv sync
 ```

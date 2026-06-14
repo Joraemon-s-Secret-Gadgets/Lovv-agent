@@ -13,6 +13,9 @@ The implementation intentionally contains no agent behavior, AWS client creation
 
 After review, the project Python workflow was fixed to `uv`. The package skeleton now includes `pyproject.toml`, and verification commands should use `uv run ...` from the `Lovv-agent` root.
 
+After the Python runtime decision, the project is pinned to Python 3.12 through
+`.python-version` and `pyproject.toml`.
+
 ## Completed Scope
 
 - Created import-safe package root.
@@ -73,6 +76,7 @@ tests/__init__.py
 tests/test_import_skeleton.py
 pyproject.toml
 uv.lock
+.python-version
 .gitignore
 docs/tasks/results/TASK01_SUBTASK01_RESULT.md
 ```
@@ -85,6 +89,7 @@ docs/tasks/results/TASK01_SUBTASK01_RESULT.md
 - LangGraph compile logic is not implemented yet: done.
 - AWS and LLM clients are not created at import time: done.
 - `pyproject.toml` defines package metadata and dev test dependency boundary: done.
+- Python runtime is pinned to 3.12: done.
 - `uv.lock` captures the current resolved development environment: done.
 
 ## Verification
@@ -109,7 +114,7 @@ Result:
 
 ```text
 ============================= test session starts =============================
-platform win32 -- Python 3.13.11, pytest-9.1.0, pluggy-1.6.0
+platform win32 -- Python 3.12.13, pytest-9.1.0, pluggy-1.6.0
 rootdir: D:\skn_aicamp\5th_final_project\Lovv-agent
 configfile: pyproject.toml
 collected 3 items
@@ -122,6 +127,7 @@ tests\test_import_skeleton.py ...                                        [100%]
 ## Notes and Constraints
 
 - `uv` is the canonical Python runner for this repository.
+- Python runtime is pinned to 3.12.
 - The package uses the `src/` layout and `pyproject.toml` configures pytest with `pythonpath = ["src"]`.
 - `.venv/` is a local uv environment and is ignored by `.gitignore`.
 - No implementation logic was added beyond import-safe skeleton constants and a graph-order placeholder helper.
