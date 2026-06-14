@@ -15,6 +15,7 @@ from typing import Any
 
 from lovv_agent.models.schemas import (
     CandidateEvidencePackage,
+    FestivalVerification,
     PlannerOutput,
     SchemaValidationError,
 )
@@ -130,10 +131,23 @@ def build_planner_output(
     )
     if not itinerary:
         return _blocked_planner_output(package)
+    festival_items = _festival_overlay_items(
+        package,
+        festival_verifications=festival_verifications,
+        include_festivals=include_festivals,
+    )
+    if festival_items:
+        itinerary = _apply_festival_overlay(itinerary, festival_items)
 
     user_notice = []
     if package.status == "insufficient_candidates":
         user_notice.append("조건에 맞는 후보 수가 적어 가능한 범위에서 축소 일정을 구성했습니다.")
+    skipped_festivals = _skipped_festival_count(
+        festival_verifications,
+        include_festivals=include_festivals,
+    )
+    if skipped_festivals:
+        user_notice.append("확정되지 않았거나 일정에 맞지 않는 축제 후보는 일정에 배치하지 않았습니다.")
 
     return PlannerOutput(
         itinerary=itinerary,
@@ -149,6 +163,8 @@ def build_planner_output(
             "planner_status_gate": package.status,
             "include_festivals": include_festivals,
             "festival_verification_count": len(tuple(festival_verifications)),
+            "festival_placed_count": len(festival_items),
+            "festival_skipped_count": skipped_festivals,
         },
         alternative_itinerary=(),
     )
@@ -195,6 +211,101 @@ def _attraction_slot(*, day: int, slot_name: str, place: Mapping[str, Any]) -> d
     }
 
 
+def _festival_overlay_items(
+    package: CandidateEvidencePackage,
+    *,
+    festival_verifications: Sequence[Any],
+    include_festivals: bool,
+) -> tuple[dict[str, Any], ...]:
+    """Return placeable verified festivals from the selected city only."""
+
+    if not include_festivals:
+        return ()
+    selected_festival_ids = {
+        str(candidate["festival_id"])
+        for candidate in package.selected_festival_candidates
+        if isinstance(candidate.get("festival_id"), str)
+    }
+    if not selected_festival_ids:
+        return ()
+    items: list[dict[str, Any]] = []
+    for verification in _festival_verification_tuple(festival_verifications):
+        if verification.festival_id not in selected_festival_ids:
+            continue
+        if (
+            verification.date_status != "confirmed"
+            or not verification.is_applicable_to_trip
+            or verification.planner_policy != "placeable"
+        ):
+            continue
+        items.append(
+            {
+                "day": 1,
+                "slot": "afternoon_festival",
+                "item_type": "festival",
+                "festivalId": verification.festival_id,
+                "title": verification.name,
+                "source": "festival_verifier",
+                "date_status": verification.date_status,
+                "start_date": verification.start_date,
+                "end_date": verification.end_date,
+            },
+        )
+    return tuple(items)
+
+
+def _apply_festival_overlay(
+    itinerary: Sequence[dict[str, Any]],
+    festival_items: Sequence[dict[str, Any]],
+) -> tuple[dict[str, Any], ...]:
+    """Insert verified festivals after the first attraction baseline item."""
+
+    if not festival_items:
+        return tuple(itinerary)
+    if not itinerary:
+        return tuple(festival_items)
+    return tuple((itinerary[0], *festival_items, *itinerary[1:]))
+
+
+def _skipped_festival_count(
+    festival_verifications: Sequence[Any],
+    *,
+    include_festivals: bool,
+) -> int:
+    """Count festival verifications that Planner must not place."""
+
+    if not include_festivals:
+        return 0
+    verifications = _festival_verification_tuple(festival_verifications)
+    return sum(
+        1
+        for verification in verifications
+        if not (
+            verification.date_status == "confirmed"
+            and verification.is_applicable_to_trip
+            and verification.planner_policy == "placeable"
+        )
+    )
+
+
+def _festival_verification_tuple(
+    festival_verifications: Sequence[Any],
+) -> tuple[FestivalVerification, ...]:
+    """Normalize Festival Verifier outputs for Planner policy checks."""
+
+    if not isinstance(festival_verifications, Sequence) or isinstance(
+        festival_verifications,
+        (str, bytes),
+    ):
+        raise SchemaValidationError("festival_verifications must be a sequence")
+    return tuple(
+        item
+        if isinstance(item, FestivalVerification)
+        else FestivalVerification.from_mapping(_mapping(item, "festival_verification"))
+        for item in festival_verifications
+    )
+
+
 def _blocked_planner_output(package: CandidateEvidencePackage) -> PlannerOutput:
     """Return a safe non-itinerary PlannerOutput for blocked evidence."""
 
@@ -229,6 +340,14 @@ def _coerce_candidate_package(
     if isinstance(package, Mapping):
         return CandidateEvidencePackage.from_mapping(package)
     raise SchemaValidationError("candidate_evidence_package must be a schema or mapping")
+
+
+def _mapping(value: Any, field_name: str) -> dict[str, Any]:
+    """Copy a mapping payload."""
+
+    if not isinstance(value, Mapping):
+        raise SchemaValidationError(f"{field_name} must be a mapping")
+    return dict(value)
 
 
 def _trip_type(value: str) -> str:

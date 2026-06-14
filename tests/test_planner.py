@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 
 from lovv_agent.agents.planner import PlannerAgent, TRIP_SLOT_TEMPLATES
-from lovv_agent.models.schemas import CandidateEvidencePackage, SelectedCity
+from lovv_agent.models.schemas import CandidateEvidencePackage, FestivalVerification, SelectedCity
 
 
 def place(place_id: str, *, title: str | None = None) -> dict[str, object]:
@@ -41,6 +41,49 @@ def evidence_package(
         reserve_places=tuple(place(f"R-{index}") for index in range(2)),
         coverage_audit={"candidate_sufficiency": "sufficient"},
         candidate_counts={"recommended_places": recommended_count},
+    )
+
+
+def festival_package(*, mode: str = "festival_seeded_city_discovery") -> CandidateEvidencePackage:
+    """Build a Candidate Evidence package with a selected festival candidate."""
+
+    return CandidateEvidencePackage(
+        status="ok",
+        mode=mode,
+        selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
+        recommended_places=tuple(place(f"P-{index}") for index in range(4)),
+        selected_festival_candidates=(
+            {
+                "festival_id": "F-A",
+                "name": "에이 축제",
+                "city_id": "KR-A",
+                "city_name": "에이군",
+                "month": 10,
+            },
+        ),
+    )
+
+
+def festival_verification(
+    *,
+    festival_id: str = "F-A",
+    date_status: str = "confirmed",
+    applicable: bool = True,
+    planner_policy: str = "placeable",
+) -> FestivalVerification:
+    """Return one Festival Verifier output for Planner tests."""
+
+    return FestivalVerification(
+        festival_id=festival_id,
+        name="에이 축제",
+        date_status=date_status,
+        start_date="2026-10-10",
+        end_date="2026-10-12",
+        is_applicable_to_trip=applicable,
+        planner_policy=planner_policy,
+        source_type="dynamodb_detail",
+        confidence=0.8,
+        evidence_summary="verified",
     )
 
 
@@ -104,6 +147,71 @@ class PlannerStatusAndSlotTest(unittest.TestCase):
             [(slot["day"], slot["slot"]) for slot in output.itinerary],
             list(TRIP_SLOT_TEMPLATES["2d1n"]),
         )
+
+
+class PlannerFestivalOverlayTest(unittest.TestCase):
+    """Validate Task 8.2 festival overlay policy."""
+
+    def test_festival_overlay_places_only_confirmed_applicable_festival(self) -> None:
+        output = PlannerAgent().plan(
+            festival_package(),
+            trip_type="daytrip",
+            include_festivals=True,
+            festival_verifications=(festival_verification(),),
+        )
+
+        festival_items = [
+            item for item in output.itinerary if item["item_type"] == "festival"
+        ]
+        self.assertEqual(len(festival_items), 1)
+        self.assertEqual(festival_items[0]["festivalId"], "F-A")
+        self.assertEqual(festival_items[0]["source"], "festival_verifier")
+        self.assertEqual(output.validation_result["festival_placed_count"], 1)
+
+    def test_festival_overlay_skips_unconfirmed_or_inapplicable_festivals(self) -> None:
+        output = PlannerAgent().plan(
+            festival_package(),
+            trip_type="daytrip",
+            include_festivals=True,
+            festival_verifications=(
+                festival_verification(date_status="tentative", planner_policy="not_placeable"),
+                festival_verification(date_status="unknown", planner_policy="not_placeable"),
+                festival_verification(date_status="outdated", planner_policy="not_placeable"),
+                festival_verification(applicable=False, planner_policy="not_placeable"),
+            ),
+        )
+
+        self.assertFalse(any(item["item_type"] == "festival" for item in output.itinerary))
+        self.assertEqual(output.validation_result["festival_placed_count"], 0)
+        self.assertEqual(output.validation_result["festival_skipped_count"], 4)
+        self.assertTrue(output.user_notice)
+
+    def test_festival_overlay_requires_selected_city_provenance(self) -> None:
+        output = PlannerAgent().plan(
+            festival_package(),
+            trip_type="daytrip",
+            include_festivals=True,
+            festival_verifications=(festival_verification(festival_id="F-B"),),
+        )
+
+        self.assertFalse(any(item["item_type"] == "festival" for item in output.itinerary))
+        self.assertEqual(output.validation_result["festival_placed_count"], 0)
+
+    def test_anchored_mode_keeps_anchored_city(self) -> None:
+        output = PlannerAgent().plan(
+            festival_package(mode="anchored_place_search"),
+            trip_type="daytrip",
+            include_festivals=True,
+            festival_verifications=(festival_verification(),),
+        )
+
+        attraction_cities = {
+            item["city_id"]
+            for item in output.itinerary
+            if item["item_type"] == "attraction"
+        }
+        self.assertEqual(attraction_cities, {"KR-A"})
+        self.assertTrue(any(item["item_type"] == "festival" for item in output.itinerary))
 
 
 if __name__ == "__main__":
