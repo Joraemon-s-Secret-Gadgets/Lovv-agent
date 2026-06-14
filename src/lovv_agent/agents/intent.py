@@ -14,10 +14,12 @@ planning stay out of this module for now.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from lovv_agent.config import DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS
 from lovv_agent.models.schemas import CandidateEvidenceInput, GeoPoint, SchemaValidationError
 
 NODE_NAME = "intent_agent"
@@ -52,6 +54,36 @@ LEGACY_FESTIVAL_THEME_IDS: frozenset[str] = frozenset(
     },
 )
 
+UNSUPPORTED_CONDITION_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("숙소 가격/예약 가능 여부", ("숙소 가격", "호텔 가격", "객실", "예약 가능", "예약가능")),
+    ("실시간 혼잡도", ("실시간 혼잡", "혼잡도", "붐비는지 실시간", "사람 많은지")),
+    ("실시간 영업 여부", ("실시간 영업", "영업 중", "오늘 영업", "오픈 여부")),
+    ("주차 보장", ("주차 보장", "주차 자리", "주차 가능 보장")),
+    ("날씨/기상 대체", ("날씨", "비 오면", "비오면", "우천")),
+)
+
+SOFT_PREFERENCE_KEYWORDS: tuple[str, ...] = (
+    "감성",
+    "덜 붐",
+    "붐비지",
+    "사진",
+    "산책",
+    "여유",
+    "전망",
+    "조용",
+    "편안",
+    "한적",
+    "힐링",
+)
+
+TRIP_TYPE_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "daytrip": ("당일", "당일치기"),
+    "2d1n": ("1박 2일", "1박2일"),
+    "3d2n": ("2박 3일", "2박3일"),
+    "4d3n": ("3박 4일", "3박4일"),
+    "5d4n": ("4박 5일", "4박5일"),
+}
+
 _MISSING = object()
 
 
@@ -68,6 +100,17 @@ class ThemeMappingResult:
 
 
 @dataclass(frozen=True, slots=True)
+class NaturalLanguageExtraction:
+    """Conservative extraction result from ``naturalLanguageQuery``."""
+
+    cleaned_raw_query: str = ""
+    soft_preference_query: str = ""
+    unsupported_conditions: tuple[str, ...] = ()
+    handoff_notes: tuple[str, ...] = ()
+    skipped: bool = False
+
+
+@dataclass(frozen=True, slots=True)
 class IntentNormalizationResult:
     """Deterministic Intent output before LLM-assisted extraction is added."""
 
@@ -78,6 +121,8 @@ class IntentNormalizationResult:
     active_required_themes: tuple[str, ...] = ()
     searchable_place_themes: tuple[str, ...] = ()
     external_link_themes: tuple[str, ...] = ()
+    cleaned_raw_query: str = ""
+    soft_preference_query: str = ""
     unsupported_conditions: tuple[str, ...] = ()
     handoff_notes: tuple[str, ...] = ()
     fulfilled_matrix: dict[str, str] = field(default_factory=dict)
@@ -120,6 +165,10 @@ def normalize_recommendation_request(
             include_festivals=request["includeFestivals"],
         )
         _validate_theme_count(theme_mapping.canonical_theme_ids)
+        language_extraction = extract_natural_language_query(
+            request["naturalLanguageQuery"],
+            structured_request=request,
+        )
         execution_mode = resolve_execution_mode(
             request["destinationId"],
             theme_mapping.include_festivals,
@@ -132,9 +181,9 @@ def normalize_recommendation_request(
             trip_type=request["tripType"],
             destination_id=request["destinationId"],
             active_required_themes=theme_mapping.active_required_themes,
-            cleaned_raw_query="",
-            soft_preference_query="",
-            unsupported_conditions=(),
+            cleaned_raw_query=language_extraction.cleaned_raw_query,
+            soft_preference_query=language_extraction.soft_preference_query,
+            unsupported_conditions=language_extraction.unsupported_conditions,
             user_location=request["user_location"],
             include_festivals=theme_mapping.include_festivals,
             execution_mode=execution_mode,
@@ -160,6 +209,9 @@ def normalize_recommendation_request(
             else None
         ),
         "execution_mode": execution_mode,
+        "cleaned_raw_query": language_extraction.cleaned_raw_query,
+        "soft_preference_query": language_extraction.soft_preference_query,
+        "unsupported_conditions": language_extraction.unsupported_conditions,
     }
 
     return IntentNormalizationResult(
@@ -170,8 +222,10 @@ def normalize_recommendation_request(
         active_required_themes=theme_mapping.active_required_themes,
         searchable_place_themes=theme_mapping.searchable_place_themes,
         external_link_themes=theme_mapping.external_link_themes,
-        unsupported_conditions=(),
-        handoff_notes=theme_mapping.handoff_notes,
+        cleaned_raw_query=language_extraction.cleaned_raw_query,
+        soft_preference_query=language_extraction.soft_preference_query,
+        unsupported_conditions=language_extraction.unsupported_conditions,
+        handoff_notes=theme_mapping.handoff_notes + language_extraction.handoff_notes,
         fulfilled_matrix=_initial_fulfilled_matrix(theme_mapping.include_festivals),
     )
 
@@ -237,6 +291,50 @@ def resolve_execution_mode(destination_id: str | None, include_festivals: bool) 
     return "city_discovery"
 
 
+def extract_natural_language_query(
+    natural_language_query: str,
+    *,
+    structured_request: Mapping[str, Any],
+    min_natural_language_query_chars: int = DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS,
+) -> NaturalLanguageExtraction:
+    """Extract only safe supplementary signals from natural-language input.
+
+    This MVP extractor is deliberately conservative until the structured-output
+    LLM adapter is added. It never fills or overrides core structured fields.
+    """
+
+    query = _free_text(natural_language_query, "naturalLanguageQuery")
+    if len(query) < min_natural_language_query_chars:
+        return NaturalLanguageExtraction(skipped=True)
+
+    clauses = _split_query_clauses(query)
+    unsupported_conditions = _extract_unsupported_conditions(clauses)
+    unsupported_clauses = tuple(
+        clause
+        for clause in clauses
+        if _clause_contains_unsupported_condition(clause)
+    )
+    supported_clauses = tuple(
+        clause
+        for clause in clauses
+        if clause not in unsupported_clauses
+    )
+    soft_clauses = tuple(
+        clause
+        for clause in supported_clauses
+        if any(keyword in clause for keyword in SOFT_PREFERENCE_KEYWORDS)
+    )
+    handoff_notes = _detect_structured_field_conflicts(query, structured_request)
+
+    return NaturalLanguageExtraction(
+        cleaned_raw_query=" ".join(supported_clauses).strip(),
+        soft_preference_query=" ".join(soft_clauses).strip(),
+        unsupported_conditions=unsupported_conditions,
+        handoff_notes=handoff_notes,
+        skipped=False,
+    )
+
+
 def _validate_request_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
     """Validate and normalize the structured MVP recommendation request."""
 
@@ -280,6 +378,93 @@ def _validate_request_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         "naturalLanguageQuery": natural_language_query,
         "user_location": user_location,
     }
+
+
+def _split_query_clauses(query: str) -> tuple[str, ...]:
+    """Split a query into lightweight clauses without semantic rewriting."""
+
+    normalized = re.sub(r"\s+", " ", query).strip()
+    if not normalized:
+        return ()
+    clauses = re.split(r"[.!?。！？\n]+|(?:\s*,\s*)", normalized)
+    return tuple(clause.strip() for clause in clauses if clause.strip())
+
+
+def _extract_unsupported_conditions(clauses: tuple[str, ...]) -> tuple[str, ...]:
+    """Return normalized unsupported conditions found in natural-language clauses."""
+
+    conditions: list[str] = []
+    for clause in clauses:
+        for condition, keywords in UNSUPPORTED_CONDITION_PATTERNS:
+            if any(keyword in clause for keyword in keywords) and condition not in conditions:
+                conditions.append(condition)
+    return tuple(conditions)
+
+
+def _clause_contains_unsupported_condition(clause: str) -> bool:
+    """Return whether a query clause asks for currently unsupported live data."""
+
+    return any(
+        keyword in clause
+        for _, keywords in UNSUPPORTED_CONDITION_PATTERNS
+        for keyword in keywords
+    )
+
+
+def _detect_structured_field_conflicts(
+    query: str,
+    structured_request: Mapping[str, Any],
+) -> tuple[str, ...]:
+    """Record explicit change requests without changing structured fields."""
+
+    notes: list[str] = []
+    country = structured_request["country"]
+    if country == "KR" and _contains_country_change_request(query, "일본", "JP"):
+        notes.append("natural language requests country change to JP")
+    if country == "JP" and _contains_country_change_request(query, "한국", "KR"):
+        notes.append("natural language requests country change to KR")
+
+    requested_months = {
+        int(match)
+        for match in re.findall(r"(?<!\d)(1[0-2]|[1-9])\s*월", query)
+    }
+    travel_month = structured_request["travelMonth"]
+    if any(month != travel_month for month in requested_months):
+        notes.append("natural language mentions a travelMonth different from structured input")
+
+    requested_trip_types = _detect_trip_type_mentions(query)
+    trip_type = structured_request["tripType"]
+    if any(requested != trip_type for requested in requested_trip_types):
+        notes.append("natural language mentions a tripType different from structured input")
+
+    include_festivals = structured_request["includeFestivals"]
+    if "축제" in query or "행사" in query or "이벤트" in query:
+        if include_festivals and any(token in query for token in ("빼", "제외", "말고")):
+            notes.append("natural language requests festival exclusion")
+        if not include_festivals and not any(token in query for token in ("빼", "제외", "말고")):
+            notes.append("natural language requests festival inclusion")
+
+    return tuple(dict.fromkeys(notes))
+
+
+def _contains_country_change_request(query: str, country_word: str, country_code: str) -> bool:
+    """Return whether the query explicitly asks to change the country."""
+
+    if country_word not in query and country_code not in query:
+        return False
+    if any(blocker in query for blocker in (f"{country_word} 말고", f"{country_word} 제외")):
+        return False
+    return any(token in query for token in ("가고", "바꿔", "변경", "수정", "추천"))
+
+
+def _detect_trip_type_mentions(query: str) -> tuple[str, ...]:
+    """Detect explicit trip-type mentions from Korean natural language."""
+
+    detected: list[str] = []
+    for trip_type, keywords in TRIP_TYPE_KEYWORDS.items():
+        if any(keyword in query for keyword in keywords):
+            detected.append(trip_type)
+    return tuple(detected)
 
 
 def _validate_theme_count(canonical_theme_ids: tuple[str, ...]) -> None:
@@ -411,7 +596,9 @@ __all__ = [
     "THEME_LABELS",
     "TRIP_TYPES",
     "IntentNormalizationResult",
+    "NaturalLanguageExtraction",
     "ThemeMappingResult",
+    "extract_natural_language_query",
     "map_theme_ids",
     "normalize_recommendation_request",
     "resolve_execution_mode",

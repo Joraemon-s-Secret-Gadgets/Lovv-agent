@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from lovv_agent.agents.intent import (
+    extract_natural_language_query,
     map_theme_ids,
     normalize_recommendation_request,
     resolve_execution_mode,
@@ -50,8 +51,8 @@ class IntentNormalizationTest(unittest.TestCase):
         self.assertEqual(candidate_input.trip_type, "2d1n")
         self.assertIsNone(candidate_input.destination_id)
         self.assertFalse(candidate_input.include_festivals)
-        self.assertEqual(candidate_input.cleaned_raw_query, "")
-        self.assertEqual(candidate_input.soft_preference_query, "")
+        self.assertIn("바다", candidate_input.cleaned_raw_query)
+        self.assertIn("조용", candidate_input.soft_preference_query)
         self.assertEqual(candidate_input.unsupported_conditions, ())
         self.assertEqual(candidate_input.user_location.latitude, 37.5665)
 
@@ -174,6 +175,86 @@ class IntentNormalizationTest(unittest.TestCase):
             resolve_execution_mode("city-1", False),
             "anchored_place_search",
         )
+
+    def test_raw_soft_query_extraction_preserves_searchable_intent(self) -> None:
+        request = _base_request()
+        request["naturalLanguageQuery"] = (
+            "바다를 보면서 산책하고 싶어요. 조용하고 덜 붐비는 분위기가 좋아요."
+        )
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertIn("바다", result.cleaned_raw_query)
+        self.assertIn("산책", result.cleaned_raw_query)
+        self.assertIn("조용", result.soft_preference_query)
+        self.assertIn("덜 붐비", result.soft_preference_query)
+        self.assertEqual(result.candidate_evidence_input.cleaned_raw_query, result.cleaned_raw_query)
+        self.assertEqual(
+            result.candidate_evidence_input.soft_preference_query,
+            result.soft_preference_query,
+        )
+
+    def test_unsupported_conditions_are_separated_from_raw_query(self) -> None:
+        request = _base_request()
+        request["naturalLanguageQuery"] = (
+            "바다 산책을 하고 싶어요. 실시간 혼잡도랑 숙소 가격도 알려주세요."
+        )
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertIn("바다 산책", result.cleaned_raw_query)
+        self.assertNotIn("실시간 혼잡도", result.cleaned_raw_query)
+        self.assertIn("실시간 혼잡도", result.unsupported_conditions)
+        self.assertIn("숙소 가격/예약 가능 여부", result.unsupported_conditions)
+
+    def test_raw_soft_short_natural_language_query_skips_extraction(self) -> None:
+        request = _base_request()
+        request["naturalLanguageQuery"] = "바다"
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.cleaned_raw_query, "")
+        self.assertEqual(result.soft_preference_query, "")
+        self.assertEqual(result.unsupported_conditions, ())
+        self.assertEqual(result.candidate_evidence_input.cleaned_raw_query, "")
+
+    def test_conflict_signals_are_recorded_without_overriding_core_fields(self) -> None:
+        request = _base_request()
+        request["country"] = "KR"
+        request["travelMonth"] = 10
+        request["tripType"] = "2d1n"
+        request["includeFestivals"] = False
+        request["naturalLanguageQuery"] = "일본으로 바꿔줘. 11월 당일치기로 축제도 포함해줘."
+
+        result = normalize_recommendation_request(request)
+
+        self.assertFalse(result.needs_clarification)
+        self.assertEqual(result.candidate_evidence_input.country, "KR")
+        self.assertEqual(result.candidate_evidence_input.travel_month, 10)
+        self.assertEqual(result.candidate_evidence_input.trip_type, "2d1n")
+        self.assertFalse(result.candidate_evidence_input.include_festivals)
+        self.assertIn("country change to JP", " ".join(result.handoff_notes))
+        self.assertIn("travelMonth different", " ".join(result.handoff_notes))
+        self.assertIn("tripType different", " ".join(result.handoff_notes))
+        self.assertIn("festival inclusion", " ".join(result.handoff_notes))
+
+    def test_extractor_uses_configurable_short_query_threshold(self) -> None:
+        extraction = extract_natural_language_query(
+            "바다 산책",
+            structured_request={
+                "country": "KR",
+                "travelMonth": 10,
+                "tripType": "2d1n",
+                "includeFestivals": False,
+            },
+            min_natural_language_query_chars=10,
+        )
+
+        self.assertTrue(extraction.skipped)
+        self.assertEqual(extraction.cleaned_raw_query, "")
 
 
 if __name__ == "__main__":
