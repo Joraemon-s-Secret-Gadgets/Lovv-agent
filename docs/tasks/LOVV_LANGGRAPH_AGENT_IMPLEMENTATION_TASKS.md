@@ -1217,13 +1217,18 @@ Optional follow-up after this baseline passes:
   - `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`
 - Target Files:
   - `src/lovv_agent/graph.py`
+  - `src/lovv_agent/harness.py`
   - `src/lovv_agent/adapters/`
+  - `scripts/invoke_live_recommendation.py`
   - `tests/test_harness.py`
 - Out of Scope:
   - AgentCore Runtime deployment configuration.
   - IAM/SAM template changes.
 - Acceptance Criteria:
-  - Graph can be invoked from a local harness function.
+  - The workflow is compiled with the actual `langgraph.graph.StateGraph` runtime.
+  - Graph can be invoked from a local harness function with an API-shaped payload.
+  - The same harness can assemble live AWS adapters and return the public
+    `/recommendations` response shape.
   - Runtime adapters are injected.
   - Harness has no hard dependency on live AWS credentials.
 - Verification:
@@ -1297,6 +1302,9 @@ Optional follow-up after this baseline passes:
   - Allowing malformed JSON or free-form text into graph state.
 - Acceptance Criteria:
   - Prompt assets are versioned and Korean-capable.
+  - Intent prompt is based on the canonical `intent_agent.md` template and
+    preserves deterministic API core fields while extracting natural-language
+    supplemental signals.
   - Planner copy/explanation prompt input is limited to final placed items, detail-enriched item fields, verified festival outputs, raw/soft query, and `candidate_reason_claims`.
   - LLM output is schema-validated before entering graph state.
   - Generated fields cover user-facing itinerary `title`, `body`, `reason`, recommendation reasons, and concise itinerary flow text where applicable.
