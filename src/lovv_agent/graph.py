@@ -32,6 +32,7 @@ from lovv_agent.state import (
     ServingState,
     UnifiedAgentState,
 )
+from lovv_agent.tools.response_packager import package_state_response
 
 GRAPH_NODE_ORDER: tuple[str, ...] = (
     "intent_agent",
@@ -65,7 +66,7 @@ class GraphNodeSet:
     candidate_evidence: CandidateEvidenceNode
     festival_verifier: FestivalVerifierNode
     planner: PlannerNode
-    response_packager: ResponsePackagerNode = lambda state: _default_response_payload(state)
+    response_packager: ResponsePackagerNode = package_state_response
 
 
 @dataclass(slots=True)
@@ -270,16 +271,6 @@ def _coerce_planner_output(result: PlannerOutput | Mapping[str, Any]) -> Planner
     if isinstance(result, Mapping):
         return PlannerOutput.from_mapping(result)
     raise SchemaValidationError("planner node must return PlannerOutput or mapping")
-
-
-def _default_response_payload(state: UnifiedAgentState) -> dict[str, Any]:
-    """Return a tiny placeholder response until Task 9.2 implements packaging."""
-
-    return {
-        "status": state.serving.response_status or "completed",
-        "needsClarification": state.routing.needs_clarification,
-        "clarifyingQuestion": state.routing.clarifying_question,
-    }
 
 
 def _mapping(value: Any, field_name: str) -> dict[str, Any]:

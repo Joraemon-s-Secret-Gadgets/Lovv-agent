@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import unittest
 
 from lovv_agent.agents.planner import PlannerAgent
@@ -18,6 +19,10 @@ from lovv_agent.models.schemas import (
     SelectedCity,
 )
 from lovv_agent.state import IntentState, RequestState, UnifiedAgentState
+from lovv_agent.tools.response_packager import (
+    package_recommendation_response,
+    package_state_response,
+)
 
 
 def request_state(*, include_festivals: bool = False) -> UnifiedAgentState:
@@ -73,6 +78,18 @@ def evidence_package(*, include_festival_candidate: bool = False) -> CandidateEv
         selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
         recommended_places=(place("P-0"), place("P-1"), place("P-2")),
         selected_festival_candidates=selected_festivals if include_festival_candidate else (),
+    )
+
+
+def gourmet_evidence_package() -> CandidateEvidencePackage:
+    """Return a package that should expose only a foodSearch link publicly."""
+
+    return CandidateEvidencePackage(
+        status="ok",
+        mode="city_discovery",
+        selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
+        recommended_places=(place("P-0"), place("P-1"), place("P-2")),
+        coverage_audit={"external_link_themes": ["미식·노포"]},
     )
 
 
@@ -203,6 +220,88 @@ class GraphRouteIntegrationTest(unittest.TestCase):
         self.assertEqual(
             final_state.serving.response_payload["clarifyingQuestion"],
             "조건을 완화할까요?",
+        )
+
+
+class ResponsePackagerMaskingTest(unittest.TestCase):
+    """Validate Task 9.2 response packaging and masking."""
+
+    def test_response_packager_public_shape_hides_internal_fields(self) -> None:
+        state = request_state(include_festivals=False)
+        package = evidence_package()
+        state.evidence.candidate_evidence_package = package
+        state.planning.planner_output = PlannerAgent().plan(
+            package,
+            trip_type=state.request.trip_type,
+        )
+
+        response = package_state_response(state)
+
+        self.assertEqual(
+            set(response),
+            {
+                "recommendationId",
+                "expiresAt",
+                "destination",
+                "itinerary",
+                "explainability",
+                "festivalDateVerifications",
+                "links",
+            },
+        )
+        self.assertEqual(response["destination"]["destinationId"], "KR-A")
+        self.assertEqual(response["itinerary"]["tripType"], "daytrip")
+        serialized = json.dumps(response, ensure_ascii=False)
+        self.assertNotIn("candidate_reason_claims", serialized)
+        self.assertNotIn("explanation_audit", serialized)
+        self.assertNotIn("validation_result", serialized)
+        self.assertNotIn("retrieval_audit", serialized)
+
+    def test_response_masking_flattens_food_search_link(self) -> None:
+        package = gourmet_evidence_package()
+        planner_output = PlannerAgent().plan(package, trip_type="daytrip")
+
+        response = package_recommendation_response(
+            planner_output=planner_output,
+            request=request_state().request,
+            selected_city=package.selected_city,
+            recommendation_id="REC-1",
+            expires_at="2026-06-14T09:30:00Z",
+        )
+
+        self.assertEqual(response["recommendationId"], "REC-1")
+        self.assertIn("foodSearch", response["links"])
+        self.assertIsInstance(response["links"]["foodSearch"], str)
+        self.assertIn("google.com/search", response["links"]["foodSearch"])
+        self.assertNotIn("external_search_link", json.dumps(response, ensure_ascii=False))
+
+    def test_response_packager_includes_safe_festival_date_verifications(self) -> None:
+        package = evidence_package(include_festival_candidate=True)
+        verification = festival_verification()
+        planner_output = PlannerAgent().plan(
+            package,
+            trip_type="daytrip",
+            include_festivals=True,
+            festival_verifications=(verification,),
+        )
+
+        response = package_recommendation_response(
+            planner_output=planner_output,
+            request=request_state(include_festivals=True).request,
+            selected_city=package.selected_city,
+            festival_verifications=(verification,),
+            recommendation_id="REC-2",
+            expires_at="2026-06-14T09:30:00Z",
+        )
+
+        self.assertEqual(len(response["festivalDateVerifications"]), 1)
+        self.assertEqual(
+            response["festivalDateVerifications"][0]["dateStatus"],
+            "confirmed",
+        )
+        self.assertNotIn(
+            "evidence_summary",
+            json.dumps(response["festivalDateVerifications"], ensure_ascii=False),
         )
 
 
