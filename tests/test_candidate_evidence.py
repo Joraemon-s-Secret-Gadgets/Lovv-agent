@@ -21,6 +21,7 @@ from lovv_agent.agents.candidate_evidence import (
 )
 from lovv_agent.models.schemas import CandidateEvidenceInput, SchemaValidationError
 from lovv_agent.tools.destination_search import AttractionCandidate, prune_cities
+from lovv_agent.tools.dynamo_lookup import FestivalCandidate, FestivalSeedResult
 
 
 def candidate_input(
@@ -79,6 +80,33 @@ def attraction(
     )
 
 
+def festival(
+    festival_id: str,
+    *,
+    city_id: str = "KR-A",
+    city_name: str = "에이군",
+    month: int = 10,
+    assigned_theme: str = "바다·해안",
+) -> FestivalCandidate:
+    """Return one normalized festival candidate for seed-gate tests."""
+
+    return FestivalCandidate(
+        festival_id=festival_id,
+        name=f"축제 {festival_id}",
+        country="KR",
+        city_id=city_id,
+        city_name=city_name,
+        month=month,
+        theme=None,
+        theme_tags=(assigned_theme,),
+        assigned_theme=assigned_theme,
+        event_start_date="2026-10-10",
+        event_end_date="2026-10-12",
+        source="dynamodb",
+        raw={},
+    )
+
+
 class FakeDestinationSearch:
     """Injected search tool that records calls and reuses real city pruning."""
 
@@ -118,6 +146,32 @@ class FakeDestinationSearch:
             searchable_place_themes,
             allowed_city_ids=allowed_city_ids,
         )
+
+
+class FakeDynamoLookup:
+    """Injected Dynamo lookup tool for festival seed tests."""
+
+    def __init__(self, result: FestivalSeedResult) -> None:
+        self.result = result
+        self.calls: list[dict[str, object]] = []
+
+    def search_festival_city_seeds(
+        self,
+        *,
+        country: str,
+        travel_month: int,
+        theme_pool: tuple[str, ...],
+        city_id: str | None = None,
+    ) -> FestivalSeedResult:
+        self.calls.append(
+            {
+                "country": country,
+                "travel_month": travel_month,
+                "theme_pool": theme_pool,
+                "city_id": city_id,
+            },
+        )
+        return self.result
 
 
 class CandidateEvidenceModeTest(unittest.TestCase):
@@ -302,6 +356,161 @@ class CandidateEvidenceOrchestrationTest(unittest.TestCase):
         self.assertEqual(package.status, "no_candidate")
         self.assertTrue(package.needs_clarification)
         self.assertIn("no_city_after_theme_gate", package.failure_signals)
+
+
+class CandidateEvidenceFestivalSeedTest(unittest.TestCase):
+    """Validate festival seed and fixed-city festival lookup behavior."""
+
+    def test_festival_seeded_city_discovery_excludes_non_seeded_cities_before_scoring(self) -> None:
+        search = FakeDestinationSearch(
+            tuple(
+                attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군", distance=0.2)
+                for index in range(6)
+            )
+            + tuple(
+                attraction(f"B-{index}", city_id="KR-B", city_name_ko="비군", distance=0.01)
+                for index in range(6)
+            ),
+        )
+        dynamo = FakeDynamoLookup(
+            FestivalSeedResult(status="ok", candidates=(festival("F-A"),)),
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            dynamo_lookup=dynamo,
+        )
+
+        package = agent.run(
+            candidate_input(
+                include_festivals=True,
+                themes=("바다·해안",),
+            ),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "ok")
+        self.assertEqual(package.mode, FESTIVAL_SEEDED_CITY_DISCOVERY_MODE)
+        self.assertEqual(package.selected_city.city_id, "KR-A")
+        self.assertTrue(all(place["city_id"] == "KR-A" for place in package.recommended_places))
+        self.assertEqual(package.festival_seed_audit["seed_city_ids"], ["KR-A"])
+        self.assertEqual(package.selected_festival_candidates[0]["city_id"], "KR-A")
+        self.assertIsNone(search.calls[0]["city_id"])
+        self.assertEqual(dynamo.calls[0]["theme_pool"], ("바다·해안",))
+
+    def test_festival_seed_empty_theme_pool_returns_no_required_theme_signal(self) -> None:
+        search = FakeDestinationSearch(())
+        dynamo = FakeDynamoLookup(FestivalSeedResult(status="ok"))
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            dynamo_lookup=dynamo,
+        )
+
+        package = agent.run(
+            candidate_input(
+                include_festivals=True,
+                themes=("festival_event", "축제·이벤트"),
+            ),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "no_candidate")
+        self.assertTrue(package.needs_clarification)
+        self.assertIn("no_required_theme_for_festival_seed", package.failure_signals)
+        self.assertEqual(search.calls, [])
+        self.assertEqual(dynamo.calls, [])
+
+    def test_festival_seed_empty_city_seed_prevents_attraction_retrieval(self) -> None:
+        search = FakeDestinationSearch(())
+        dynamo = FakeDynamoLookup(
+            FestivalSeedResult(
+                status="no_candidate",
+                failure_signals=("no_festival_city_seed",),
+                needs_clarification=True,
+            ),
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            dynamo_lookup=dynamo,
+        )
+
+        package = agent.run(
+            candidate_input(include_festivals=True, themes=("자연·트레킹",)),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "no_candidate")
+        self.assertTrue(package.needs_clarification)
+        self.assertIn("no_festival_city_seed", package.failure_signals)
+        self.assertFalse(package.fallback_audit["planner_consumable"])
+        self.assertEqual(search.calls, [])
+
+    def test_fixed_city_festival_lookup_failure_returns_anchor_signal(self) -> None:
+        search = FakeDestinationSearch(())
+        dynamo = FakeDynamoLookup(
+            FestivalSeedResult(
+                status="no_candidate",
+                failure_signals=("no_festival_in_anchor_city",),
+                needs_clarification=True,
+            ),
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            dynamo_lookup=dynamo,
+        )
+
+        package = agent.run(
+            candidate_input(
+                destination_id="KR-A",
+                include_festivals=True,
+                themes=("바다·해안",),
+            ),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "no_candidate")
+        self.assertTrue(package.needs_clarification)
+        self.assertIn("no_festival_in_anchor_city", package.failure_signals)
+        self.assertEqual(dynamo.calls[0]["city_id"], "KR-A")
+        self.assertEqual(search.calls, [])
+
+    def test_fixed_city_festival_success_keeps_selected_festivals_in_anchor_city(self) -> None:
+        search = FakeDestinationSearch(
+            tuple(
+                attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군", distance=0.05)
+                for index in range(6)
+            ),
+        )
+        dynamo = FakeDynamoLookup(
+            FestivalSeedResult(
+                status="ok",
+                candidates=(
+                    festival("F-A", city_id="KR-A", city_name="에이군"),
+                    festival("F-B", city_id="KR-B", city_name="비군"),
+                ),
+            ),
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            dynamo_lookup=dynamo,
+        )
+
+        package = agent.run(
+            candidate_input(
+                destination_id="KR-A",
+                include_festivals=True,
+                themes=("바다·해안",),
+            ),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "ok")
+        self.assertEqual(package.mode, ANCHORED_PLACE_SEARCH_MODE)
+        self.assertEqual(package.selected_city.city_id, "KR-A")
+        self.assertEqual(
+            [item["city_id"] for item in package.selected_festival_candidates],
+            ["KR-A"],
+        )
+        self.assertEqual(search.calls[0]["city_id"], "KR-A")
 
 
 if __name__ == "__main__":

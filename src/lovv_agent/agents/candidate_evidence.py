@@ -25,6 +25,7 @@ from lovv_agent.tools.candidate_selection import (
     candidate_budgets_for_trip,
 )
 from lovv_agent.tools.destination_search import AttractionCandidate
+from lovv_agent.tools.dynamo_lookup import FestivalCandidate, FestivalSeedResult
 from lovv_agent.tools.scoring import PlaceScoreResult, ScoringTool
 
 NODE_NAME = "candidate_evidence_agent"
@@ -93,10 +94,12 @@ class CandidateEvidenceAgent:
         self,
         *,
         destination_search: Any | None = None,
+        dynamo_lookup: Any | None = None,
         scoring: ScoringTool | None = None,
         selection: CandidateSelectionHelper | None = None,
     ) -> None:
         self.destination_search = destination_search
+        self.dynamo_lookup = dynamo_lookup
         self.scoring = scoring or ScoringTool()
         self.selection = selection or CandidateSelectionHelper()
 
@@ -119,12 +122,19 @@ class CandidateEvidenceAgent:
         context = self.prepare_context(candidate_input)
         if self.destination_search is None:
             raise SchemaValidationError("destination_search tool is required")
-        if context.mode == FESTIVAL_SEEDED_CITY_DISCOVERY_MODE:
-            return _package_failure(
-                context,
-                status="error",
-                failure_signal="festival_seed_flow_not_implemented",
-                needs_clarification=False,
+        festival_seed_result: FestivalSeedResult | None = None
+        allowed_city_ids: tuple[str, ...] | None = None
+        if context.include_festivals:
+            festival_seed_result = _run_festival_seed_lookup(
+                context=context,
+                dynamo_lookup=self.dynamo_lookup,
+            )
+            if festival_seed_result.status != "ok":
+                return _festival_seed_failure_package(context, festival_seed_result)
+            allowed_city_ids = (
+                (context.fixed_city_id,)
+                if context.fixed_city_id is not None
+                else festival_seed_result.seed_city_ids
             )
         if not context.theme_split.searchable_place_themes:
             return _package_failure(
@@ -133,6 +143,7 @@ class CandidateEvidenceAgent:
                 failure_signal="no_searchable_place_theme",
                 needs_clarification=True,
                 clarifying_question="현재 조건에서는 검색 가능한 관광 테마가 없습니다.",
+                festival_seed_result=festival_seed_result,
             )
         return _run_attraction_search(
             context=context,
@@ -140,6 +151,8 @@ class CandidateEvidenceAgent:
             destination_search=self.destination_search,
             scoring=self.scoring,
             selection=self.selection,
+            allowed_city_ids=allowed_city_ids,
+            festival_seed_result=festival_seed_result,
         )
 
 
@@ -240,6 +253,8 @@ def _run_attraction_search(
     destination_search: Any,
     scoring: ScoringTool,
     selection: CandidateSelectionHelper,
+    allowed_city_ids: Sequence[str] | None = None,
+    festival_seed_result: FestivalSeedResult | None = None,
 ) -> CandidateEvidencePackage:
     """Run retrieval, city scoring, final city selection, and quota selection."""
 
@@ -250,11 +265,11 @@ def _run_attraction_search(
         city_id=context.fixed_city_id,
     )
     merged_candidates = _merge_duplicate_candidates(retrieved)
-    allowed_city_ids = (context.fixed_city_id,) if context.fixed_city_id else None
+    allowed = _allowed_city_ids(context=context, allowed_city_ids=allowed_city_ids)
     pruned_groups = destination_search.prune_cities(
         merged_candidates,
         context.theme_split.searchable_place_themes,
-        allowed_city_ids=allowed_city_ids,
+        allowed_city_ids=allowed,
     )
     if not pruned_groups.survived_groups:
         return _package_failure(
@@ -270,6 +285,7 @@ def _run_attraction_search(
             ),
             needs_clarification=True,
             clarifying_question="현재 조건에 맞는 후보 도시를 찾지 못했습니다.",
+            festival_seed_result=festival_seed_result,
         )
 
     primary_budget, reserve_budget = candidate_budgets_for_trip(
@@ -300,6 +316,7 @@ def _run_attraction_search(
             ),
             needs_clarification=True,
             clarifying_question="현재 조건에 맞는 후보 도시를 찾지 못했습니다.",
+            festival_seed_result=festival_seed_result,
         )
 
     selected_city_id = city_rankings[0]["city_id"]
@@ -330,6 +347,12 @@ def _run_attraction_search(
         city_rankings=tuple(city_rankings),
         recommended_places=recommended_places,
         reserve_places=reserve_places,
+        festival_candidates=_festival_candidate_payloads(festival_seed_result),
+        selected_festival_candidates=_festival_candidate_payloads(
+            festival_seed_result,
+            city_id=selected_city_id,
+        ),
+        festival_seed_audit=_festival_seed_audit(festival_seed_result),
         coverage_audit=selected_places.coverage_audit,
         retrieval_audit=_retrieval_audit(
             context=context,
@@ -349,7 +372,61 @@ def _run_attraction_search(
         fallback_audit={
             "planner_consumable": True,
             "status_reason": status,
+            "festival_seed_applied": festival_seed_result is not None,
         },
+    )
+
+
+def _run_festival_seed_lookup(
+    *,
+    context: CandidateEvidenceContext,
+    dynamo_lookup: Any | None,
+) -> FestivalSeedResult:
+    """Run month/theme festival seed lookup before attraction retrieval."""
+
+    theme_pool = context.theme_split.active_required_themes
+    if not theme_pool:
+        return FestivalSeedResult(
+            status="no_candidate",
+            failure_signals=("no_required_theme_for_festival_seed",),
+            needs_clarification=True,
+        )
+    if dynamo_lookup is None:
+        return FestivalSeedResult(
+            status="error",
+            failure_signals=("festival_lookup_tool_required",),
+            needs_clarification=False,
+        )
+    return dynamo_lookup.search_festival_city_seeds(
+        country=context.candidate_input.country,
+        travel_month=context.candidate_input.travel_month,
+        theme_pool=theme_pool,
+        city_id=context.fixed_city_id,
+    )
+
+
+def _festival_seed_failure_package(
+    context: CandidateEvidenceContext,
+    festival_seed_result: FestivalSeedResult,
+) -> CandidateEvidencePackage:
+    """Build the hard-gate failure package for festival seed misses."""
+
+    failure_signals = festival_seed_result.failure_signals or (
+        "festival_seed_lookup_failed",
+    )
+    clarifying_question = (
+        "현재 조건에 맞는 축제 후보가 없습니다. 여행 월이나 테마를 조정해 주세요."
+        if festival_seed_result.needs_clarification
+        else None
+    )
+    return _package_failure(
+        context,
+        status=festival_seed_result.status,
+        failure_signal=failure_signals[0],
+        failure_signals=failure_signals,
+        needs_clarification=festival_seed_result.needs_clarification,
+        clarifying_question=clarifying_question,
+        festival_seed_result=festival_seed_result,
     )
 
 
@@ -512,26 +589,98 @@ def _package_failure(
     *,
     status: str,
     failure_signal: str,
+    failure_signals: Sequence[str] | None = None,
     needs_clarification: bool,
     clarifying_question: str | None = None,
     retrieval_audit: Mapping[str, Any] | None = None,
+    festival_seed_result: FestivalSeedResult | None = None,
 ) -> CandidateEvidencePackage:
     """Build a valid failure package at the Candidate Evidence boundary."""
 
     return CandidateEvidencePackage(
         status=status,
-        failure_signals=(failure_signal,),
+        failure_signals=tuple(failure_signals or (failure_signal,)),
         needs_clarification=needs_clarification,
         clarifying_question=clarifying_question,
         mode=context.mode,
         city_anchor=context.candidate_input.city_anchor,
+        festival_candidates=_festival_candidate_payloads(festival_seed_result),
+        selected_festival_candidates=(),
+        festival_seed_audit=_festival_seed_audit(festival_seed_result),
         retrieval_audit=dict(retrieval_audit or {}),
         candidate_counts={},
         fallback_audit={
             "planner_consumable": False,
             "failure_signal": failure_signal,
+            "festival_seed_applied": festival_seed_result is not None,
         },
     )
+
+
+def _allowed_city_ids(
+    *,
+    context: CandidateEvidenceContext,
+    allowed_city_ids: Sequence[str] | None,
+) -> tuple[str, ...] | None:
+    """Return the city pool restriction for prune/scoring."""
+
+    if allowed_city_ids is not None:
+        normalized = tuple(dict.fromkeys(allowed_city_ids))
+        return normalized or None
+    if context.fixed_city_id is not None:
+        return (context.fixed_city_id,)
+    return None
+
+
+def _festival_candidate_payloads(
+    festival_seed_result: FestivalSeedResult | None,
+    *,
+    city_id: str | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Serialize festival candidates, optionally limited to one selected city."""
+
+    if festival_seed_result is None:
+        return ()
+    return tuple(
+        _festival_candidate_payload(candidate)
+        for candidate in festival_seed_result.candidates
+        if city_id is None or candidate.city_id == city_id
+    )
+
+
+def _festival_candidate_payload(candidate: FestivalCandidate) -> dict[str, Any]:
+    """Return a compact festival candidate payload for the internal package."""
+
+    return {
+        "festival_id": candidate.festival_id,
+        "name": candidate.name,
+        "country": candidate.country,
+        "city_id": candidate.city_id,
+        "city_name": candidate.city_name,
+        "month": candidate.month,
+        "theme": candidate.theme,
+        "theme_tags": list(candidate.theme_tags),
+        "assigned_theme": candidate.assigned_theme,
+        "event_start_date": candidate.event_start_date,
+        "event_end_date": candidate.event_end_date,
+        "source": candidate.source,
+    }
+
+
+def _festival_seed_audit(
+    festival_seed_result: FestivalSeedResult | None,
+) -> dict[str, Any]:
+    """Return compact festival seed audit fields."""
+
+    if festival_seed_result is None:
+        return {}
+    return {
+        "status": festival_seed_result.status,
+        "candidate_count": len(festival_seed_result.candidates),
+        "seed_city_ids": list(festival_seed_result.seed_city_ids),
+        "failure_signals": list(festival_seed_result.failure_signals),
+        "needs_clarification": festival_seed_result.needs_clarification,
+    }
 
 
 def _retrieval_audit(
