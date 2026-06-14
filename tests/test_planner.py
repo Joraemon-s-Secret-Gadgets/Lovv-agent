@@ -64,6 +64,18 @@ def festival_package(*, mode: str = "festival_seeded_city_discovery") -> Candida
     )
 
 
+def gourmet_package() -> CandidateEvidencePackage:
+    """Build a package whose gourmet theme must become an external link."""
+
+    return CandidateEvidencePackage(
+        status="ok",
+        mode="city_discovery",
+        selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
+        recommended_places=tuple(place(f"P-{index}") for index in range(4)),
+        coverage_audit={"external_link_themes": ["미식·노포"]},
+    )
+
+
 def festival_verification(
     *,
     festival_id: str = "F-A",
@@ -212,6 +224,52 @@ class PlannerFestivalOverlayTest(unittest.TestCase):
         }
         self.assertEqual(attraction_cities, {"KR-A"})
         self.assertTrue(any(item["item_type"] == "festival" for item in output.itinerary))
+
+
+class PlannerGourmetPolicyTest(unittest.TestCase):
+    """Validate Task 8.3 gourmet link and placeholder policy."""
+
+    def test_gourmet_theme_adds_food_search_link_and_placeholder(self) -> None:
+        output = PlannerAgent().plan(gourmet_package(), trip_type="daytrip")
+
+        self.assertIn("foodSearch", output.external_links)
+        self.assertEqual(output.external_links["foodSearch"]["type"], "foodSearch")
+        self.assertEqual(output.external_links["foodSearch"]["query"], "에이군 맛집")
+        self.assertEqual(
+            output.validation_result["food_search_link_required"],
+            True,
+        )
+
+        placeholders = [
+            item for item in output.itinerary if item["item_type"] == "meal_placeholder"
+        ]
+        self.assertEqual(len(placeholders), 1)
+        self.assertIsNone(placeholders[0]["placeId"])
+        self.assertEqual(placeholders[0]["source"], "placeholder")
+        self.assertEqual(placeholders[0]["linkRef"], "foodSearch")
+
+    def test_gourmet_theme_does_not_generate_named_restaurant_items(self) -> None:
+        output = PlannerAgent().plan(gourmet_package(), trip_type="daytrip")
+
+        restaurant_items = [
+            item for item in output.itinerary if item["item_type"] == "restaurant"
+        ]
+        self.assertEqual(restaurant_items, [])
+        self.assertFalse(
+            any(
+                item.get("placeId")
+                for item in output.itinerary
+                if item["item_type"] == "meal_placeholder"
+            ),
+        )
+
+    def test_non_gourmet_package_does_not_add_food_placeholder(self) -> None:
+        output = PlannerAgent().plan(evidence_package(), trip_type="daytrip")
+
+        self.assertNotIn("foodSearch", output.external_links)
+        self.assertFalse(
+            any(item["item_type"] == "meal_placeholder" for item in output.itinerary),
+        )
 
 
 if __name__ == "__main__":

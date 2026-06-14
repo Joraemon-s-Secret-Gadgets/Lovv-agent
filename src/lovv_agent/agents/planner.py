@@ -19,6 +19,11 @@ from lovv_agent.models.schemas import (
     PlannerOutput,
     SchemaValidationError,
 )
+from lovv_agent.tools.links import (
+    FOOD_SEARCH_LINK_TYPE,
+    GOURMET_THEME_LABEL,
+    build_food_search_link,
+)
 
 NODE_NAME = "planner_agent"
 
@@ -139,7 +144,17 @@ def build_planner_output(
     if festival_items:
         itinerary = _apply_festival_overlay(itinerary, festival_items)
 
+    external_links: dict[str, Any] = {}
     user_notice = []
+    if _requires_gourmet_link(package):
+        external_links[FOOD_SEARCH_LINK_TYPE] = build_food_search_link(
+            city_name_ko=package.selected_city.city_name_ko,
+            country=package.selected_city.country,
+        )
+        itinerary = (*itinerary, _meal_placeholder_item(package))
+        user_notice.append(
+            "미식·노포 테마는 식당 후보를 생성하지 않고 선택 도시 음식점 검색 링크로 안내합니다.",
+        )
     if package.status == "insufficient_candidates":
         user_notice.append("조건에 맞는 후보 수가 적어 가능한 범위에서 축소 일정을 구성했습니다.")
     skipped_festivals = _skipped_festival_count(
@@ -155,7 +170,7 @@ def build_planner_output(
             f"{package.selected_city.city_name_ko}의 검증된 후보지를 중심으로 일정을 구성했습니다.",
         ),
         itinerary_flow_reason="tripType별 기본 시간대 템플릿에 후보지를 순서대로 배치했습니다.",
-        external_links={},
+        external_links=external_links,
         confidence=0.72 if package.status == "ok" else 0.5,
         user_notice=tuple(user_notice),
         validation_result={
@@ -165,6 +180,7 @@ def build_planner_output(
             "festival_verification_count": len(tuple(festival_verifications)),
             "festival_placed_count": len(festival_items),
             "festival_skipped_count": skipped_festivals,
+            "food_search_link_required": FOOD_SEARCH_LINK_TYPE in external_links,
         },
         alternative_itinerary=(),
     )
@@ -265,6 +281,35 @@ def _apply_festival_overlay(
     if not itinerary:
         return tuple(festival_items)
     return tuple((itinerary[0], *festival_items, *itinerary[1:]))
+
+
+def _requires_gourmet_link(package: CandidateEvidencePackage) -> bool:
+    """Return whether Planner must provide the selected-city food CTA."""
+
+    external_themes = package.coverage_audit.get("external_link_themes", ())
+    if isinstance(external_themes, str):
+        return external_themes == GOURMET_THEME_LABEL
+    if not isinstance(external_themes, Sequence):
+        return False
+    return GOURMET_THEME_LABEL in {str(theme) for theme in external_themes}
+
+
+def _meal_placeholder_item(package: CandidateEvidencePackage) -> dict[str, Any]:
+    """Build a public-safe meal choice placeholder for gourmet requests."""
+
+    if package.selected_city is None:
+        raise SchemaValidationError("selected_city is required for meal placeholder")
+    return {
+        "day": 1,
+        "slot": "meal_choice",
+        "item_type": "meal_placeholder",
+        "placeId": None,
+        "title": "선택 도시에서 식사 장소를 자유롭게 선택하세요.",
+        "city_id": package.selected_city.city_id,
+        "city_name_ko": package.selected_city.city_name_ko,
+        "source": "placeholder",
+        "linkRef": FOOD_SEARCH_LINK_TYPE,
+    }
 
 
 def _skipped_festival_count(
