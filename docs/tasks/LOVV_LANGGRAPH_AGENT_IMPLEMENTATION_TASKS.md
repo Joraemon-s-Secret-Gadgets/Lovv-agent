@@ -317,11 +317,13 @@ Primary reference documents to read only when the Subtask requires them:
 ## Task 3. Supervisor Router
 
 - Purpose: graph routing, matrix transition, clarification stop behavior를 결정적으로 구현한다.
-- Scope: Supervisor node, matrix helper, retry limit, `END_WAIT_USER` route.
+- Scope: Supervisor node, matrix helper, retry limit, `END_WAIT_USER` route, future Supervisor implementation swap boundary.
 - Dependencies: Task 1.
 - Context Budget: Supervisor and fallback sections only.
-- Acceptance Criteria: matrix keys/status, routing order, verifier skip, Planner blocking on clarification.
+- Acceptance Criteria: matrix keys/status, routing order, verifier skip, Planner blocking on clarification, deterministic Supervisor as default.
 - Verification: Supervisor unit tests.
+
+Default Task 3 routing is deterministic and is the MVP source of truth. The implementation should still expose a clean routing boundary so a later LLM Supervisor can be swapped in for the same E2E fixture suite after the deterministic baseline passes; live LLM routing is not part of Task 3 baseline acceptance.
 
 ### Subtask 3.1: Fulfilled Matrix and Transition Helper
 
@@ -378,7 +380,10 @@ Primary reference documents to read only when the Subtask requires them:
 - Out of Scope:
   - Backend response formatting.
   - Actual node execution.
+  - Live LLM Supervisor routing.
 - Acceptance Criteria:
+  - Deterministic routing logic is exposed through a clear function/class boundary that graph wiring can replace later.
+  - Deterministic routing remains the source of truth for Task 3 and MVP execution.
   - `needs_clarification=true` routes to user wait and blocks Festival Verifier/Planner.
   - `includeFestivals=false` marks festival as `N/A`.
   - `status=insufficient_candidates` can proceed to Planner only when package is safe.
@@ -1070,7 +1075,7 @@ Primary reference documents to read only when the Subtask requires them:
 - Scope: graph compile, deterministic response packaging, response masking, integration tests.
 - Dependencies: Tasks 1-8.
 - Context Budget: graph and response packaging sections only.
-- Acceptance Criteria: canonical node sequence, internal evidence/`explanation_facts`/`explanation_audit` hidden, API response compatible, clarification path.
+- Acceptance Criteria: canonical node sequence, deterministic Supervisor baseline, internal evidence/`explanation_facts`/`explanation_audit` hidden, API response compatible, clarification path.
 - Verification: mocked graph integration tests.
 
 ### Subtask 9.1: Graph Wiring
@@ -1098,6 +1103,7 @@ Primary reference documents to read only when the Subtask requires them:
   - AgentCore deployment.
   - Live AWS invocation.
 - Acceptance Criteria:
+  - Baseline graph wiring uses the deterministic Supervisor.
   - Graph includes Intent, Supervisor, Candidate Evidence, optional Festival Verifier, Planner, Response Packager.
   - Clarification path reaches user-wait state.
   - Nodes receive and return typed state.
@@ -1168,6 +1174,12 @@ Primary reference documents to read only when the Subtask requires them:
   - Tests cover Planner validation retry exhaustion.
 - Verification:
   - `uv run pytest tests/test_graph_integration.py`
+
+Optional follow-up after this baseline passes:
+
+- Swap the Supervisor implementation with an experimental LLM Supervisor behind the same graph boundary.
+- Reuse the same E2E fixtures and compare route outcomes against deterministic hard-rule validation.
+- Treat this as a user-observable experiment, not an MVP production gate.
 
 ---
 

@@ -214,6 +214,9 @@ In that state the Supervisor:
 
 ### R2. Supervisor Router
 
+- The MVP/default Supervisor is deterministic; production routing must not depend on an LLM decision.
+- Keep Supervisor routing behind a replaceable implementation boundary so an experimental LLM Supervisor can later be swapped in after deterministic E2E tests pass.
+- Any experimental LLM Supervisor must be checked by hard routing rules or fall back to the deterministic Supervisor before it can be considered for production use.
 - Route by `fulfilled_matrix` and worker status.
 - Use only `X`, `O`, `△`, and `N/A`.
 - Standard keys are:
@@ -900,14 +903,17 @@ This SPEC is accepted when:
 
 ### Task 3. Supervisor Router
 
-- Purpose: Implement deterministic graph routing and clarification stop behavior.
-- Scope: Supervisor node, matrix transition helper, retry limit, `END_WAIT_USER` route.
+- Purpose: Implement deterministic graph routing and clarification stop behavior while preserving a swappable Supervisor boundary for later experiments.
+- Scope: Supervisor node, matrix transition helper, retry limit, `END_WAIT_USER` route, replaceable router interface/boundary.
 - Dependencies: Task 1.
 - Target Files:
   - `src/lovv_agent/agents/supervisor.py`
   - `src/lovv_agent/graph.py`
   - `tests/test_supervisor.py`
 - Acceptance Criteria:
+  - Deterministic Supervisor routing remains the default and source of truth for MVP graph execution.
+  - No LLM call is introduced for baseline Supervisor routing in Task 3.
+  - Graph wiring can later swap the deterministic Supervisor with an experimental Supervisor implementation without changing worker agent contracts.
   - Matrix uses only `X`, `O`, `△`, `N/A`.
   - Routing order is evidence, festival, planning.
   - `includeFestivals=false` skips verifier.
@@ -1016,10 +1022,12 @@ This SPEC is accepted when:
   - `tests/test_graph_integration.py`
 - Acceptance Criteria:
   - Graph executes the canonical node sequence.
+  - Baseline E2E graph tests use the deterministic Supervisor.
   - Clarification path ends at `END_WAIT_USER`.
   - Internal evidence, `explanation_facts`, `explanation_audit`, and audit are hidden from default response.
   - Response shape aligns with the MVP `/recommendations` contract.
   - Retry limit is enforced.
+  - After baseline E2E passes, the same fixture suite can be reused for an optional LLM Supervisor swap experiment that compares routing outcomes against deterministic hard rules.
 - Verification: end-to-end mocked graph tests for normal, festival-included, anchored, insufficient, no-candidate, and clarification paths.
 
 ### Task 10. AgentCore-Ready Harness Boundary
@@ -1051,6 +1059,7 @@ Minimum verification suite:
 - Festival Verifier tests for date status and planner policy.
 - Planner tests for status gates, slot templates, festival overlay, gourmet link/CTA policy, placeholder safety, and validation failure.
 - Graph integration tests with mocked adapters.
+- Optional LLM Supervisor swap experiment after deterministic graph integration passes; it must use the same E2E fixtures and compare route decisions against deterministic hard-rule validation.
 - Optional AWS smoke test using non-secret environment config after deterministic tests pass.
 
 ## Review Checklist
@@ -1067,4 +1076,5 @@ Minimum verification suite:
 - Festival Verifier only verifies selected-city candidates.
 - Planner cannot create ungrounded places, named restaurants, festivals, or live facts.
 - Candidate Evidence `needs_clarification=true` routes to user wait, not Planner.
+- Deterministic Supervisor remains the MVP default; any LLM Supervisor is an optional post-baseline experiment guarded by deterministic route validation.
 - Task Breakdown is implementation-ready but no code has been written.
