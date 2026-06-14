@@ -23,6 +23,7 @@ CONFIG_SECTIONS: tuple[str, ...] = (
     "dynamodb",
     "embeddings",
     "llm",
+    "intent",
     "search_budget",
     "timeouts",
     "retries",
@@ -38,6 +39,7 @@ ENV_KEYS: tuple[str, ...] = (
     "LOVV_EMBEDDING_MODEL_ID",
     "LOVV_LLM_ADAPTER_ID",
     "LOVV_LLM_MODEL_ID",
+    "LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS",
     "LOVV_SEARCH_PER_THEME_TOP_K",
     "LOVV_SEARCH_RAW_SOFT_TOP_K",
     "LOVV_MAX_FESTIVAL_SEED_CANDIDATES",
@@ -54,6 +56,7 @@ DEFAULT_S3_VECTOR_INDEX = "local-attraction-index"
 DEFAULT_DYNAMODB_TABLE = "local-lovv-table"
 DEFAULT_EMBEDDING_ADAPTER_ID = "local-embedding-adapter"
 DEFAULT_LLM_ADAPTER_ID = "bedrock-converse"
+DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS = 5
 DEFAULT_PER_THEME_ATTRACTION_TOP_K = 24
 DEFAULT_RAW_SOFT_CHANNEL_TOP_K = 12
 DEFAULT_MAX_FESTIVAL_SEED_CANDIDATES = 30
@@ -176,6 +179,24 @@ class LlmSettings:
 
 
 @dataclass(frozen=True, slots=True)
+class IntentSettings:
+    """Intent Agent policy knobs for conservative MVP extraction.
+
+    Short natural-language input should not block the graph. When the trimmed
+    query is shorter than ``min_natural_language_query_chars``, the Intent node
+    should skip LLM extraction and continue from structured API fields.
+    """
+
+    min_natural_language_query_chars: int = DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS
+
+    def __post_init__(self) -> None:
+        _positive_int(
+            self.min_natural_language_query_chars,
+            "intent.min_natural_language_query_chars",
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class SearchBudgetSettings:
     """Runtime-configurable retrieval and verifier candidate budgets."""
 
@@ -233,6 +254,7 @@ class RuntimeConfig:
     dynamodb: DynamoDbSettings = field(default_factory=DynamoDbSettings)
     embeddings: EmbeddingSettings = field(default_factory=EmbeddingSettings)
     llm: LlmSettings = field(default_factory=LlmSettings)
+    intent: IntentSettings = field(default_factory=IntentSettings)
     search_budget: SearchBudgetSettings = field(default_factory=SearchBudgetSettings)
     timeouts: TimeoutSettings = field(default_factory=TimeoutSettings)
     retries: RetrySettings = field(default_factory=RetrySettings)
@@ -278,6 +300,15 @@ class RuntimeConfig:
             llm=LlmSettings(
                 adapter_id=source.get("LOVV_LLM_ADAPTER_ID", DEFAULT_LLM_ADAPTER_ID),
                 model_id=_optional_text(source.get("LOVV_LLM_MODEL_ID")),
+            ),
+            intent=IntentSettings(
+                min_natural_language_query_chars=_positive_int(
+                    source.get(
+                        "LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS",
+                        DEFAULT_MIN_NATURAL_LANGUAGE_QUERY_CHARS,
+                    ),
+                    "LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS",
+                ),
             ),
             search_budget=SearchBudgetSettings(
                 per_theme_attraction_top_k=_positive_int(
@@ -359,6 +390,7 @@ __all__ = [
     "DynamoDbSettings",
     "ENV_KEYS",
     "EmbeddingSettings",
+    "IntentSettings",
     "LlmSettings",
     "RetrySettings",
     "RuntimeConfig",

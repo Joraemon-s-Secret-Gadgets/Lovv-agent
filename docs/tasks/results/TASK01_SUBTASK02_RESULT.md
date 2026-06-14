@@ -19,6 +19,7 @@ The implementation keeps imports side-effect free. It does not read environment 
   - DynamoDB table name
   - embedding adapter/model selector
   - LLM adapter/model selector
+  - Intent natural-language minimum character threshold
   - search and verifier candidate budgets
   - timeout settings
   - bounded retry settings
@@ -43,6 +44,7 @@ docs/tasks/results/TASK01_SUBTASK02_RESULT.md
 - Runtime config includes DynamoDB table name: done.
 - Runtime config includes embedding adapter/model selector: done.
 - Runtime config includes LLM adapter/model selector without fixed model ID: done.
+- Runtime config includes Intent natural-language threshold with default `5`: done.
 - Search top K budgets and verifier candidate K are runtime-configurable: done.
 - Retry and timeout settings are runtime-configurable: done.
 - Defaults are safe for local tests and do not require real AWS credentials: done.
@@ -59,9 +61,9 @@ uv run pytest tests/test_config.py
 Result:
 
 ```text
-tests/test_config.py .......                                             [100%]
+tests/test_config.py ........                                            [100%]
 
-7 passed
+8 passed
 ```
 
 Regression check:
@@ -73,10 +75,10 @@ uv run pytest tests/test_config.py tests/test_import_skeleton.py
 Result:
 
 ```text
-tests/test_config.py .......                                             [ 70%]
+tests/test_config.py ........                                            [ 72%]
 tests/test_import_skeleton.py ...                                        [100%]
 
-10 passed
+11 passed
 ```
 
 Full current test suite:
@@ -88,14 +90,15 @@ uv run pytest
 Result:
 
 ```text
-tests/test_config.py .......                                             [ 70%]
+tests/test_config.py ........                                            [ 72%]
 tests/test_import_skeleton.py ...                                        [100%]
 
-10 passed
+11 passed
 ```
 
 ## Notes and Constraints
 
 - This task does not implement real credential loading.
 - This task does not select a concrete LLM or embedding model by default.
+- This task only defines the short natural-language threshold; Intent extraction logic is implemented in Task 2.
 - This task does not create AgentCore deployment configuration.

@@ -8,6 +8,7 @@ from lovv_agent.config import (
     CONFIG_SECTIONS,
     ENV_KEYS,
     ConfigError,
+    IntentSettings,
     RuntimeConfig,
     SearchBudgetSettings,
     default_runtime_config,
@@ -27,6 +28,7 @@ class RuntimeConfigTest(unittest.TestCase):
         self.assertEqual(config.llm.adapter_id, "bedrock-converse")
         self.assertIsNone(config.llm.model_id)
         self.assertIsNone(config.embeddings.model_id)
+        self.assertEqual(config.intent.min_natural_language_query_chars, 5)
 
     def test_config_sections_cover_required_runtime_boundaries(self) -> None:
         self.assertEqual(
@@ -37,6 +39,7 @@ class RuntimeConfigTest(unittest.TestCase):
                 "dynamodb",
                 "embeddings",
                 "llm",
+                "intent",
                 "search_budget",
                 "timeouts",
                 "retries",
@@ -55,6 +58,7 @@ class RuntimeConfigTest(unittest.TestCase):
                 "LOVV_EMBEDDING_MODEL_ID": "embedding-model-from-runtime",
                 "LOVV_LLM_ADAPTER_ID": "bedrock-converse",
                 "LOVV_LLM_MODEL_ID": "model-from-runtime",
+                "LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS": "7",
                 "LOVV_SEARCH_PER_THEME_TOP_K": "8",
                 "LOVV_SEARCH_RAW_SOFT_TOP_K": "4",
                 "LOVV_MAX_FESTIVAL_SEED_CANDIDATES": "11",
@@ -72,6 +76,7 @@ class RuntimeConfigTest(unittest.TestCase):
         self.assertEqual(config.dynamodb.table_name, "lovv-dev-table")
         self.assertEqual(config.embeddings.adapter_id, "bedrock-embedding")
         self.assertEqual(config.llm.model_id, "model-from-runtime")
+        self.assertEqual(config.intent.min_natural_language_query_chars, 7)
         self.assertEqual(config.search_budget.per_theme_attraction_top_k, 8)
         self.assertEqual(config.search_budget.raw_soft_channel_top_k, 4)
         self.assertEqual(config.search_budget.max_festival_seed_candidates, 11)
@@ -86,6 +91,13 @@ class RuntimeConfigTest(unittest.TestCase):
 
         with self.assertRaises(ConfigError):
             RuntimeConfig.from_env({"LOVV_VERIFIER_CANDIDATE_K": "-1"})
+
+    def test_intent_policy_rejects_zero_or_negative_values(self) -> None:
+        with self.assertRaises(ConfigError):
+            IntentSettings(min_natural_language_query_chars=0)
+
+        with self.assertRaises(ConfigError):
+            RuntimeConfig.from_env({"LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS": "-1"})
 
     def test_empty_required_env_values_are_rejected(self) -> None:
         with self.assertRaises(ConfigError):
