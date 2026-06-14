@@ -342,8 +342,10 @@ AND
 - Apply metadata filters:
   - `entity_type="attraction"` for place search
   - optional `city_id`
-  - optional `theme_tags`
+  - optional single active `theme` through `theme_tags == theme`
 - General place search must not use `entity_type="festival"` or restaurant entity search in the current phase.
+- `미식·노포` must not trigger S3 Vector place search; it is handled later as
+  a selected-city external food search/link requirement.
 - Normalize chunk keys into stable `place_id`.
 - Use `ddb_pk` and `ddb_sk` for DynamoDB `GetItem`.
 - Missing rehydration keys or detail lookup failures must produce warnings and `details=null`, not graph crashes.
@@ -773,7 +775,7 @@ Attraction candidate records must support at least:
 | `metadata.entity_type` | current place search uses `attraction` |
 | `metadata.city_id` | grouping and anchor filter |
 | `metadata.city_name_ko` | fallback display/group helper |
-| `metadata.theme_tags` | searchable theme gate and quota |
+| `metadata.theme_tags` | active theme filter, searchable theme gate, and quota |
 | `metadata.title` | display and dedup |
 | `metadata.latitude`, `metadata.longitude` | scoring and route hints |
 | `metadata.ddb_pk`, `metadata.ddb_sk` | DynamoDB detail rehydration |

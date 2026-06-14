@@ -25,6 +25,7 @@ from lovv_agent.tools.destination_search import (
     build_attraction_search_request,
     normalize_attraction_candidate,
     normalize_festival_candidate,
+    prune_cities,
 )
 
 
@@ -147,8 +148,8 @@ class RepositoryBoundaryTest(unittest.TestCase):
                 {
                     "query_vector": [0.1, 0.2],
                     "top_k": 3,
-                    "bucket_name": "lovv-vector-bucket",
-                    "index_name": "attractions-index",
+                    "vectorBucketName": "lovv-vector-bucket",
+                    "indexName": "attractions-index",
                 },
             ],
         )
@@ -223,28 +224,21 @@ class AttractionSearchTest(unittest.TestCase):
         candidates = tool.search_candidates(
             [0.1, 0.2, 0.3],
             city_id="city-1",
-            theme_tags=["sea_coast", "walk"],
+            theme="sea_coast",
         )
 
         request = client.requests[0]
-        self.assertEqual(request["top_k"], 7)
-        self.assertTrue(request["return_metadata"])
-        self.assertTrue(request["return_distance"])
+        self.assertEqual(request["queryVector"], {"float32": [0.1, 0.2, 0.3]})
+        self.assertEqual(request["topK"], 7)
+        self.assertTrue(request["returnMetadata"])
+        self.assertTrue(request["returnDistance"])
         self.assertEqual(
             request["filter"],
             {
-                "and": [
-                    {
-                        "field": "entity_type",
-                        "operator": "eq",
-                        "value": "attraction",
-                    },
-                    {"field": "city_id", "operator": "eq", "value": "city-1"},
-                    {
-                        "field": "theme_tags",
-                        "operator": "contains_any",
-                        "values": ["sea_coast", "walk"],
-                    },
+                "$and": [
+                    {"entity_type": {"$eq": "attraction"}},
+                    {"city_id": {"$eq": "city-1"}},
+                    {"theme_tags": {"$eq": "sea_coast"}},
                 ],
             },
         )
@@ -258,7 +252,7 @@ class AttractionSearchTest(unittest.TestCase):
             search_budget=SearchBudgetSettings(per_theme_attraction_top_k=9),
         )
 
-        self.assertEqual(request["top_k"], 3)
+        self.assertEqual(request["topK"], 3)
 
     def test_filter_combines_city_and_single_theme(self) -> None:
         metadata_filter = build_attraction_filter(city_id="city-7", theme="history")
@@ -266,26 +260,31 @@ class AttractionSearchTest(unittest.TestCase):
         self.assertEqual(
             metadata_filter,
             {
-                "and": [
-                    {
-                        "field": "entity_type",
-                        "operator": "eq",
-                        "value": "attraction",
-                    },
-                    {"field": "city_id", "operator": "eq", "value": "city-7"},
-                    {
-                        "field": "theme_tags",
-                        "operator": "contains_any",
-                        "values": ["history"],
-                    },
+                "$and": [
+                    {"entity_type": {"$eq": "attraction"}},
+                    {"city_id": {"$eq": "city-7"}},
+                    {"theme_tags": {"$eq": "history"}},
                 ],
             },
         )
 
+    def test_food_theme_is_not_sent_to_s3_vector_search(self) -> None:
+        client = RecordingS3VectorClient()
+        repository = S3VectorRepository(client=client, settings=S3VectorSettings())
+        tool = DestinationSearchTool(
+            s3_vectors=repository,
+            search_budget=SearchBudgetSettings(),
+        )
+
+        candidates = tool.search_candidates([0.1, 0.2], theme="미식·노포")
+
+        self.assertEqual(candidates, ())
+        self.assertEqual(client.requests, [])
+
     def test_chunk_key_normalizes_to_stable_place_id(self) -> None:
         candidate = normalize_attraction_candidate(
             {
-                "key": "place-99#chunk-12",
+                "key": "attraction#place-99#12",
                 "distance": 0.5,
                 "metadata": {
                     "entity_type": "attraction",
@@ -296,7 +295,7 @@ class AttractionSearchTest(unittest.TestCase):
             },
         )
 
-        self.assertEqual(candidate.place_id, "place-99")
+        self.assertEqual(candidate.place_id, "attraction#place-99")
         self.assertEqual(candidate.theme_tags, ("history",))
 
     def test_normalize_metadata_place_id_overrides_chunk_key(self) -> None:
@@ -330,6 +329,55 @@ class AttractionSearchTest(unittest.TestCase):
                     },
                 },
             )
+
+    def test_prune_cities_applies_allowed_pool_and_theme_and_gate(self) -> None:
+        candidates = (
+            normalize_attraction_candidate(
+                {
+                    "key": "attraction#sea-1#1",
+                    "distance": 0.1,
+                    "metadata": {
+                        "entity_type": "attraction",
+                        "city_id": "city-1",
+                        "title": "바다 산책로",
+                        "theme_tags": ["바다·해안"],
+                    },
+                },
+            ),
+            normalize_attraction_candidate(
+                {
+                    "key": "attraction#history-1#1",
+                    "distance": 0.2,
+                    "metadata": {
+                        "entity_type": "attraction",
+                        "city_id": "city-1",
+                        "title": "역사 거리",
+                        "theme_tags": ["역사·문화"],
+                    },
+                },
+            ),
+            normalize_attraction_candidate(
+                {
+                    "key": "attraction#sea-2#1",
+                    "distance": 0.3,
+                    "metadata": {
+                        "entity_type": "attraction",
+                        "city_id": "city-2",
+                        "title": "다른 바다",
+                        "theme_tags": ["바다·해안"],
+                    },
+                },
+            ),
+        )
+
+        result = prune_cities(
+            candidates,
+            ["바다·해안", "역사·문화"],
+            allowed_city_ids=["city-1", "city-2"],
+        )
+
+        self.assertEqual(tuple(result.survived_groups), ("city-1",))
+        self.assertEqual(result.eliminated_cities, ("city-2",))
 
 
 class FestivalSeedTest(unittest.TestCase):
@@ -374,8 +422,9 @@ class FestivalSeedTest(unittest.TestCase):
                         "city_id": "city-2",
                         "city_name": "고도시",
                         "month": 6,
+                        "theme": "history",
                         "assigned_theme": "night_view",
-                        "theme_tags": ["history"],
+                        "theme_tags": ["festival"],
                     },
                     {
                         "festival_id": "festival-3",
@@ -411,7 +460,8 @@ class FestivalSeedTest(unittest.TestCase):
 
         self.assertEqual(result.status, "ok")
         self.assertFalse(result.needs_clarification)
-        self.assertEqual(result.seeded_city_ids, ("city-1", "city-2"))
+        self.assertEqual(result.seed_city_ids, ("city-1", "city-2"))
+        self.assertEqual(result.to_dict()["seed_city_ids"], ["city-1", "city-2"])
         self.assertEqual(
             [candidate.festival_id for candidate in result.candidates],
             ["festival-1", "festival-2"],
@@ -420,6 +470,11 @@ class FestivalSeedTest(unittest.TestCase):
         self.assertEqual(request["TableName"], "lovv-table")
         self.assertEqual(request["Limit"], 10)
         self.assertEqual(request["ExpressionAttributeValues"][":month"], {"N": "6"})
+        self.assertEqual(
+            request["ExpressionAttributeValues"][":entity_type"],
+            {"S": "festival"},
+        )
+        self.assertEqual(request["FilterExpression"], "#entity_type = :entity_type")
 
     def test_fixed_city_festival_seed_restricts_to_anchor_city(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
@@ -456,10 +511,13 @@ class FestivalSeedTest(unittest.TestCase):
         )
 
         self.assertEqual(result.status, "ok")
-        self.assertEqual(result.seeded_city_ids, ("city-2",))
+        self.assertEqual(result.seed_city_ids, ("city-2",))
         self.assertEqual(result.candidates[0].festival_id, "festival-2")
         request = dynamodb_client.query_requests[0]
-        self.assertEqual(request["FilterExpression"], "#city_id = :city_id")
+        self.assertEqual(
+            request["FilterExpression"],
+            "#entity_type = :entity_type AND #city_id = :city_id",
+        )
         self.assertEqual(
             request["ExpressionAttributeValues"][":city_id"],
             {"S": "city-2"},
@@ -503,6 +561,7 @@ class FestivalSeedTest(unittest.TestCase):
                 "city_id": {"S": "city-1"},
                 "city_name": {"S": "해변시"},
                 "month": {"N": "6"},
+                "theme": {"S": "sea_coast"},
                 "assigned_theme": {"S": "sea_coast"},
                 "theme_tags": {"SS": ["sea_coast", "walk"]},
                 "eventstartdate": {"S": "2026-06-01"},
@@ -511,6 +570,7 @@ class FestivalSeedTest(unittest.TestCase):
 
         self.assertEqual(candidate.festival_id, "festival-1")
         self.assertEqual(candidate.month, 6)
+        self.assertEqual(candidate.theme, "sea_coast")
         self.assertEqual(candidate.theme_tags, ("sea_coast", "walk"))
         self.assertEqual(candidate.event_start_date, "2026-06-01")
 

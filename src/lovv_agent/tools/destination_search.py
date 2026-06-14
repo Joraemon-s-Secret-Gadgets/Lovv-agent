@@ -26,6 +26,14 @@ RESPONSIBILITY = "Retrieve and normalize destination/place/festival evidence."
 ATTRACTION_ENTITY_TYPE = "attraction"
 DEFAULT_RETURN_DISTANCE = True
 DEFAULT_RETURN_METADATA = True
+GOURMET_EXTERNAL_THEME_LABELS = frozenset(
+    {
+        "food_local",
+        "미식",
+        "미식·노포",
+        "미식/노포",
+    },
+)
 FESTIVAL_EXCLUDED_THEME_LABELS = frozenset(
     {
         "festival",
@@ -35,6 +43,9 @@ FESTIVAL_EXCLUDED_THEME_LABELS = frozenset(
         "축제·이벤트",
         "축제/이벤트",
     },
+)
+PLACE_SEARCH_EXCLUDED_THEME_LABELS = (
+    GOURMET_EXTERNAL_THEME_LABELS | FESTIVAL_EXCLUDED_THEME_LABELS
 )
 _CHUNK_SUFFIX_PATTERN = re.compile(
     r"(?i)(?:::|#|/|_|-)?chunk(?:[-_:#/])?\d+$",
@@ -58,6 +69,7 @@ class AttractionCandidate:
     ddb_pk: str | None
     ddb_sk: str | None
     metadata: dict[str, Any]
+    details: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Return a serializable candidate payload."""
@@ -75,6 +87,7 @@ class FestivalCandidate:
     city_id: str
     city_name: str | None
     month: int
+    theme: str | None
     theme_tags: tuple[str, ...]
     assigned_theme: str | None
     event_start_date: str | None
@@ -98,8 +111,8 @@ class FestivalSeedResult:
     needs_clarification: bool = False
 
     @property
-    def seeded_city_ids(self) -> tuple[str, ...]:
-        """Return unique seeded city ids in candidate order."""
+    def seed_city_ids(self) -> tuple[str, ...]:
+        """Return unique seed city ids in candidate order."""
 
         seen: set[str] = set()
         city_ids: list[str] = []
@@ -110,15 +123,40 @@ class FestivalSeedResult:
             city_ids.append(candidate.city_id)
         return tuple(city_ids)
 
+    @property
+    def seeded_city_ids(self) -> tuple[str, ...]:
+        """Backward-compatible alias for ``seed_city_ids``."""
+
+        return self.seed_city_ids
+
     def to_dict(self) -> dict[str, Any]:
         """Return a serializable seed lookup payload."""
 
         return {
             "status": self.status,
             "candidates": [candidate.to_dict() for candidate in self.candidates],
-            "seeded_city_ids": list(self.seeded_city_ids),
+            "seed_city_ids": list(self.seed_city_ids),
             "failure_signals": list(self.failure_signals),
             "needs_clarification": self.needs_clarification,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class PrunedCityGroups:
+    """City groups that survived searchable theme coverage checks."""
+
+    survived_groups: dict[str, tuple[AttractionCandidate, ...]]
+    eliminated_cities: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a serializable city pruning payload."""
+
+        return {
+            "survived_groups": {
+                city_id: [candidate.to_dict() for candidate in candidates]
+                for city_id, candidates in self.survived_groups.items()
+            },
+            "eliminated_cities": list(self.eliminated_cities),
         }
 
 
@@ -141,11 +179,14 @@ class DestinationSearchTool:
     ) -> tuple[AttractionCandidate, ...]:
         """Search attraction candidates and normalize the raw vector response."""
 
+        search_theme = _resolve_place_search_theme(theme, theme_tags)
+        if search_theme is not None and _is_excluded_place_search_theme(search_theme):
+            return ()
+
         request = build_attraction_search_request(
             query_vector=query_vector,
             city_id=city_id,
-            theme=theme,
-            theme_tags=theme_tags,
+            theme=search_theme,
             top_k=top_k,
             search_budget=self.search_budget,
         )
@@ -153,6 +194,21 @@ class DestinationSearchTool:
         return tuple(
             normalize_attraction_candidate(record)
             for record in extract_vector_records(response)
+        )
+
+    def prune_cities(
+        self,
+        candidates: Sequence[AttractionCandidate],
+        searchable_place_themes: Sequence[str],
+        *,
+        allowed_city_ids: Sequence[str] | None = None,
+    ) -> PrunedCityGroups:
+        """Group candidates by city and apply searchable place theme coverage."""
+
+        return prune_cities(
+            candidates,
+            searchable_place_themes,
+            allowed_city_ids=allowed_city_ids,
         )
 
     def search_festival_city_seeds(
@@ -223,17 +279,20 @@ def build_attraction_search_request(
 ) -> dict[str, Any]:
     """Build an attraction-only S3 Vector search request."""
 
-    return {
-        "query_vector": _normalize_query_vector(query_vector),
-        "top_k": _resolve_top_k(top_k, search_budget),
-        "return_metadata": DEFAULT_RETURN_METADATA,
-        "return_distance": DEFAULT_RETURN_DISTANCE,
-        "filter": build_attraction_filter(
-            city_id=city_id,
-            theme=theme,
-            theme_tags=theme_tags,
-        ),
+    request = {
+        "queryVector": {"float32": _normalize_query_vector(query_vector)},
+        "topK": _resolve_top_k(top_k, search_budget),
+        "returnMetadata": DEFAULT_RETURN_METADATA,
+        "returnDistance": DEFAULT_RETURN_DISTANCE,
     }
+    metadata_filter = build_attraction_filter(
+        city_id=city_id,
+        theme=theme,
+        theme_tags=theme_tags,
+    )
+    if metadata_filter is not None:
+        request["filter"] = metadata_filter
+    return request
 
 
 def build_attraction_filter(
@@ -241,37 +300,87 @@ def build_attraction_filter(
     city_id: str | None = None,
     theme: str | None = None,
     theme_tags: Sequence[str] | None = None,
-) -> dict[str, Any]:
+) -> dict[str, Any] | None:
     """Build the metadata filter for general attraction place search."""
 
     conditions: list[dict[str, Any]] = [
         {
-            "field": "entity_type",
-            "operator": "eq",
-            "value": ATTRACTION_ENTITY_TYPE,
+            "entity_type": {"$eq": ATTRACTION_ENTITY_TYPE},
         },
     ]
     normalized_city_id = _optional_text(city_id, "city_id")
     if normalized_city_id is not None:
         conditions.append(
             {
-                "field": "city_id",
-                "operator": "eq",
-                "value": normalized_city_id,
+                "city_id": {"$eq": normalized_city_id},
             },
         )
 
-    normalized_theme_tags = _normalize_theme_tags(theme, theme_tags)
-    if normalized_theme_tags:
+    normalized_theme = _resolve_place_search_theme(theme, theme_tags)
+    if normalized_theme is not None:
+        if _is_excluded_place_search_theme(normalized_theme):
+            raise SchemaValidationError(
+                "theme is not searchable through S3 Vector place search",
+            )
         conditions.append(
             {
-                "field": "theme_tags",
-                "operator": "contains_any",
-                "values": list(normalized_theme_tags),
+                "theme_tags": {"$eq": normalized_theme},
             },
         )
 
-    return {"and": conditions}
+    if not conditions:
+        return None
+    if len(conditions) == 1:
+        return conditions[0]
+    return {"$and": conditions}
+
+
+def prune_cities(
+    candidates: Sequence[AttractionCandidate],
+    searchable_place_themes: Sequence[str],
+    *,
+    allowed_city_ids: Sequence[str] | None = None,
+) -> PrunedCityGroups:
+    """Apply city pool restriction and searchable theme AND gate."""
+
+    required_themes = tuple(
+        theme
+        for theme in _normalize_string_sequence(
+            searchable_place_themes,
+            "searchable_place_themes",
+        )
+        if not _is_excluded_place_search_theme(theme)
+    )
+    allowed = (
+        set(_normalize_string_sequence(allowed_city_ids, "allowed_city_ids"))
+        if allowed_city_ids is not None
+        else None
+    )
+    grouped: dict[str, list[AttractionCandidate]] = {}
+    for candidate in candidates:
+        city_key = _candidate_city_key(candidate)
+        if city_key is None:
+            continue
+        if allowed is not None and candidate.city_id not in allowed:
+            continue
+        grouped.setdefault(city_key, []).append(candidate)
+
+    survived: dict[str, tuple[AttractionCandidate, ...]] = {}
+    eliminated: list[str] = []
+    for city_id, city_candidates in grouped.items():
+        available_themes = {
+            theme
+            for candidate in city_candidates
+            for theme in candidate.theme_tags
+        }
+        if all(theme in available_themes for theme in required_themes):
+            survived[city_id] = tuple(city_candidates)
+        else:
+            eliminated.append(city_id)
+    return PrunedCityGroups(
+        survived_groups=survived,
+        eliminated_cities=tuple(eliminated),
+    )
 
 
 def normalize_attraction_candidate(record: Mapping[str, Any]) -> AttractionCandidate:
@@ -325,6 +434,10 @@ def normalize_festival_candidate(item: Mapping[str, Any]) -> FestivalCandidate:
             "city_name",
         ),
         month=_month(_first_present(normalized, "month"), "month"),
+        theme=_optional_text(
+            _first_optional(normalized, "theme", "travel_theme"),
+            "theme",
+        ),
         theme_tags=_normalize_string_sequence(
             _first_optional(normalized, "theme_tags", "themes"),
             "theme_tags",
@@ -380,6 +493,10 @@ def _festival_matches_theme(
 
     theme_set = set(theme_pool)
     return (
+        candidate.theme in theme_set
+        if candidate.theme is not None
+        else False
+    ) or (
         candidate.assigned_theme in theme_set
         if candidate.assigned_theme is not None
         else False
@@ -444,10 +561,21 @@ def _normalize_place_id(*, key: str, metadata: Mapping[str, Any]) -> str:
     metadata_place_id = _optional_text(metadata.get("place_id"), "metadata.place_id")
     if metadata_place_id is not None:
         return metadata_place_id
+    hash_parts = key.split("#")
+    if len(hash_parts) >= 3 and hash_parts[-1].isdigit():
+        return "#".join(hash_parts[:-1])
     normalized = _CHUNK_SUFFIX_PATTERN.sub("", key).strip()
     if not normalized:
         raise SchemaValidationError("place_id could not be normalized from key")
     return normalized
+
+
+def _candidate_city_key(candidate: AttractionCandidate) -> str | None:
+    """Return the grouping city key according to the destination search contract."""
+
+    if candidate.city_id:
+        return candidate.city_id
+    return candidate.city_name_ko
 
 
 def _metadata(record: Mapping[str, Any]) -> dict[str, Any]:
@@ -535,11 +663,11 @@ def _normalize_query_vector(query_vector: Sequence[float]) -> list[float]:
     return normalized
 
 
-def _normalize_theme_tags(
+def _resolve_place_search_theme(
     theme: str | None,
     theme_tags: Sequence[str] | None,
-) -> tuple[str, ...]:
-    """Merge the singular theme parameter and theme tag list."""
+) -> str | None:
+    """Resolve the single active theme used by one S3 Vector search call."""
 
     merged: list[str] = []
     normalized_theme = _optional_text(theme, "theme")
@@ -554,7 +682,17 @@ def _normalize_theme_tags(
             continue
         seen.add(item)
         deduped.append(item)
-    return tuple(deduped)
+    if len(deduped) > 1:
+        raise SchemaValidationError(
+            "search_candidates accepts one active theme per S3 Vector query",
+        )
+    return deduped[0] if deduped else None
+
+
+def _is_excluded_place_search_theme(theme: str) -> bool:
+    """Return whether a theme must not trigger attraction vector search."""
+
+    return theme in PLACE_SEARCH_EXCLUDED_THEME_LABELS
 
 
 def _normalize_string_sequence(value: Any, field_name: str) -> tuple[str, ...]:
@@ -608,6 +746,8 @@ __all__ = [
     "ATTRACTION_ENTITY_TYPE",
     "DEFAULT_RETURN_DISTANCE",
     "DEFAULT_RETURN_METADATA",
+    "GOURMET_EXTERNAL_THEME_LABELS",
+    "PLACE_SEARCH_EXCLUDED_THEME_LABELS",
     "RESPONSIBILITY",
     "TOOL_NAME",
     "AttractionCandidate",
@@ -615,8 +755,10 @@ __all__ = [
     "FESTIVAL_EXCLUDED_THEME_LABELS",
     "FestivalCandidate",
     "FestivalSeedResult",
+    "PrunedCityGroups",
     "build_attraction_filter",
     "build_attraction_search_request",
     "normalize_attraction_candidate",
     "normalize_festival_candidate",
+    "prune_cities",
 ]

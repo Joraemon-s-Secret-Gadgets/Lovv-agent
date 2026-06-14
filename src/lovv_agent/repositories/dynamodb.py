@@ -82,15 +82,18 @@ class DynamoDbRepository:
             "ExpressionAttributeNames": {
                 "#country": "country",
                 "#month": "month",
+                "#entity_type": "entity_type",
             },
             "ExpressionAttributeValues": {
                 ":country": {"S": _required_text(country, "country")},
                 ":month": {"N": str(_month(travel_month, "travel_month"))},
+                ":entity_type": {"S": "festival"},
             },
+            "FilterExpression": "#entity_type = :entity_type",
         }
         normalized_city_id = _optional_text(city_id, "city_id")
         if normalized_city_id is not None:
-            request["FilterExpression"] = "#city_id = :city_id"
+            request["FilterExpression"] += " AND #city_id = :city_id"
             request["ExpressionAttributeNames"]["#city_id"] = "city_id"
             request["ExpressionAttributeValues"][":city_id"] = {"S": normalized_city_id}
         if limit is not None:

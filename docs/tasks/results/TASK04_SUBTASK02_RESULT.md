@@ -1,8 +1,8 @@
 # Task 4.2 Result: Attraction Search Filter and Candidate Normalization
 
-> Completion Date: 2026-06-14  
-> Responsible Agent: Codex  
-> Source Task: `Lovv-agent/docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md`  
+> Completion Date: 2026-06-14
+> Responsible Agent: Codex
+> Source Task: `Lovv-agent/docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md`
 > Source Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 
 ## Summary
@@ -25,13 +25,19 @@ the injected S3 Vector repository, and normalizes returned attraction records.
 - Added attraction-only filter enforcement:
   - `entity_type == attraction`
   - optional `city_id`
-  - optional `theme_tags contains_any`
+  - optional single active `theme` matched through `theme_tags == theme`
+- Added current non-place theme handling:
+  - `미식·노포` does not trigger S3 Vector place search,
+  - festival labels do not trigger general place search.
 - Added configurable `top_k` handling:
   - call argument wins when provided,
   - otherwise injected `SearchBudgetSettings.per_theme_attraction_top_k` is used.
 - Added chunk-key to stable `place_id` normalization.
+- Added `prune_cities` for allowed-city restriction and searchable place theme
+  AND gate.
 - Added tests for search request construction, filter composition, top K policy,
-  chunk normalization, metadata `place_id` override, and non-attraction rejection.
+  food-theme exclusion, chunk normalization, metadata `place_id` override,
+  city pruning, and non-attraction rejection.
 
 ## Changed Files
 
@@ -46,9 +52,11 @@ docs/tasks/results/TASK04_SUBTASK02_RESULT.md
 
 - `search_candidates` builds attraction-only filters: done.
 - Optional `city_id` filter is applied: done.
-- Optional `theme_tags` filter is applied with OR-style `contains_any`: done.
+- Optional active `theme` filter is applied as `theme_tags == theme`: done.
 - General place search does not use festival or restaurant entity search: done.
+- `미식·노포` is excluded from S3 Vector place search: done.
 - Chunk keys normalize to stable `place_id`: done.
+- `prune_cities` applies allowed city pool and searchable theme AND gate: done.
 - `top_k` is not hardcoded globally and comes from call/config: done.
 - City scoring remains out of scope: done.
 - Festival search remains out of scope for Task 4.3: done.
@@ -64,7 +72,7 @@ uv run pytest tests/test_destination_search.py -k "search_candidates or filter o
 Result:
 
 ```text
-6 passed, 5 deselected
+8 passed, 11 deselected
 ```
 
 Full DestinationSearch tests:
@@ -76,7 +84,7 @@ uv run pytest tests/test_destination_search.py
 Result:
 
 ```text
-11 passed
+19 passed
 ```
 
 Compile check:
@@ -96,13 +104,13 @@ uv run pytest
 Result:
 
 ```text
-74 passed
+82 passed
 ```
 
 ## Notes and Constraints
 
-- The filter structure is an internal normalized request shape passed to the
-  repository boundary. A future live AWS adapter may translate it to the exact
-  provider request shape if required.
+- The request/filter structure now follows the `destination_search_tool.md`
+  S3 Vector payload contract: `queryVector`, `topK`, `returnMetadata`,
+  `returnDistance`, and `$eq`/`$and` metadata filters.
 - DynamoDB festival seed/fixed-city lookup helpers are left for Task 4.3.
 - Primary-only detail rehydration and warning policy are left for Task 4.4.

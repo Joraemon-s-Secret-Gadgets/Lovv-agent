@@ -23,8 +23,10 @@ no-candidate cases.
 - Added festival theme-pool normalization that excludes festival-only labels.
 - Added month matching through `festival.month == travelMonth`.
 - Added non-festival travel theme OR matching:
+  - `festival.theme in theme_pool`,
   - `festival.assigned_theme in theme_pool`, or
   - any `festival.theme_tags in theme_pool`.
+- Added `entity_type == festival` to the DynamoDB festival seed query request.
 - Added anchored-city filtering for `anchored_place_search`.
 - Added fallback signals:
   - `no_required_theme_for_festival_seed`
@@ -47,6 +49,9 @@ docs/tasks/results/TASK04_SUBTASK03_RESULT.md
   requested: done at tool boundary.
 - Festival seed lookup uses `festival.month == travelMonth`: done.
 - Festival seed lookup applies non-festival theme OR matching: done.
+- Festival seed lookup checks `theme`, `assigned_theme`, and `theme_tags`:
+  done.
+- Festival seed query includes `entity_type=festival`: done.
 - `festival_event`/festival-only labels are not used as travel themes: done.
 - Empty non-festival theme pool returns `no_required_theme_for_festival_seed`:
   done.
@@ -78,7 +83,7 @@ uv run pytest tests/test_destination_search.py
 Result:
 
 ```text
-17 passed
+19 passed
 ```
 
 Compile check:
@@ -98,7 +103,7 @@ uv run pytest
 Result:
 
 ```text
-80 passed
+82 passed
 ```
 
 ## Notes and Constraints

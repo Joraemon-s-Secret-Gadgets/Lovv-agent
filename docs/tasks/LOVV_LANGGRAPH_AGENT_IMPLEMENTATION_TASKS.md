@@ -490,7 +490,9 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Festival or restaurant entity search in general place retrieval.
 - Acceptance Criteria:
   - `search_candidates` builds attraction-only filters.
-  - Optional `city_id` and `theme_tags` filters are combined correctly.
+  - Optional `city_id` and single active `theme` filter are combined correctly.
+  - `미식·노포` and festival labels do not trigger S3 Vector place search.
+  - `prune_cities` applies allowed city restriction and searchable theme AND gate.
   - Chunk keys normalize to stable `place_id`.
   - `top_k` is read from injected config/call argument, not fixed as a universal constant.
 - Verification:

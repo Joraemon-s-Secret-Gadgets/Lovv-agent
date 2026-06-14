@@ -39,8 +39,8 @@ class S3VectorRepository:
         if not isinstance(request, Mapping):
             raise SchemaValidationError("s3 vector request must be a mapping")
         payload = dict(request)
-        payload.setdefault("bucket_name", self.settings.bucket_name)
-        payload.setdefault("index_name", self.settings.index_name)
+        payload.setdefault("vectorBucketName", self.settings.bucket_name)
+        payload.setdefault("indexName", self.settings.index_name)
         response = self.client.query_vectors(**payload)
         if not isinstance(response, Mapping):
             raise SchemaValidationError("s3 vector response must be a mapping")
