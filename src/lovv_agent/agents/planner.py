@@ -24,6 +24,7 @@ from lovv_agent.tools.links import (
     GOURMET_THEME_LABEL,
     build_food_search_link,
 )
+from lovv_agent.tools.validation import validate_planner_output
 
 NODE_NAME = "planner_agent"
 
@@ -164,6 +165,22 @@ def build_planner_output(
     if skipped_festivals:
         user_notice.append("확정되지 않았거나 일정에 맞지 않는 축제 후보는 일정에 배치하지 않았습니다.")
 
+    validation_result = validate_planner_output(
+        itinerary,
+        package=package,
+        festival_verifications=festival_verifications,
+    )
+    validation_result.update(
+        {
+            "planner_status_gate": package.status,
+            "include_festivals": include_festivals,
+            "festival_verification_count": len(tuple(festival_verifications)),
+            "festival_placed_count": len(festival_items),
+            "festival_skipped_count": skipped_festivals,
+            "food_search_link_required": FOOD_SEARCH_LINK_TYPE in external_links,
+        },
+    )
+
     return PlannerOutput(
         itinerary=itinerary,
         recommendation_reasons=(
@@ -173,15 +190,7 @@ def build_planner_output(
         external_links=external_links,
         confidence=0.72 if package.status == "ok" else 0.5,
         user_notice=tuple(user_notice),
-        validation_result={
-            "status": "not_validated",
-            "planner_status_gate": package.status,
-            "include_festivals": include_festivals,
-            "festival_verification_count": len(tuple(festival_verifications)),
-            "festival_placed_count": len(festival_items),
-            "festival_skipped_count": skipped_festivals,
-            "food_search_link_required": FOOD_SEARCH_LINK_TYPE in external_links,
-        },
+        validation_result=validation_result,
         alternative_itinerary=(),
     )
 

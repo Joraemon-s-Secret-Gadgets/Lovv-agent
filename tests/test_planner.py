@@ -6,6 +6,7 @@ import unittest
 
 from lovv_agent.agents.planner import PlannerAgent, TRIP_SLOT_TEMPLATES
 from lovv_agent.models.schemas import CandidateEvidencePackage, FestivalVerification, SelectedCity
+from lovv_agent.tools.validation import validate_planner_output
 
 
 def place(place_id: str, *, title: str | None = None) -> dict[str, object]:
@@ -270,6 +271,68 @@ class PlannerGourmetPolicyTest(unittest.TestCase):
         self.assertFalse(
             any(item["item_type"] == "meal_placeholder" for item in output.itinerary),
         )
+
+
+class PlannerValidationTest(unittest.TestCase):
+    """Validate Task 8.4 minimal Planner validation helper."""
+
+    def test_validation_passes_grounded_planner_output(self) -> None:
+        output = PlannerAgent().plan(evidence_package(), trip_type="daytrip")
+
+        self.assertEqual(output.validation_result["status"], "valid")
+        self.assertTrue(output.validation_result["is_valid"])
+        self.assertEqual(output.validation_result["errors"], ())
+
+    def test_validation_rejects_ungrounded_attraction(self) -> None:
+        result = validate_planner_output(
+            (
+                {
+                    "item_type": "attraction",
+                    "placeId": "UNKNOWN",
+                    "title": "근거 없는 장소",
+                },
+            ),
+            package=evidence_package(),
+        )
+
+        self.assertEqual(result["status"], "invalid")
+        self.assertEqual(result["errors"][0]["code"], "ungrounded_attraction")
+        self.assertEqual(result["retry_action"], "remove_or_rewrite_offending_items")
+
+    def test_validation_rejects_named_restaurant_from_model_knowledge(self) -> None:
+        result = validate_planner_output(
+            (
+                {
+                    "item_type": "restaurant",
+                    "placeId": "restaurant#model",
+                    "title": "모델이 만든 식당명",
+                    "source": "model_knowledge",
+                },
+            ),
+            package=evidence_package(),
+        )
+
+        self.assertEqual(result["status"], "invalid")
+        self.assertEqual(result["errors"][0]["code"], "named_restaurant_not_allowed")
+
+    def test_validation_rejects_unconfirmed_festival_placement(self) -> None:
+        result = validate_planner_output(
+            (
+                {
+                    "item_type": "festival",
+                    "festivalId": "F-A",
+                    "title": "에이 축제",
+                    "source": "festival_verifier",
+                },
+            ),
+            package=festival_package(),
+            festival_verifications=(
+                festival_verification(date_status="tentative", planner_policy="not_placeable"),
+            ),
+        )
+
+        self.assertEqual(result["status"], "invalid")
+        self.assertEqual(result["errors"][0]["code"], "unconfirmed_festival")
 
 
 if __name__ == "__main__":
