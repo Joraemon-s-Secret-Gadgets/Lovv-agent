@@ -15,9 +15,11 @@ from lovv_agent.agents.candidate_evidence import (
     CITY_DISCOVERY_MODE,
     FESTIVAL_SEEDED_CITY_DISCOVERY_MODE,
     CandidateEvidenceAgent,
+    build_candidate_reason_claim_request,
     prepare_candidate_evidence_context,
     resolve_candidate_evidence_mode,
     split_candidate_themes,
+    validate_candidate_reason_claim_output,
 )
 from lovv_agent.models.schemas import CandidateEvidenceInput, SchemaValidationError
 from lovv_agent.tools.destination_search import AttractionCandidate, prune_cities
@@ -172,6 +174,19 @@ class FakeDynamoLookup:
             },
         )
         return self.result
+
+
+class FakeStructuredRuntime:
+    """Injected structured-output runtime for reason claim tests."""
+
+    def __init__(self, responses: list[object]) -> None:
+        self.responses = responses
+        self.calls: list[dict[str, object]] = []
+
+    def __call__(self, request: dict[str, object]) -> object:
+        self.calls.append(request)
+        index = min(len(self.calls) - 1, len(self.responses) - 1)
+        return self.responses[index]
 
 
 class CandidateEvidenceModeTest(unittest.TestCase):
@@ -511,6 +526,183 @@ class CandidateEvidenceFestivalSeedTest(unittest.TestCase):
             ["KR-A"],
         )
         self.assertEqual(search.calls[0]["city_id"], "KR-A")
+
+
+class CandidateEvidencePackageAndReasonClaimTest(unittest.TestCase):
+    """Validate package audit fields and compact reason claim candidates."""
+
+    def test_package_adds_template_reason_claims_without_raw_score_text(self) -> None:
+        search = FakeDestinationSearch(
+            tuple(
+                attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군")
+                for index in range(6)
+            ),
+        )
+        agent = CandidateEvidenceAgent(destination_search=search)
+
+        package = agent.run(
+            candidate_input(themes=("바다·해안",)),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "ok")
+        self.assertGreaterEqual(len(package.candidate_reason_claims), 2)
+        first_claim = package.candidate_reason_claims[0]
+        self.assertEqual(first_claim.scope, "city_selection")
+        self.assertIn("selected_city", first_claim.evidence_refs)
+        rendered_claims = " ".join(claim.text_ko for claim in package.candidate_reason_claims)
+        self.assertNotIn("place_score", rendered_claims)
+        self.assertNotIn("score_components", rendered_claims)
+
+    def test_build_reason_claim_request_hides_raw_score_audit(self) -> None:
+        search = FakeDestinationSearch(
+            tuple(
+                attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군")
+                for index in range(6)
+            ),
+        )
+        agent = CandidateEvidenceAgent(destination_search=search)
+        candidate = candidate_input(themes=("바다·해안",))
+        context = agent.prepare_context(candidate)
+        package = agent.run(candidate, query_vector=(0.1, 0.2))
+
+        request = build_candidate_reason_claim_request(package, context=context)
+        request_text = request["messages"][0]["content"][0]["text"]
+
+        self.assertNotIn("score_audit", request_text)
+        self.assertNotIn("place_score", request_text)
+        self.assertNotIn("score_components", request_text)
+        self.assertIn("candidate_reason_claim_output", str(request["outputConfig"]))
+
+    def test_reason_claim_runtime_cannot_change_selected_city_or_status(self) -> None:
+        runtime = FakeStructuredRuntime(
+            [
+                {
+                    "structured_output": {
+                        "status": "error",
+                        "selected_city": {"city_id": "KR-B"},
+                        "candidate_reason_claims": [
+                            {
+                                "claim_id": "bad_1",
+                                "scope": "city_selection",
+                                "text_ko": "다른 도시로 바꿉니다.",
+                                "evidence_refs": ["selected_city"],
+                                "required_place_ids": [],
+                                "public_eligible": True,
+                            },
+                        ],
+                    },
+                },
+            ],
+        )
+        search = FakeDestinationSearch(
+            tuple(
+                attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군")
+                for index in range(6)
+            ),
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            reason_claim_runtime=runtime,
+            schema_retry_limit=0,
+        )
+
+        package = agent.run(
+            candidate_input(themes=("바다·해안",)),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "ok")
+        self.assertEqual(package.selected_city.city_id, "KR-A")
+        self.assertIn("candidate_reason_claim_generation", package.warnings)
+        self.assertFalse(package.candidate_reason_claims[0].public_eligible)
+
+    def test_reason_claim_schema_failure_retries_and_records_warning(self) -> None:
+        runtime = FakeStructuredRuntime(
+            [
+                {"structured_output": {"candidate_reason_claims": []}},
+                {"structured_output": {"candidate_reason_claims": "still invalid"}},
+            ],
+        )
+        search = FakeDestinationSearch(
+            tuple(
+                attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군")
+                for index in range(6)
+            ),
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            reason_claim_runtime=runtime,
+            schema_retry_limit=1,
+        )
+
+        package = agent.run(
+            candidate_input(themes=("바다·해안",)),
+            query_vector=(0.1, 0.2),
+        )
+
+        warning = package.warnings["candidate_reason_claim_generation"]
+        self.assertEqual(len(runtime.calls), 2)
+        self.assertEqual(warning["status"], "schema_failure")
+        self.assertEqual(warning["attempts"], 2)
+        self.assertFalse(package.candidate_reason_claims[0].public_eligible)
+
+    def test_no_candidate_and_error_packages_do_not_generate_reason_claims(self) -> None:
+        runtime = FakeStructuredRuntime(
+            [
+                {
+                    "structured_output": {
+                        "candidate_reason_claims": [
+                            {
+                                "claim_id": "unused",
+                                "scope": "fallback_notice",
+                                "text_ko": "사용되지 않아야 합니다.",
+                                "evidence_refs": ["fallback_audit"],
+                                "required_place_ids": [],
+                                "public_eligible": False,
+                            },
+                        ],
+                    },
+                },
+            ],
+        )
+        search = FakeDestinationSearch(())
+        agent = CandidateEvidenceAgent(
+            destination_search=search,
+            reason_claim_runtime=runtime,
+        )
+
+        no_candidate_package = agent.run(
+            candidate_input(themes=("바다·해안",)),
+            query_vector=(0.1, 0.2),
+        )
+        error_package = agent.run(
+            candidate_input(include_festivals=True, themes=("바다·해안",)),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(no_candidate_package.status, "no_candidate")
+        self.assertEqual(no_candidate_package.candidate_reason_claims, ())
+        self.assertEqual(error_package.status, "error")
+        self.assertEqual(error_package.candidate_reason_claims, ())
+        self.assertEqual(runtime.calls, [])
+
+    def test_reason_claim_validator_rejects_internal_score_tokens(self) -> None:
+        with self.assertRaises(SchemaValidationError):
+            validate_candidate_reason_claim_output(
+                {
+                    "candidate_reason_claims": [
+                        {
+                            "claim_id": "unsafe",
+                            "scope": "city_selection",
+                            "text_ko": "place_score 값을 보면 좋습니다.",
+                            "evidence_refs": ["selected_city"],
+                            "required_place_ids": [],
+                            "public_eligible": True,
+                        },
+                    ],
+                },
+            )
 
 
 if __name__ == "__main__":

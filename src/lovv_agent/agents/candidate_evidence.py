@@ -10,13 +10,21 @@ later Task 6 subtasks.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
+from lovv_agent.adapters.bedrock_converse import (
+    RuntimeInvoker,
+    build_structured_converse_request,
+    invoke_structured_output,
+)
+from lovv_agent.config import DEFAULT_SCHEMA_RETRY_LIMIT
 from lovv_agent.models.schemas import (
     CandidateEvidenceInput,
     CandidateEvidencePackage,
+    CandidateReasonClaim,
     SchemaValidationError,
     SelectedCity,
 )
@@ -50,6 +58,63 @@ FESTIVAL_THEME_MARKERS: frozenset[str] = frozenset(
         "축제",
         "축제·이벤트",
     },
+)
+
+CANDIDATE_REASON_CLAIM_SCHEMA_NAME = "candidate_reason_claim_output"
+CANDIDATE_REASON_CLAIM_OUTPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["candidate_reason_claims"],
+    "properties": {
+        "candidate_reason_claims": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "claim_id",
+                    "scope",
+                    "text_ko",
+                    "evidence_refs",
+                    "required_place_ids",
+                    "public_eligible",
+                ],
+                "properties": {
+                    "claim_id": {"type": "string"},
+                    "scope": {
+                        "type": "string",
+                        "enum": [
+                            "city_selection",
+                            "place_pool",
+                            "festival_anchor",
+                            "candidate_shortage",
+                            "external_link_policy",
+                            "fallback_notice",
+                        ],
+                    },
+                    "text_ko": {"type": "string"},
+                    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+                    "required_place_ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                    },
+                    "public_eligible": {"type": "boolean"},
+                },
+            },
+        },
+    },
+}
+
+REASON_CLAIM_UNSAFE_TOKENS: tuple[str, ...] = (
+    "place_score",
+    "score_components",
+    "raw_s3_uri",
+    "raw retrieval",
+    "topK",
+    "top_k",
+    "vector distance",
 )
 
 
@@ -97,11 +162,15 @@ class CandidateEvidenceAgent:
         dynamo_lookup: Any | None = None,
         scoring: ScoringTool | None = None,
         selection: CandidateSelectionHelper | None = None,
+        reason_claim_runtime: RuntimeInvoker | None = None,
+        schema_retry_limit: int = DEFAULT_SCHEMA_RETRY_LIMIT,
     ) -> None:
         self.destination_search = destination_search
         self.dynamo_lookup = dynamo_lookup
         self.scoring = scoring or ScoringTool()
         self.selection = selection or CandidateSelectionHelper()
+        self.reason_claim_runtime = reason_claim_runtime
+        self.schema_retry_limit = schema_retry_limit
 
     def prepare_context(
         self,
@@ -145,7 +214,7 @@ class CandidateEvidenceAgent:
                 clarifying_question="현재 조건에서는 검색 가능한 관광 테마가 없습니다.",
                 festival_seed_result=festival_seed_result,
             )
-        return _run_attraction_search(
+        package = _run_attraction_search(
             context=context,
             query_vector=query_vector,
             destination_search=self.destination_search,
@@ -153,6 +222,12 @@ class CandidateEvidenceAgent:
             selection=self.selection,
             allowed_city_ids=allowed_city_ids,
             festival_seed_result=festival_seed_result,
+        )
+        return _attach_candidate_reason_claims(
+            package,
+            context=context,
+            runtime=self.reason_claim_runtime,
+            retry_limit=self.schema_retry_limit,
         )
 
 
@@ -428,6 +503,265 @@ def _festival_seed_failure_package(
         clarifying_question=clarifying_question,
         festival_seed_result=festival_seed_result,
     )
+
+
+def build_candidate_reason_claim_request(
+    package: CandidateEvidencePackage,
+    *,
+    context: CandidateEvidenceContext,
+) -> dict[str, Any]:
+    """Build a schema-enforced Korean claim-generation request."""
+
+    safe_summary = _reason_claim_safe_summary(package, context=context)
+    return build_structured_converse_request(
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "text": json.dumps(safe_summary, ensure_ascii=False),
+                    },
+                ],
+            },
+        ],
+        system=[
+            {
+                "text": (
+                    "당신은 Lovv Candidate Evidence Agent의 내부 근거 압축기입니다. "
+                    "도시 선택이나 후보 순위를 바꾸지 말고, 제공된 evidence_refs만 "
+                    "사용해 짧은 한국어 claim 후보를 JSON Schema로 반환하세요."
+                ),
+            },
+        ],
+        schema_name=CANDIDATE_REASON_CLAIM_SCHEMA_NAME,
+        schema=CANDIDATE_REASON_CLAIM_OUTPUT_SCHEMA,
+        schema_description="Candidate Evidence Korean reason claim candidates",
+    )
+
+
+def validate_candidate_reason_claim_output(
+    payload: Mapping[str, Any],
+) -> tuple[CandidateReasonClaim, ...]:
+    """Validate model-produced Candidate Evidence reason claims."""
+
+    if not isinstance(payload, Mapping):
+        raise SchemaValidationError("candidate reason claim output must be an object")
+    if set(payload) != {"candidate_reason_claims"}:
+        raise SchemaValidationError(
+            "candidate reason claim output contains unsupported fields",
+        )
+    raw_claims = payload.get("candidate_reason_claims")
+    if not isinstance(raw_claims, (list, tuple)) or not raw_claims:
+        raise SchemaValidationError("candidate_reason_claims must be a non-empty list")
+    claims = tuple(CandidateReasonClaim.from_mapping(item) for item in raw_claims)
+    for claim in claims:
+        _validate_reason_claim_safety(claim)
+    return claims
+
+
+def _attach_candidate_reason_claims(
+    package: CandidateEvidencePackage,
+    *,
+    context: CandidateEvidenceContext,
+    runtime: RuntimeInvoker | None,
+    retry_limit: int,
+) -> CandidateEvidencePackage:
+    """Attach claim candidates without changing package decisions."""
+
+    if not _package_permits_reason_claims(package):
+        return package
+    if runtime is None:
+        return replace(
+            package,
+            candidate_reason_claims=_template_reason_claims(package, context=context),
+        )
+
+    request = build_candidate_reason_claim_request(package, context=context)
+    result = invoke_structured_output(
+        runtime=runtime,
+        request=request,
+        retry_limit=retry_limit,
+        validator=validate_candidate_reason_claim_output,
+    )
+    if result.ok:
+        return replace(package, candidate_reason_claims=result.value)
+
+    warnings = dict(package.warnings)
+    warnings["candidate_reason_claim_generation"] = {
+        "status": "schema_failure",
+        "attempts": result.attempts,
+        "validation_errors": list(result.validation_errors),
+    }
+    return replace(
+        package,
+        candidate_reason_claims=_template_reason_claims(
+            package,
+            context=context,
+            public_eligible=False,
+        ),
+        warnings=warnings,
+    )
+
+
+def _package_permits_reason_claims(package: CandidateEvidencePackage) -> bool:
+    """Return whether Planner may consume this package for claim validation."""
+
+    return (
+        package.status in {"ok", "insufficient_candidates"}
+        and package.selected_city is not None
+        and not package.needs_clarification
+    )
+
+
+def _template_reason_claims(
+    package: CandidateEvidencePackage,
+    *,
+    context: CandidateEvidenceContext,
+    public_eligible: bool = True,
+) -> tuple[CandidateReasonClaim, ...]:
+    """Build deterministic fallback claim candidates from safe package fields."""
+
+    claims: list[CandidateReasonClaim] = [
+        CandidateReasonClaim(
+            claim_id="city_reason_1",
+            scope="city_selection",
+            text_ko="선택 도시는 요청 테마 후보를 바탕으로 추천 후보가 구성되었습니다.",
+            evidence_refs=("selected_city", "city_rankings[0]", "coverage_audit"),
+            required_place_ids=(),
+            public_eligible=public_eligible,
+        ),
+    ]
+    place_ids = tuple(
+        str(place["place_id"])
+        for place in package.recommended_places[:3]
+        if isinstance(place.get("place_id"), str)
+    )
+    if place_ids:
+        claims.append(
+            CandidateReasonClaim(
+                claim_id="place_pool_1",
+                scope="place_pool",
+                text_ko="대표 후보들은 사용자의 여행 테마와 연결되는 관광지 후보입니다.",
+                evidence_refs=tuple(f"recommended_places:{place_id}" for place_id in place_ids),
+                required_place_ids=place_ids,
+                public_eligible=public_eligible,
+            ),
+        )
+    if package.selected_festival_candidates:
+        claims.append(
+            CandidateReasonClaim(
+                claim_id="festival_anchor_1",
+                scope="festival_anchor",
+                text_ko="선택 도시에 여행 월과 테마가 맞는 축제 후보가 있습니다.",
+                evidence_refs=("selected_festival_candidates", "festival_seed_audit"),
+                required_place_ids=(),
+                public_eligible=public_eligible,
+            ),
+        )
+    external_themes = package.coverage_audit.get("external_link_themes", [])
+    if external_themes:
+        claims.append(
+            CandidateReasonClaim(
+                claim_id="external_link_policy_1",
+                scope="external_link_policy",
+                text_ko="미식 테마는 선택 도시 기준 외부 음식 검색 링크로 이어집니다.",
+                evidence_refs=("coverage_audit.external_link_themes",),
+                required_place_ids=(),
+                public_eligible=public_eligible,
+            ),
+        )
+    if package.status == "insufficient_candidates":
+        claims.append(
+            CandidateReasonClaim(
+                claim_id="candidate_shortage_1",
+                scope="candidate_shortage",
+                text_ko="후보 수가 충분하지 않아 Planner 단계에서 보수적으로 처리해야 합니다.",
+                evidence_refs=("coverage_audit", "candidate_counts"),
+                required_place_ids=(),
+                public_eligible=False,
+            ),
+        )
+    return tuple(claims[:5])
+
+
+def _reason_claim_safe_summary(
+    package: CandidateEvidencePackage,
+    *,
+    context: CandidateEvidenceContext,
+) -> dict[str, Any]:
+    """Return LLM-visible evidence without raw scores or raw retrieval payloads."""
+
+    return {
+        "status": package.status,
+        "mode": package.mode,
+        "selected_city": _selected_city_summary(package.selected_city),
+        "active_required_themes": list(context.theme_split.active_required_themes),
+        "searchable_place_themes": list(context.theme_split.searchable_place_themes),
+        "external_link_themes": list(context.theme_split.external_link_themes),
+        "raw_query": context.candidate_input.cleaned_raw_query,
+        "soft_query": context.candidate_input.soft_preference_query,
+        "recommended_places": [
+            {
+                "place_id": place.get("place_id"),
+                "title": place.get("title"),
+                "theme_tags": place.get("theme_tags", []),
+                "assigned_theme": place.get("assigned_theme"),
+            }
+            for place in package.recommended_places[:5]
+        ],
+        "selected_festival_candidates": [
+            {
+                "festival_id": festival.get("festival_id"),
+                "name": festival.get("name"),
+                "city_id": festival.get("city_id"),
+                "assigned_theme": festival.get("assigned_theme"),
+                "theme_tags": festival.get("theme_tags", []),
+            }
+            for festival in package.selected_festival_candidates[:3]
+        ],
+        "coverage_audit_summary": {
+            "candidate_sufficiency": package.coverage_audit.get("candidate_sufficiency"),
+            "unfilled_primary_slots": package.coverage_audit.get(
+                "unfilled_primary_slots",
+            ),
+            "min_quota_shortfalls": package.coverage_audit.get(
+                "min_quota_shortfalls",
+                {},
+            ),
+        },
+        "candidate_counts": dict(package.candidate_counts),
+    }
+
+
+def _validate_reason_claim_safety(claim: CandidateReasonClaim) -> None:
+    """Reject claim text that leaks raw retrieval or scoring implementation data."""
+
+    haystack = " ".join(
+        (
+            claim.text_ko,
+            *claim.evidence_refs,
+            *claim.required_place_ids,
+        ),
+    )
+    lowered = haystack.casefold()
+    for token in REASON_CLAIM_UNSAFE_TOKENS:
+        if token.casefold() in lowered:
+            raise SchemaValidationError(
+                f"candidate reason claim includes unsafe internal token: {token}",
+            )
+
+
+def _selected_city_summary(selected_city: SelectedCity | None) -> dict[str, Any] | None:
+    """Return an LLM-visible selected city summary."""
+
+    if selected_city is None:
+        return None
+    return {
+        "city_id": selected_city.city_id,
+        "city_name_ko": selected_city.city_name_ko,
+        "country": selected_city.country,
+        "selection_reason_code": list(selected_city.selection_reason_code),
+    }
 
 
 def _retrieve_by_theme(
@@ -744,8 +1078,12 @@ __all__ = [
     "CandidateEvidenceAgent",
     "CandidateEvidenceContext",
     "CandidateThemeSplit",
+    "CANDIDATE_REASON_CLAIM_OUTPUT_SCHEMA",
+    "CANDIDATE_REASON_CLAIM_SCHEMA_NAME",
     "ensure_candidate_evidence_input",
+    "build_candidate_reason_claim_request",
     "prepare_candidate_evidence_context",
     "resolve_candidate_evidence_mode",
     "split_candidate_themes",
+    "validate_candidate_reason_claim_output",
 ]
