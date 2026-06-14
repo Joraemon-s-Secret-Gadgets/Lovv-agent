@@ -24,7 +24,7 @@ from lovv_agent.models.schemas import (
 from lovv_agent.tools.links import (
     FOOD_SEARCH_LINK_TYPE,
     GOURMET_THEME_LABEL,
-    build_food_search_link,
+    build_default_city_links,
 )
 from lovv_agent.tools.validation import validate_planner_output
 
@@ -157,13 +157,12 @@ def build_planner_output(
     if festival_items:
         itinerary = _apply_festival_overlay(itinerary, festival_items)
 
-    external_links: dict[str, Any] = {}
+    external_links: dict[str, Any] = build_default_city_links(
+        city_name_ko=package.selected_city.city_name_ko,
+        country=package.selected_city.country,
+    )
     user_notice = []
     if _requires_gourmet_link(package):
-        external_links[FOOD_SEARCH_LINK_TYPE] = build_food_search_link(
-            city_name_ko=package.selected_city.city_name_ko,
-            country=package.selected_city.country,
-        )
         itinerary = (*itinerary, _meal_placeholder_item(package))
         user_notice.append(
             "미식·노포 테마는 식당 후보를 생성하지 않고 선택 도시 음식점 검색 링크로 안내합니다.",
@@ -249,6 +248,9 @@ def _attraction_slot(*, day: int, slot_name: str, place: Mapping[str, Any]) -> d
         "source": "candidate_evidence",
         "theme_tags": list(place.get("theme_tags", [])),
         "details": place.get("details"),
+        "latitude": place.get("latitude"),
+        "longitude": place.get("longitude"),
+        "moveMinutes": place.get("moveMinutes") or place.get("move_minutes"),
     }
 
 

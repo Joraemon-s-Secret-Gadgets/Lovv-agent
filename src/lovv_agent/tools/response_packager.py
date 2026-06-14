@@ -137,10 +137,42 @@ def _itinerary_item_payload(item: Mapping[str, Any], sort_order: int) -> dict[st
         "title": item.get("title"),
         "body": _item_body(item),
         "reason": _item_reason(item),
-        "moveMinutes": item.get("moveMinutes"),
-        "latitude": item.get("latitude"),
-        "longitude": item.get("longitude"),
+        "moveMinutes": _item_number(item, "moveMinutes", "move_minutes"),
+        "latitude": _item_number(item, "latitude", "lat"),
+        "longitude": _item_number(item, "longitude", "lng", "lon"),
     }
+
+
+def _item_number(item: Mapping[str, Any], *field_names: str) -> float | int | None:
+    """Read a numeric itinerary field from item or enriched details."""
+
+    value = _first_optional_number(item, *field_names)
+    if value is not None:
+        return value
+    details = item.get("details")
+    if isinstance(details, Mapping):
+        return _first_optional_number(details, *field_names)
+    return None
+
+
+def _first_optional_number(
+    item: Mapping[str, Any],
+    *field_names: str,
+) -> float | int | None:
+    """Return the first numeric field value from a mapping."""
+
+    for field_name in field_names:
+        value = item.get(field_name)
+        if isinstance(value, bool):
+            continue
+        if isinstance(value, (int, float)):
+            return value
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                continue
+    return None
 
 
 def _item_body(item: Mapping[str, Any]) -> str | None:

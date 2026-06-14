@@ -20,6 +20,8 @@ def place(
     *,
     title: str | None = None,
     details: dict[str, object] | None = None,
+    latitude: float | None = None,
+    longitude: float | None = None,
 ) -> dict[str, object]:
     """Return one lightweight Candidate Evidence place payload."""
 
@@ -32,6 +34,8 @@ def place(
         "ddb_pk": f"CITY#KR-A",
         "ddb_sk": f"ATTRACTION#{place_id}",
         "details": details,
+        "latitude": latitude,
+        "longitude": longitude,
     }
 
 
@@ -309,13 +313,31 @@ class PlannerGourmetPolicyTest(unittest.TestCase):
             ),
         )
 
-    def test_non_gourmet_package_does_not_add_food_placeholder(self) -> None:
+    def test_non_gourmet_package_still_has_default_links_without_placeholder(self) -> None:
         output = PlannerAgent().plan(evidence_package(), trip_type="daytrip")
 
-        self.assertNotIn("foodSearch", output.external_links)
+        self.assertIn("map", output.external_links)
+        self.assertIn("staySearch", output.external_links)
+        self.assertIn("foodSearch", output.external_links)
         self.assertFalse(
             any(item["item_type"] == "meal_placeholder" for item in output.itinerary),
         )
+
+    def test_attraction_slot_preserves_candidate_coordinates(self) -> None:
+        package = CandidateEvidencePackage(
+            status="ok",
+            mode="city_discovery",
+            selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
+            recommended_places=(
+                place("P-0", latitude=37.5, longitude=127.1),
+                place("P-1"),
+            ),
+        )
+
+        output = PlannerAgent().plan(package, trip_type="daytrip")
+
+        self.assertEqual(output.itinerary[0]["latitude"], 37.5)
+        self.assertEqual(output.itinerary[0]["longitude"], 127.1)
 
 
 class PlannerValidationTest(unittest.TestCase):

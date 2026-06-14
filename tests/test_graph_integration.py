@@ -56,6 +56,8 @@ def place(
     *,
     city_id: str = "KR-A",
     city_name_ko: str = "에이군",
+    latitude: float | None = 37.5,
+    longitude: float | None = 127.1,
 ) -> dict[str, object]:
     """Return one grounded attraction candidate."""
 
@@ -65,6 +67,8 @@ def place(
         "city_id": city_id,
         "city_name_ko": city_name_ko,
         "theme_tags": ["바다·해안"],
+        "latitude": latitude,
+        "longitude": longitude,
     }
 
 
@@ -281,6 +285,13 @@ class ResponsePackagerMaskingTest(unittest.TestCase):
         )
         self.assertEqual(response["destination"]["destinationId"], "KR-A")
         self.assertEqual(response["itinerary"]["tripType"], "daytrip")
+        self.assertEqual(
+            set(response["links"]),
+            {"map", "staySearch", "foodSearch"},
+        )
+        first_item = response["itinerary"]["days"][0]["items"][0]
+        self.assertEqual(first_item["latitude"], 37.5)
+        self.assertEqual(first_item["longitude"], 127.1)
         serialized = json.dumps(response, ensure_ascii=False)
         self.assertNotIn("candidate_reason_claims", serialized)
         self.assertNotIn("explanation_audit", serialized)
@@ -301,9 +312,43 @@ class ResponsePackagerMaskingTest(unittest.TestCase):
 
         self.assertEqual(response["recommendationId"], "REC-1")
         self.assertIn("foodSearch", response["links"])
+        self.assertIn("map", response["links"])
+        self.assertIn("staySearch", response["links"])
         self.assertIsInstance(response["links"]["foodSearch"], str)
         self.assertIn("google.com/search", response["links"]["foodSearch"])
         self.assertNotIn("external_search_link", json.dumps(response, ensure_ascii=False))
+
+    def test_response_packager_uses_detail_coordinates_when_item_coordinates_missing(self) -> None:
+        planner_output = PlannerAgent().plan(
+            CandidateEvidencePackage(
+                status="ok",
+                mode="city_discovery",
+                selected_city=SelectedCity(
+                    city_id="KR-A",
+                    city_name_ko="에이군",
+                    country="KR",
+                ),
+                recommended_places=(
+                    {
+                        **place("P-0", latitude=None, longitude=None),
+                        "details": {"latitude": 36.2, "longitude": 128.3},
+                    },
+                ),
+            ),
+            trip_type="daytrip",
+        )
+
+        response = package_recommendation_response(
+            planner_output=planner_output,
+            request=request_state().request,
+            selected_city=SelectedCity(city_id="KR-A", city_name_ko="에이군", country="KR"),
+            recommendation_id="REC-COORD",
+            expires_at="2026-06-14T09:30:00Z",
+        )
+
+        first_item = response["itinerary"]["days"][0]["items"][0]
+        self.assertEqual(first_item["latitude"], 36.2)
+        self.assertEqual(first_item["longitude"], 128.3)
 
     def test_response_packager_includes_safe_festival_date_verifications(self) -> None:
         package = evidence_package(include_festival_candidate=True)
