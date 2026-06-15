@@ -176,8 +176,11 @@ def _first_optional_number(
 
 
 def _item_body(item: Mapping[str, Any]) -> str | None:
-    """Return a short public body from grounded details when present."""
+    """Prefer validated Planner copy, then fall back to grounded details."""
 
+    planner_body = item.get("body")
+    if isinstance(planner_body, str) and planner_body.strip():
+        return planner_body.strip()
     details = item.get("details")
     if isinstance(details, Mapping):
         overview = details.get("overview") or details.get("overview_ko")
@@ -194,8 +197,11 @@ def _item_body(item: Mapping[str, Any]) -> str | None:
 
 
 def _item_reason(item: Mapping[str, Any]) -> str | None:
-    """Return a safe public reason per itinerary item."""
+    """Prefer validated Planner copy, then fall back to a safe type reason."""
 
+    planner_reason = item.get("reason")
+    if isinstance(planner_reason, str) and planner_reason.strip():
+        return planner_reason.strip()
     item_type = item.get("item_type")
     if item_type == "attraction":
         return "추천 후보로 검증된 관광지입니다."

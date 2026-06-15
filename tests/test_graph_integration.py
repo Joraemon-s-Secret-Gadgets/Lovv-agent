@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import unittest
 
@@ -297,6 +298,57 @@ class ResponsePackagerMaskingTest(unittest.TestCase):
         self.assertNotIn("explanation_audit", serialized)
         self.assertNotIn("validation_result", serialized)
         self.assertNotIn("retrieval_audit", serialized)
+
+    def test_response_packager_preserves_validated_planner_item_copy(self) -> None:
+        package = evidence_package()
+        planner_output = PlannerAgent().plan(package, trip_type="daytrip")
+        first_item = dict(planner_output.itinerary[0])
+        first_item["body"] = "사용자 선호와 장소 개요를 연결한 일정 설명입니다."
+        first_item["reason"] = "조용한 해안 산책 요청과 잘 맞아 이 시간대에 배치했습니다."
+        planner_output = replace(
+            planner_output,
+            itinerary=(first_item, *planner_output.itinerary[1:]),
+        )
+
+        response = package_recommendation_response(
+            planner_output=planner_output,
+            request=request_state().request,
+            selected_city=package.selected_city,
+            recommendation_id="REC-LLM-COPY",
+            expires_at="2026-06-15T09:30:00Z",
+        )
+
+        public_item = response["itinerary"]["days"][0]["items"][0]
+        self.assertEqual(
+            public_item["body"],
+            "사용자 선호와 장소 개요를 연결한 일정 설명입니다.",
+        )
+        self.assertEqual(
+            public_item["reason"],
+            "조용한 해안 산책 요청과 잘 맞아 이 시간대에 배치했습니다.",
+        )
+
+    def test_response_packager_keeps_grounded_fallback_without_planner_copy(self) -> None:
+        package = evidence_package()
+        planner_output = PlannerAgent().plan(package, trip_type="daytrip")
+        first_item = dict(planner_output.itinerary[0])
+        first_item["details"] = {"overview": "DynamoDB에서 조회한 장소 개요입니다."}
+        planner_output = replace(
+            planner_output,
+            itinerary=(first_item, *planner_output.itinerary[1:]),
+        )
+
+        response = package_recommendation_response(
+            planner_output=planner_output,
+            request=request_state().request,
+            selected_city=package.selected_city,
+            recommendation_id="REC-FALLBACK-COPY",
+            expires_at="2026-06-15T09:30:00Z",
+        )
+
+        public_item = response["itinerary"]["days"][0]["items"][0]
+        self.assertEqual(public_item["body"], "DynamoDB에서 조회한 장소 개요입니다.")
+        self.assertEqual(public_item["reason"], "추천 후보로 검증된 관광지입니다.")
 
     def test_response_masking_flattens_food_search_link(self) -> None:
         package = gourmet_evidence_package()

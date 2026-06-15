@@ -147,3 +147,28 @@ Additional verification:
   evaluates only cities that survived the festival seed restriction.
 - This hotfix does not add route optimization, opening-hour validation, or
   distance-aware itinerary placement.
+
+## Follow-up: Preserve Planner Item Copy
+
+The public response packager previously regenerated each itinerary item's
+`body` and `reason` from grounded details or fixed fallback text. As a result,
+validated natural-language copy produced by Planner could be lost before the
+API response was returned.
+
+The packager now preserves non-empty Planner `body` and `reason` values first.
+Grounded DynamoDB overview text and the existing safe item-type reason remain
+fallbacks when Planner copy is absent.
+
+Changed files:
+
+```text
+src/lovv_agent/tools/response_packager.py
+tests/test_graph_integration.py
+docs/tasks/results/HOTFIX_20260615_PRIMARY_CAPACITY_CITY_SELECTION_RESULT.md
+```
+
+Added verification covers both paths:
+
+- validated Planner copy survives response packaging unchanged;
+- grounded overview and safe default reason remain available when Planner copy
+  is missing.
