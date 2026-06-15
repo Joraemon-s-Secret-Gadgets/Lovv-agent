@@ -28,6 +28,14 @@ TRIP_CANDIDATE_BUDGETS: dict[str, tuple[int, int]] = {
     "5d4n": (18, 12),
 }
 
+TRIP_ITINERARY_PLACE_COUNTS: dict[str, int] = {
+    "daytrip": 3,
+    "2d1n": 5,
+    "3d2n": 8,
+    "4d3n": 11,
+    "5d4n": 14,
+}
+
 
 @dataclass(frozen=True, slots=True)
 class SelectionCandidate:
@@ -116,6 +124,15 @@ def candidate_budgets_for_trip(trip_type: str) -> tuple[int, int]:
     if normalized not in TRIP_CANDIDATE_BUDGETS:
         raise SchemaValidationError(f"unsupported trip_type: {normalized}")
     return TRIP_CANDIDATE_BUDGETS[normalized]
+
+
+def itinerary_place_count_for_trip(trip_type: str) -> int:
+    """Return the attraction slot count Planner must be able to fill."""
+
+    normalized = _required_text(trip_type, "trip_type")
+    if normalized not in TRIP_ITINERARY_PLACE_COUNTS:
+        raise SchemaValidationError(f"unsupported trip_type: {normalized}")
+    return TRIP_ITINERARY_PLACE_COUNTS[normalized]
 
 
 def select_primary_with_theme_quotas(
@@ -541,6 +558,8 @@ __all__ = [
     "SelectionCandidate",
     "TOOL_NAME",
     "TRIP_CANDIDATE_BUDGETS",
+    "TRIP_ITINERARY_PLACE_COUNTS",
     "candidate_budgets_for_trip",
+    "itinerary_place_count_for_trip",
     "select_primary_with_theme_quotas",
 ]

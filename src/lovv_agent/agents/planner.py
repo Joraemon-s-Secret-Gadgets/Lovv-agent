@@ -262,8 +262,6 @@ def _build_attraction_itinerary(
     """Place grounded attraction candidates into simple tripType slots."""
 
     places = list(package.recommended_places)
-    if not places and package.reserve_places:
-        places.extend(package.reserve_places)
     if reduced:
         slots = slots[: max(min(len(places), len(slots)), 1)]
     itinerary: list[dict[str, Any]] = []

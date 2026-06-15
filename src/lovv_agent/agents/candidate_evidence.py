@@ -35,6 +35,7 @@ from lovv_agent.prompts.registry import (
 from lovv_agent.tools.candidate_selection import (
     CandidateSelectionHelper,
     candidate_budgets_for_trip,
+    itinerary_place_count_for_trip,
 )
 from lovv_agent.tools.destination_search import AttractionCandidate
 from lovv_agent.tools.dynamo_lookup import FestivalCandidate, FestivalSeedResult
@@ -398,24 +399,53 @@ def _run_attraction_search(
             festival_seed_result=festival_seed_result,
         )
 
-    selected_city_id = city_rankings[0]["city_id"]
-    selected_group = scored_groups[selected_city_id]
-    selected_places = selection.select_primary_with_theme_quotas(
-        selected_group,
-        context.theme_split.searchable_place_themes,
-        primary_budget=primary_budget,
-        reserve_budget=reserve_budget,
-        required_themes=context.theme_split.active_required_themes,
-        external_link_themes=context.theme_split.external_link_themes,
+    required_place_count = itinerary_place_count_for_trip(
+        context.candidate_input.trip_type,
     )
+    selection_by_city = {
+        ranking["city_id"]: selection.select_primary_with_theme_quotas(
+            scored_groups[ranking["city_id"]],
+            context.theme_split.searchable_place_themes,
+            primary_budget=primary_budget,
+            reserve_budget=reserve_budget,
+            required_themes=context.theme_split.active_required_themes,
+            external_link_themes=context.theme_split.external_link_themes,
+        )
+        for ranking in city_rankings
+    }
+    selected_rank_index = _select_city_rank_index(
+        city_rankings,
+        selection_by_city=selection_by_city,
+        required_place_count=required_place_count,
+        fixed_city_id=context.fixed_city_id,
+    )
+    selected_city_id = city_rankings[selected_rank_index]["city_id"]
+    selected_group = scored_groups[selected_city_id]
+    selected_places = selection_by_city[selected_city_id]
     recommended_places = _lightweight_selected_places(selected_places.primary, selected_group)
     reserve_places = _lightweight_selected_places(selected_places.reserve, selected_group)
-    status = _status_from_selection(selected_places.coverage_audit)
+    available_place_count = len(recommended_places)
+    coverage_audit = _itinerary_coverage_audit(
+        selected_places.coverage_audit,
+        required_place_count=required_place_count,
+        available_place_count=available_place_count,
+    )
+    status = _status_from_selection(
+        required_place_count=required_place_count,
+        available_place_count=available_place_count,
+    )
     selected_city = _selected_city(
         selected_city_id,
         selected_group,
         context=context,
         status=status,
+        selected_rank_index=selected_rank_index,
+    )
+    annotated_rankings = _annotate_city_rankings(
+        city_rankings,
+        selection_by_city=selection_by_city,
+        required_place_count=required_place_count,
+        selected_city_id=selected_city_id,
     )
 
     return CandidateEvidencePackage(
@@ -423,7 +453,7 @@ def _run_attraction_search(
         mode=context.mode,
         selected_city=selected_city,
         city_anchor=context.candidate_input.city_anchor,
-        city_rankings=tuple(city_rankings),
+        city_rankings=annotated_rankings,
         recommended_places=recommended_places,
         reserve_places=reserve_places,
         festival_candidates=_festival_candidate_payloads(festival_seed_result),
@@ -432,7 +462,7 @@ def _run_attraction_search(
             city_id=selected_city_id,
         ),
         festival_seed_audit=_festival_seed_audit(festival_seed_result),
-        coverage_audit=selected_places.coverage_audit,
+        coverage_audit=coverage_audit,
         retrieval_audit=_retrieval_audit(
             context=context,
             retrieved_count=len(retrieved),
@@ -447,11 +477,16 @@ def _run_attraction_search(
             "city_count": len(city_rankings),
             "recommended_places": len(recommended_places),
             "reserve_places": len(reserve_places),
+            "available_places": available_place_count,
+            "required_itinerary_places": required_place_count,
+            "reserve_places_considered_for_itinerary": False,
         },
         fallback_audit={
             "planner_consumable": True,
             "status_reason": status,
             "festival_seed_applied": festival_seed_result is not None,
+            "selected_city_rank": selected_rank_index + 1,
+            "city_reselected_for_itinerary_capacity": selected_rank_index > 0,
         },
     )
 
@@ -626,7 +661,7 @@ def _template_reason_claims(
             claim_id="city_reason_1",
             scope="city_selection",
             text_ko="선택 도시는 요청 테마 후보를 바탕으로 추천 후보가 구성되었습니다.",
-            evidence_refs=("selected_city", "city_rankings[0]", "coverage_audit"),
+            evidence_refs=("selected_city", "city_rankings:selected", "coverage_audit"),
             required_place_ids=(),
             public_eligible=public_eligible,
         ),
@@ -886,12 +921,83 @@ def _lightweight_selected_places(
     return tuple(result)
 
 
-def _status_from_selection(coverage_audit: Mapping[str, Any]) -> str:
-    """Return package status from selected evidence coverage."""
+def _select_city_rank_index(
+    city_rankings: Sequence[Mapping[str, Any]],
+    *,
+    selection_by_city: Mapping[str, Any],
+    required_place_count: int,
+    fixed_city_id: str | None,
+) -> int:
+    """Select the highest-ranked city that can fill the itinerary."""
 
-    if coverage_audit.get("unfilled_primary_slots", 0) > 0:
-        return "insufficient_candidates"
-    if coverage_audit.get("candidate_sufficiency") == "insufficient":
+    if fixed_city_id is not None:
+        return 0
+    for index, ranking in enumerate(city_rankings):
+        selected = selection_by_city[str(ranking["city_id"])]
+        if len(selected.primary) >= required_place_count:
+            return index
+    return 0
+
+
+def _annotate_city_rankings(
+    city_rankings: Sequence[Mapping[str, Any]],
+    *,
+    selection_by_city: Mapping[str, Any],
+    required_place_count: int,
+    selected_city_id: str,
+) -> tuple[dict[str, Any], ...]:
+    """Attach itinerary-capacity audit fields to each city ranking."""
+
+    annotated: list[dict[str, Any]] = []
+    for ranking in city_rankings:
+        city_id = str(ranking["city_id"])
+        selected = selection_by_city[city_id]
+        available_place_count = len(selected.primary)
+        payload = dict(ranking)
+        payload.update(
+            {
+                "available_place_count": available_place_count,
+                "required_place_count": required_place_count,
+                "itinerary_sufficient": available_place_count >= required_place_count,
+                "selected": city_id == selected_city_id,
+            },
+        )
+        annotated.append(payload)
+    return tuple(annotated)
+
+
+def _itinerary_coverage_audit(
+    coverage_audit: Mapping[str, Any],
+    *,
+    required_place_count: int,
+    available_place_count: int,
+) -> dict[str, Any]:
+    """Extend quota audit with primary-only Planner capacity."""
+
+    result = dict(coverage_audit)
+    result.update(
+        {
+            "itinerary_required_place_count": required_place_count,
+            "available_place_count": available_place_count,
+            "reserve_places_considered": False,
+            "itinerary_sufficiency": (
+                "sufficient"
+                if available_place_count >= required_place_count
+                else "insufficient"
+            ),
+        },
+    )
+    return result
+
+
+def _status_from_selection(
+    *,
+    required_place_count: int,
+    available_place_count: int,
+) -> str:
+    """Return package status from Planner-facing itinerary capacity."""
+
+    if available_place_count < required_place_count:
         return "insufficient_candidates"
     return "ok"
 
@@ -902,10 +1008,17 @@ def _selected_city(
     *,
     context: CandidateEvidenceContext,
     status: str,
+    selected_rank_index: int,
 ) -> SelectedCity:
     """Build the selected city summary for Planner input."""
 
-    reason_codes = ["anchored_city"] if context.fixed_city_id else ["city_score_rank_1"]
+    reason_codes = (
+        ["anchored_city"]
+        if context.fixed_city_id
+        else [f"city_score_rank_{selected_rank_index + 1}"]
+    )
+    if selected_rank_index > 0:
+        reason_codes.append("itinerary_capacity_fallback")
     if status == "ok":
         reason_codes.append("candidate_sufficiency")
     else:

@@ -8,6 +8,7 @@ covered by later tests in this file.
 
 from __future__ import annotations
 
+from dataclasses import replace
 import unittest
 
 from lovv_agent.agents.candidate_evidence import (
@@ -24,6 +25,7 @@ from lovv_agent.agents.candidate_evidence import (
 from lovv_agent.models.schemas import CandidateEvidenceInput, SchemaValidationError
 from lovv_agent.tools.destination_search import AttractionCandidate, prune_cities
 from lovv_agent.tools.dynamo_lookup import FestivalCandidate, FestivalSeedResult
+from lovv_agent.tools.scoring import ScoringTool
 
 
 def candidate_input(
@@ -189,6 +191,21 @@ class FakeStructuredRuntime:
         return self.responses[index]
 
 
+class PreferredCityScoring:
+    """Use real place scoring while forcing a deterministic city order."""
+
+    def __init__(self, city_scores: dict[str, float]) -> None:
+        self.city_scores = city_scores
+        self.delegate = ScoringTool()
+
+    def score_place(self, *args, **kwargs):
+        return self.delegate.score_place(*args, **kwargs)
+
+    def score_city(self, *args, **kwargs):
+        result = self.delegate.score_city(*args, **kwargs)
+        return replace(result, city_score=self.city_scores[result.city_id])
+
+
 class CandidateEvidenceModeTest(unittest.TestCase):
     """Validate Candidate Evidence mode resolution before retrieval runs."""
 
@@ -306,6 +323,64 @@ class CandidateEvidenceOrchestrationTest(unittest.TestCase):
         self.assertTrue(all("details" not in place for place in package.recommended_places))
         self.assertEqual(search.calls[0]["theme"], "바다·해안")
         self.assertIsNone(search.calls[0]["city_id"])
+
+    def test_city_discovery_selects_next_ranked_city_with_enough_itinerary_places(self) -> None:
+        candidates = tuple(
+            attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군")
+            for index in range(2)
+        ) + tuple(
+            attraction(f"B-{index}", city_id="KR-B", city_name_ko="비군")
+            for index in range(3)
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=FakeDestinationSearch(candidates),
+            scoring=PreferredCityScoring({"KR-A": 100.0, "KR-B": 90.0}),
+        )
+
+        package = agent.run(
+            candidate_input(themes=("바다·해안",), destination_id=None),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.status, "ok")
+        self.assertEqual(package.selected_city.city_id, "KR-B")
+        self.assertIn(
+            "itinerary_capacity_fallback",
+            package.selected_city.selection_reason_code,
+        )
+        self.assertEqual(package.fallback_audit["selected_city_rank"], 2)
+        self.assertTrue(
+            package.fallback_audit["city_reselected_for_itinerary_capacity"],
+        )
+        self.assertFalse(package.city_rankings[0]["itinerary_sufficient"])
+        self.assertTrue(package.city_rankings[1]["selected"])
+        self.assertEqual(package.coverage_audit["available_place_count"], 3)
+
+    def test_anchored_search_never_changes_city_for_itinerary_capacity(self) -> None:
+        candidates = tuple(
+            attraction(f"A-{index}", city_id="KR-A", city_name_ko="에이군")
+            for index in range(2)
+        ) + tuple(
+            attraction(f"B-{index}", city_id="KR-B", city_name_ko="비군")
+            for index in range(4)
+        )
+        agent = CandidateEvidenceAgent(
+            destination_search=FakeDestinationSearch(candidates),
+        )
+
+        package = agent.run(
+            candidate_input(
+                destination_id="KR-A",
+                themes=("바다·해안",),
+            ),
+            query_vector=(0.1, 0.2),
+        )
+
+        self.assertEqual(package.selected_city.city_id, "KR-A")
+        self.assertEqual(package.status, "insufficient_candidates")
+        self.assertFalse(
+            package.fallback_audit["city_reselected_for_itinerary_capacity"],
+        )
 
     def test_anchored_search_applies_fixed_city_filter_and_never_mixes_cities(self) -> None:
         candidates = tuple(
