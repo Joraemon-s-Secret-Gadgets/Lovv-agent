@@ -196,6 +196,7 @@ docs/tasks/       구현 task와 subtask 결과
 - [LangGraph SPEC Authoring Instructions](./LANGGRAPH_SPEC_AUTHORING_INSTRUCTIONS.md)
 - [Lovv LangGraph Agent Implementation SPEC](./docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md)
 - [Lovv LangGraph Agent Implementation Tasks](./docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md)
+- [설계 대비 구현 현황 및 한계](./docs/LOVV_AGENT_IMPLEMENTATION_COMPARISON.md)
 
 Task별 구현 결과는 [`docs/tasks/results`](./docs/tasks/results/)에서 확인할 수
 있습니다.
