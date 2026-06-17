@@ -7,6 +7,7 @@ the same import paths.
 
 from __future__ import annotations
 
+# Agent 모듈은 graph node 책임과 1:1로 대응한다.
 AGENT_MODULES: tuple[str, ...] = (
     "intent",
     "supervisor",

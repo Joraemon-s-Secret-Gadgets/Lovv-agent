@@ -35,6 +35,8 @@ class Boto3ClientFactory:
 
         module = self.boto3_module
         if module is None:
+            # live가 아닌 테스트에서 boto3 설치/설정 없이 패키지를 import할 수 있도록
+            # boto3는 실제 client 생성 시점에만 import한다.
             try:
                 module = import_module("boto3")
             except ModuleNotFoundError as exc:

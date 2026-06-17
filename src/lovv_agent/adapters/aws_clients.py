@@ -17,6 +17,7 @@ ADAPTER_NAME = "AwsClientFactory"
 RESPONSIBILITY = "Create AWS clients lazily from injected runtime config."
 
 
+# Protocol을 사용해 패키지가 구체적인 boto3 타입에 묶이지 않게 한다.
 class AwsClientConfigurationError(RuntimeError):
     """Raised when an AWS client is requested without an injected factory."""
 
@@ -80,6 +81,8 @@ class AwsClientProvider:
     def create_runtime_clients(self) -> AwsRuntimeClients:
         """Create runtime clients used by AWS-backed graph adapters."""
 
+        # credential, region, service 이름이 잘못된 경우 repository wiring 단계에서
+        # 일찍 실패하도록 런타임 client 묶음을 한 번에 생성한다.
         return AwsRuntimeClients(
             s3_vectors=self.create_s3_vectors_client(),
             dynamodb=self.create_dynamodb_client(),

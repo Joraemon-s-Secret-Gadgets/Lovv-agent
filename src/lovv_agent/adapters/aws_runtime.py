@@ -111,6 +111,8 @@ def build_aws_runtime_adapters_from_provider(
     """Create graph-ready AWS adapters from an injected client provider."""
 
     clients = provider.create_runtime_clients()
+    # Repository는 IO 경계이고, tool은 그 위에서 비즈니스 정규화와
+    # fallback 정책을 적용한다.
     repositories = AwsRuntimeRepositories(
         s3_vectors=S3VectorRepository(
             client=clients.s3_vectors,

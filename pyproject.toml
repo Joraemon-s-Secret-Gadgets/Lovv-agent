@@ -1,31 +1,39 @@
 [build-system]
+# Hatchling은 패키지 빌드를 런타임 의존성과 분리한다.
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
+# 프로젝트 메타데이터는 최소화하고 런타임 설정은 RuntimeConfig에 둔다.
 name = "lovv-agent"
 version = "0.1.0"
 description = "Lovv LangGraph agent implementation before AgentCore Runtime migration."
 readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [
+    # AWS repository와 Bedrock adapter는 harness 경계에서 주입한다.
     "boto3>=1.34,<2",
+    # LangGraph는 lovv_agent.graph에서 컴파일되는 실제 graph runtime이다.
     "langgraph>=0.6,<2",
 ]
 
 [dependency-groups]
+# 테스트 전용 도구는 설치 패키지 의존성에서 분리한다.
 dev = [
     "pytest>=8.0",
 ]
 
 [tool.hatch.build.targets.wheel]
+# 테스트 import가 실제 패키지 경계를 따르도록 src layout을 사용한다.
 packages = ["src/lovv_agent"]
 
 [tool.hatch.build.targets.wheel.force-include]
+# Prompt Markdown 파일은 런타임 자산이므로 wheel에 포함해야 한다.
 "src/lovv_agent/prompts/candidate_reason_claim.v1.md" = "lovv_agent/prompts/candidate_reason_claim.v1.md"
 "src/lovv_agent/prompts/intent_normalization.v1.md" = "lovv_agent/prompts/intent_normalization.v1.md"
 "src/lovv_agent/prompts/planner_copy_explanation.v1.md" = "lovv_agent/prompts/planner_copy_explanation.v1.md"
 
 [tool.pytest.ini_options]
+# 테스트는 editable metadata 설치 없이 src에서 패키지를 import한다.
 pythonpath = ["src"]
 testpaths = ["tests"]

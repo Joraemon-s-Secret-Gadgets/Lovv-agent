@@ -30,6 +30,8 @@ OUT_OF_SCOPE = (
     "itinerary_generation",
 )
 
+# Supervisor와 Planner는 routing 및 배치 가능한 요약만 필요하므로
+# status 값은 작고 명확하게 유지한다.
 FESTIVAL_VERIFIER_STATUSES: tuple[str, ...] = ("skipped", "no_candidate", "ok", "error")
 
 

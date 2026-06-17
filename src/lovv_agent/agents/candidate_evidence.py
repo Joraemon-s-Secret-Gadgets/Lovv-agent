@@ -51,10 +51,13 @@ OUT_OF_SCOPE = (
     "festival_date_verification",
 )
 
+# 실행 mode 상수는 Intent와 Candidate Evidence 계약이 공유하므로
+# 누적 task report와 맞도록 문자열 값을 안정적으로 유지한다.
 CITY_DISCOVERY_MODE = "city_discovery"
 ANCHORED_PLACE_SEARCH_MODE = "anchored_place_search"
 FESTIVAL_SEEDED_CITY_DISCOVERY_MODE = "festival_seeded_city_discovery"
 
+# 미식과 축제 요청은 일반 관광지 vector 검색이 아니다.
 EXTERNAL_LINK_THEME_LABELS: frozenset[str] = frozenset({"미식·노포"})
 FESTIVAL_THEME_MARKERS: frozenset[str] = frozenset(
     {

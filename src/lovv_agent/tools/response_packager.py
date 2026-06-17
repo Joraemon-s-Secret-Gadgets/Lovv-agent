@@ -39,6 +39,7 @@ def package_state_response(state: UnifiedAgentState) -> dict[str, Any]:
     if not isinstance(state, UnifiedAgentState):
         raise SchemaValidationError("state must be a UnifiedAgentState")
 
+    # public response에는 의도적으로 Planner-safe field만 전달한다.
     package = state.evidence.candidate_evidence_package
     selected_city = package.selected_city if package is not None else None
     return package_recommendation_response(

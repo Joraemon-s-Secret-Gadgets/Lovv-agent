@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+# Tool 모듈은 graph node가 사용하는 결정적 business helper를 담는다.
 TOOL_MODULES: tuple[str, ...] = (
     "destination_search",
     "dynamo_lookup",

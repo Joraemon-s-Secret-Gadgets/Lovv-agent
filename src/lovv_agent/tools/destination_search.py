@@ -46,6 +46,8 @@ FESTIVAL_EXCLUDED_THEME_LABELS = frozenset(
 PLACE_SEARCH_EXCLUDED_THEME_LABELS = (
     GOURMET_EXTERNAL_THEME_LABELS | FESTIVAL_EXCLUDED_THEME_LABELS
 )
+# vector row는 chunk로 쪼개질 수 있으므로 deduplication과 city grouping 전에
+# chunk key를 canonical place id로 되돌린다.
 _CHUNK_SUFFIX_PATTERN = re.compile(
     r"(?i)(?:::|#|/|_|-)?chunk(?:[-_:#/])?\d+$",
 )
@@ -115,6 +117,8 @@ class DestinationSearchTool:
 
         search_theme = _resolve_place_search_theme(theme, theme_tags)
         if search_theme is not None and _is_excluded_place_search_theme(search_theme):
+            # 미식과 축제 theme은 별도 flow에서 처리하므로
+            # 관광지 vector retrieval로 조용히 넓히지 않는다.
             return ()
 
         request = build_attraction_search_request(

@@ -23,6 +23,7 @@ TOOL_NAME = "ScoringTool"
 
 RESPONSIBILITY = "Compute deterministic place and city score breakdowns."
 
+# weight는 학습된 model parameter가 아니라 작은 결정적 heuristic이다.
 EARTH_RADIUS_KM = 6371.0088
 THEME_MATCH_BONUS = 0.2
 SOURCE_QUALITY_FIELD_BONUS = 0.05

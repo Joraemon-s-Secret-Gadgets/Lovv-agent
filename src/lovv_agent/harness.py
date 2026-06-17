@@ -83,6 +83,7 @@ def build_live_harness(
 ) -> LovvLangGraphHarness:
     """Build a live AWS-backed harness from injected or environment config."""
 
+    # env config와 boto3 client를 함께 해석하는 유일한 live 경로다.
     resolved_config = RuntimeConfig.from_env() if config is None else config
     factory = client_factory or create_boto3_client_factory(
         profile_name=resolved_config.aws.profile_name,
@@ -101,6 +102,7 @@ def build_harness(
 ) -> LovvLangGraphHarness:
     """Assemble real LangGraph nodes from injected runtime adapters."""
 
+    # 추천 실행 중간이 아니라 harness 구성 단계에서 설정 오류를 드러낸다.
     embedding = require_embedding_adapter(adapters)
     converse_runtime = require_converse_runtime(adapters)
     candidate_agent = CandidateEvidenceAgent(
@@ -117,6 +119,7 @@ def build_harness(
     )
 
     def intent_node(state: UnifiedAgentState) -> IntentState:
+        # API가 소유한 field는 결정적 정규화 결과를 최종 기준으로 삼는다.
         api_payload = request_state_to_api(state.request)
         deterministic = normalize_recommendation_request(api_payload)
         if deterministic.needs_clarification:
@@ -161,8 +164,8 @@ def build_harness(
                 deterministic=deterministic,
             )
 
-        # Natural-language enrichment is optional. Preserve validated API core
-        # fields and continue deterministically when the model contract fails.
+        # 자연어 보강은 선택 사항이다. 모델 계약이 실패하면 검증된 API core field를
+        # 유지하고 결정적 경로로 계속 진행한다.
         state.trace.node_timings["intent_mode"] = "deterministic_llm_fallback"
         state.trace.node_timings["intent_llm_handoff_notes"] = list(
             llm_result.handoff_notes,
@@ -173,6 +176,8 @@ def build_harness(
         candidate_input = state.intent.candidate_evidence_input
         if candidate_input is None:
             raise SchemaValidationError("candidate_evidence_input is required")
+        # 하나의 embedding query가 retrieval pipeline을 구동한다.
+        # field별 embedding 대신 downstream tool이 theme filter를 보존한다.
         query_text = _embedding_query(candidate_input)
         query_vector = embedding.embed_query(query_text)
         return candidate_agent.run(candidate_input, query_vector=query_vector)
@@ -217,6 +222,7 @@ def request_state_from_api(
 
     if not isinstance(payload, Mapping):
         raise SchemaValidationError("recommendations payload must be a mapping")
+    # harness smoke 실행을 위해 public camelCase와 내부 snake_case를 모두 허용한다.
     user_location = payload.get("userLocation", payload.get("user_location"))
     natural_query = payload.get("naturalLanguageQuery", "")
     if natural_query is None:

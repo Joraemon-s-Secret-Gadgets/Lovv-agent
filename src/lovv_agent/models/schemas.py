@@ -18,6 +18,7 @@ class SchemaValidationError(ValueError):
 
 
 SCHEMA_GROUPS: tuple[str, ...] = (
+    # 테스트와 결과 report에서 사용하는 public handoff schema 묶음이다.
     "CandidateEvidenceInput",
     "CandidateEvidencePackage",
     "FestivalVerification",
@@ -64,6 +65,7 @@ PLANNER_POLICIES: tuple[str, ...] = (
 )
 
 _MISSING = object()
+# sentinel은 mapping reader가 누락값과 명시적 None을 구분하게 해준다.
 
 
 def _mapping_get(

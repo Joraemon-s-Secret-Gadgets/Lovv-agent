@@ -19,6 +19,8 @@ RESPONSIBILITY = "Provide schema-oriented LLM calls through an injected runtime.
 
 STRUCTURED_OUTPUT_TEXT_FORMAT = "json_schema"
 
+# RuntimeInvoker는 단순 callable로 두어 테스트가 AWS SDK 응답 클래스 없이
+# 간단한 fake를 주입할 수 있게 한다.
 RuntimeInvoker = Callable[[Mapping[str, Any]], Mapping[str, Any] | str]
 OutputValidator = Callable[[Mapping[str, Any]], Any]
 
@@ -59,6 +61,7 @@ class BedrockConverseRuntime:
             raise StructuredOutputError("converse request must be a mapping")
         model_id = _required_text(self.model_id, "model_id")
         payload = dict(request)
+        # 테스트에서 명시한 modelId는 존중하고, live 호출은 설정값을 기본으로 쓴다.
         payload.setdefault("modelId", model_id)
         response = self.client.converse(**payload)
         if not isinstance(response, Mapping):

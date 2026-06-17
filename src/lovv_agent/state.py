@@ -23,6 +23,7 @@ from lovv_agent.models.schemas import (
 )
 
 STATE_GROUPS: tuple[str, ...] = (
+    # group 이름은 SPEC section을 반영해 trace snapshot을 예측 가능하게 한다.
     "request",
     "conversation",
     "trace",
@@ -35,6 +36,7 @@ STATE_GROUPS: tuple[str, ...] = (
 )
 
 FULFILLED_MATRIX_KEYS: tuple[str, ...] = ("evidence", "festival", "planning")
+# Supervisor routing은 이 compact matrix marker만 저장한다.
 FULFILLED_MATRIX_STATUSES: tuple[str, ...] = ("X", "O", "△", "N/A")
 
 

@@ -22,6 +22,8 @@ TOOL_NAME = "ValidationHelper"
 RESPONSIBILITY = "Validate Planner output before public response packaging."
 
 
+# Supervisor에는 pass/fail, retry action, error summary만 필요하므로
+# validation은 compact dict를 반환한다.
 def validate_planner_output(
     planner_output: Sequence[Mapping[str, Any]] | Mapping[str, Any],
     *,

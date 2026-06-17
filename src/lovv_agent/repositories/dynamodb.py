@@ -94,6 +94,8 @@ class DynamoDbRepository:
     ) -> dict[str, Any]:
         """Query candidate festival rows by country/month and optional city."""
 
+        # table 계약은 country/month를 discovery용 query key로 노출한다.
+        # anchored destination flow에서는 city filter가 선택 사항이다.
         request: dict[str, Any] = {
             "KeyConditionExpression": "#country = :country AND #month = :month",
             "ExpressionAttributeNames": {

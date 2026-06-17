@@ -24,6 +24,7 @@ TOOL_NAME = "DynamoLookupTool"
 RESPONSIBILITY = "Read festival seed candidates and final item details from DynamoDB."
 
 
+# Festival seed record는 discovery hint이며 최종 Planner 배치가 아니다.
 @dataclass(frozen=True, slots=True)
 class FestivalCandidate:
     """Normalized festival seed candidate from DynamoDB."""
@@ -183,9 +184,8 @@ def search_festival_city_seeds(
         city_id=normalized_city_id,
         limit=limit,
     )
-    # The repository narrows by country/month. This guard keeps the tool
-    # contract explicit and testable even when a mock or future index returns a
-    # broader page.
+    # repository는 country/month로 좁힌다. mock이나 향후 index가 더 넓은 page를
+    # 반환해도 tool 계약이 명시적이고 테스트 가능하도록 여기서 한 번 더 거른다.
     candidates = tuple(
         candidate
         for item in _extract_dynamodb_items(response)

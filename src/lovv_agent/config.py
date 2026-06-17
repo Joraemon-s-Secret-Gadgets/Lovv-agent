@@ -30,6 +30,8 @@ CONFIG_SECTIONS: tuple[str, ...] = (
 )
 
 ENV_KEYS: tuple[str, ...] = (
+    # secret이 아닌 런타임 선택자다. credential은 이 config 객체가 아니라
+    # 표준 AWS credential chain에 남긴다.
     "LOVV_AWS_REGION",
     "LOVV_AWS_PROFILE",
     "LOVV_S3_VECTOR_BUCKET",
@@ -51,6 +53,7 @@ ENV_KEYS: tuple[str, ...] = (
 )
 
 DEFAULT_AWS_REGION = "us-east-1"
+# local 기본값은 AWS resource가 없어도 테스트가 import될 수 있게 한다.
 DEFAULT_S3_VECTOR_BUCKET = "local-lovv-vector-bucket"
 DEFAULT_S3_VECTOR_INDEX = "local-attraction-index"
 DEFAULT_DYNAMODB_TABLE = "local-lovv-table"
@@ -267,6 +270,8 @@ class RuntimeConfig:
         the function reads ``os.environ`` at call time only.
         """
 
+        # 테스트가 process-wide 환경 변수를 바꾸지 않고도 정확한 env snapshot을
+        # 주입할 수 있도록 전달된 mapping에서 한 번만 읽는다.
         source = os.environ if env is None else env
 
         return cls(

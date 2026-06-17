@@ -12,6 +12,7 @@ from importlib import resources
 
 PROMPT_REGISTRY_NAME = "LovvPromptRegistry"
 
+# 안정적인 prompt id는 runtime node와 테스트에서 참조한다.
 CANDIDATE_REASON_CLAIM_PROMPT_ID = "candidate_reason_claim.v1"
 INTENT_NORMALIZATION_PROMPT_ID = "intent_normalization.v1"
 PLANNER_COPY_EXPLANATION_PROMPT_ID = "planner_copy_explanation.v1"
@@ -32,6 +33,7 @@ class PromptTemplate:
 
 
 PROMPT_FILES: dict[str, tuple[str, str]] = {
+    # 값은 (의미상 prompt version, package resource 파일명)이다.
     CANDIDATE_REASON_CLAIM_PROMPT_ID: ("v1", "candidate_reason_claim.v1.md"),
     INTENT_NORMALIZATION_PROMPT_ID: ("v1", "intent_normalization.v1.md"),
     PLANNER_COPY_EXPLANATION_PROMPT_ID: ("v1", "planner_copy_explanation.v1.md"),

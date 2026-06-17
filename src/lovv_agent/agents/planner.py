@@ -53,6 +53,7 @@ EXPLANATION_INTERNAL_TERMS = (
 
 DEFAULT_PLANNER_SCHEMA_RETRY_LIMIT = 2
 
+# MVP 검증을 위해 slot template은 의도적으로 단순하고 결정적으로 유지한다.
 TRIP_SLOT_TEMPLATES: dict[str, tuple[tuple[int, str], ...]] = {
     "daytrip": ((1, "morning"), (1, "afternoon"), (1, "evening")),
     "2d1n": (

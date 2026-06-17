@@ -38,6 +38,8 @@ from lovv_agent.state import (
 from lovv_agent.tools.response_packager import package_state_response
 
 GRAPH_NODE_ORDER: tuple[str, ...] = (
+    # 문서에 노출되는 skeleton 순서다. 실제 routing은 항상 Supervisor 결정을
+    # 거치며, clarification이 필요하면 중간에 멈출 수 있다.
     "intent_agent",
     "supervisor_router",
     "candidate_evidence_agent",
@@ -51,6 +53,8 @@ GRAPH_NODE_ORDER: tuple[str, ...] = (
 
 CLARIFICATION_TERMINAL = "END_WAIT_USER"
 
+# node callable은 canonical mutable state를 받고, dataclass 계약 또는
+# 테스트 double용 plain mapping을 반환할 수 있다.
 IntentNode = Callable[[UnifiedAgentState], IntentState | Mapping[str, Any]]
 CandidateEvidenceNode = Callable[[UnifiedAgentState], CandidateEvidencePackage | Mapping[str, Any]]
 FestivalVerifierNode = Callable[
@@ -94,6 +98,8 @@ class LocalGraphRuntime:
         if not isinstance(state, UnifiedAgentState):
             raise SchemaValidationError("state must be a UnifiedAgentState")
 
+        # 축제 포함 여부에 따라 response packaging 전 필요한 state group이 달라지므로
+        # request마다 routing matrix를 초기화한다.
         state.routing.fulfilled_matrix = create_fulfilled_matrix(
             include_festivals=state.request.include_festivals,
         )
@@ -298,6 +304,8 @@ def build_langgraph(
     builder.add_edge(NODE_CANDIDATE_EVIDENCE, SUPERVISOR_NODE_NAME)
     builder.add_edge(NODE_FESTIVAL_VERIFIER, SUPERVISOR_NODE_NAME)
     builder.add_edge(NODE_PLANNER, SUPERVISOR_NODE_NAME)
+    # conditional edge를 사용해 worker node는 결정적으로 유지하고,
+    # END_WAIT_USER를 포함한 모든 분기 결정은 Supervisor가 소유한다.
     builder.add_conditional_edges(
         SUPERVISOR_NODE_NAME,
         lambda envelope: _langgraph_state(envelope).routing.next_node,

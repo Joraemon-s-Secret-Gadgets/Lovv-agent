@@ -35,6 +35,7 @@ RESPONSIBILITY = "Generate schema-validated Planner copy from safe final summari
 
 PLANNER_COPY_EXPLANATION_SCHEMA_NAME = "planner_copy_explanation_output"
 
+# LLM은 이 제한된 schema 안에서만 문구를 개선할 수 있다.
 PLANNER_COPY_EXPLANATION_OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "additionalProperties": False,
@@ -65,6 +66,7 @@ PLANNER_COPY_EXPLANATION_OUTPUT_SCHEMA: dict[str, Any] = {
 }
 
 INTERNAL_EXPLANATION_TERMS = (
+    # audit 용어는 내부적으로만 유용하며 사용자에게 노출되면 안 된다.
     "top k",
     "top_k",
     "topk",

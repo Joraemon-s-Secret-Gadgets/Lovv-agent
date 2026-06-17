@@ -40,10 +40,12 @@ OUT_OF_SCOPE = (
     "itinerary_generation",
 )
 
+# public request enum은 모델 추론 label이 아니라 API 계약 값이다.
 ENTRY_TYPES: tuple[str, ...] = ("map_marker", "chat", "home_recommendation")
 COUNTRY_CODES: tuple[str, ...] = ("KR", "JP")
 TRIP_TYPES: tuple[str, ...] = ("daytrip", "2d1n", "3d2n", "4d3n", "5d4n")
 
+# theme id는 downstream 검색 전에 canonical 한국어 label로 정규화한다.
 THEME_LABELS: dict[str, str] = {
     "sea_coast": "바다·해안",
     "nature_trekking": "자연·트레킹",

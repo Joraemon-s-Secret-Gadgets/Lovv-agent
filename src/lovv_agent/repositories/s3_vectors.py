@@ -39,6 +39,8 @@ class S3VectorRepository:
         if not isinstance(request, Mapping):
             raise SchemaValidationError("s3 vector request must be a mapping")
         payload = dict(request)
+        # 테스트가 request에서 resource 이름을 override할 수 있게 하되,
+        # 일반 harness 실행에는 설정된 런타임 resource를 기본으로 넣는다.
         payload.setdefault("vectorBucketName", self.settings.bucket_name)
         payload.setdefault("indexName", self.settings.index_name)
         response = self.client.query_vectors(**payload)
@@ -53,6 +55,7 @@ def extract_vector_records(response: Mapping[str, Any]) -> tuple[dict[str, Any],
     if not isinstance(response, Mapping):
         raise SchemaValidationError("s3 vector response must be a mapping")
     for field_name in ("vectors", "matches", "results"):
+        # AWS와 test double은 서로 다른 collection key를 노출할 수 있다.
         records = response.get(field_name)
         if records is None:
             continue

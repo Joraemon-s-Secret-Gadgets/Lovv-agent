@@ -20,6 +20,7 @@ TOOL_NAME = "CandidateSelectionHelper"
 
 RESPONSIBILITY = "Select primary and reserve candidates from scored evidence."
 
+# budget은 Planner가 후보를 slot으로 바꾸기 전 내부 evidence 양을 제한한다.
 TRIP_CANDIDATE_BUDGETS: dict[str, tuple[int, int]] = {
     "daytrip": (6, 4),
     "2d1n": (10, 8),
@@ -29,6 +30,7 @@ TRIP_CANDIDATE_BUDGETS: dict[str, tuple[int, int]] = {
 }
 
 TRIP_ITINERARY_PLACE_COUNTS: dict[str, int] = {
+    # count는 현재 Planner slot template과 맞춘다.
     "daytrip": 3,
     "2d1n": 5,
     "3d2n": 8,

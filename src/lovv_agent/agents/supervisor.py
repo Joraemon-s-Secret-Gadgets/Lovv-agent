@@ -51,6 +51,7 @@ MATRIX_NOT_APPLICABLE = "N/A"
 MATRIX_ROUTING_ORDER = ("evidence", "festival", "planning")
 MAX_PLANNER_VALIDATION_RETRIES = 2
 
+# node id는 graph edge 계약이므로 graph.py와 맞춰 유지한다.
 NODE_CANDIDATE_EVIDENCE = "candidate_evidence_agent"
 NODE_FESTIVAL_VERIFIER = "festival_verifier_agent"
 NODE_PLANNER = "planner_agent"

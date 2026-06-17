@@ -20,6 +20,8 @@ DEFAULT_EMBEDDING_DIMENSIONS = 1024
 DEFAULT_NORMALIZE_EMBEDDING = True
 
 
+# 호출자가 provider 응답 형태 문제와 graph schema 오류를 구분할 수 있도록
+# embedding 실패는 adapter 전용 예외로 유지한다.
 class EmbeddingAdapterError(RuntimeError):
     """Raised when an embedding response cannot be parsed safely."""
 
@@ -46,6 +48,8 @@ class BedrockEmbeddingAdapter:
         text = _required_text(query_text, "query_text")
         model_id = _required_text(self.model_id, "model_id")
         dimensions = _positive_int(self.dimensions, "dimensions")
+        # Titan 계열 Bedrock embedding 요청은 query text와 vector 형태를
+        # JSON body로 전달한다.
         payload = {
             "inputText": text,
             "dimensions": dimensions,

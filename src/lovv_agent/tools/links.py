@@ -18,6 +18,7 @@ RESPONSIBILITY = "Build safe external links for Planner and Response Packager."
 FOOD_SEARCH_LINK_TYPE = "foodSearch"
 MAP_LINK_TYPE = "map"
 STAY_SEARCH_LINK_TYPE = "staySearch"
+# 아직 식당명을 grounded result로 제공할 수 없을 때 쓰는 public label이다.
 GOURMET_THEME_LABEL = "미식·노포"
 
 
