@@ -208,3 +208,25 @@ AgentCore migration에서는 추천 로직을 다시 작성하기보다 이 pack
 경계를 AgentCore entrypoint에 연결하는 방향을 사용합니다. 배포 manifest, runtime
 entrypoint, observability, memory 정책은 기존 workflow 검증 이후 별도 SPEC과 task로
 추가합니다.
+
+현재 AgentCore v1 adapter는 기존 구조를 유지하면서 다음 경계만 추가합니다.
+
+- `app/LovvAgentV1/main.py`: AgentCore CodeZip runtime entrypoint
+- `src/lovv_agent/agentcore_entrypoint.py`: AgentCore/HTTP wrapper payload를
+  `/recommendations` request로 정규화하고 `build_live_harness().invoke(...)` 호출
+- `agentcore/agentcore.json`: schema `version`을 `1`로 고정하고 runtime 이름을
+  `LovvAgentV1`로 명시
+- `agentcore/aws-targets.example.json`: `default` target 대신 `v1` target을 쓰기 위한
+  예시. 실제 계정 값으로 `agentcore/aws-targets.json`을 만들되 이 파일은 git에
+  커밋하지 않습니다.
+
+AgentCore CLI가 설치된 환경에서는 실제 계정 정보를 채운 뒤 다음 흐름으로 검증합니다.
+
+```powershell
+Copy-Item agentcore/aws-targets.example.json agentcore/aws-targets.json
+# agentcore/aws-targets.json의 account를 실제 12자리 AWS account id로 변경
+agentcore validate
+agentcore dev --runtime LovvAgentV1
+agentcore deploy --target v1 --diff
+agentcore deploy --target v1
+```

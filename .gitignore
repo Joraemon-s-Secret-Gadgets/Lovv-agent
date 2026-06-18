@@ -29,6 +29,13 @@ test-results/
 .mypy_cache/
 .ruff_cache/
 .hypothesis/
+agentcore/.cli/
+agentcore/aws-targets.json
+agentcore/cdk/node_modules/
+agentcore/cdk/dist/
+agentcore/cdk/cdk.out/
+app/LovvAgentV1/.cache/
+LovvAgentCore/
 
 # 빌드 산출물
 build/

@@ -1,0 +1,8 @@
+[
+  {
+    "name": "v1",
+    "description": "Lovv AgentCore v1 deployment target",
+    "account": "123456789012",
+    "region": "us-east-1"
+  }
+]
