@@ -1,0 +1,199 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "cleaned_raw_query",
+    "soft_preference_query",
+    "crowd_preference",
+    "mentioned_theme_ids",
+    "excluded_theme_ids",
+    "desired_vibe_tags",
+    "desired_experience_tags",
+    "companion_fit",
+    "place_properties",
+    "excluded_preferences",
+    "unsupported_conditions",
+    "core_change_requests"
+  ],
+  "properties": {
+    "cleaned_raw_query": {
+      "type": "string"
+    },
+    "soft_preference_query": {
+      "type": "string"
+    },
+    "crowd_preference": {
+      "type": "string",
+      "enum": [
+        "low_crowd",
+        "high_crowd",
+        "neutral"
+      ]
+    },
+    "mentioned_theme_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "sea_coast",
+          "nature_trekking",
+          "food_local",
+          "history_tradition",
+          "art_sense",
+          "healing_rest"
+        ]
+      }
+    },
+    "excluded_theme_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "sea_coast",
+          "nature_trekking",
+          "food_local",
+          "history_tradition",
+          "art_sense",
+          "healing_rest"
+        ]
+      }
+    },
+    "desired_vibe_tags": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "romantic",
+          "nostalgic",
+          "cozy",
+          "meditative",
+          "refreshing",
+          "inspiring",
+          "open_view",
+          "panoramic_view",
+          "sunrise_view",
+          "sunset_view",
+          "night_view",
+          "flower_view",
+          "autumn_leaves"
+        ]
+      }
+    },
+    "desired_experience_tags": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "enum": [
+          "photo_spot",
+          "picnic",
+          "drive_course"
+        ]
+      }
+    },
+    "companion_fit": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "family",
+          "kids",
+          "couple",
+          "solo",
+          "pet",
+          "parents",
+          "seniors"
+        ]
+      }
+    },
+    "place_properties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "indoor_outdoor",
+        "walking_load",
+        "visit_duration"
+      ],
+      "properties": {
+        "indoor_outdoor": {
+          "type": "string",
+          "enum": [
+            "indoor",
+            "outdoor",
+            "mixed",
+            "any"
+          ]
+        },
+        "walking_load": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "any"
+          ]
+        },
+        "visit_duration": {
+          "type": "string",
+          "enum": [
+            "short",
+            "medium",
+            "long",
+            "any"
+          ]
+        }
+      }
+    },
+    "excluded_preferences": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unsupported_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "숙소 가격/예약 가능 여부",
+          "실시간 혼잡도",
+          "실시간 영업 여부",
+          "주차 보장",
+          "예약 보장",
+          "날씨/기상 대체"
+        ]
+      }
+    },
+    "core_change_requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "request_text"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "country",
+              "travelMonth",
+              "travelYear",
+              "tripType",
+              "destinationId",
+              "themes",
+              "includeFestivals",
+              "userLocation"
+            ]
+          },
+          "request_text": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
