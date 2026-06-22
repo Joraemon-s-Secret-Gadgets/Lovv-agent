@@ -24,6 +24,8 @@ test-results/
 .nox/
 
 # 도구 캐시
+.agents/
+.codex/
 .cache/
 .cache/uv/
 .mypy_cache/
@@ -49,6 +51,7 @@ dist/
 *.log
 
 # 로컬 실행 입력값 및 임시 출력
+AGENTS.md
 request.json
 response.json
 *.local.json
