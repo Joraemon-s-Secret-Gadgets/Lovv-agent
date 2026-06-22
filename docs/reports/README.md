@@ -14,8 +14,9 @@
 | 03 | [아키텍처 & 대안 검토](./03_ARCHITECTURE_AND_ALTERNATIVES.md) | 멀티에이전트 패턴 추천, 구조 외 대안 | 엔지니어/리드 |
 | 04 | [병렬 실행 가능성](./04_PARALLELIZATION.md) | 병렬화 가능/불가 지점, 구현 방식 | 엔지니어 |
 | 05 | [전환 계획서](./05_TRANSITION_PLAN.md) | P1 이관 → P2 Gateway 외부화 → P3 자율형, 단계·체크리스트·게이트 | 엔지니어/리드 |
+| 06 | [AgentCore V1 FM Routing 구현 결과](./06_AGENTCORE_V1_FM_ROUTING_IMPLEMENTATION_REPORT.md) | issue 등록, per-agent FM routing 구현, 검증 결과 | 엔지니어/리드 |
 
-발표·리뷰만 필요하면 **00번**, 실행 계획은 **05번**, 구현 결정/근거는 01~04에서 확인한다.
+발표·리뷰만 필요하면 **00번**, 실행 계획은 **05번**, 구현 결과는 **06번**, 구현 결정/근거는 01~04에서 확인한다.
 
 ## 신뢰도 표기 규칙 (전 문서 공통)
 
