@@ -314,6 +314,47 @@ class UnifiedAgentState:
         return asdict(self)
 
 
+def build_memory_safe_summary(state: UnifiedAgentState) -> dict[str, Any]:
+    """Build an opt-in summary that excludes raw evidence and user payloads."""
+
+    response_payload = state.serving.response_payload or {}
+    destination = response_payload.get("destination")
+    if not isinstance(destination, Mapping):
+        destination = {}
+    itinerary = response_payload.get("itinerary")
+    days = itinerary.get("days") if isinstance(itinerary, Mapping) else ()
+    day_count = len(days) if isinstance(days, (list, tuple)) else 0
+
+    # Future memory receives public/trace summaries only, never raw in-run evidence.
+    return {
+        "trace": {
+            "recommendation_request_id": state.trace.recommendation_request_id,
+            "agent_run_id": state.trace.agent_run_id,
+        },
+        "request_summary": {
+            "entry_type": state.request.entry_type,
+            "country": state.request.country,
+            "travel_year": state.request.travel_year,
+            "travel_month": state.request.travel_month,
+            "trip_type": state.request.trip_type,
+            "theme_count": len(state.request.themes),
+            "include_festivals": state.request.include_festivals,
+        },
+        "serving_summary": {
+            "response_status": state.serving.response_status,
+            "destination_id": destination.get("destinationId"),
+            "destination_name": destination.get("name"),
+            "itinerary_day_count": day_count,
+        },
+        "memory_policy": {
+            "persistence": "disabled_by_default",
+            "raw_evidence_included": False,
+            "internal_package_included": False,
+            "pii_included": False,
+        },
+    }
+
+
 __all__ = [
     "FULFILLED_MATRIX_KEYS",
     "FULFILLED_MATRIX_STATUSES",
@@ -328,6 +369,7 @@ __all__ = [
     "ServingState",
     "TraceState",
     "UnifiedAgentState",
+    "build_memory_safe_summary",
     "default_fulfilled_matrix",
     "validate_fulfilled_matrix",
 ]

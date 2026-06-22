@@ -10,6 +10,7 @@ from typing import Any
 from lovv_agent.adapters.aws_clients import AwsClientProvider
 from lovv_agent.adapters.aws_runtime import (
     build_aws_runtime_adapters,
+    require_agent_converse_runtime,
     require_converse_runtime,
     require_embedding_adapter,
     runtime_injection_error_state,
@@ -20,6 +21,10 @@ from lovv_agent.config import (
     AwsSettings,
     DynamoDbSettings,
     EmbeddingSettings,
+    LLM_NODE_CANDIDATE_EVIDENCE,
+    LLM_NODE_INTENT,
+    LLM_NODE_PLANNER,
+    LLM_NODE_SUPERVISOR,
     LlmSettings,
     RuntimeConfig,
     S3VectorSettings,
@@ -32,6 +37,7 @@ from lovv_agent.prompts.registry import (
     PLANNER_COPY_EXPLANATION_PROMPT_ID,
     load_prompt_template,
 )
+from lovv_agent.state import build_memory_safe_summary
 
 
 class FakeBoto3Session:
@@ -223,6 +229,15 @@ class AwsRuntimeAssemblyTest(unittest.TestCase):
         self.assertIs(adapters.tools.dynamo_lookup.dynamodb, adapters.repositories.dynamodb)
         self.assertIsNotNone(adapters.embedding_adapter)
         self.assertIsNotNone(adapters.converse_runtime)
+        self.assertEqual(
+            set(adapters.converse_runtimes_by_node),
+            {
+                LLM_NODE_INTENT,
+                LLM_NODE_CANDIDATE_EVIDENCE,
+                LLM_NODE_PLANNER,
+                LLM_NODE_SUPERVISOR,
+            },
+        )
 
     def test_runtime_assembly_leaves_model_adapters_unset_without_model_ids(self) -> None:
         adapters = build_aws_runtime_adapters(
@@ -232,10 +247,13 @@ class AwsRuntimeAssemblyTest(unittest.TestCase):
 
         self.assertIsNone(adapters.embedding_adapter)
         self.assertIsNone(adapters.converse_runtime)
+        self.assertEqual(adapters.converse_runtimes_by_node, {})
         with self.assertRaises(SchemaValidationError):
             require_embedding_adapter(adapters)
         with self.assertRaises(SchemaValidationError):
             require_converse_runtime(adapters)
+        with self.assertRaises(SchemaValidationError):
+            require_agent_converse_runtime(adapters, LLM_NODE_INTENT)
 
     def test_provider_creates_bedrock_runtime_client_lazily(self) -> None:
         factory = RecordingAwsFactory()
@@ -299,6 +317,32 @@ class BedrockAdapterTest(unittest.TestCase):
         self.assertEqual(response["structured_output"], {"ok": True})
         request = factory.bedrock.converse_requests[0]
         self.assertEqual(request["modelId"], "gpt-oss-120b")
+
+    def test_agent_converse_runtimes_inject_agent_specific_models(self) -> None:
+        factory = RecordingAwsFactory()
+        config = RuntimeConfig(
+            llm=LlmSettings(
+                model_id="global-model",
+                model_ids_by_node={
+                    LLM_NODE_INTENT: "intent-model",
+                    LLM_NODE_CANDIDATE_EVIDENCE: "candidate-model",
+                    LLM_NODE_PLANNER: "planner-model",
+                },
+            ),
+        )
+        adapters = build_aws_runtime_adapters(
+            client_factory=factory,
+            config=config,
+        )
+
+        for node in (LLM_NODE_INTENT, LLM_NODE_CANDIDATE_EVIDENCE, LLM_NODE_PLANNER):
+            runtime = require_agent_converse_runtime(adapters, node)
+            runtime({"messages": [{"role": "user", "content": [{"text": node}]}]})
+
+        self.assertEqual(
+            [request["modelId"] for request in factory.bedrock.converse_requests],
+            ["intent-model", "candidate-model", "planner-model"],
+        )
 
 
 class PromptRegistryTest(unittest.TestCase):
@@ -373,6 +417,45 @@ class FullLangGraphHarnessTest(unittest.TestCase):
         self.assertEqual(state.trace.node_timings["intent_mode"], "deterministic_short_query")
         self.assertTrue(factory.bedrock.invoke_model_requests)
 
+    def test_memory_safe_summary_excludes_raw_in_run_payloads(self) -> None:
+        factory = RecordingAwsFactory()
+        config = RuntimeConfig(
+            embeddings=EmbeddingSettings(model_id="amazon.titan-embed-text-v2:0"),
+            llm=LlmSettings(model_id="openai.gpt-oss-120b-1:0"),
+        )
+        adapters = build_aws_runtime_adapters(client_factory=factory, config=config)
+        harness = build_harness(config=config, adapters=adapters)
+
+        state = harness.invoke_state(
+            {
+                "entryType": "chat",
+                "destinationId": None,
+                "country": "KR",
+                "travelYear": 2026,
+                "travelMonth": 10,
+                "tripType": "daytrip",
+                "themes": ["sea_coast"],
+                "includeFestivals": False,
+                "naturalLanguageQuery": "바다",
+                "userLocation": {"latitude": 37.1, "longitude": 129.1},
+            },
+            request_id="REQ-MEMORY-SAFE-1",
+        )
+
+        summary = build_memory_safe_summary(state)
+        serialized = json.dumps(summary, ensure_ascii=False)
+
+        self.assertEqual(
+            summary["trace"]["recommendation_request_id"],
+            "REQ-MEMORY-SAFE-1",
+        )
+        self.assertEqual(summary["memory_policy"]["persistence"], "disabled_by_default")
+        self.assertFalse(summary["memory_policy"]["raw_evidence_included"])
+        self.assertNotIn("candidate_evidence_package", serialized)
+        self.assertNotIn("natural_language_query", serialized)
+        self.assertNotIn("user_location", serialized)
+        self.assertNotIn("검증된 상세 설명", serialized)
+
     def test_long_query_injects_versioned_intent_prompt_before_safe_fallback(self) -> None:
         factory = RecordingAwsFactory()
         config = RuntimeConfig(
@@ -404,6 +487,42 @@ class FullLangGraphHarnessTest(unittest.TestCase):
             "deterministic_llm_fallback",
         )
         self.assertEqual(state.intent.active_required_themes, ("바다·해안",))
+
+    def test_harness_uses_agent_specific_runtime_models_for_llm_nodes(self) -> None:
+        factory = RecordingAwsFactory()
+        config = RuntimeConfig(
+            embeddings=EmbeddingSettings(model_id="amazon.titan-embed-text-v2:0"),
+            llm=LlmSettings(
+                model_id="global-model",
+                model_ids_by_node={
+                    LLM_NODE_INTENT: "intent-model",
+                    LLM_NODE_CANDIDATE_EVIDENCE: "candidate-model",
+                    LLM_NODE_PLANNER: "planner-model",
+                },
+            ),
+        )
+        adapters = build_aws_runtime_adapters(client_factory=factory, config=config)
+        harness = build_harness(config=config, adapters=adapters)
+
+        harness.invoke_state(
+            {
+                "entryType": "chat",
+                "destinationId": None,
+                "country": "KR",
+                "travelYear": 2026,
+                "travelMonth": 10,
+                "tripType": "daytrip",
+                "themes": ["sea_coast"],
+                "includeFestivals": False,
+                "naturalLanguageQuery": "조용하고 덜 붐비는 바다 산책을 하고 싶어요.",
+                "userLocation": None,
+            },
+        )
+
+        model_ids = [request["modelId"] for request in factory.bedrock.converse_requests]
+        self.assertIn("intent-model", model_ids)
+        self.assertIn("candidate-model", model_ids)
+        self.assertIn("planner-model", model_ids)
 
 
 if __name__ == "__main__":

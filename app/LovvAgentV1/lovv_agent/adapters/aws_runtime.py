@@ -8,7 +8,7 @@ not read environment variables or create boto3 sessions by itself; callers pass
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Mapping
 
 from lovv_agent.adapters.aws_clients import (
     AwsClientFactory,
@@ -21,7 +21,7 @@ from lovv_agent.adapters.bedrock_converse import (
     create_bedrock_converse_runtime,
 )
 from lovv_agent.adapters.embeddings import BedrockEmbeddingAdapter
-from lovv_agent.config import RuntimeConfig, default_runtime_config
+from lovv_agent.config import LLM_ROUTING_NODES, RuntimeConfig, default_runtime_config, resolve_llm_model_id
 from lovv_agent.models.schemas import SchemaValidationError
 from lovv_agent.repositories.dynamodb import DynamoDbRepository
 from lovv_agent.repositories.s3_vectors import S3VectorRepository
@@ -59,6 +59,7 @@ class AwsRuntimeAdapters:
     tools: AwsRuntimeTools
     embedding_adapter: BedrockEmbeddingAdapter | None
     converse_runtime: RuntimeInvoker | None
+    converse_runtimes_by_node: Mapping[str, RuntimeInvoker]
 
 
 @dataclass(frozen=True, slots=True)
@@ -146,6 +147,10 @@ def build_aws_runtime_adapters_from_provider(
             client=clients.bedrock_runtime,
             model_id=config.llm.model_id,
         ),
+        converse_runtimes_by_node=_build_converse_runtimes_by_node(
+            client=clients.bedrock_runtime,
+            config=config,
+        ),
     )
 
 
@@ -173,6 +178,25 @@ def _build_converse_runtime(
     return create_bedrock_converse_runtime(client=client, model_id=model_id)
 
 
+def _build_converse_runtimes_by_node(
+    *,
+    client: Any,
+    config: RuntimeConfig,
+) -> dict[str, RuntimeInvoker]:
+    """Create Converse runtime wrappers for each configured LLM-using node."""
+
+    runtimes: dict[str, RuntimeInvoker] = {}
+    for node in LLM_ROUTING_NODES:
+        model_id = resolve_llm_model_id(config.llm, node)
+        if model_id is not None:
+            # Keep one Bedrock client and one Runtime; only the injected modelId varies by node.
+            runtimes[node] = create_bedrock_converse_runtime(
+                client=client,
+                model_id=model_id,
+            )
+    return runtimes
+
+
 def require_embedding_adapter(adapters: AwsRuntimeAdapters) -> BedrockEmbeddingAdapter:
     """Return the configured embedding adapter or raise a clear config error."""
 
@@ -187,6 +211,20 @@ def require_converse_runtime(adapters: AwsRuntimeAdapters) -> RuntimeInvoker:
     if adapters.converse_runtime is None:
         raise SchemaValidationError("llm.model_id is required for live LLM calls")
     return adapters.converse_runtime
+
+
+def require_agent_converse_runtime(
+    adapters: AwsRuntimeAdapters,
+    node: str,
+) -> RuntimeInvoker:
+    """Return the configured Converse runtime for one LLM-using graph node."""
+
+    try:
+        return adapters.converse_runtimes_by_node[node]
+    except KeyError as exc:
+        raise SchemaValidationError(
+            f"llm.model_id for {node} is required for live LLM calls",
+        ) from exc
 
 
 def runtime_injection_error_state(
@@ -217,6 +255,7 @@ __all__ = [
     "RuntimeInjectionErrorState",
     "build_aws_runtime_adapters",
     "build_aws_runtime_adapters_from_provider",
+    "require_agent_converse_runtime",
     "require_converse_runtime",
     "require_embedding_adapter",
     "runtime_injection_error_state",

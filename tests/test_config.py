@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 import unittest
 
 from lovv_agent.config import (
@@ -9,9 +11,16 @@ from lovv_agent.config import (
     ENV_KEYS,
     ConfigError,
     IntentSettings,
+    LLM_NODE_CANDIDATE_EVIDENCE,
+    LLM_NODE_INTENT,
+    LLM_NODE_PLANNER,
+    LLM_NODE_SUPERVISOR,
+    LlmSettings,
     RuntimeConfig,
     SearchBudgetSettings,
     default_runtime_config,
+    resolve_llm_adapter_id,
+    resolve_llm_model_id,
 )
 
 
@@ -27,6 +36,8 @@ class RuntimeConfigTest(unittest.TestCase):
         self.assertEqual(config.dynamodb.table_name, "local-lovv-table")
         self.assertEqual(config.llm.adapter_id, "bedrock-converse")
         self.assertIsNone(config.llm.model_id)
+        self.assertEqual(config.llm.model_ids_by_node, {})
+        self.assertEqual(config.llm.adapter_ids_by_node, {})
         self.assertIsNone(config.embeddings.model_id)
         self.assertEqual(config.intent.min_natural_language_query_chars, 5)
 
@@ -58,6 +69,14 @@ class RuntimeConfigTest(unittest.TestCase):
                 "LOVV_EMBEDDING_MODEL_ID": "embedding-model-from-runtime",
                 "LOVV_LLM_ADAPTER_ID": "bedrock-converse",
                 "LOVV_LLM_MODEL_ID": "model-from-runtime",
+                "LOVV_INTENT_LLM_MODEL_ID": "model-intent",
+                "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID": "model-candidate",
+                "LOVV_PLANNER_LLM_MODEL_ID": "model-planner",
+                "LOVV_SUPERVISOR_LLM_MODEL_ID": "model-supervisor",
+                "LOVV_INTENT_LLM_ADAPTER_ID": "adapter-intent",
+                "LOVV_CANDIDATE_EVIDENCE_LLM_ADAPTER_ID": "adapter-candidate",
+                "LOVV_PLANNER_LLM_ADAPTER_ID": "adapter-planner",
+                "LOVV_SUPERVISOR_LLM_ADAPTER_ID": "adapter-supervisor",
                 "LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS": "7",
                 "LOVV_SEARCH_PER_THEME_TOP_K": "8",
                 "LOVV_SEARCH_RAW_SOFT_TOP_K": "4",
@@ -76,6 +95,24 @@ class RuntimeConfigTest(unittest.TestCase):
         self.assertEqual(config.dynamodb.table_name, "lovv-dev-table")
         self.assertEqual(config.embeddings.adapter_id, "bedrock-embedding")
         self.assertEqual(config.llm.model_id, "model-from-runtime")
+        self.assertEqual(
+            config.llm.model_ids_by_node,
+            {
+                LLM_NODE_INTENT: "model-intent",
+                LLM_NODE_CANDIDATE_EVIDENCE: "model-candidate",
+                LLM_NODE_PLANNER: "model-planner",
+                LLM_NODE_SUPERVISOR: "model-supervisor",
+            },
+        )
+        self.assertEqual(
+            config.llm.adapter_ids_by_node,
+            {
+                LLM_NODE_INTENT: "adapter-intent",
+                LLM_NODE_CANDIDATE_EVIDENCE: "adapter-candidate",
+                LLM_NODE_PLANNER: "adapter-planner",
+                LLM_NODE_SUPERVISOR: "adapter-supervisor",
+            },
+        )
         self.assertEqual(config.intent.min_natural_language_query_chars, 7)
         self.assertEqual(config.search_budget.per_theme_attraction_top_k, 8)
         self.assertEqual(config.search_budget.raw_soft_channel_top_k, 4)
@@ -103,6 +140,40 @@ class RuntimeConfigTest(unittest.TestCase):
         with self.assertRaises(ConfigError):
             RuntimeConfig.from_env({"LOVV_DYNAMODB_TABLE": " "})
 
+    def test_llm_model_resolution_uses_agent_override_then_global_fallback(self) -> None:
+        settings = LlmSettings(
+            model_id="global-model",
+            model_ids_by_node={LLM_NODE_INTENT: "intent-model"},
+        )
+
+        self.assertEqual(resolve_llm_model_id(settings, LLM_NODE_INTENT), "intent-model")
+        self.assertEqual(
+            resolve_llm_model_id(settings, LLM_NODE_CANDIDATE_EVIDENCE),
+            "global-model",
+        )
+
+    def test_llm_adapter_resolution_uses_agent_override_then_global_fallback(self) -> None:
+        settings = LlmSettings(
+            adapter_id="global-adapter",
+            adapter_ids_by_node={LLM_NODE_PLANNER: "planner-adapter"},
+        )
+
+        self.assertEqual(
+            resolve_llm_adapter_id(settings, LLM_NODE_PLANNER),
+            "planner-adapter",
+        )
+        self.assertEqual(
+            resolve_llm_adapter_id(settings, LLM_NODE_INTENT),
+            "global-adapter",
+        )
+
+    def test_llm_routing_rejects_unknown_node_names(self) -> None:
+        with self.assertRaises(ConfigError):
+            LlmSettings(model_ids_by_node={"unknown": "model"})
+
+        with self.assertRaises(ConfigError):
+            resolve_llm_model_id(LlmSettings(), "unknown")
+
     def test_supported_env_keys_do_not_include_secret_material(self) -> None:
         forbidden_fragments = ("SECRET", "ACCESS_KEY", "TOKEN", "PASSWORD")
 
@@ -117,6 +188,24 @@ class RuntimeConfigTest(unittest.TestCase):
 
         self.assertEqual(config_dict["aws"]["region"], "us-east-1")
         self.assertIn("search_budget", config_dict)
+
+    def test_agentcore_config_keeps_v1_routing_env_non_secret(self) -> None:
+        config_path = Path(__file__).resolve().parents[1] / "agentcore" / "agentcore.json"
+        agentcore_config = json.loads(config_path.read_text(encoding="utf-8"))
+        runtime = agentcore_config["runtimes"][0]
+        env_vars = {item["name"]: item["value"] for item in runtime["envVars"]}
+
+        self.assertEqual(env_vars["LOVV_AWS_REGION"], "us-east-1")
+        self.assertEqual(env_vars["LOVV_LLM_MODEL_ID"], "openai.gpt-oss-120b-1:0")
+        for key in (
+            "LOVV_INTENT_LLM_MODEL_ID",
+            "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
+            "LOVV_PLANNER_LLM_MODEL_ID",
+            "LOVV_SUPERVISOR_LLM_MODEL_ID",
+        ):
+            self.assertEqual(env_vars[key], env_vars["LOVV_LLM_MODEL_ID"])
+        self.assertNotIn("LOVV_AWS_PROFILE", env_vars)
+        self.assertEqual(agentcore_config["agentCoreGateways"], [])
 
 
 if __name__ == "__main__":

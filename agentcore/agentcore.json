@@ -40,6 +40,22 @@
         {
           "name": "LOVV_LLM_MODEL_ID",
           "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_INTENT_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_PLANNER_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_SUPERVISOR_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
         }
       ],
       "tags": {

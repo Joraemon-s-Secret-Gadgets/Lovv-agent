@@ -18,7 +18,7 @@ from lovv_agent.adapters.aws_clients import AwsClientFactory
 from lovv_agent.adapters.aws_runtime import (
     AwsRuntimeAdapters,
     build_aws_runtime_adapters,
-    require_converse_runtime,
+    require_agent_converse_runtime,
     require_embedding_adapter,
 )
 from lovv_agent.adapters.boto3_clients import create_boto3_client_factory
@@ -104,17 +104,20 @@ def build_harness(
 
     # 추천 실행 중간이 아니라 harness 구성 단계에서 설정 오류를 드러낸다.
     embedding = require_embedding_adapter(adapters)
-    converse_runtime = require_converse_runtime(adapters)
+    # V1 routes model calls per agent while the Supervisor remains deterministic by default.
+    intent_runtime = require_agent_converse_runtime(adapters, "intent")
+    candidate_evidence_runtime = require_agent_converse_runtime(adapters, "candidate_evidence")
+    planner_runtime = require_agent_converse_runtime(adapters, "planner")
     candidate_agent = CandidateEvidenceAgent(
         destination_search=adapters.tools.destination_search,
         dynamo_lookup=adapters.tools.dynamo_lookup,
-        reason_claim_runtime=converse_runtime,
+        reason_claim_runtime=candidate_evidence_runtime,
         schema_retry_limit=config.retries.schema_retry_limit,
     )
     festival_agent = FestivalVerifierAgent()
     planner_agent = PlannerAgent(
         dynamo_lookup=adapters.tools.dynamo_lookup,
-        explanation_runtime=converse_runtime,
+        explanation_runtime=planner_runtime,
         schema_retry_limit=config.retries.schema_retry_limit,
     )
 
@@ -132,7 +135,7 @@ def build_harness(
             return _intent_state_from_result(deterministic)
 
         llm_result = invoke_intent_structured_output(
-            runtime=converse_runtime,
+            runtime=intent_runtime,
             messages=[
                 {
                     "role": "user",

@@ -41,6 +41,14 @@ ENV_KEYS: tuple[str, ...] = (
     "LOVV_EMBEDDING_MODEL_ID",
     "LOVV_LLM_ADAPTER_ID",
     "LOVV_LLM_MODEL_ID",
+    "LOVV_INTENT_LLM_MODEL_ID",
+    "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
+    "LOVV_PLANNER_LLM_MODEL_ID",
+    "LOVV_SUPERVISOR_LLM_MODEL_ID",
+    "LOVV_INTENT_LLM_ADAPTER_ID",
+    "LOVV_CANDIDATE_EVIDENCE_LLM_ADAPTER_ID",
+    "LOVV_PLANNER_LLM_ADAPTER_ID",
+    "LOVV_SUPERVISOR_LLM_ADAPTER_ID",
     "LOVV_INTENT_MIN_NATURAL_LANGUAGE_QUERY_CHARS",
     "LOVV_SEARCH_PER_THEME_TOP_K",
     "LOVV_SEARCH_RAW_SOFT_TOP_K",
@@ -69,6 +77,33 @@ DEFAULT_READ_TIMEOUT_SECONDS = 15.0
 DEFAULT_MAX_RETRY_ATTEMPTS = 2
 DEFAULT_SCHEMA_RETRY_LIMIT = 2
 
+# Routing node ids are config keys, not provider names; graph code stays provider-neutral.
+LLM_NODE_INTENT = "intent"
+LLM_NODE_CANDIDATE_EVIDENCE = "candidate_evidence"
+LLM_NODE_PLANNER = "planner"
+LLM_NODE_SUPERVISOR = "supervisor"
+
+LLM_ROUTING_NODES: tuple[str, ...] = (
+    LLM_NODE_INTENT,
+    LLM_NODE_CANDIDATE_EVIDENCE,
+    LLM_NODE_PLANNER,
+    LLM_NODE_SUPERVISOR,
+)
+
+LLM_MODEL_ENV_BY_NODE: Mapping[str, str] = {
+    LLM_NODE_INTENT: "LOVV_INTENT_LLM_MODEL_ID",
+    LLM_NODE_CANDIDATE_EVIDENCE: "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
+    LLM_NODE_PLANNER: "LOVV_PLANNER_LLM_MODEL_ID",
+    LLM_NODE_SUPERVISOR: "LOVV_SUPERVISOR_LLM_MODEL_ID",
+}
+
+LLM_ADAPTER_ENV_BY_NODE: Mapping[str, str] = {
+    LLM_NODE_INTENT: "LOVV_INTENT_LLM_ADAPTER_ID",
+    LLM_NODE_CANDIDATE_EVIDENCE: "LOVV_CANDIDATE_EVIDENCE_LLM_ADAPTER_ID",
+    LLM_NODE_PLANNER: "LOVV_PLANNER_LLM_ADAPTER_ID",
+    LLM_NODE_SUPERVISOR: "LOVV_SUPERVISOR_LLM_ADAPTER_ID",
+}
+
 
 def _optional_text(value: str | None) -> str | None:
     """Normalize empty environment values to ``None``."""
@@ -86,6 +121,50 @@ def _required_text(value: str | None, field_name: str) -> str:
     if normalized is None:
         raise ConfigError(f"{field_name} must be a non-empty string")
     return normalized
+
+
+def _validate_llm_node(node: str, field_name: str = "llm node") -> str:
+    """Validate a known LLM routing node identifier."""
+
+    normalized = _required_text(node, field_name)
+    if normalized not in LLM_ROUTING_NODES:
+        allowed = ", ".join(LLM_ROUTING_NODES)
+        raise ConfigError(f"{field_name} must be one of {allowed}")
+    return normalized
+
+
+def _node_text_map(
+    values: Mapping[str, str] | None,
+    field_name: str,
+) -> dict[str, str]:
+    """Validate per-node text overrides and drop unset values."""
+
+    if values is None:
+        return {}
+    if not isinstance(values, Mapping):
+        raise ConfigError(f"{field_name} must be a mapping")
+    normalized: dict[str, str] = {}
+    for node, value in values.items():
+        normalized_node = _validate_llm_node(node, f"{field_name} key")
+        normalized[normalized_node] = _required_text(
+            value,
+            f"{field_name}.{normalized_node}",
+        )
+    return normalized
+
+
+def _env_node_text_map(
+    source: Mapping[str, str],
+    env_by_node: Mapping[str, str],
+) -> dict[str, str]:
+    """Read optional per-node routing values from an environment mapping."""
+
+    values: dict[str, str] = {}
+    for node, env_key in env_by_node.items():
+        value = _optional_text(source.get(env_key))
+        if value is not None:
+            values[node] = value
+    return values
 
 
 def _positive_int(value: str | int, field_name: str) -> int:
@@ -174,11 +253,23 @@ class LlmSettings:
 
     adapter_id: str = DEFAULT_LLM_ADAPTER_ID
     model_id: str | None = None
+    model_ids_by_node: Mapping[str, str] = field(default_factory=dict)
+    adapter_ids_by_node: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         _required_text(self.adapter_id, "llm.adapter_id")
         if self.model_id is not None:
             _required_text(self.model_id, "llm.model_id")
+        object.__setattr__(
+            self,
+            "model_ids_by_node",
+            _node_text_map(self.model_ids_by_node, "llm.model_ids_by_node"),
+        )
+        object.__setattr__(
+            self,
+            "adapter_ids_by_node",
+            _node_text_map(self.adapter_ids_by_node, "llm.adapter_ids_by_node"),
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -305,6 +396,8 @@ class RuntimeConfig:
             llm=LlmSettings(
                 adapter_id=source.get("LOVV_LLM_ADAPTER_ID", DEFAULT_LLM_ADAPTER_ID),
                 model_id=_optional_text(source.get("LOVV_LLM_MODEL_ID")),
+                model_ids_by_node=_env_node_text_map(source, LLM_MODEL_ENV_BY_NODE),
+                adapter_ids_by_node=_env_node_text_map(source, LLM_ADAPTER_ENV_BY_NODE),
             ),
             intent=IntentSettings(
                 min_natural_language_query_chars=_positive_int(
@@ -388,6 +481,20 @@ def default_runtime_config() -> RuntimeConfig:
     return RuntimeConfig()
 
 
+def resolve_llm_model_id(settings: LlmSettings, node: str) -> str | None:
+    """Resolve the configured model id for one LLM-using node."""
+
+    normalized_node = _validate_llm_node(node)
+    return settings.model_ids_by_node.get(normalized_node) or settings.model_id
+
+
+def resolve_llm_adapter_id(settings: LlmSettings, node: str) -> str:
+    """Resolve the configured adapter id for one LLM-using node."""
+
+    normalized_node = _validate_llm_node(node)
+    return settings.adapter_ids_by_node.get(normalized_node) or settings.adapter_id
+
+
 __all__ = [
     "AwsSettings",
     "CONFIG_SECTIONS",
@@ -396,6 +503,13 @@ __all__ = [
     "ENV_KEYS",
     "EmbeddingSettings",
     "IntentSettings",
+    "LLM_ADAPTER_ENV_BY_NODE",
+    "LLM_MODEL_ENV_BY_NODE",
+    "LLM_NODE_CANDIDATE_EVIDENCE",
+    "LLM_NODE_INTENT",
+    "LLM_NODE_PLANNER",
+    "LLM_NODE_SUPERVISOR",
+    "LLM_ROUTING_NODES",
     "LlmSettings",
     "RetrySettings",
     "RuntimeConfig",
@@ -403,4 +517,6 @@ __all__ = [
     "SearchBudgetSettings",
     "TimeoutSettings",
     "default_runtime_config",
+    "resolve_llm_adapter_id",
+    "resolve_llm_model_id",
 ]
