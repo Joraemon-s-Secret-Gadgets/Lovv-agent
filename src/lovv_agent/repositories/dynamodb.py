@@ -18,6 +18,11 @@ REPOSITORY_NAME = "DynamoDbRepository"
 
 RESPONSIBILITY = "Read normalized detail records through an injected client."
 
+# Scan은 페이지당 최대 1MB만 스캔한 뒤 FilterExpression을 적용하므로, 매칭 항목이
+# 첫 페이지 밖에 있으면 단건 Scan은 빈 결과를 준다. 전체 테이블을 잇는 페이지네이션
+# 상한(무한 루프/과도한 스캔 방지)이다.
+MAX_FESTIVAL_SCAN_PAGES = 50
+
 
 class DynamoDbClient(Protocol):
     """Runtime client shape required by :class:`DynamoDbRepository`."""
@@ -27,6 +32,9 @@ class DynamoDbClient(Protocol):
 
     def query(self, **request: Any) -> Mapping[str, Any]:
         """Return DynamoDB query results for the provided query request."""
+
+    def scan(self, **request: Any) -> Mapping[str, Any]:
+        """Return DynamoDB scan results for the provided scan request."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,6 +92,70 @@ class DynamoDbRepository:
             raise SchemaValidationError("dynamodb query response must be a mapping")
         return dict(response)
 
+    def query_all_items(self, request: Mapping[str, Any]) -> dict[str, Any]:
+        """Query across all result pages, merging returned items."""
+
+        if not isinstance(request, Mapping):
+            raise SchemaValidationError("dynamodb query request must be a mapping")
+        items: list[Any] = []
+        start_key: Any = None
+        while True:
+            page_request = dict(request)
+            if start_key is not None:
+                page_request["ExclusiveStartKey"] = start_key
+            response = self.query_items(page_request)
+            page_items = response.get("Items", ())
+            if isinstance(page_items, (list, tuple)):
+                items.extend(page_items)
+            start_key = response.get("LastEvaluatedKey")
+            if not start_key:
+                break
+        return {"Items": items}
+
+    def scan_items(self, request: Mapping[str, Any]) -> dict[str, Any]:
+        """Run a scan against the configured table."""
+
+        if not isinstance(request, Mapping):
+            raise SchemaValidationError("dynamodb scan request must be a mapping")
+        payload = dict(request)
+        payload.setdefault("TableName", self.settings.table_name)
+        response = self.client.scan(**payload)
+        if not isinstance(response, Mapping):
+            raise SchemaValidationError("dynamodb scan response must be a mapping")
+        return dict(response)
+
+    def scan_all_items(
+        self,
+        request: Mapping[str, Any],
+        *,
+        max_pages: int = MAX_FESTIVAL_SCAN_PAGES,
+    ) -> dict[str, Any]:
+        """Scan across pages until the table is exhausted, merging matched items.
+
+        DynamoDB Scan은 페이지당 최대 1MB를 스캔한 뒤 FilterExpression을 적용한다.
+        매칭 항목이 첫 페이지 밖에 있으면 단건 Scan은 빈 결과를 줄 수 있으므로,
+        ``LastEvaluatedKey``가 없을 때까지(또는 안전 상한까지) 페이지를 이어 스캔한다.
+        """
+
+        if not isinstance(request, Mapping):
+            raise SchemaValidationError("dynamodb scan request must be a mapping")
+        items: list[Any] = []
+        start_key: Any = None
+        pages = 0
+        while True:
+            page_request = dict(request)
+            if start_key is not None:
+                page_request["ExclusiveStartKey"] = start_key
+            response = self.scan_items(page_request)
+            page_items = response.get("Items", ())
+            if isinstance(page_items, (list, tuple)):
+                items.extend(page_items)
+            start_key = response.get("LastEvaluatedKey")
+            pages += 1
+            if not start_key or pages >= max_pages:
+                break
+        return {"Items": items}
+
     def query_festival_candidates(
         self,
         *,
@@ -92,33 +164,48 @@ class DynamoDbRepository:
         city_id: str | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
-        """Query candidate festival rows by country/month and optional city."""
+        """Read festival rows by month, using the city partition when available.
 
-        # table 계약은 country/month를 discovery용 query key로 노출한다.
-        # anchored destination flow에서는 city filter가 선택 사항이다.
-        request: dict[str, Any] = {
-            "KeyConditionExpression": "#country = :country AND #month = :month",
+        Fixed-city requests query ``PK=CITY#{city}`` and festival-prefixed sort
+        keys. City discovery requests retain the paginated month Scan because
+        the city partition is not known yet.
+        """
+
+        _required_text(country, "country")
+        normalized_month = _month(travel_month, "travel_month")
+        normalized_city_id = _optional_text(city_id, "city_id")
+        if limit is not None:
+            _positive_int(limit, "limit")
+
+        if normalized_city_id is not None:
+            request = {
+                "KeyConditionExpression": "#pk = :pk AND begins_with(#sk, :festival_prefix)",
+                "FilterExpression": "#month = :month",
+                "ExpressionAttributeNames": {
+                    "#pk": "PK",
+                    "#sk": "SK",
+                    "#month": "month",
+                },
+                "ExpressionAttributeValues": {
+                    ":pk": {"S": _city_partition_key(normalized_city_id)},
+                    ":festival_prefix": {"S": "FESTIVAL#"},
+                    ":month": {"N": str(normalized_month)},
+                },
+            }
+            return self.query_all_items(request)
+
+        request = {
+            "FilterExpression": "#entity_type = :entity_type AND #month = :month",
             "ExpressionAttributeNames": {
-                "#country": "country",
-                "#month": "month",
                 "#entity_type": "entity_type",
+                "#month": "month",
             },
             "ExpressionAttributeValues": {
-                ":country": {"S": _required_text(country, "country")},
-                ":month": {"N": str(_month(travel_month, "travel_month"))},
                 ":entity_type": {"S": "festival"},
+                ":month": {"N": str(normalized_month)},
             },
-            "FilterExpression": "#entity_type = :entity_type",
         }
-        normalized_city_id = _optional_text(city_id, "city_id")
-        if normalized_city_id is not None:
-            request["FilterExpression"] += " AND #city_id = :city_id"
-            request["ExpressionAttributeNames"]["#city_id"] = "city_id"
-            request["ExpressionAttributeValues"][":city_id"] = {"S": normalized_city_id}
-        if limit is not None:
-            request["Limit"] = _positive_int(limit, "limit")
-        return self.query_items(request)
-
+        return self.scan_all_items(request)
 
 def _required_text(value: Any, field_name: str) -> str:
     """Validate a non-empty text value for repository requests."""
@@ -138,6 +225,14 @@ def _optional_text(value: Any, field_name: str) -> str | None:
         return None
     return _required_text(value, field_name)
 
+
+def _city_partition_key(city_id: str) -> str:
+    """Convert a canonical country-prefixed city id to its DynamoDB PK."""
+
+    normalized = _required_text(city_id, "city_id")
+    prefix, separator, suffix = normalized.partition("-")
+    city_name = suffix if separator and len(prefix) == 2 and prefix.isupper() else normalized
+    return f"CITY#{city_name}"
 
 def _month(value: Any, field_name: str) -> int:
     """Validate a 1-12 month number."""

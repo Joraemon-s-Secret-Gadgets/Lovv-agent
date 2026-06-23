@@ -66,6 +66,7 @@ class RecordingDynamoDbClient:
     ) -> None:
         self.get_item_requests: list[dict[str, Any]] = []
         self.query_requests: list[dict[str, Any]] = []
+        self.scan_requests: list[dict[str, Any]] = []
         self.query_response = (
             {"Items": [{"pk": {"S": "FESTIVAL#1"}}]}
             if query_response is None
@@ -86,6 +87,10 @@ class RecordingDynamoDbClient:
 
     def query(self, **request: Any) -> dict[str, Any]:
         self.query_requests.append(dict(request))
+        return self.query_response
+
+    def scan(self, **request: Any) -> dict[str, Any]:
+        self.scan_requests.append(dict(request))
         return self.query_response
 
 
@@ -392,8 +397,20 @@ class AttractionSearchTest(unittest.TestCase):
 class FestivalSeedTest(unittest.TestCase):
     """Validate festival city seed lookup rules for Task 4.3."""
 
-    def test_festival_seed_empty_theme_pool_reports_clarification(self) -> None:
-        dynamodb_client = RecordingDynamoDbClient()
+    def test_festival_seed_ignores_theme_pool(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            query_response={
+                "Items": [
+                    {
+                        "festival_id": "festival-1",
+                        "name": "월 일치 축제",
+                        "country": "KR",
+                        "city_id": "city-1",
+                        "month": 6,
+                    },
+                ],
+            },
+        )
         tool = make_dynamo_lookup_tool(dynamodb_client)
 
         result = tool.search_festival_city_seeds(
@@ -402,15 +419,11 @@ class FestivalSeedTest(unittest.TestCase):
             theme_pool=["festival_event", "축제·이벤트"],
         )
 
-        self.assertEqual(result.status, "no_candidate")
-        self.assertTrue(result.needs_clarification)
-        self.assertEqual(
-            result.failure_signals,
-            ("no_required_theme_for_festival_seed",),
-        )
-        self.assertEqual(dynamodb_client.query_requests, [])
+        self.assertEqual(result.status, "ok")
+        self.assertEqual(result.seed_city_ids, ("city-1",))
+        self.assertEqual(result.candidates[0].festival_id, "festival-1")
 
-    def test_festival_seed_applies_month_and_theme_or_matching(self) -> None:
+    def test_festival_seed_applies_month_without_theme_filtering(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
             query_response={
                 "Items": [
@@ -469,21 +482,23 @@ class FestivalSeedTest(unittest.TestCase):
 
         self.assertEqual(result.status, "ok")
         self.assertFalse(result.needs_clarification)
-        self.assertEqual(result.seed_city_ids, ("city-1", "city-2"))
-        self.assertEqual(result.to_dict()["seed_city_ids"], ["city-1", "city-2"])
+        self.assertEqual(result.seed_city_ids, ("city-1", "city-2", "city-4"))
+        self.assertEqual(result.to_dict()["seed_city_ids"], ["city-1", "city-2", "city-4"])
         self.assertEqual(
             [candidate.festival_id for candidate in result.candidates],
-            ["festival-1", "festival-2"],
+            ["festival-1", "festival-2", "festival-4"],
         )
-        request = dynamodb_client.query_requests[0]
+        request = dynamodb_client.scan_requests[0]
         self.assertEqual(request["TableName"], "lovv-table")
-        self.assertEqual(request["Limit"], 10)
         self.assertEqual(request["ExpressionAttributeValues"][":month"], {"N": "6"})
         self.assertEqual(
             request["ExpressionAttributeValues"][":entity_type"],
             {"S": "festival"},
         )
-        self.assertEqual(request["FilterExpression"], "#entity_type = :entity_type")
+        self.assertEqual(
+            request["FilterExpression"],
+            "#entity_type = :entity_type AND #month = :month",
+        )
 
     def test_fixed_city_festival_seed_restricts_to_anchor_city(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
@@ -523,14 +538,16 @@ class FestivalSeedTest(unittest.TestCase):
         self.assertEqual(result.seed_city_ids, ("city-2",))
         self.assertEqual(result.candidates[0].festival_id, "festival-2")
         request = dynamodb_client.query_requests[0]
+        self.assertEqual(dynamodb_client.scan_requests, [])
         self.assertEqual(
-            request["FilterExpression"],
-            "#entity_type = :entity_type AND #city_id = :city_id",
+            request["KeyConditionExpression"],
+            "#pk = :pk AND begins_with(#sk, :festival_prefix)",
         )
         self.assertEqual(
-            request["ExpressionAttributeValues"][":city_id"],
-            {"S": "city-2"},
+            request["ExpressionAttributeValues"][":pk"],
+            {"S": "CITY#city-2"},
         )
+        self.assertEqual(request["FilterExpression"], "#month = :month")
 
     def test_festival_seed_empty_city_discovery_reports_failure(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})

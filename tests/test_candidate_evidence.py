@@ -487,9 +487,15 @@ class CandidateEvidenceFestivalSeedTest(unittest.TestCase):
         self.assertIsNone(search.calls[0]["city_id"])
         self.assertEqual(dynamo.calls[0]["theme_pool"], ("바다·해안",))
 
-    def test_festival_seed_empty_theme_pool_returns_no_required_theme_signal(self) -> None:
+    def test_festival_seed_empty_theme_pool_still_calls_month_lookup(self) -> None:
         search = FakeDestinationSearch(())
-        dynamo = FakeDynamoLookup(FestivalSeedResult(status="ok"))
+        dynamo = FakeDynamoLookup(
+            FestivalSeedResult(
+                status="no_candidate",
+                failure_signals=("no_festival_city_seed",),
+                needs_clarification=True,
+            ),
+        )
         agent = CandidateEvidenceAgent(
             destination_search=search,
             dynamo_lookup=dynamo,
@@ -505,9 +511,10 @@ class CandidateEvidenceFestivalSeedTest(unittest.TestCase):
 
         self.assertEqual(package.status, "no_candidate")
         self.assertTrue(package.needs_clarification)
-        self.assertIn("no_required_theme_for_festival_seed", package.failure_signals)
+        self.assertIn("no_festival_city_seed", package.failure_signals)
         self.assertEqual(search.calls, [])
-        self.assertEqual(dynamo.calls, [])
+        self.assertEqual(len(dynamo.calls), 1)
+        self.assertEqual(dynamo.calls[0]["theme_pool"], ())
 
     def test_festival_seed_empty_city_seed_prevents_attraction_retrieval(self) -> None:
         search = FakeDestinationSearch(())

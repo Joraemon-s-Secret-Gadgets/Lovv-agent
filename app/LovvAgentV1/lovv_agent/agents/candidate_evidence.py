@@ -503,15 +503,9 @@ def _run_festival_seed_lookup(
     context: CandidateEvidenceContext,
     dynamo_lookup: Any | None,
 ) -> FestivalSeedResult:
-    """Run month/theme festival seed lookup before attraction retrieval."""
+    """Run month festival seed lookup before attraction retrieval."""
 
     theme_pool = context.theme_split.active_required_themes
-    if not theme_pool:
-        return FestivalSeedResult(
-            status="no_candidate",
-            failure_signals=("no_required_theme_for_festival_seed",),
-            needs_clarification=True,
-        )
     if dynamo_lookup is None:
         return FestivalSeedResult(
             status="error",
