@@ -222,7 +222,10 @@ def build_planner_output(
         itinerary=itinerary,
         validation_result=validation_result,
     )
-    if explanation_runtime is not None:
+    # LLM 카피 생성은 비싸고 비결정적이며 검증 통과한 최종 일정에만 의미가 있다.
+    # 검증 실패 시 Supervisor가 planner를 재실행하므로(또는 출력을 폐기하므로)
+    # 유효한 일정일 때만 한 번 생성해 중복 호출과 미반영 결과를 방지한다.
+    if explanation_runtime is not None and validation_result.get("is_valid"):
         composed = compose_planner_copy_explanation(
             package,
             itinerary=itinerary,
