@@ -179,11 +179,22 @@ def build_harness(
         candidate_input = state.intent.candidate_evidence_input
         if candidate_input is None:
             raise SchemaValidationError("candidate_evidence_input is required")
-        # 하나의 embedding query가 retrieval pipeline을 구동한다.
-        # field별 embedding 대신 downstream tool이 theme filter를 보존한다.
+        # 주 embedding은 cleaned_raw_query(없으면 soft/themes)로 retrieval을 구동한다.
         query_text = _embedding_query(candidate_input)
         query_vector = embedding.embed_query(query_text)
-        return candidate_agent.run(candidate_input, query_vector=query_vector)
+        # soft preference가 별도로 있으면 두 번째 embedding으로 soft 검색 채널을 만든다.
+        # ScoringTool이 soft_distance로 soft_similarity를 가산한다.
+        soft_text = candidate_input.soft_preference_query.strip()
+        soft_query_vector = (
+            embedding.embed_query(soft_text)
+            if soft_text and soft_text != query_text
+            else None
+        )
+        return candidate_agent.run(
+            candidate_input,
+            query_vector=query_vector,
+            soft_query_vector=soft_query_vector,
+        )
 
     def festival_node(state: UnifiedAgentState):
         verifier_input = festival_agent.build_input(
