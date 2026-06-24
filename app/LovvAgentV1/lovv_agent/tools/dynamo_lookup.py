@@ -14,10 +14,7 @@ from typing import Any
 from lovv_agent.config import SearchBudgetSettings
 from lovv_agent.models.schemas import SchemaValidationError
 from lovv_agent.repositories.dynamodb import DynamoDbRepository
-from lovv_agent.tools.destination_search import (
-    AttractionCandidate,
-    FESTIVAL_EXCLUDED_THEME_LABELS,
-)
+from lovv_agent.tools.destination_search import AttractionCandidate
 
 TOOL_NAME = "DynamoLookupTool"
 
@@ -168,15 +165,14 @@ def search_festival_city_seeds(
     dynamodb: DynamoDbRepository,
     search_budget: SearchBudgetSettings,
 ) -> FestivalSeedResult:
-    """Find month/theme-matching festival candidates before attraction search."""
-
-    normalized_theme_pool = _normalize_festival_theme_pool(theme_pool)
-    if not normalized_theme_pool:
-        return _festival_seed_failure("no_required_theme_for_festival_seed")
+    """Find month-matching festival candidates before attraction search."""
 
     normalized_country = _required_text(country, "country")
     normalized_month = _month(travel_month, "travel_month")
     normalized_city_id = _optional_text(city_id, "city_id")
+    # Festival documents do not currently persist travel-theme fields. Keep the
+    # argument for caller compatibility, but do not use it as a filter.
+    del theme_pool
     limit = _resolve_max_festival_candidates(max_candidates, search_budget)
     response = dynamodb.query_festival_candidates(
         country=normalized_country,
@@ -184,16 +180,17 @@ def search_festival_city_seeds(
         city_id=normalized_city_id,
         limit=limit,
     )
-    # repository는 country/month로 좁힌다. mock이나 향후 index가 더 넓은 page를
-    # 반환해도 tool 계약이 명시적이고 테스트 가능하도록 여기서 한 번 더 거른다.
+    # detail 문서에는 country 속성이 없거나(지역 단위 배포) 표기가 제각각이라
+    # (KR/대한민국/Korea 등) country 동등 비교는 멀쩡한 축제까지 떨어뜨리는 footgun이다.
+    # 따라서 country는 정규화용으로만 주입하고 실제 필터는 month/(선택 city)로만 한다.
     candidates = tuple(
         candidate
         for item in _extract_dynamodb_items(response)
         if (
-            candidate := normalize_festival_candidate(item)
-        ).country == normalized_country
-        and candidate.month == normalized_month
-        and _festival_matches_theme(candidate, normalized_theme_pool)
+            candidate := normalize_festival_candidate(
+                _with_default_country(item, normalized_country),
+            )
+        ).month == normalized_month
         and (normalized_city_id is None or candidate.city_id == normalized_city_id)
     )[:limit]
     if candidates:
@@ -266,7 +263,7 @@ def normalize_festival_candidate(item: Mapping[str, Any]) -> FestivalCandidate:
     normalized = _plain_dynamodb_item(item)
     return FestivalCandidate(
         festival_id=_required_text(
-            _first_present(normalized, "festival_id", "id"),
+            _first_present(normalized, "festival_id", "id", "entity_id", "content_id"),
             "festival_id",
         ),
         name=_required_text(_first_present(normalized, "name", "title"), "name"),
@@ -312,40 +309,6 @@ def _festival_seed_failure(signal: str) -> FestivalSeedResult:
     )
 
 
-def _normalize_festival_theme_pool(theme_pool: Sequence[str]) -> tuple[str, ...]:
-    """Normalize user travel themes for festival OR matching."""
-
-    themes = _normalize_string_sequence(theme_pool, "theme_pool")
-    filtered: list[str] = []
-    seen: set[str] = set()
-    for theme in themes:
-        if theme in FESTIVAL_EXCLUDED_THEME_LABELS:
-            continue
-        if theme in seen:
-            continue
-        seen.add(theme)
-        filtered.append(theme)
-    return tuple(filtered)
-
-
-def _festival_matches_theme(
-    candidate: FestivalCandidate,
-    theme_pool: tuple[str, ...],
-) -> bool:
-    """Return whether assigned theme or any theme tag matches the user theme pool."""
-
-    theme_set = set(theme_pool)
-    return (
-        candidate.theme in theme_set
-        if candidate.theme is not None
-        else False
-    ) or (
-        candidate.assigned_theme in theme_set
-        if candidate.assigned_theme is not None
-        else False
-    ) or any(theme in theme_set for theme in candidate.theme_tags)
-
-
 def _extract_dynamodb_items(response: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     """Extract raw item mappings from a DynamoDB query response."""
 
@@ -360,6 +323,25 @@ def _extract_dynamodb_items(response: Mapping[str, Any]) -> tuple[dict[str, Any]
             raise SchemaValidationError("dynamodb response item must be a mapping")
         copied.append(dict(item))
     return tuple(copied)
+
+
+def _with_default_country(item: Mapping[str, Any], country: str) -> dict[str, Any]:
+    """Inject the requested country when the detail item omits the attribute.
+
+    Normalized detail documents do not persist a country attribute (regional
+    deployment), so we default it to the requested country before candidate
+    normalization. A plain string is safe because ``_unwrap_dynamodb_value``
+    passes non-mapping values through unchanged.
+    """
+
+    existing = item.get("country")
+    if isinstance(existing, Mapping) and str(existing.get("S", "")).strip():
+        return dict(item)
+    if isinstance(existing, str) and existing.strip():
+        return dict(item)
+    enriched = dict(item)
+    enriched["country"] = country
+    return enriched
 
 
 def _plain_dynamodb_item(item: Mapping[str, Any]) -> dict[str, Any]:
@@ -380,7 +362,22 @@ def _extract_detail_item(response: Mapping[str, Any]) -> dict[str, Any] | None:
         return None
     if not isinstance(item, Mapping):
         raise SchemaValidationError("dynamodb detail response.Item must be a mapping")
-    return _plain_dynamodb_item(item)
+    return _normalize_detail_overview(_plain_dynamodb_item(item))
+
+
+# 수집 파이프라인은 TourAPI overview 텍스트를 detail item의 `description` 속성으로
+# 적재한다. Planner/Explanation 계층은 공개 설명 필드로 `overview`를 읽으므로,
+# detail item이 agent 경계로 들어오는 이 지점에서 한 번만 별칭을 채운다.
+def _normalize_detail_overview(detail: dict[str, Any]) -> dict[str, Any]:
+    """Alias the persisted `description` text to the `overview` field readers expect."""
+
+    existing = detail.get("overview")
+    if isinstance(existing, str) and existing.strip():
+        return detail
+    description = detail.get("description")
+    if isinstance(description, str) and description.strip():
+        detail["overview"] = description
+    return detail
 
 
 def _detail_enrichment_warning(

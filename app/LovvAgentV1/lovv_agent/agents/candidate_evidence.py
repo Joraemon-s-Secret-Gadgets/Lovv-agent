@@ -193,6 +193,7 @@ class CandidateEvidenceAgent:
         candidate_input: CandidateEvidenceInput | Mapping[str, Any],
         *,
         query_vector: Sequence[float],
+        soft_query_vector: Sequence[float] | None = None,
     ) -> CandidateEvidencePackage:
         """Build a Candidate Evidence Package for non-festival search modes."""
 
@@ -225,6 +226,7 @@ class CandidateEvidenceAgent:
         package = _run_attraction_search(
             context=context,
             query_vector=query_vector,
+            soft_query_vector=soft_query_vector,
             destination_search=self.destination_search,
             scoring=self.scoring,
             selection=self.selection,
@@ -333,6 +335,7 @@ def _run_attraction_search(
     *,
     context: CandidateEvidenceContext,
     query_vector: Sequence[float],
+    soft_query_vector: Sequence[float] | None = None,
     destination_search: Any,
     scoring: ScoringTool,
     selection: CandidateSelectionHelper,
@@ -344,6 +347,7 @@ def _run_attraction_search(
     retrieved = _retrieve_by_theme(
         destination_search,
         query_vector=query_vector,
+        soft_query_vector=soft_query_vector,
         themes=context.theme_split.searchable_place_themes,
         city_id=context.fixed_city_id,
     )
@@ -499,15 +503,9 @@ def _run_festival_seed_lookup(
     context: CandidateEvidenceContext,
     dynamo_lookup: Any | None,
 ) -> FestivalSeedResult:
-    """Run month/theme festival seed lookup before attraction retrieval."""
+    """Run month festival seed lookup before attraction retrieval."""
 
     theme_pool = context.theme_split.active_required_themes
-    if not theme_pool:
-        return FestivalSeedResult(
-            status="no_candidate",
-            failure_signals=("no_required_theme_for_festival_seed",),
-            needs_clarification=True,
-        )
     if dynamo_lookup is None:
         return FestivalSeedResult(
             status="error",
@@ -808,18 +806,40 @@ def _retrieve_by_theme(
     query_vector: Sequence[float],
     themes: Sequence[str],
     city_id: str | None,
+    soft_query_vector: Sequence[float] | None = None,
 ) -> tuple[AttractionCandidate, ...]:
-    """Call attraction retrieval once per searchable theme."""
+    """Call attraction retrieval once per searchable theme.
+
+    soft_query_vector가 주어지면 같은 테마로 soft 임베딩 검색을 한 번 더 수행해
+    후보별 soft_distance를 주입한다. ScoringTool은 이 soft_distance로 soft_similarity를
+    계산하므로 soft preference가 실제 랭킹에 반영된다.
+    """
 
     candidates: list[AttractionCandidate] = []
     for theme in themes:
-        candidates.extend(
+        theme_candidates = list(
             destination_search.search_candidates(
                 query_vector,
                 city_id=city_id,
                 theme=theme,
             ),
         )
+        if soft_query_vector is not None:
+            soft_distance_by_place = {
+                candidate.place_id: candidate.distance
+                for candidate in destination_search.search_candidates(
+                    soft_query_vector,
+                    city_id=city_id,
+                    theme=theme,
+                )
+            }
+            theme_candidates = [
+                replace(candidate, soft_distance=soft_distance_by_place[candidate.place_id])
+                if candidate.place_id in soft_distance_by_place
+                else candidate
+                for candidate in theme_candidates
+            ]
+        candidates.extend(theme_candidates)
     return tuple(candidates)
 
 

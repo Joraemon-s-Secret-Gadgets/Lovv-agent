@@ -2,7 +2,15 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
+from dotenv import load_dotenv
+
+# agentcore dev does not inject agentcore.json envVars into the local process.
+# The repository-level .env.local is absent from the deployed CodeZip, and
+# override=False preserves variables explicitly supplied by the environment.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env.local", override=False)
 
 from lovv_agent.agentcore_entrypoint import handle_invocation
 

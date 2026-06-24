@@ -42,6 +42,12 @@ def package_state_response(state: UnifiedAgentState) -> dict[str, Any]:
     # public response에는 의도적으로 Planner-safe field만 전달한다.
     package = state.evidence.candidate_evidence_package
     selected_city = package.selected_city if package is not None else None
+    # 정상 일정이 없을 때(예: 축제 시드 미스)는 사용자에게 사유 메시지를 명시한다.
+    notice = None
+    if state.planning.planner_output is None and package is not None:
+        notice = package.clarifying_question or (
+            "; ".join(package.failure_signals) if package.failure_signals else None
+        )
     return package_recommendation_response(
         planner_output=state.planning.planner_output,
         request=state.request,
@@ -49,6 +55,7 @@ def package_state_response(state: UnifiedAgentState) -> dict[str, Any]:
         festival_verifications=state.festival.festival_verifications,
         unsupported_conditions=state.intent.unsupported_conditions,
         recommendation_id=state.request.request_id,
+        notice=notice,
     )
 
 
@@ -61,6 +68,7 @@ def package_recommendation_response(
     unsupported_conditions: Sequence[str] = (),
     recommendation_id: str | None = None,
     expires_at: str | None = None,
+    notice: str | None = None,
 ) -> dict[str, Any]:
     """Build the safe MVP recommendation response shape."""
 
@@ -76,6 +84,7 @@ def package_recommendation_response(
             planner,
             request_payload,
             unsupported_conditions=unsupported_conditions,
+            notice=notice,
         ),
         "festivalDateVerifications": _festival_date_verification_payloads(
             festival_verifications,
@@ -218,6 +227,7 @@ def _explainability_payload(
     request: Mapping[str, Any],
     *,
     unsupported_conditions: Sequence[str],
+    notice: str | None = None,
 ) -> dict[str, Any]:
     """Build public explainability without internal audit refs."""
 
@@ -228,7 +238,7 @@ def _explainability_payload(
             "recommendationReasons": (),
             "itineraryFlowReason": "",
             "confidence": 0.0,
-            "userNotice": "",
+            "userNotice": notice or "",
         }
     return {
         "matchedConditions": _matched_conditions(request),

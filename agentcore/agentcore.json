@@ -56,6 +56,22 @@
         {
           "name": "LOVV_SUPERVISOR_LLM_MODEL_ID",
           "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_SEARCH_PER_THEME_TOP_K",
+          "value": "50"
+        },
+        {
+          "name": "LOVV_SEARCH_RAW_SOFT_TOP_K",
+          "value": "50"
+        },
+        {
+          "name": "LOVV_CONNECT_TIMEOUT_SECONDS",
+          "value": "60"
+        },
+        {
+          "name": "LOVV_READ_TIMEOUT_SECONDS",
+          "value": "60"
         }
       ],
       "tags": {

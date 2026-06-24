@@ -71,6 +71,8 @@ class AttractionCandidate:
     ddb_sk: str | None
     metadata: dict[str, Any]
     details: dict[str, Any] | None = None
+    # soft_preference_query 임베딩 검색에서 얻은 거리. ScoringTool의 soft_similarity 입력.
+    soft_distance: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Return a serializable candidate payload."""
