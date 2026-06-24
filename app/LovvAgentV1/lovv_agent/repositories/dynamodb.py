@@ -22,6 +22,7 @@ REPOSITORY_NAME = "DynamoDbRepository"
 
 RESPONSIBILITY = "Read normalized detail records through an injected client."
 _TRACER = trace.get_tracer("lovv_agent.repositories.dynamodb")
+FESTIVAL_MONTH_INDEX_NAME = "FestivalMonthIndex"
 
 # Scan은 페이지당 최대 1MB만 스캔한 뒤 FilterExpression을 적용하므로, 매칭 항목이
 # 첫 페이지 밖에 있으면 단건 Scan은 빈 결과를 준다. 전체 테이블을 잇는 페이지네이션
@@ -202,8 +203,8 @@ class DynamoDbRepository:
         """Read festival rows by month, using the city partition when available.
 
         Fixed-city requests query ``PK=CITY#{city}`` and festival-prefixed sort
-        keys. City discovery requests retain the paginated month Scan because
-        the city partition is not known yet.
+        keys. City discovery requests use the festival month GSI because the
+        city partition is not known yet.
         """
 
         _required_text(country, "country")
@@ -230,17 +231,20 @@ class DynamoDbRepository:
             return self.query_all_items(request)
 
         request = {
-            "FilterExpression": "#entity_type = :entity_type AND #month = :month",
+            "IndexName": FESTIVAL_MONTH_INDEX_NAME,
+            "KeyConditionExpression": (
+                "#entity_type = :entity_type AND begins_with(#gsi_sk, :month_prefix)"
+            ),
             "ExpressionAttributeNames": {
                 "#entity_type": "entity_type",
-                "#month": "month",
+                "#gsi_sk": "gsi_sk",
             },
             "ExpressionAttributeValues": {
                 ":entity_type": {"S": "festival"},
-                ":month": {"N": str(normalized_month)},
+                ":month_prefix": {"S": f"FESTIVAL#{normalized_month:02d}"},
             },
         }
-        return self.scan_all_items(request)
+        return self.query_all_items(request)
 
 def _required_text(value: Any, field_name: str) -> str:
     """Validate a non-empty text value for repository requests."""
