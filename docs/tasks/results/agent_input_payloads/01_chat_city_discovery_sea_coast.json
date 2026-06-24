@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-DIRECT-001",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "daytrip",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "조용하고 덜 붐비는 바다 산책 코스를 추천해줘.",
+  "userLocation": null
+}

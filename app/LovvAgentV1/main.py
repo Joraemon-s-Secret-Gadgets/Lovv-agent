@@ -13,7 +13,9 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[2] / ".env.local", override=False)
 
 from lovv_agent.agentcore_entrypoint import handle_invocation
+from lovv_agent.telemetry import init_telemetry
 
+init_telemetry()
 app = BedrockAgentCoreApp()
 
 

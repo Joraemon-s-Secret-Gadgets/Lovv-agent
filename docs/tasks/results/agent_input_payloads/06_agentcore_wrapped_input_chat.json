@@ -1,0 +1,20 @@
+{
+  "invocationId": "INV-DIRECT-006",
+  "sessionId": "SESSION-DIRECT-006",
+  "input": {
+    "entryType": "chat",
+    "destinationId": null,
+    "country": "KR",
+    "travelYear": 2026,
+    "travelMonth": 11,
+    "tripType": "2d1n",
+    "themes": [
+      "food_local",
+      "art_sense",
+      "healing_rest"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "맛집과 감성 공간, 조용한 휴식이 섞인 1박 2일 여행을 추천해줘.",
+    "userLocation": null
+  }
+}

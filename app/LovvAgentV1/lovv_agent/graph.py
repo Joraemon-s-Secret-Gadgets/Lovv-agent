@@ -35,6 +35,7 @@ from lovv_agent.state import (
     ServingState,
     UnifiedAgentState,
 )
+from lovv_agent.telemetry import trace_graph_envelope_node
 from lovv_agent.tools.response_packager import package_state_response
 
 GRAPH_NODE_ORDER: tuple[str, ...] = (
@@ -293,11 +294,17 @@ def build_langgraph(
         return {"state": state, "terminal_status": status}
 
     builder.add_node("intent_agent", intent_node)
-    builder.add_node(SUPERVISOR_NODE_NAME, supervisor_node)
+    builder.add_node(
+        SUPERVISOR_NODE_NAME,
+        trace_graph_envelope_node(SUPERVISOR_NODE_NAME, supervisor_node),
+    )
     builder.add_node(NODE_CANDIDATE_EVIDENCE, candidate_node)
     builder.add_node(NODE_FESTIVAL_VERIFIER, festival_node)
     builder.add_node(NODE_PLANNER, planner_node)
-    builder.add_node(NODE_RESPONSE_PACKAGER, response_node)
+    builder.add_node(
+        NODE_RESPONSE_PACKAGER,
+        trace_graph_envelope_node(NODE_RESPONSE_PACKAGER, response_node),
+    )
 
     builder.add_edge(START, "intent_agent")
     builder.add_edge("intent_agent", SUPERVISOR_NODE_NAME)

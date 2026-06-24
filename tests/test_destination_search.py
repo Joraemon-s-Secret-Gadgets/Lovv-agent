@@ -488,16 +488,18 @@ class FestivalSeedTest(unittest.TestCase):
             [candidate.festival_id for candidate in result.candidates],
             ["festival-1", "festival-2", "festival-4"],
         )
-        request = dynamodb_client.scan_requests[0]
+        self.assertEqual(dynamodb_client.scan_requests, [])
+        request = dynamodb_client.query_requests[0]
         self.assertEqual(request["TableName"], "lovv-table")
-        self.assertEqual(request["ExpressionAttributeValues"][":month"], {"N": "6"})
+        self.assertEqual(request["IndexName"], "FestivalMonthIndex")
+        self.assertEqual(request["ExpressionAttributeValues"][":month_prefix"], {"S": "FESTIVAL#06"})
         self.assertEqual(
             request["ExpressionAttributeValues"][":entity_type"],
             {"S": "festival"},
         )
         self.assertEqual(
-            request["FilterExpression"],
-            "#entity_type = :entity_type AND #month = :month",
+            request["KeyConditionExpression"],
+            "#entity_type = :entity_type AND begins_with(#gsi_sk, :month_prefix)",
         )
 
     def test_fixed_city_festival_seed_restricts_to_anchor_city(self) -> None:

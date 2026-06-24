@@ -1,0 +1,16 @@
+{
+  "requestId": "REQ-DIRECT-005",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 4,
+  "tripType": "daytrip",
+  "themes": [
+    "festival_event",
+    "history_tradition"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "봄 축제가 있는 전통적인 분위기의 당일 여행지를 찾아줘.",
+  "userLocation": null
+}

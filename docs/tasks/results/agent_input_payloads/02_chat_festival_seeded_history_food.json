@@ -1,0 +1,16 @@
+{
+  "requestId": "REQ-DIRECT-002",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "2d1n",
+  "themes": [
+    "history_tradition",
+    "food_local"
+  ],
+  "includeFestivals": true,
+  "naturalLanguageQuery": "가을 축제와 지역 음식을 같이 즐길 수 있는 1박 2일 여행지를 추천해줘.",
+  "userLocation": null
+}

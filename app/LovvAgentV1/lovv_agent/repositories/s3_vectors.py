@@ -11,12 +11,17 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from opentelemetry import trace
+from opentelemetry.trace import Status, StatusCode
+
 from lovv_agent.config import S3VectorSettings
 from lovv_agent.models.schemas import SchemaValidationError
+from lovv_agent.telemetry import sanitize_text
 
 REPOSITORY_NAME = "S3VectorRepository"
 
 RESPONSIBILITY = "Search vector candidates through an injected S3 Vector client."
+_TRACER = trace.get_tracer("lovv_agent.repositories.s3_vectors")
 
 
 class S3VectorClient(Protocol):
@@ -43,10 +48,22 @@ class S3VectorRepository:
         # 일반 harness 실행에는 설정된 런타임 resource를 기본으로 넣는다.
         payload.setdefault("vectorBucketName", self.settings.bucket_name)
         payload.setdefault("indexName", self.settings.index_name)
-        response = self.client.query_vectors(**payload)
-        if not isinstance(response, Mapping):
-            raise SchemaValidationError("s3 vector response must be a mapping")
-        return dict(response)
+        with _TRACER.start_as_current_span("s3vectors.QueryVectors") as span:
+            span.set_attribute("aws.service", "s3vectors")
+            span.set_attribute("s3vectors.bucket", self.settings.bucket_name)
+            span.set_attribute("s3vectors.index", self.settings.index_name)
+            try:
+                response = self.client.query_vectors(**payload)
+                if not isinstance(response, Mapping):
+                    raise SchemaValidationError("s3 vector response must be a mapping")
+                _set_vector_summary_attributes(span, response)
+                return dict(response)
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
 
 
 def extract_vector_records(response: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
@@ -73,6 +90,58 @@ def _copy_record(record: Any, field_name: str) -> dict[str, Any]:
             f"s3 vector response.{field_name} item must be a mapping",
         )
     return dict(record)
+
+
+def _set_vector_summary_attributes(span, response: Mapping[str, Any]) -> None:
+    records = extract_vector_records(response)
+    span.set_attribute("s3vectors.result_count", len(records))
+    distances = tuple(
+        float(record["distance"])
+        for record in records
+        if isinstance(record.get("distance"), (int, float))
+        and not isinstance(record.get("distance"), bool)
+    )
+    if distances:
+        span.set_attribute("s3vectors.top_distance", min(distances))
+        span.set_attribute("s3vectors.bottom_distance", max(distances))
+    city_ids = sorted(
+        {
+            city_id
+            for record in records
+            for city_id in (_metadata_text(record, "city_id"),)
+            if city_id is not None
+        },
+    )
+    if city_ids:
+        span.set_attribute("s3vectors.city_ids", city_ids)
+    theme_tags = _theme_tags_sample(records)
+    if theme_tags:
+        span.set_attribute("s3vectors.theme_tags_sample", list(theme_tags))
+
+
+def _metadata_text(record: Mapping[str, Any], field_name: str) -> str | None:
+    metadata = record.get("metadata")
+    if not isinstance(metadata, Mapping):
+        return None
+    value = metadata.get(field_name)
+    return value if isinstance(value, str) and value.strip() else None
+
+
+def _theme_tags_sample(records: tuple[dict[str, Any], ...]) -> tuple[str, ...]:
+    tags: list[str] = []
+    for record in records:
+        metadata = record.get("metadata")
+        if not isinstance(metadata, Mapping):
+            continue
+        raw_tags = metadata.get("theme_tags")
+        if not isinstance(raw_tags, (list, tuple)):
+            continue
+        for tag in raw_tags:
+            if isinstance(tag, str) and tag not in tags:
+                tags.append(tag)
+            if len(tags) >= 5:
+                return tuple(tags)
+    return tuple(tags)
 
 
 __all__ = [

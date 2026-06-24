@@ -36,6 +36,7 @@ from lovv_agent.graph import GraphNodeSet, build_langgraph, invoke_langgraph
 from lovv_agent.models.schemas import CandidateEvidenceInput, GeoPoint, SchemaValidationError
 from lovv_agent.prompts.registry import INTENT_NORMALIZATION_PROMPT_ID, prompt_text
 from lovv_agent.state import IntentState, RequestState, UnifiedAgentState
+from lovv_agent.telemetry import trace_invocation, trace_node
 
 HARNESS_NAME = "LovvLangGraphHarness"
 
@@ -57,8 +58,11 @@ class LovvLangGraphHarness:
     ) -> dict[str, Any]:
         """Invoke the full graph from an API request and return public output."""
 
-        state = request_state_from_api(payload, request_id=request_id)
-        final_state = invoke_langgraph(self.graph, state, config=graph_config)
+        final_state = self.invoke_state(
+            payload,
+            request_id=request_id,
+            graph_config=graph_config,
+        )
         if final_state.serving.response_payload is None:
             raise SchemaValidationError("graph completed without a response payload")
         return dict(final_state.serving.response_payload)
@@ -73,7 +77,10 @@ class LovvLangGraphHarness:
         """Invoke the full graph and return state for diagnostics/tests."""
 
         state = request_state_from_api(payload, request_id=request_id)
-        return invoke_langgraph(self.graph, state, config=graph_config)
+        return trace_invocation(
+            state,
+            lambda: invoke_langgraph(self.graph, state, config=graph_config),
+        )
 
 
 def build_live_harness(
@@ -218,10 +225,10 @@ def build_harness(
 
     graph = build_langgraph(
         GraphNodeSet(
-            intent=intent_node,
-            candidate_evidence=candidate_node,
-            festival_verifier=festival_node,
-            planner=planner_node,
+            intent=trace_node("intent_agent", intent_node),
+            candidate_evidence=trace_node("candidate_evidence_agent", candidate_node),
+            festival_verifier=trace_node("festival_verifier_agent", festival_node),
+            planner=trace_node("planner_agent", planner_node),
         ),
     )
     return LovvLangGraphHarness(graph=graph, config=config, adapters=adapters)
