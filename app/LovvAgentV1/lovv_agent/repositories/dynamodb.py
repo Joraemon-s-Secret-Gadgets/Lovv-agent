@@ -11,12 +11,17 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from opentelemetry import trace
+from opentelemetry.trace import Status, StatusCode
+
 from lovv_agent.config import DynamoDbSettings
 from lovv_agent.models.schemas import SchemaValidationError
+from lovv_agent.telemetry import sanitize_text
 
 REPOSITORY_NAME = "DynamoDbRepository"
 
 RESPONSIBILITY = "Read normalized detail records through an injected client."
+_TRACER = trace.get_tracer("lovv_agent.repositories.dynamodb")
 
 # Scan은 페이지당 최대 1MB만 스캔한 뒤 FilterExpression을 적용하므로, 매칭 항목이
 # 첫 페이지 밖에 있으면 단건 Scan은 빈 결과를 준다. 전체 테이블을 잇는 페이지네이션
@@ -54,14 +59,28 @@ class DynamoDbRepository:
 
         if not isinstance(key, Mapping):
             raise SchemaValidationError("dynamodb key must be a mapping")
-        response = self.client.get_item(
-            TableName=self.settings.table_name,
-            Key=dict(key),
-            ConsistentRead=consistent_read,
-        )
-        if not isinstance(response, Mapping):
-            raise SchemaValidationError("dynamodb get_item response must be a mapping")
-        return dict(response)
+        request_key = dict(key)
+        with _TRACER.start_as_current_span("dynamodb.GetItem") as span:
+            span.set_attribute("aws.service", "dynamodb")
+            span.set_attribute("dynamodb.table", self.settings.table_name)
+            span.set_attribute("dynamodb.operation", "GetItem")
+            _set_key_attributes(span, request_key)
+            try:
+                response = self.client.get_item(
+                    TableName=self.settings.table_name,
+                    Key=request_key,
+                    ConsistentRead=consistent_read,
+                )
+                if not isinstance(response, Mapping):
+                    raise SchemaValidationError("dynamodb get_item response must be a mapping")
+                _set_get_item_summary_attributes(span, response)
+                return dict(response)
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
 
     def get_detail_item(
         self,
@@ -87,10 +106,26 @@ class DynamoDbRepository:
             raise SchemaValidationError("dynamodb query request must be a mapping")
         payload = dict(request)
         payload.setdefault("TableName", self.settings.table_name)
-        response = self.client.query(**payload)
-        if not isinstance(response, Mapping):
-            raise SchemaValidationError("dynamodb query response must be a mapping")
-        return dict(response)
+        with _TRACER.start_as_current_span("dynamodb.Query") as span:
+            span.set_attribute("aws.service", "dynamodb")
+            span.set_attribute("dynamodb.table", self.settings.table_name)
+            span.set_attribute("dynamodb.operation", "Query")
+            try:
+                response = self.client.query(**payload)
+                if not isinstance(response, Mapping):
+                    raise SchemaValidationError("dynamodb query response must be a mapping")
+                items = response.get("Items")
+                span.set_attribute(
+                    "dynamodb.result_count",
+                    len(items) if isinstance(items, list) else 0,
+                )
+                return dict(response)
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
 
     def query_all_items(self, request: Mapping[str, Any]) -> dict[str, Any]:
         """Query across all result pages, merging returned items."""
@@ -252,6 +287,37 @@ def _positive_int(value: Any, field_name: str) -> int:
     if value <= 0:
         raise SchemaValidationError(f"{field_name} must be a positive integer")
     return value
+
+
+def _set_key_attributes(span, key: Mapping[str, Any]) -> None:
+    pk = _attribute_text(key.get("PK"))
+    sk = _attribute_text(key.get("SK"))
+    if pk is not None:
+        span.set_attribute("dynamodb.pk", pk)
+    if sk is not None:
+        span.set_attribute("dynamodb.sk", sk)
+
+
+def _set_get_item_summary_attributes(span, response: Mapping[str, Any]) -> None:
+    item = response.get("Item")
+    found = isinstance(item, Mapping)
+    span.set_attribute("dynamodb.found", found)
+    if not found:
+        return
+    overview = _attribute_text(item.get("overview"))
+    span.set_attribute("dynamodb.content_length", len(overview or ""))
+
+
+def _attribute_text(value: Any) -> str | None:
+    if isinstance(value, str):
+        return value
+    if not isinstance(value, Mapping):
+        return None
+    for key in ("S", "N"):
+        raw = value.get(key)
+        if isinstance(raw, str) and raw.strip():
+            return raw.strip()
+    return None
 
 
 __all__ = [

@@ -167,7 +167,14 @@ class RecordingBedrockRuntimeClient:
         """Return a minimal structured-output response."""
 
         self.converse_requests.append(dict(request))
-        return {"structured_output": {"ok": True}}
+        return {
+            "structured_output": {"ok": True},
+            "usage": {
+                "inputTokens": 120,
+                "outputTokens": 30,
+                "totalTokens": 150,
+            },
+        }
 
 
 class Boto3ClientFactoryTest(unittest.TestCase):

@@ -13,11 +13,17 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from opentelemetry import trace
+from opentelemetry.trace import Status, StatusCode
+
+from lovv_agent.telemetry import context_window_for_model, record_llm_usage, sanitize_text
+
 ADAPTER_NAME = "BedrockConverseAdapter"
 
 RESPONSIBILITY = "Provide schema-oriented LLM calls through an injected runtime."
 
 STRUCTURED_OUTPUT_TEXT_FORMAT = "json_schema"
+_TRACER = trace.get_tracer("lovv_agent.adapters.bedrock_converse")
 
 # RuntimeInvoker는 단순 callable로 두어 테스트가 AWS SDK 응답 클래스 없이
 # 간단한 fake를 주입할 수 있게 한다.
@@ -63,10 +69,26 @@ class BedrockConverseRuntime:
         payload = dict(request)
         # 테스트에서 명시한 modelId는 존중하고, live 호출은 설정값을 기본으로 쓴다.
         payload.setdefault("modelId", model_id)
-        response = self.client.converse(**payload)
-        if not isinstance(response, Mapping):
-            raise StructuredOutputError("converse response must be a mapping")
-        return dict(response)
+        with _TRACER.start_as_current_span("BedrockConverse") as span:
+            span.set_attribute("llm.model_id", model_id)
+            span.set_attribute("llm.context_window", context_window_for_model(model_id))
+            try:
+                response = self.client.converse(**payload)
+                if not isinstance(response, Mapping):
+                    raise StructuredOutputError("converse response must be a mapping")
+                usage = response.get("usage")
+                if isinstance(usage, Mapping):
+                    record_llm_usage(model_id, usage)
+                    span.set_attribute("llm.usage.input_tokens", _usage_int(usage, "inputTokens"))
+                    span.set_attribute("llm.usage.output_tokens", _usage_int(usage, "outputTokens"))
+                    span.set_attribute("llm.usage.total_tokens", _usage_int(usage, "totalTokens"))
+                return dict(response)
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
 
 
 def create_bedrock_converse_runtime(
@@ -289,6 +311,17 @@ def _required_text(value: Any, field_name: str) -> str:
     if not normalized:
         raise StructuredOutputError(f"{field_name} must be a non-empty string")
     return normalized
+
+
+def _usage_int(usage: Mapping[str, Any], field_name: str) -> int:
+    value = usage.get(field_name)
+    if isinstance(value, bool) or value is None:
+        return 0
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    return 0
 
 
 __all__ = [
