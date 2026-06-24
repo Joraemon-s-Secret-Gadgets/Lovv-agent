@@ -1,0 +1,16 @@
+{
+  "requestId": "REQ-DIRECT-003",
+  "entryType": "map_marker",
+  "destinationId": "KR-Gyeongju",
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 5,
+  "tripType": "daytrip",
+  "themes": [
+    "history_tradition",
+    "art_sense"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "경주에서 역사와 감성 사진 포인트를 중심으로 당일 코스를 잡아줘.",
+  "userLocation": null
+}
