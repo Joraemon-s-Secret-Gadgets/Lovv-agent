@@ -230,6 +230,7 @@ class CandidateEvidenceAgent:
             destination_search=self.destination_search,
             scoring=self.scoring,
             selection=self.selection,
+            dynamo_lookup=self.dynamo_lookup,
             allowed_city_ids=allowed_city_ids,
             festival_seed_result=festival_seed_result,
         )
@@ -339,6 +340,7 @@ def _run_attraction_search(
     destination_search: Any,
     scoring: ScoringTool,
     selection: CandidateSelectionHelper,
+    dynamo_lookup: Any | None = None,
     allowed_city_ids: Sequence[str] | None = None,
     festival_seed_result: FestivalSeedResult | None = None,
 ) -> CandidateEvidencePackage:
@@ -388,6 +390,7 @@ def _run_attraction_search(
         context=context,
         scoring=scoring,
         primary_budget=primary_budget,
+        dynamo_lookup=dynamo_lookup,
     )
     if not city_rankings:
         return _package_failure(
@@ -572,6 +575,7 @@ def build_candidate_reason_claim_request(
         schema_name=CANDIDATE_REASON_CLAIM_SCHEMA_NAME,
         schema=CANDIDATE_REASON_CLAIM_OUTPUT_SCHEMA,
         schema_description="Candidate Evidence Korean reason claim candidates",
+        reasoning_effort="low",
     )
 
 
@@ -881,14 +885,75 @@ def _score_groups(
     return scored_groups
 
 
+# 혼잡도 가중치 — semantic_evidence를 압도하지 않도록 기존 adjustment 항 스케일에 맞춘다
+# (theme_match=0.2, candidate_sufficiency=0.1, user_distance/100km=0.05).
+# default=0.1: 명시 요청이 없어도 '소도시 발견' 목적상 viable 후보 중 한적한 쪽으로 약하게 편향.
+# quiet=0.35(인기 도시를 더 강하게 감점 — 조용한 요청에 양양 등 인기 해안이 뽑히던 문제 보정),
+# vibrant=-0.25(인기 도시 우대). 값은 휴리스틱 — tc009/tc010·cong_* 검증 후 튜닝.
+W_CONG_QUIET = 0.35
+W_CONG_VIBRANT = -0.25
+W_CONG_DEFAULT = 0.1
+_VIBRANT_KEYWORDS = ("vibrant", "활기", "핫플", "축제", "복잡", "인기", "사람 많은", "핫플레이스")
+_QUIET_KEYWORDS = ("quiet", "한적", "조용", "힐링", "고즈넉", "평화", "평온", "아늑", "휴식", "쉼")
+
+
+def resolve_w_cong(trigger_text: str) -> float:
+    """주어진 텍스트에서 quiet/vibrant 트리거를 찾아 혼잡도 가중치 w_cong을 결정한다."""
+
+    text = (trigger_text or "").lower()
+    if any(keyword in text for keyword in _VIBRANT_KEYWORDS):
+        return W_CONG_VIBRANT
+    if any(keyword in text for keyword in _QUIET_KEYWORDS):
+        return W_CONG_QUIET
+    return W_CONG_DEFAULT
+
+
+def _congestion_index_by_city(visitor_by_city: Mapping[str, float | None]) -> dict[str, float]:
+    """방문객 수를 0(한적)~1(혼잡) rank로 정규화. 통계 없는 도시는 중립 0.5."""
+
+    index: dict[str, float] = {cid: 0.5 for cid, value in visitor_by_city.items() if value is None}
+    known = [(cid, value) for cid, value in visitor_by_city.items() if value is not None]
+    if not known:
+        return {cid: 0.5 for cid in visitor_by_city}
+    if len(known) == 1:
+        index[known[0][0]] = 0.5
+        return index
+    ordered = sorted(known, key=lambda item: item[1])  # 오름차순: 방문객 적음 → 0(한적)
+    last = len(ordered) - 1
+    for rank, (cid, _value) in enumerate(ordered):
+        index[cid] = rank / last
+    return index
+
+
 def _rank_cities(
     scored_groups: Mapping[str, Sequence[PlaceScoreResult]],
     *,
     context: CandidateEvidenceContext,
     scoring: ScoringTool,
     primary_budget: int,
+    dynamo_lookup: Any | None = None,
 ) -> tuple[dict[str, Any], ...]:
-    """Rank cities by deterministic city score."""
+    """Rank cities by deterministic city score (congestion 보정 포함)."""
+
+    # 혼잡도 보정: 생존 도시 방문객을 1회 BatchGetItem으로 조회해 rank 정규화.
+    # 조회/통계 실패는 추천을 막지 않고 congestion 비활성(0)으로 폴백한다.
+    congestion_by_city: dict[str, float] = {}
+    w_cong = 0.0
+    city_ids = list(scored_groups.keys())
+    if dynamo_lookup is not None and city_ids:
+        try:
+            visitor_by_city = dynamo_lookup.city_visitor_stats(
+                city_ids,
+                context.candidate_input.travel_month,
+            )
+            congestion_by_city = _congestion_index_by_city(visitor_by_city)
+            # soft_preference_query 우선, 비어 있을 때만 cleaned_raw_query로 폴백.
+            soft_text = context.candidate_input.soft_preference_query
+            trigger_text = soft_text if soft_text.strip() else context.candidate_input.cleaned_raw_query
+            w_cong = resolve_w_cong(trigger_text)
+        except Exception:  # noqa: BLE001 - congestion은 보강 신호이므로 실패 시 비활성.
+            congestion_by_city = {}
+            w_cong = 0.0
 
     rankings: list[dict[str, Any]] = []
     for city_id, places in scored_groups.items():
@@ -898,6 +963,8 @@ def _rank_cities(
             active_themes=context.theme_split.searchable_place_themes,
             user_location=context.candidate_input.user_location,
             primary_budget=primary_budget,
+            congestion_index=congestion_by_city.get(city_id, 0.0),
+            w_cong=w_cong,
         )
         ranking = city_score.to_dict()
         ranking["city_name_ko"] = _city_name_from_group(places) or city_id

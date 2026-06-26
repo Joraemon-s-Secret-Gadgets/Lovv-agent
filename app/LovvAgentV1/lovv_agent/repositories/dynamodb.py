@@ -7,7 +7,7 @@ the caller-facing tools.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -41,6 +41,9 @@ class DynamoDbClient(Protocol):
 
     def scan(self, **request: Any) -> Mapping[str, Any]:
         """Return DynamoDB scan results for the provided scan request."""
+
+    def batch_get_item(self, **request: Any) -> Mapping[str, Any]:
+        """Return DynamoDB items for the provided batch key request."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +102,68 @@ class DynamoDbRepository:
             },
             consistent_read=consistent_read,
         )
+
+    def batch_get_city_visitor_stats(
+        self,
+        *,
+        city_ids: Iterable[str],
+        travel_month: int,
+    ) -> dict[str, float | None]:
+        """Fetch per-city monthly visitor totals in one BatchGetItem.
+
+        Key: ``PK=CITY#{city}``, ``SK=STAT#2025{MM}``, attribute ``total_visitors``.
+        통계가 없는 도시는 ``None``(중립 처리용). 방문객 데이터는 2025만 존재하므로
+        travelYear와 무관하게 2025 계절 패턴을 혼잡도 proxy로 사용한다.
+        BatchGetItem은 항목당 RCU로 과금되어 비용은 GetItem N회와 동일하고, 왕복만 1회다.
+        """
+
+        unique_ids = list(dict.fromkeys(city_ids))
+        result: dict[str, float | None] = {cid: None for cid in unique_ids}
+        if not unique_ids:
+            return result
+        sk = f"STAT#2025{_month(travel_month, 'travel_month'):02d}"
+        pk_to_city: dict[str, str] = {}
+        keys: list[dict[str, Any]] = []
+        for cid in unique_ids:
+            pk = _city_partition_key(cid)
+            pk_to_city[pk] = cid
+            keys.append({"PK": {"S": pk}, "SK": {"S": sk}})
+        table = self.settings.table_name
+        pending: dict[str, Any] = {table: {"Keys": keys}}
+        with _TRACER.start_as_current_span("dynamodb.BatchGetItem") as span:
+            span.set_attribute("aws.service", "dynamodb")
+            span.set_attribute("dynamodb.table", table)
+            span.set_attribute("dynamodb.operation", "BatchGetItem")
+            span.set_attribute("dynamodb.request_key_count", len(keys))
+            try:
+                for _ in range(2):  # 초기 1회 + UnprocessedKeys 1회 재시도
+                    response = self.client.batch_get_item(RequestItems=pending)
+                    if not isinstance(response, Mapping):
+                        raise SchemaValidationError(
+                            "dynamodb batch_get_item response must be a mapping",
+                        )
+                    rows = response.get("Responses", {})
+                    for item in rows.get(table, ()) if isinstance(rows, Mapping) else ():
+                        pk_value = item.get("PK", {}).get("S")
+                        total = item.get("total_visitors", {}).get("N")
+                        cid = pk_to_city.get(pk_value)
+                        if cid is not None and total is not None:
+                            result[cid] = float(total)
+                    unprocessed = response.get("UnprocessedKeys") or {}
+                    if not unprocessed:
+                        break
+                    pending = dict(unprocessed)
+                span.set_attribute(
+                    "dynamodb.resolved_count",
+                    sum(1 for value in result.values() if value is not None),
+                )
+                return result
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
 
     def query_items(self, request: Mapping[str, Any]) -> dict[str, Any]:
         """Run a query against the configured table."""

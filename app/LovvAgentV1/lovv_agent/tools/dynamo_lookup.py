@@ -154,6 +154,18 @@ class DynamoLookupTool:
 
         return enrich_final_places(final_places, dynamodb=self.dynamodb)
 
+    def city_visitor_stats(
+        self,
+        city_ids: Sequence[str],
+        travel_month: int,
+    ) -> dict[str, float | None]:
+        """Fetch per-city monthly visitor totals (congestion proxy) in one batch."""
+
+        return self.dynamodb.batch_get_city_visitor_stats(
+            city_ids=city_ids,
+            travel_month=travel_month,
+        )
+
 
 def search_festival_city_seeds(
     *,
