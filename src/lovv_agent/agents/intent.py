@@ -463,6 +463,7 @@ def build_intent_structured_output_request(
         schema_name=INTENT_AGENT_OUTPUT_SCHEMA_NAME,
         schema=INTENT_AGENT_OUTPUT_SCHEMA,
         schema_description="Lovv Intent Agent structured output",
+        reasoning_effort="low",
     )
 
 

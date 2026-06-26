@@ -124,6 +124,7 @@ def build_planner_copy_explanation_request(
         schema_name=PLANNER_COPY_EXPLANATION_SCHEMA_NAME,
         schema=PLANNER_COPY_EXPLANATION_OUTPUT_SCHEMA,
         schema_description="Lovv Planner Korean copy and explanation output",
+        reasoning_effort="low",
     )
 
 
