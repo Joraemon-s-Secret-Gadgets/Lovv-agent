@@ -3,7 +3,7 @@
 > Completion Date: 2026-06-22
 > Branch: `agentcore-v1-migration`
 > Related Issues: #1, #2, #3, #4, #5, #6, #7
-> Source Spec: `docs/specs/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md`
+> Source Spec: `docs/specs/v1/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md`
 > Task Plan: `docs/tasks/LOVV_AGENTCORE_V1_FM_ROUTING_TASKS.md`
 
 ## Summary
@@ -39,7 +39,7 @@ app/LovvAgentV1/lovv_agent/adapters/aws_runtime.py
 app/LovvAgentV1/lovv_agent/config.py
 app/LovvAgentV1/lovv_agent/harness.py
 app/LovvAgentV1/lovv_agent/state.py
-docs/specs/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md
+docs/specs/v1/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md
 docs/tasks/LOVV_AGENTCORE_V1_FM_ROUTING_TASKS.md
 docs/tasks/results/AGENTCORE_V1_FM_ROUTING_RESULT.md
 docs/tasks/results/TASK10_SUBTASK05_RESULT.md

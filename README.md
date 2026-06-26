@@ -187,16 +187,29 @@ src/lovv_agent/
   harness.py      API 입력부터 live graph 실행까지의 composition root
 scripts/          local live invocation CLI
 tests/            unit, integration 및 optional AWS smoke test
-docs/specs/       구현 SPEC
+docs/README.md    문서 인덱스와 배치 규칙
+docs/reports/     분석, 의사결정, 전환 보고서
+docs/specs/       구현 SPEC과 설계 계약 인덱스
+docs/specs/v1/    현재 LangGraph/AgentCore V1 계약
+docs/specs/v2/    Memory/checkpointer/V2 전환 계약
 docs/tasks/       구현 task와 subtask 결과
 ```
 
 ## Design Documents
 
-- [LangGraph SPEC Authoring Instructions](./LANGGRAPH_SPEC_AUTHORING_INSTRUCTIONS.md)
-- [Lovv LangGraph Agent Implementation SPEC](./docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md)
+- [문서 인덱스](./docs/README.md)
+- [보고서 인덱스](./docs/reports/README.md)
+- [SPEC 인덱스](./docs/specs/README.md)
+- [V1 SPEC 인덱스](./docs/specs/v1/README.md)
+- [V2 SPEC 인덱스](./docs/specs/v2/README.md)
+- [Task 인덱스](./docs/tasks/README.md)
+- [LangGraph SPEC Authoring Instructions](./docs/reports/LANGGRAPH_SPEC_AUTHORING_INSTRUCTIONS.md)
+- [Lovv LangGraph Agent Implementation SPEC](./docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md)
 - [Lovv LangGraph Agent Implementation Tasks](./docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md)
-- [설계 대비 구현 현황 및 한계](./docs/LOVV_AGENT_IMPLEMENTATION_COMPARISON.md)
+- [멀티 에이전트 아키텍처 조사](./docs/reports/MULTI_AGENT_ARCHITECTURE_SURVEY.md)
+- [설계 대비 구현 현황 및 한계](./docs/reports/LOVV_AGENT_IMPLEMENTATION_COMPARISON.md)
+- [Lovv AgentCore V1 Production Readiness SPEC](./docs/specs/v1/LOVV_AGENTCORE_V1_PRODUCTION_READINESS_SPEC.md)
+- [Lovv AgentCore V1 Production Readiness Tasks](./docs/tasks/LOVV_AGENTCORE_V1_PRODUCTION_READINESS_TASKS.md)
 
 Task별 구현 결과는 [`docs/tasks/results`](./docs/tasks/results/)에서 확인할 수
 있습니다.

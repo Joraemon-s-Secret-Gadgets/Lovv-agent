@@ -3,7 +3,7 @@
 > Completion Date: 2026-06-22
 > Related Issue: https://github.com/Joraemon-s-Secret-Gadgets/Lovv-agent/issues/1
 > Source Task: `docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md`
-> Source Spec: `docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+> Source Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 
 ## Summary
 

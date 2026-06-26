@@ -1,9 +1,9 @@
 # Task 3.2 Result: Routing Decisions and Clarification Stop
 
-> Completion Date: 2026-06-14  
-> Responsible Agent: Codex  
-> Source Task: `Lovv-agent/docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md`  
-> Source Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+> Completion Date: 2026-06-14
+> Responsible Agent: Codex
+> Source Task: `docs/tasks/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_TASKS.md`
+> Source Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 
 ## Summary
 

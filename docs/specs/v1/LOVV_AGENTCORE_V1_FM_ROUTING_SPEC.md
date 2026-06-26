@@ -17,7 +17,7 @@ Related documents already exist and point in the same direction:
   - Says provider choice should not be Anthropic-only.
   - Says context window is not Lovv's main constraint; TPM/RPM and input-token size are more important.
   - Warns that each candidate model/profile must be verified in `us-east-1` before deploy.
-- `docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
   - Keeps model calls behind replaceable Bedrock Converse-compatible adapters.
   - Does not fix concrete model IDs in the core spec.
   - Requires schema validation and fallback for every LLM output entering graph state.

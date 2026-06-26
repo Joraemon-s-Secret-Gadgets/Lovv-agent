@@ -10,9 +10,9 @@ output:
   - docs/tasks/results/LOVV_V1_TEST_PLAN.md (테스트 계획서)
   - docs/tasks/results/LOVV_V1_TEST_RESULT.md (테스트 결과서 — 양식)
 relates:
-  - docs/specs/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md
-  - docs/specs/LOVV_V1_OBSERVABILITY_CICD_SPEC.md
-  - docs/specs/LOVV_AGENTCORE_V1_PRODUCTION_READINESS_SPEC.md
+  - docs/specs/v1/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md
+  - docs/specs/v1/LOVV_V1_OBSERVABILITY_CICD_SPEC.md
+  - docs/specs/v1/LOVV_AGENTCORE_V1_PRODUCTION_READINESS_SPEC.md
 ---
 
 ## 1. 목적
@@ -355,8 +355,8 @@ AgentCore Observability를 V1에 실제 적용하고, 테스트 계획/결과서
 
 | 순서 | 파일 | 읽는 이유 |
 |------|------|-----------|
-| 7 | `docs/specs/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md` | OTel 스팬 계층, JSON 로그 스키마, 안전 필터, 컴포넌트 설계 전체 |
-| 8 | `docs/specs/LOVV_V1_OBSERVABILITY_CICD_SPEC.md` §3 | V1 고정 계약 (스팬 이름, 필수 지표, 로그 스키마) |
+| 7 | `docs/specs/v1/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md` | OTel 스팬 계층, JSON 로그 스키마, 안전 필터, 컴포넌트 설계 전체 |
+| 8 | `docs/specs/v1/LOVV_V1_OBSERVABILITY_CICD_SPEC.md` §3 | V1 고정 계약 (스팬 이름, 필수 지표, 로그 스키마) |
 
 ### 4.3 기존 테스트 패턴 이해 (보고서 작성 시)
 

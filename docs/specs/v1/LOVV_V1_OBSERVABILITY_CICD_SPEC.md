@@ -7,11 +7,11 @@ status: 설계 (Draft · 구현 전)
 date: 2026-06-23
 runtime: LovvAgentV1 (단일 AgentCore Runtime · us-east-1)
 consolidates:
-  - docs/specs/LOVV_AGENTCORE_V1_PRODUCTION_READINESS_SPEC.md (배포 준비 게이트·parity·smoke)
-  - docs/specs/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md (OTel·X-Ray·CloudWatch 계측)
-  - docs/specs/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md (단일 런타임·노드별 FM 라우팅 · Gateway는 V2로 이관)
+  - docs/specs/v1/LOVV_AGENTCORE_V1_PRODUCTION_READINESS_SPEC.md (배포 준비 게이트·parity·smoke)
+  - docs/specs/v1/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md (OTel·X-Ray·CloudWatch 계측)
+  - docs/specs/v1/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md (단일 런타임·노드별 FM 라우팅 · Gateway는 V2로 이관)
 relates:
-  - docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md (기반 구현)
+  - docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md (기반 구현)
   - docs/reports/01_PERFORMANCE_AND_MIGRATION.md / 04_PARALLELIZATION.md (병목 근거)
 defers_to_v2:
   - AgentCore Memory / checkpointer / interrupt-resume

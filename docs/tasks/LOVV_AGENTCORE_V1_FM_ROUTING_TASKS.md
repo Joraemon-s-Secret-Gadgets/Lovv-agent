@@ -1,6 +1,6 @@
 # Lovv AgentCore V1 FM Routing Tasks
 
-Source spec: `docs/specs/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md`
+Source spec: `docs/specs/v1/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md`
 
 GitHub issue tracker: `Joraemon-s-Secret-Gadgets/Lovv-agent`
 
