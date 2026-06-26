@@ -7,8 +7,8 @@ status: 완료
 date: 2026-06-24
 runtime: LovvAgentV1 (단일 AgentCore Runtime · us-east-1)
 source_spec:
-  - docs/specs/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md (설계 전체)
-  - docs/specs/LOVV_V1_OBSERVABILITY_CICD_SPEC.md §3, §5 (고정 계약, 게이트 정의)
+  - docs/specs/v1/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md (설계 전체)
+  - docs/specs/v1/LOVV_V1_OBSERVABILITY_CICD_SPEC.md §3, §5 (고정 계약, 게이트 정의)
 output_verification:
   - docs/tasks/results/LOVV_V1_OBSERVABILITY_IMPLEMENTATION_RESULT.md
 ---
@@ -53,9 +53,9 @@ LovvAgentV1에 OTel 기반 Observability 계측을 구현하고, CI/CD 파이프
 
 | 순서 | 파일 | 핵심 참조 내용 |
 |------|------|---------------|
-| 8 | `docs/specs/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md` | §4 전체 (코드 설계), §3 (JSON 로그 스키마), §2 (지표) |
-| 9 | `docs/specs/LOVV_V1_OBSERVABILITY_CICD_SPEC.md` §3 | V1 고정 계약: 스팬 이름, 필수 지표, 로그 필드 |
-| 10 | `docs/specs/LOVV_V1_OBSERVABILITY_CICD_SPEC.md` §5 | CI/CD step 1~8 정의 |
+| 8 | `docs/specs/v1/LOVV_AGENTCORE_OBSERVABILITY_SPEC.md` | §4 전체 (코드 설계), §3 (JSON 로그 스키마), §2 (지표) |
+| 9 | `docs/specs/v1/LOVV_V1_OBSERVABILITY_CICD_SPEC.md` §3 | V1 고정 계약: 스팬 이름, 필수 지표, 로그 필드 |
+| 10 | `docs/specs/v1/LOVV_V1_OBSERVABILITY_CICD_SPEC.md` §5 | CI/CD step 1~8 정의 |
 
 ### 기존 테스트 패턴
 

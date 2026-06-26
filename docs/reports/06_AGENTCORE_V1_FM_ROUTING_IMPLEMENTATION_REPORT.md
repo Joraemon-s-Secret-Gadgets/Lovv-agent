@@ -185,7 +185,7 @@ agentcore deploy dry-run: {"success":true,"targetName":"v1","stackName":"AgentCo
 
 문서:
 
-- `docs/specs/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md`
+- `docs/specs/v1/LOVV_AGENTCORE_V1_FM_ROUTING_SPEC.md`
 - `docs/tasks/LOVV_AGENTCORE_V1_FM_ROUTING_TASKS.md`
 - `docs/tasks/results/TASK10_SUBTASK05_RESULT.md`
 - `docs/tasks/results/AGENTCORE_V1_FM_ROUTING_RESULT.md`

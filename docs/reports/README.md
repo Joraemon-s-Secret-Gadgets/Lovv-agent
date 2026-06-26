@@ -1,10 +1,17 @@
-# Lovv-agent · AgentCore 전환 보고서 모음
+# Lovv-agent · 보고서 인덱스
 
-기준일: 2026-06-17
-분석 대상: `src/lovv_agent` 현재 코드 + 업로드된 `AGENTCORE_MIGRATION_GUIDE.md`
-작성 목적: (1) 엔지니어/리드용 **기술 의사결정 문서**, (2) **발표·리뷰용 요약**.
+기준일: 2026-06-25
+
+이 폴더는 분석 보고서, 의사결정 기록, 구현 결과 요약, 외부 전달용 문서를 보관한다.
+구현 계약은 [`docs/specs`](../specs/README.md), 실행 계획은
+[`docs/tasks`](../tasks/README.md)에 둔다.
 
 ## 읽는 순서
+
+발표·리뷰만 필요하면 **00번**, 실행 계획은 **05번**, 구현 결과는 **06번**, 구현 결정/근거는
+01~04에서 확인한다. V2 논의는 `V2_*` 보고서를 먼저 읽고 관련 SPEC으로 이동한다.
+
+## AgentCore V1 전환 보고서
 
 | # | 문서 | 용도 | 대상 |
 | --- | --- | --- | --- |
@@ -16,7 +23,26 @@
 | 05 | [전환 계획서](./05_TRANSITION_PLAN.md) | P1 이관 → P2 Gateway 외부화 → P3 자율형, 단계·체크리스트·게이트 | 엔지니어/리드 |
 | 06 | [AgentCore V1 FM Routing 구현 결과](./06_AGENTCORE_V1_FM_ROUTING_IMPLEMENTATION_REPORT.md) | issue 등록, per-agent FM routing 구현, 검증 결과 | 엔지니어/리드 |
 
-발표·리뷰만 필요하면 **00번**, 실행 계획은 **05번**, 구현 결과는 **06번**, 구현 결정/근거는 01~04에서 확인한다.
+## 보조 분석과 지시 문서
+
+| 문서 | 용도 | 대상 |
+| --- | --- | --- |
+| [Candidate Evidence Agent 현재 구현 동작 정리](./CANDIDATE_EVIDENCE_AGENT_RUNTIME_FLOW.md) | Candidate Evidence와 하위 tool의 실제 코드 기준 실행 흐름 | 엔지니어 |
+| [data_collect ELT Vector 적재 작업 지시서](./DATA_COLLECT_VECTOR_ELT_INSTRUCTIONS.md) | data_collect 쪽 vector 적재 작업 지시와 검증 관점 | 엔지니어 |
+| [LangGraph SPEC Authoring Instructions](./LANGGRAPH_SPEC_AUTHORING_INSTRUCTIONS.md) | LangGraph 구현 SPEC 작성 규칙 | 엔지니어/에이전트 |
+| [멀티 에이전트 아키텍처 조사](./MULTI_AGENT_ARCHITECTURE_SURVEY.md) | 대표 멀티 에이전트 패턴과 Lovv Agent 적용 매핑 | 엔지니어/리드 |
+| [설계 대비 구현 현황 및 한계](./LOVV_AGENT_IMPLEMENTATION_COMPARISON.md) | 통합 설계 대비 현재 구현 범위, 차이, 후속 보완점 | 엔지니어/리드 |
+| [AgentCore 전환 종합 보고서 (Notion용)](./LOVV_AGENTCORE_REPORT_NOTION.md) | Notion 게시용 통합 보고서 | 발표/공유 |
+
+## V2 설계 결정
+
+| 문서 | 용도 | 대상 |
+| --- | --- | --- |
+| [V2 아키텍처 결정 보고서](./V2_ARCHITECTURE_DECISIONS.md) | V2 방향 전환, 유지/폐기 항목, 미결정 사항 | 엔지니어/리드 |
+| [V2 도시 선정 ↔ 일정 생성 분리 의사결정 보고서](./V2_CITY_PLANNER_SEPARATION_DECISIONS.md) | Candidate와 Planner 책임 분리 결정과 코드 근거 | 엔지니어 |
+| [V2 Architecture Structure draw.io](./V2_ARCHITECTURE_STRUCTURE.drawio) | V2 구조 다이어그램 원본 | 설계 편집 |
+| [V2 Architecture Structure PNG](./V2_ARCHITECTURE_STRUCTURE.png) | V2 구조 다이어그램 이미지 | 발표/공유 |
+| [V2 Architecture Structure SVG](./V2_ARCHITECTURE_STRUCTURE.svg) | V2 구조 다이어그램 벡터 이미지 | 문서 삽입 |
 
 ## 신뢰도 표기 규칙 (전 문서 공통)
 

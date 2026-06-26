@@ -6,8 +6,8 @@ project: Lovv (로브)
 status: 설계 (Draft · 구현 전)
 date: 2026-06-22
 relates:
-  - docs/specs/LOVV_INTERACTIVE_ITINERARY_BUILDER_DESIGN_V1.md §13 (빌더 루프 전용 메트릭)
-  - docs/specs/LOVV_AGENTCORE_MEMORY_CHECKPOINTER_SPEC.md
+  - docs/specs/v2/LOVV_INTERACTIVE_ITINERARY_BUILDER_DESIGN_V1.md §13 (빌더 루프 전용 메트릭)
+  - docs/specs/v2/LOVV_AGENTCORE_MEMORY_CHECKPOINTER_SPEC.md
   - ADR — 개인화·에이전트 상태 아키텍처 결정 기록 §5 (Observability 매핑)
 note: 빌더 루프 전용 메트릭(루프 길이·폴백·정합성 게이트 등)은 빌더 설계 §13이 본 스펙을 확장한다.
 ---

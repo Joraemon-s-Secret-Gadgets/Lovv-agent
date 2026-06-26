@@ -92,4 +92,4 @@
 - LangChain Blog — LangGraph Multi-Agent Workflows (network / supervisor / hierarchical)
 - LangGraph Multi-Agent Supervisor 공식 문서 (reference.langchain.com)
 - Augment Code — Swarm vs. Supervisor: Multi-Agent Architecture Guide
-- Lovv Agent 저장소 — `README.md`, `docs/LOVV_AGENT_IMPLEMENTATION_COMPARISON.md`, `lovv_agent_graph.mermaid`
+- Lovv Agent 저장소 — `README.md`, `docs/reports/LOVV_AGENT_IMPLEMENTATION_COMPARISON.md`, `lovv_agent_graph.mermaid`

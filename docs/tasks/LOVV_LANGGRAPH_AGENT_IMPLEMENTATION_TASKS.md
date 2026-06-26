@@ -1,14 +1,14 @@
 # Lovv LangGraph Agent Implementation Tasks
 
-> Status: Draft for implementation planning  
-> Date: 2026-06-14  
-> Source Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`  
+> Status: Draft for implementation planning
+> Date: 2026-06-14
+> Source Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 > Scope: `Lovv-agent` implementation tasks only
 
 ## User Request Original
 
 ```text
-이제 [LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md](Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md) 로부터 subtask들을 뽑아내서 docs/tasks/에 정리하세요.
+이제 [LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md](../specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md) 로부터 subtask들을 뽑아내서 docs/tasks/에 정리하세요.
 ```
 
 ## Structured Agent Contract
@@ -19,8 +19,8 @@
 - Work Focus: Convert the approved implementation SPEC into ordered implementation-ready Tasks and Subtasks
 - Execution Mode: Sequential
 - Goal: Produce a task packet that implementation agents can execute one Subtask at a time
-- Source of Truth: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
-- Scope: Documentation under `Lovv-agent/docs/tasks`
+- Source of Truth: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- Scope: Documentation under `docs/tasks`
 - Out of Scope: Implementation code, public API redesign, DB schema changes, model ID selection
 - Output Format: Markdown task document with Task/Subtask context packets
 - Verification: Task dependencies, target files, acceptance criteria, and verification commands are present
@@ -30,7 +30,7 @@
 
 Full Spec:
 
-- `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+- `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 
 Primary reference documents to read only when the Subtask requires them:
 
@@ -96,7 +96,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Do not read: 전체 `oh_my_documents`, 기존 `langgraph_app` 코드.
   - Optional read: `Lovv-agent/README.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `## Design`
   - `### Proposed Package Shape`
@@ -143,7 +143,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Do not read: AWS deployment docs unless implementation needs live smoke tests.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_runtime_retrieval.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### AWS Runtime Boundary`
   - `### Search Budgets`
@@ -176,7 +176,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Do not read: full Planner or Candidate Evidence canonical docs unless schema ambiguity appears.
   - Optional read: relevant canonical agent detail docs for field semantics.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### UnifiedAgentState`
   - `### Candidate Evidence Input`
@@ -224,7 +224,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Do not read: full API docs outside `/recommendations`.
   - Optional read: `oh_my_documents/docs/05_agent_spec/intent_agent.md` sections on API structured input and theme mapping.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
   - API Contract: `oh_my_documents/docs/07_api_spec/mvp_confirmed_api_contract.md`
 - Required Sections:
   - Full Spec `### R1. Intent Agent`
@@ -258,7 +258,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Do not read: Candidate Evidence retrieval internals.
   - Optional read: `oh_my_documents/docs/05_agent_spec/intent_agent.md` prompt template.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R1. Intent Agent`
   - `## Error Handling and Fallback`
@@ -290,7 +290,7 @@ Primary reference documents to read only when the Subtask requires them:
   - Do not read: provider-specific docs unless adapter API is unclear.
   - Optional read: `oh_my_documents/docs/05_agent_spec/intent_agent.md` structured output section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Model Adapter Boundary`
   - `### R1. Intent Agent`
@@ -335,7 +335,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: individual agent implementation docs.
   - Optional read: `oh_my_documents/docs/05_agent_spec/05_agent_spec.md` fulfilled matrix section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R2. Supervisor Router`
   - `### UnifiedAgentState`
@@ -365,7 +365,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: retrieval/scoring internals.
   - Optional read: `oh_my_documents/docs/05_agent_spec/05_agent_spec.md` transition table.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Graph Shape`
   - `### Clarification Fallback`
@@ -401,7 +401,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: full Planner prompt implementation.
   - Optional read: none.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R2. Supervisor Router`
   - `### R9. Planner Agent`
@@ -442,7 +442,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: deployment docs or credentials.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_runtime_retrieval.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### AWS Runtime Boundary`
   - `### R5. DestinationSearchTool`
@@ -474,7 +474,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Planner docs.
   - Optional read: `oh_my_documents/docs/05_agent_spec/destination_search_tool.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R5. DestinationSearchTool`
   - `### S3 Vector Metadata Contract`
@@ -509,7 +509,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Festival Verifier date verification implementation.
   - Optional read: `oh_my_documents/docs/05_agent_spec/dynamo_lookup_tool.md` festival seed section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R4. Festival Candidate Channel`
   - `### R5b. DynamoLookupTool`
@@ -541,7 +541,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Candidate Evidence package implementation beyond the boundary contract.
   - Optional read: `oh_my_documents/docs/05_agent_spec/dynamo_lookup_tool.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### AWS Runtime Boundary`
   - `## Error Handling and Fallback`
@@ -582,7 +582,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Planner docs.
   - Optional read: Candidate Evidence scoring audit section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
   - Canonical Tool Spec: `oh_my_documents/docs/05_agent_spec/scoring_tool.md`
 - Required Sections:
   - Full Spec `### R6. ScoringTool`
@@ -613,7 +613,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: AWS retrieval implementation.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_agent.md` primary/reserve section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R7. Candidate Selection Helper`
   - `### Candidate Evidence Package`
@@ -644,7 +644,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: frontend/API docs.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_agent.md` scoring exclusion notes.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R6. ScoringTool`
   - `### R7. Candidate Selection Helper`
@@ -684,7 +684,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Planner generation logic.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_agent.md` input policy and search modes.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R3. Candidate Evidence Agent`
   - `### R4. Festival Candidate Channel`
@@ -713,7 +713,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Festival Verifier implementation.
   - Optional read: `candidate_evidence_runtime_retrieval.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R3. Candidate Evidence Agent`
   - `### AWS Runtime Boundary`
@@ -745,7 +745,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Planner festival overlay internals.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_agent.md` festival channel section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R4. Festival Candidate Channel`
   - `## Error Handling and Fallback`
@@ -775,7 +775,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Response Packager response mapping.
   - Optional read: `oh_my_documents/docs/05_agent_spec/candidate_evidence_agent.md` package/audit sections.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Candidate Evidence Package`
   - `## Error Handling and Fallback`
@@ -820,7 +820,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: DynamoLookupTool seed implementation.
   - Optional read: `oh_my_documents/docs/05_agent_spec/festival_verifier_agent.md` responsibility section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R8. Festival Verifier Agent`
   - `### Festival Verification Output`
@@ -850,7 +850,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: external web verification docs.
   - Optional read: `oh_my_documents/docs/05_agent_spec/festival_verifier_agent.md` date normalization section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R8. Festival Verifier Agent`
   - `### Festival Verification Output`
@@ -881,7 +881,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: AgentCore memory docs.
   - Optional read: `oh_my_documents/docs/05_agent_spec/festival_verifier_agent.md` cache section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R8. Festival Verifier Agent`
   - `## Verification`
@@ -921,7 +921,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: Response Packager response mapping.
   - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` input/status sections.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R9. Planner Agent`
   - `### Planner Output`
@@ -953,7 +953,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: festival seed lookup implementation.
   - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` festival overlay section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R8. Festival Verifier Agent`
   - `### R9. Planner Agent`
@@ -985,7 +985,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: restaurant table or vector design.
   - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` gourmet section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R9. Planner Agent`
   - `### R10. Response Packager`
@@ -1017,7 +1017,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: frontend rendering code.
   - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` validation section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R9. Planner Agent`
   - `## Error Handling and Fallback`
@@ -1049,7 +1049,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: raw retrieval payloads or scoring implementation internals.
   - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` explanation/validation sections.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### R9. Planner Agent`
   - `### Candidate Evidence Package`
@@ -1094,7 +1094,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: every agent detail doc.
   - Optional read: current node tests if they exist.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Graph Shape`
   - `### Clarification Fallback`
@@ -1126,7 +1126,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: unrelated auth/map API sections.
   - Optional read: `oh_my_documents/docs/05_agent_spec/05_agent_spec.md` API mapping notes.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
   - API Contract: `oh_my_documents/docs/07_api_spec/mvp_confirmed_api_contract.md`
 - Required Sections:
   - Full Spec `### R10. Response Packager`
@@ -1158,7 +1158,7 @@ Default Task 3 routing is deterministic and is the MVP source of truth. The impl
   - Do not read: provider docs.
   - Optional read: specific Task test files.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `## User/System Flow`
   - `## Error Handling and Fallback`
@@ -1208,7 +1208,7 @@ Optional follow-up after this baseline passes:
   - Do not read: AgentCore deployment docs unless a later deployment task is approved.
   - Optional read: `oh_my_documents/docs/05_agent_spec/agent_harness_design.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Model Adapter Boundary`
   - `### AWS Runtime Boundary`
@@ -1244,7 +1244,7 @@ Optional follow-up after this baseline passes:
   - Do not read: AgentCore deployment docs or infrastructure templates.
   - Optional read: existing mocked AWS adapter tests from Tasks 4 and 9.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### AWS Runtime Boundary`
   - `### Model Adapter Boundary`
@@ -1281,7 +1281,7 @@ Optional follow-up after this baseline passes:
   - Do not read: raw retrieval payloads or full scoring internals.
   - Optional read: `oh_my_documents/docs/05_agent_spec/planner_agent.md` prompt/grounding policy.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Model Adapter Boundary`
   - `### R9. Planner Agent`
@@ -1323,7 +1323,7 @@ Optional follow-up after this baseline passes:
   - Do not read: public API redesign or DB schema creation.
   - Optional read: `oh_my_documents/docs/07_api_spec/mvp_confirmed_api_contract.md` `/recommendations` response section.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### AWS Runtime Boundary`
   - `### R5b. DynamoLookupTool`
@@ -1362,7 +1362,7 @@ Optional follow-up after this baseline passes:
   - Do not read: long-term persistence design beyond the Spec.
   - Optional read: `oh_my_documents/docs/05_agent_spec/agent_harness_design.md`.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### UnifiedAgentState`
   - `### Task 10. AWS/LLM Integration and AgentCore-Ready Harness Boundary`
@@ -1394,7 +1394,7 @@ Optional follow-up after this baseline passes:
   - Do not read: provider-specific production docs.
   - Optional read: existing adapter tests from Tasks 2 and 4.
 - Source of Truth:
-  - Full Spec: `Lovv-agent/docs/specs/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
+  - Full Spec: `docs/specs/v1/LOVV_LANGGRAPH_AGENT_IMPLEMENTATION_SPEC.md`
 - Required Sections:
   - `### Model Adapter Boundary`
   - `### AWS Runtime Boundary`
