@@ -11,6 +11,7 @@ later Task 6 subtasks.
 from __future__ import annotations
 
 import json
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from typing import Any
@@ -909,20 +910,54 @@ def resolve_w_cong(trigger_text: str) -> float:
 
 
 def _congestion_index_by_city(visitor_by_city: Mapping[str, float | None]) -> dict[str, float]:
-    """방문객 수를 0(한적)~1(혼잡) rank로 정규화. 통계 없는 도시는 중립 0.5."""
+    """방문객 수를 0(한적)~1(혼잡)로 정규화. ln(visitors) min-max 방식.
 
-    index: dict[str, float] = {cid: 0.5 for cid, value in visitor_by_city.items() if value is None}
-    known = [(cid, value) for cid, value in visitor_by_city.items() if value is not None]
-    if not known:
-        return {cid: 0.5 for cid in visitor_by_city}
-    if len(known) == 1:
-        index[known[0][0]] = 0.5
+    서수(rank) 대신 로그-크기 정규화를 쓴다: 방문객이 거의 같은 두 도시가 서수
+    binning으로 한 칸씩 벌어져 semantic을 역전시키던 문제를 없앤다
+    (ADR: docs/reports/CONGESTION_INDEX_SCORING_ADR.md).
+    통계 없음 / 0 이하 / known<2 → 중립 0.5.
+    """
+
+    index: dict[str, float] = {
+        cid: 0.5
+        for cid, value in visitor_by_city.items()
+        if value is None or value <= 0
+    }
+    known = [
+        (cid, value)
+        for cid, value in visitor_by_city.items()
+        if value is not None and value > 0
+    ]
+    if len(known) < 2:
+        for cid, _value in known:
+            index[cid] = 0.5
         return index
-    ordered = sorted(known, key=lambda item: item[1])  # 오름차순: 방문객 적음 → 0(한적)
-    last = len(ordered) - 1
-    for rank, (cid, _value) in enumerate(ordered):
-        index[cid] = rank / last
+    logs = {cid: math.log(value) for cid, value in known}
+    low = min(logs.values())
+    span = max(logs.values()) - low
+    for cid, log_value in logs.items():
+        index[cid] = 0.5 if span == 0 else (log_value - low) / span
     return index
+
+
+def _ddb_pk_by_city(
+    scored_groups: Mapping[str, Sequence[PlaceScoreResult]],
+) -> dict[str, str]:
+    """도시별 대표 ddb_pk(=CITY#이름) 매핑.
+
+    같은 도시 후보는 동일 city 파티션을 공유한다. visitor stats(STAT) 조회 PK를
+    숫자 city_id가 아니라 이 ddb_pk(이름 보유)에서 만들기 위함이다.
+    """
+
+    pk_by_city: dict[str, str] = {}
+    for city_id, places in scored_groups.items():
+        for place in places:
+            candidate = getattr(place, "place", None)
+            ddb_pk = getattr(candidate, "ddb_pk", None)
+            if ddb_pk:
+                pk_by_city[city_id] = ddb_pk
+                break
+    return pk_by_city
 
 
 def _rank_cities(
@@ -942,9 +977,13 @@ def _rank_cities(
     city_ids = list(scored_groups.keys())
     if dynamo_lookup is not None and city_ids:
         try:
+            # 전이기: STAT PK는 도시명 파티션(CITY#이름)이라 숫자 city_id로는 못 만든다.
+            # candidate metadata의 ddb_pk(이름 보유)를 넘겨 조회 측에서 titlecase 정규화한다.
+            pk_by_city = _ddb_pk_by_city(scored_groups)
             visitor_by_city = dynamo_lookup.city_visitor_stats(
                 city_ids,
                 context.candidate_input.travel_month,
+                partition_key_by_city=pk_by_city,
             )
             congestion_by_city = _congestion_index_by_city(visitor_by_city)
             # soft_preference_query 우선, 비어 있을 때만 cleaned_raw_query로 폴백.
