@@ -15,8 +15,9 @@
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
+from datetime import datetime, timedelta, timezone
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -50,6 +51,18 @@ from lovv_agent.harness import build_harness, build_live_harness
 from tests.test_harness import RecordingAwsFactory
 
 RESULTS_DIR = ROOT / "docs" / "tasks" / "results"
+TEST_CASES_DIR = RESULTS_DIR / "test_cases"
+KST = timezone(timedelta(hours=9))
+
+
+def _resolve_case(case: str) -> Path:
+    """테스트 케이스 번호(예: '1', '01', '14')를 test_cases/NN_*.json 으로 해석."""
+
+    nn = case.strip().zfill(2)
+    matches = sorted(TEST_CASES_DIR.glob(f"{nn}_*.json"))
+    if not matches:
+        raise SystemExit(f"[ERR] 테스트 케이스 {nn} 를 {TEST_CASES_DIR} 에서 못 찾음")
+    return matches[0]
 
 
 def main() -> int:
@@ -60,24 +73,56 @@ def main() -> int:
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--input", type=Path, help="단일 fixture JSON (raw 또는 wrapper)")
     source.add_argument("--input-dir", type=Path, help="fixture JSON 폴더 (일괄)")
+    source.add_argument(
+        "--case",
+        default=None,
+        help="테스트 케이스 번호만 (예: 1, 01, 14) → test_cases/NN_*.json 자동 매칭",
+    )
     parser.add_argument("--request-id", default=None)
+    parser.add_argument(
+        "--profile",
+        default=None,
+        help="AWS 프로필명. 지정 시 LOVV_AWS_PROFILE로 주입돼 라이브 harness가 그 프로필로 AWS를 호출.",
+    )
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=None,
+        help="state dump 저장 폴더. 미지정 시 입력 폴더 내 results/ (단건은 그 파일 폴더의 results/).",
+    )
     args = parser.parse_args()
 
+    if args.profile:
+        os.environ["LOVV_AWS_PROFILE"] = args.profile
     harness = _live_harness() if args.live else _mock_harness()
 
     if args.input_dir is not None:
         paths: list[Path | None] = sorted(args.input_dir.glob("*.json"))
+    elif args.case is not None:
+        paths = [_resolve_case(args.case)]
     elif args.input is not None:
         paths = [args.input]
     else:
         paths = [None]  # 입력 미지정 시 하드코딩 기본 payload
+
+    # 결과는 입력 폴더 내 results/ 에 저장한다(입력과 산출물을 함께 묶어 둠).
+    if args.out_dir is not None:
+        out_dir = args.out_dir
+    elif args.input_dir is not None:
+        out_dir = args.input_dir / "results"
+    elif args.case is not None:
+        out_dir = TEST_CASES_DIR / "results"
+    elif args.input is not None:
+        out_dir = args.input.parent / "results"
+    else:
+        out_dir = RESULTS_DIR
 
     for path in paths:
         label = path.stem if path is not None else "default"
         try:
             payload, req_id = _load_payload(path, args.request_id)
             state = harness.invoke_state(payload, request_id=req_id)
-            out = _write_dump(state.to_dict(), label=label)
+            out = _write_dump(state.to_dict(), label=label, out_dir=out_dir)
             print(f"[ok] {label} -> {out}")
         except Exception as exc:  # noqa: BLE001 - per-fixture 실패 기록 후 계속.
             print(f"[ERR] {label}: {exc}")
@@ -135,10 +180,14 @@ def _payload() -> dict[str, object]:
     }
 
 
-def _write_dump(state: dict[str, object], label: str = "default") -> Path:
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    path = RESULTS_DIR / f"e2e_state_dump_{label}_{timestamp}.json"
+def _write_dump(
+    state: dict[str, object],
+    label: str = "default",
+    out_dir: Path = RESULTS_DIR,
+) -> Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(KST).strftime("%Y%m%dT%H%M%S") + "KST"
+    path = out_dir / f"e2e_state_dump_{label}_{timestamp}.json"
     path.write_text(
         json.dumps(state, ensure_ascii=False, default=str, indent=2),
         encoding="utf-8",
