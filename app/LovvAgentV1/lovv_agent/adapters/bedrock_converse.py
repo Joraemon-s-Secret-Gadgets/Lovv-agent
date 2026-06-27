@@ -298,7 +298,9 @@ def _json_object(text: str) -> Mapping[str, Any]:
                 candidate, _ = decoder.raw_decode(text[index:])
             except json.JSONDecodeError:
                 continue
-            if isinstance(candidate, Mapping):
+            # 모델이 실제 객체 앞에 빈 객체(``{}``)를 뱉으면 그것이 먼저 raw_decode되어
+            # 잘못 채택된다(검증 실패→재시도 유발). 빈/키 없는 객체는 건너뛴다.
+            if isinstance(candidate, Mapping) and candidate:
                 value = candidate
                 break
         if value is None:
