@@ -49,6 +49,11 @@ def parse_args() -> argparse.Namespace:
     src.add_argument("--input-dir", type=Path, help="Directory of fixture JSON files.")
     parser.add_argument("--arn", default=DEFAULT_ARN, help="AgentCore Runtime ARN.")
     parser.add_argument("--region", default=DEFAULT_REGION)
+    parser.add_argument(
+        "--profile",
+        default=None,
+        help="AWS 프로필명. 미지정 시 기본 자격증명 체인(default 프로필/env/role) 사용.",
+    )
     parser.add_argument("--qualifier", default=DEFAULT_QUALIFIER, help="Runtime endpoint qualifier.")
     parser.add_argument(
         "--session-id",
@@ -120,7 +125,8 @@ def invoke_one(
 
 def main() -> int:
     args = parse_args()
-    client = boto3.client("bedrock-agentcore", region_name=args.region)
+    session = boto3.Session(profile_name=args.profile) if args.profile else boto3.Session()
+    client = session.client("bedrock-agentcore", region_name=args.region)
     # --session-id 지정 → 모든 호출이 그 세션 공유(워밍 MicroVM 재사용, latency 측정용).
     # 미지정(기본) → 호출마다 새 세션 = 새 MicroVM(격리·콜드, 기능 테스트엔 이게 안전).
     def _sid() -> str:
