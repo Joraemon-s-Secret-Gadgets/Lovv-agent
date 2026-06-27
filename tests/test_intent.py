@@ -37,40 +37,14 @@ def _base_request() -> dict[str, object]:
 
 
 def _intent_structured_output_payload() -> dict[str, object]:
-    """Return a valid model-like Intent structured output payload."""
+    """Return a valid model-like Intent structured output payload (6 NL fields)."""
 
     return {
         "needs_clarification": False,
         "clarifying_question": None,
-        "extracted_inputs": {
-            "country": "KR",
-            "travelMonth": 10,
-            "travelYear": 2026,
-            "tripType": "2d1n",
-            "destinationId": None,
-            "includeFestivals": False,
-        },
-        "candidate_evidence_input": {
-            "country": "KR",
-            "travelMonth": 10,
-            "travelYear": 2026,
-            "tripType": "2d1n",
-            "destinationId": None,
-            "active_required_themes": ["바다·해안", "미식·노포"],
-            "cleaned_raw_query": "조용한 바다 산책",
-            "soft_preference_query": "조용한 분위기",
-            "unsupported_conditions": [],
-            "user_location": None,
-            "includeFestivals": False,
-        },
-        "active_required_themes": ["바다·해안", "미식·노포"],
-        "soft_preferences": ["조용한 분위기"],
+        "cleaned_raw_query": "조용한 바다 산책",
+        "soft_preference_query": "조용한 분위기",
         "unsupported_conditions": [],
-        "fulfilled_matrix": {
-            "evidence": "X",
-            "festival": "N/A",
-            "planning": "X",
-        },
         "handoff_notes": [],
     }
 
@@ -355,7 +329,7 @@ class IntentNormalizationTest(unittest.TestCase):
         )
 
         self.assertFalse(result.needs_clarification)
-        self.assertEqual(result.candidate_evidence_input.country, "KR")
+        self.assertEqual(result.cleaned_raw_query, "조용한 바다 산책")
 
     def test_structured_output_adapter_recovers_valid_inner_json_object(self) -> None:
         payload = _intent_structured_output_payload()
@@ -413,25 +387,6 @@ class IntentNormalizationTest(unittest.TestCase):
         self.assertIsNone(result.candidate_evidence_input)
         self.assertIn("intent_structured_output_schema_failure", result.handoff_notes)
         self.assertEqual(len(runtime.calls), 2)
-
-    def test_schema_failure_rejects_core_field_override(self) -> None:
-        payload = _intent_structured_output_payload()
-        overridden = dict(payload)
-        candidate_input = dict(overridden["candidate_evidence_input"])
-        candidate_input["country"] = "JP"
-        overridden["candidate_evidence_input"] = candidate_input
-        runtime = FakeStructuredRuntime([{"text": json.dumps(overridden, ensure_ascii=False)}])
-
-        result = invoke_intent_structured_output(
-            runtime=runtime,
-            messages=[{"role": "user", "content": [{"text": "정규화해줘"}]}],
-            structured_request=_base_request(),
-            retry_limit=0,
-        )
-
-        self.assertTrue(result.needs_clarification)
-        self.assertIsNone(result.candidate_evidence_input)
-        self.assertIn("override country", " ".join(result.handoff_notes))
 
     def test_fixture_like_autumn_festival_chat_case(self) -> None:
         """Translate the legacy chatbot fixture into the current API contract."""
