@@ -111,6 +111,7 @@ class DestinationSearchTool:
         query_vector: Sequence[float],
         *,
         city_id: str | None = None,
+        ddb_pk: str | None = None,
         theme: str | None = None,
         theme_tags: Sequence[str] | None = None,
         top_k: int | None = None,
@@ -126,6 +127,7 @@ class DestinationSearchTool:
         request = build_attraction_search_request(
             query_vector=query_vector,
             city_id=city_id,
+            ddb_pk=ddb_pk,
             theme=search_theme,
             top_k=top_k,
             search_budget=self.search_budget,
@@ -156,6 +158,7 @@ def build_attraction_search_request(
     *,
     query_vector: Sequence[float],
     city_id: str | None = None,
+    ddb_pk: str | None = None,
     theme: str | None = None,
     theme_tags: Sequence[str] | None = None,
     top_k: int | None = None,
@@ -171,6 +174,7 @@ def build_attraction_search_request(
     }
     metadata_filter = build_attraction_filter(
         city_id=city_id,
+        ddb_pk=ddb_pk,
         theme=theme,
         theme_tags=theme_tags,
     )
@@ -182,6 +186,7 @@ def build_attraction_search_request(
 def build_attraction_filter(
     *,
     city_id: str | None = None,
+    ddb_pk: str | None = None,
     theme: str | None = None,
     theme_tags: Sequence[str] | None = None,
 ) -> dict[str, Any] | None:
@@ -197,6 +202,15 @@ def build_attraction_filter(
         conditions.append(
             {
                 "city_id": {"$eq": normalized_city_id},
+            },
+        )
+    # 앵커(도시 고정)는 destinationId(이름)를 ddb_pk(CITY#대문자)로 변환해 여기로 건다.
+    # 신규 벡터 city_id는 숫자라 destinationId로 city_id 필터가 안 맞기 때문.
+    normalized_ddb_pk = _optional_text(ddb_pk, "ddb_pk")
+    if normalized_ddb_pk is not None:
+        conditions.append(
+            {
+                "ddb_pk": {"$eq": normalized_ddb_pk},
             },
         )
 
@@ -217,6 +231,20 @@ def build_attraction_filter(
     if len(conditions) == 1:
         return conditions[0]
     return {"$and": conditions}
+
+
+def _allowed_city_pk(city_id: str) -> str:
+    """이름 기반 city_id(KR-Gyeongju)를 vector ddb_pk(CITY#GYEONGJU 대문자)로 변환.
+
+    앵커 destinationId는 이름 기반이라 신규 벡터의 숫자 city_id(KR-47-130)와 직접
+    매칭이 안 되므로, candidate.ddb_pk(대문자)와 비교하기 위한 변환. 숫자 city_id
+    (KR-51-720)면 CITY#51-720 같은 무의미 값이 나오지만, 그쪽은 city_id 직접 매칭으로
+    처리되므로 무해하다.
+    """
+
+    prefix, separator, suffix = city_id.partition("-")
+    name = suffix if separator and len(prefix) == 2 and prefix.isupper() else city_id
+    return f"CITY#{name.upper()}"
 
 
 def prune_cities(
@@ -240,13 +268,21 @@ def prune_cities(
         if allowed_city_ids is not None
         else None
     )
+    # 앵커(destinationId)는 이름 기반이라 숫자 vector city_id와 직접 안 맞는다. ddb_pk
+    # (CITY#대문자)로도 매칭해 앵커 경로를 살린다. 숫자 city_id seed(축제 발견)는 city_id
+    # 직접 매칭으로 그대로 통과한다.
+    allowed_pks = (
+        {_allowed_city_pk(cid) for cid in allowed} if allowed is not None else None
+    )
     grouped: dict[str, list[AttractionCandidate]] = {}
     for candidate in candidates:
         city_key = _candidate_city_key(candidate)
         if city_key is None:
             continue
-        if allowed is not None and candidate.city_id not in allowed:
-            continue
+        if allowed is not None:
+            ddb_pk = (candidate.ddb_pk or "").upper()
+            if candidate.city_id not in allowed and ddb_pk not in allowed_pks:
+                continue
         grouped.setdefault(city_key, []).append(candidate)
 
     survived: dict[str, tuple[AttractionCandidate, ...]] = {}

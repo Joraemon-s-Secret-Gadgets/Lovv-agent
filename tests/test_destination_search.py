@@ -547,7 +547,7 @@ class FestivalSeedTest(unittest.TestCase):
         )
         self.assertEqual(
             request["ExpressionAttributeValues"][":pk"],
-            {"S": "CITY#city-2"},
+            {"S": "CITY#City-2"},
         )
         self.assertEqual(request["FilterExpression"], "#month = :month")
 

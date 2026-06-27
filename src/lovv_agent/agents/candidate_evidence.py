@@ -38,7 +38,7 @@ from lovv_agent.tools.candidate_selection import (
     candidate_budgets_for_trip,
     itinerary_place_count_for_trip,
 )
-from lovv_agent.tools.destination_search import AttractionCandidate
+from lovv_agent.tools.destination_search import AttractionCandidate, _allowed_city_pk
 from lovv_agent.tools.dynamo_lookup import FestivalCandidate, FestivalSeedResult
 from lovv_agent.tools.scoring import PlaceScoreResult, ScoringTool
 
@@ -347,12 +347,17 @@ def _run_attraction_search(
 ) -> CandidateEvidencePackage:
     """Run retrieval, city scoring, final city selection, and quota selection."""
 
+    # 앵커(도시 고정)는 destinationId(이름) -> ddb_pk(CITY#대문자)로 변환해 벡터를
+    # 테마와 함께 필터한다. 신규 벡터 city_id는 숫자라 destinationId로 city_id 필터가
+    # 안 맞기 때문. 비앵커(discovery)는 ddb_pk=None이라 테마만 필터.
+    anchor_ddb_pk = _allowed_city_pk(context.fixed_city_id) if context.fixed_city_id else None
     retrieved = _retrieve_by_theme(
         destination_search,
         query_vector=query_vector,
         soft_query_vector=soft_query_vector,
         themes=context.theme_split.searchable_place_themes,
-        city_id=context.fixed_city_id,
+        city_id=None,
+        ddb_pk=anchor_ddb_pk,
     )
     merged_candidates = _merge_duplicate_candidates(retrieved)
     allowed = _allowed_city_ids(context=context, allowed_city_ids=allowed_city_ids)
@@ -470,7 +475,11 @@ def _run_attraction_search(
         festival_candidates=_festival_candidate_payloads(festival_seed_result),
         selected_festival_candidates=_festival_candidate_payloads(
             festival_seed_result,
-            city_id=selected_city_id,
+            # 앵커는 fixed city 파티션으로 시드를 가져와 전부 그 도시 축제다. 선택 도시
+            # city_id가 숫자(KR-47-130)이고 축제 city_id가 이름(KR-Gyeongju)이라 직접
+            # 필터하면 다 떨어지므로, 앵커일 땐 필터 없이 시드 전체를 선택 축제로 쓴다.
+            # 발견 경로(여러 도시, 숫자↔숫자)만 selected_city_id로 필터한다.
+            city_id=None if context.fixed_city_id is not None else selected_city_id,
         ),
         festival_seed_audit=_festival_seed_audit(festival_seed_result),
         coverage_audit=coverage_audit,
@@ -811,6 +820,7 @@ def _retrieve_by_theme(
     query_vector: Sequence[float],
     themes: Sequence[str],
     city_id: str | None,
+    ddb_pk: str | None = None,
     soft_query_vector: Sequence[float] | None = None,
 ) -> tuple[AttractionCandidate, ...]:
     """Call attraction retrieval once per searchable theme.
@@ -826,6 +836,7 @@ def _retrieve_by_theme(
             destination_search.search_candidates(
                 query_vector,
                 city_id=city_id,
+                ddb_pk=ddb_pk,
                 theme=theme,
             ),
         )
@@ -835,6 +846,7 @@ def _retrieve_by_theme(
                 for candidate in destination_search.search_candidates(
                     soft_query_vector,
                     city_id=city_id,
+                    ddb_pk=ddb_pk,
                     theme=theme,
                 )
             }
