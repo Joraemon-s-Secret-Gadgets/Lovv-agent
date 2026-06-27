@@ -158,12 +158,15 @@ class DynamoLookupTool:
         self,
         city_ids: Sequence[str],
         travel_month: int,
+        *,
+        partition_key_by_city: Mapping[str, str] | None = None,
     ) -> dict[str, float | None]:
         """Fetch per-city monthly visitor totals (congestion proxy) in one batch."""
 
         return self.dynamodb.batch_get_city_visitor_stats(
             city_ids=city_ids,
             travel_month=travel_month,
+            partition_key_by_city=partition_key_by_city,
         )
 
 
@@ -212,6 +215,23 @@ def search_festival_city_seeds(
     return _festival_seed_failure("no_festival_city_seed")
 
 
+def _to_legacy_city_pk(pk: str | None) -> str | None:
+    """전이기(pre-V2) 키 정규화 shim.
+
+    신규 vector metadata는 ddb_pk를 ``CITY#<대문자>``(예: ``CITY#GUNSAN``)로 기록하지만,
+    V2 이행 전 현재 DynamoDB는 ``CITY#Andong``처럼 도시명 첫 글자만 대문자(타이틀케이스)다.
+    도시명 세그먼트만 타이틀케이스로 맞춰 상세 조회 PK 불일치를 해소한다.
+    Dynamo가 대문자 키로 이행하면(V2) 이 함수와 호출부를 제거하면 된다.
+    """
+
+    if not pk:
+        return pk
+    prefix, separator, city = pk.partition("#")
+    if not separator or prefix != "CITY" or not city:
+        return pk
+    return f"{prefix}#{city.capitalize()}"
+
+
 def enrich_final_places(
     final_places: Sequence[AttractionCandidate],
     *,
@@ -222,7 +242,8 @@ def enrich_final_places(
     places: list[AttractionCandidate] = []
     warnings: list[DetailEnrichmentWarning] = []
     for candidate in final_places:
-        pk = candidate.ddb_pk
+        # 전이기: 신규 vector ddb_pk(CITY#대문자)를 현 Dynamo 타이틀케이스로 정규화.
+        pk = _to_legacy_city_pk(candidate.ddb_pk)
         sk = candidate.ddb_sk
         if pk is None or sk is None:
             places.append(replace(candidate, details=None))

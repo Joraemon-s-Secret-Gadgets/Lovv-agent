@@ -108,6 +108,7 @@ class DynamoDbRepository:
         *,
         city_ids: Iterable[str],
         travel_month: int,
+        partition_key_by_city: Mapping[str, str] | None = None,
     ) -> dict[str, float | None]:
         """Fetch per-city monthly visitor totals in one BatchGetItem.
 
@@ -125,7 +126,14 @@ class DynamoDbRepository:
         pk_to_city: dict[str, str] = {}
         keys: list[dict[str, Any]] = []
         for cid in unique_ids:
-            pk = _city_partition_key(cid)
+            raw_pk = (
+                partition_key_by_city.get(cid)
+                if partition_key_by_city is not None
+                else None
+            )
+            # 전이기: 신규 vector ddb_pk(CITY#대문자)를 현 Dynamo 타이틀케이스로 정규화.
+            # ddb_pk가 없으면(legacy 이름 기반 city_id) 기존 유도식으로 폴백.
+            pk = _to_legacy_city_pk(raw_pk) if raw_pk else _city_partition_key(cid)
             pk_to_city[pk] = cid
             keys.append({"PK": {"S": pk}, "SK": {"S": sk}})
         table = self.settings.table_name
@@ -145,7 +153,12 @@ class DynamoDbRepository:
                     rows = response.get("Responses", {})
                     for item in rows.get(table, ()) if isinstance(rows, Mapping) else ():
                         pk_value = item.get("PK", {}).get("S")
-                        total = item.get("total_visitors", {}).get("N")
+                        # total_visitors는 statistics 맵 안에 중첩돼 있다(현 스키마):
+                        # statistics.M.total_visitors.N. 구 스키마(최상위)도 폴백 지원.
+                        stats_map = item.get("statistics", {}).get("M", {})
+                        total = stats_map.get("total_visitors", {}).get("N") or item.get(
+                            "total_visitors", {}
+                        ).get("N")
                         cid = pk_to_city.get(pk_value)
                         if cid is not None and total is not None:
                             result[cid] = float(total)
@@ -288,7 +301,7 @@ class DynamoDbRepository:
                     "#month": "month",
                 },
                 "ExpressionAttributeValues": {
-                    ":pk": {"S": _city_partition_key(normalized_city_id)},
+                    ":pk": {"S": _to_legacy_city_pk(_city_partition_key(normalized_city_id))},
                     ":festival_prefix": {"S": "FESTIVAL#"},
                     ":month": {"N": str(normalized_month)},
                 },
@@ -337,6 +350,23 @@ def _city_partition_key(city_id: str) -> str:
     prefix, separator, suffix = normalized.partition("-")
     city_name = suffix if separator and len(prefix) == 2 and prefix.isupper() else normalized
     return f"CITY#{city_name}"
+
+
+def _to_legacy_city_pk(pk: str | None) -> str | None:
+    """전이기(pre-V2) 키 정규화 shim.
+
+    신규 vector metadata는 city PK를 ``CITY#<대문자>``(예: ``CITY#GUNSAN``)로 기록하지만,
+    V2 이행 전 현재 DynamoDB는 ``CITY#Andong``처럼 도시명 첫 글자만 대문자(타이틀케이스)다.
+    도시명 세그먼트만 타이틀케이스로 맞춰 PK 불일치를 해소한다.
+    Dynamo가 대문자 키로 이행하면(V2) 이 함수와 호출부를 제거하면 된다.
+    """
+
+    if not pk:
+        return pk
+    prefix, separator, city = pk.partition("#")
+    if not separator or prefix != "CITY" or not city:
+        return pk
+    return f"{prefix}#{city.capitalize()}"
 
 def _month(value: Any, field_name: str) -> int:
     """Validate a 1-12 month number."""
