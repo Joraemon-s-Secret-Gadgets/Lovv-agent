@@ -170,31 +170,27 @@ _CANDIDATE_EVIDENCE_INPUT_SCHEMA: dict[str, Any] = {
         "includeFestivals": {"type": "boolean"},
     },
 }
+# LLM은 자연어 추론이 필요한 신호만 반환한다. 나머지(core passthrough, 테마 매핑,
+# extracted_inputs, candidate_evidence_input, fulfilled_matrix)는 모두 코드가 결정적으로
+# 조립한다. harness가 이미 LLM의 구조 필드를 폐기하고 deterministic 결과에 머지하므로,
+# 출력을 축소해도 다운스트림 계약(candidate_evidence_input 모양)은 그대로 유지된다.
 INTENT_AGENT_OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "additionalProperties": False,
     "required": [
         "needs_clarification",
         "clarifying_question",
-        "extracted_inputs",
-        "candidate_evidence_input",
-        "active_required_themes",
-        "soft_preferences",
+        "cleaned_raw_query",
+        "soft_preference_query",
         "unsupported_conditions",
-        "fulfilled_matrix",
         "handoff_notes",
     ],
     "properties": {
         "needs_clarification": {"type": "boolean"},
         "clarifying_question": _NULLABLE_TEXT_SCHEMA,
-        "extracted_inputs": _EXTRACTED_INPUTS_SCHEMA,
-        "candidate_evidence_input": {
-            "anyOf": [_CANDIDATE_EVIDENCE_INPUT_SCHEMA, {"type": "null"}],
-        },
-        "active_required_themes": {"type": "array", "items": {"type": "string"}},
-        "soft_preferences": {"type": "array", "items": {"type": "string"}},
+        "cleaned_raw_query": {"type": "string"},
+        "soft_preference_query": {"type": "string"},
         "unsupported_conditions": {"type": "array", "items": {"type": "string"}},
-        "fulfilled_matrix": _FULFILLED_MATRIX_SCHEMA,
         "handoff_notes": {"type": "array", "items": {"type": "string"}},
     },
 }
@@ -249,7 +245,11 @@ class IntentNormalizationResult:
             raise SchemaValidationError(
                 "clarifying_question is required when clarification is needed",
             )
-        if not self.needs_clarification and self.candidate_evidence_input is None:
+        if (
+            not self.needs_clarification
+            and self.candidate_evidence_input is None
+            and self.fulfilled_matrix
+        ):
             raise SchemaValidationError(
                 "candidate_evidence_input is required when clarification is not needed",
             )
@@ -526,39 +526,30 @@ def validate_intent_agent_output(
         _get(payload, "clarifying_question", default=None),
         "clarifying_question",
     )
-    extracted_inputs = _mapping(_get(payload, "extracted_inputs"), "extracted_inputs")
-    candidate_payload = _get(payload, "candidate_evidence_input", default=None)
-    candidate_input = None
-    if candidate_payload is not None:
-        candidate_input = CandidateEvidenceInput.from_mapping(
-            _mapping(candidate_payload, "candidate_evidence_input"),
-        )
-        if structured_request is not None:
-            _validate_no_core_override(candidate_input, structured_request)
-
+    # 모델은 자연어 신호만 반환한다. core/theme/matrix/candidate_evidence_input은
+    # harness가 deterministic 결과에서 가져오므로 여기서 조립하지 않는다.
     return IntentNormalizationResult(
         needs_clarification=needs_clarification,
         clarifying_question=clarifying_question,
-        extracted_inputs=extracted_inputs,
-        candidate_evidence_input=candidate_input,
-        active_required_themes=_string_tuple(
-            _get(payload, "active_required_themes"),
-            "active_required_themes",
-        ),
-        searchable_place_themes=(),
-        external_link_themes=(),
-        cleaned_raw_query=(
-            candidate_input.cleaned_raw_query if candidate_input is not None else ""
-        ),
-        soft_preference_query=(
-            candidate_input.soft_preference_query if candidate_input is not None else ""
+        candidate_evidence_input=None,
+        cleaned_raw_query=_optional_text(
+            _get(payload, "cleaned_raw_query", default=""),
+            "cleaned_raw_query",
+        )
+        or "",
+        # soft는 분위기 없을 때 빈 문자열이 정상이다(프롬프트 계약). empty를 거부하는
+        # _optional_text 대신 empty 허용 _free_text를 써서, 분위기 없는 쿼리가
+        # schema_failure→fallback 되지 않게 한다.
+        soft_preference_query=_free_text(
+            _get(payload, "soft_preference_query", default=""),
+            "soft_preference_query",
         ),
         unsupported_conditions=_string_tuple(
             _get(payload, "unsupported_conditions"),
             "unsupported_conditions",
         ),
         handoff_notes=_string_tuple(_get(payload, "handoff_notes"), "handoff_notes"),
-        fulfilled_matrix=_mapping(_get(payload, "fulfilled_matrix"), "fulfilled_matrix"),
+        fulfilled_matrix={},
     )
 
 
