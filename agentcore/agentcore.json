@@ -72,6 +72,14 @@
         {
           "name": "LOVV_READ_TIMEOUT_SECONDS",
           "value": "60"
+        },
+        {
+          "name": "OTEL_PYTHON_EXCLUDED_URLS",
+          "value": "ping"
+        },
+        {
+          "name": "OTEL_PYTHON_STARLETTE_EXCLUDED_URLS",
+          "value": "ping"
         }
       ],
       "tags": {
