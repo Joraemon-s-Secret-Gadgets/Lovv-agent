@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-18",
+  "entryType": "map_marker",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "daytrip",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "map_marker인데 destinationId가 없는 validation negative 케이스.",
+  "userLocation": null
+}

@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-21",
+  "entryType": "map_marker",
+  "destinationId": "KR-Gyeongju",
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "2d1n",
+  "themes": [
+    "history_tradition"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "경주에서 역사 유적과 전통 명소를 차분하게 둘러보는 1박 2일 코스를 추천해줘.",
+  "userLocation": null
+}

@@ -1,0 +1,16 @@
+{
+  "requestId": "REQ-TC-17",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 1,
+  "tripType": "2d1n",
+  "themes": [
+    "art_sense",
+    "healing_rest"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "예술 작품을 감상하고 온천에서 쉬는 여행을 하고 싶어요. 조용하고 따뜻한 겨울 휴식이면 좋겠어요.",
+  "userLocation": null
+}

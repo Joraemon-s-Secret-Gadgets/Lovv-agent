@@ -1,0 +1,19 @@
+{
+  "invocationId": "INV-TC-15",
+  "sessionId": "SESSION-TC-15",
+  "input": {
+    "entryType": "chat",
+    "destinationId": null,
+    "country": "KR",
+    "travelYear": 2026,
+    "travelMonth": 9,
+    "tripType": "2d1n",
+    "themes": [
+      "history_tradition",
+      "art_sense"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "전통 유적과 예술 공간을 함께 둘러보고 싶어요. 차분하고 감성적인 분위기면 좋겠어요.",
+    "userLocation": null
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-12",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "2d1n",
+  "themes": [
+    "history_tradition"
+  ],
+  "includeFestivals": true,
+  "naturalLanguageQuery": "가을 전통 축제와 오래된 유적을 함께 즐기는 1박 2일 여행을 하고 싶어요. 고즈넉한 분위기면 좋겠어요.",
+  "userLocation": null
+}

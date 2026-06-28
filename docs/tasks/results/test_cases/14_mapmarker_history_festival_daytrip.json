@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-14",
+  "entryType": "map_marker",
+  "destinationId": "KR-Gyeongju",
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "daytrip",
+  "themes": [
+    "history_tradition"
+  ],
+  "includeFestivals": true,
+  "naturalLanguageQuery": "경주에서 가을 축제와 역사 유적을 함께 보는 당일 코스를 추천해줘.",
+  "userLocation": null
+}

@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-07",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 11,
+  "tripType": "2d1n",
+  "themes": [
+    "healing_rest"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "온천에서 푹 쉬는 휴식 여행을 하고 싶어요. 한적하고 평화로운 분위기면 좋겠어요.",
+  "userLocation": null
+}

@@ -1,0 +1,16 @@
+{
+  "requestId": "REQ-TC-08",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 9,
+  "tripType": "3d2n",
+  "themes": [
+    "nature_trekking",
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+  "userLocation": null
+}

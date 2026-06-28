@@ -1,0 +1,20 @@
+{
+  "requestId": "REQ-TC-20",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "3d2n",
+  "themes": [
+    "nature_trekking",
+    "sea_coast",
+    "history_tradition"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "이번에 부모님 모시고 서울에서 출발해 강원이나 경북 쪽으로 2박 3일 다녀오려고 해요. 너무 붐비지 않고 조용하면서도 걷기 좋은 숲길이랑 탁 트인 동해 바다 풍경을 함께 보고 싶고, 오래된 절이나 전통 마을도 한두 곳 들르면 좋겠어요. 이동 거리는 너무 길지 않았으면 하고, 비가 오면 실내에서 쉴 곳도 있으면 좋겠네요.",
+  "userLocation": {
+    "latitude": 37.5665,
+    "longitude": 126.9780
+  }
+}
