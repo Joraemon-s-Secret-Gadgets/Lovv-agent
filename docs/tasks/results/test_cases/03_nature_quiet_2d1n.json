@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-03",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 5,
+  "tripType": "2d1n",
+  "themes": [
+    "nature_trekking"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "숲길을 여유롭게 걷는 자연 여행을 하고 싶어요. 한적하고 평온한 분위기면 좋겠어요.",
+  "userLocation": null
+}

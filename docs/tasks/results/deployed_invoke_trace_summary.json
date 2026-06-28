@@ -1,0 +1,112 @@
+[
+  {
+    "fixture": "01_coast_quiet_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "02_coast_vibrant_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "03_nature_quiet_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "04_nature_vibrant_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "05_history_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "06_art_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "07_healing_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "08_nature_coast_3d2n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "09_history_nature_2d1n_seoul.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "10_coast_healing_daytrip_daegu.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "11_home_nature_healing_3d2n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "12_history_festival_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "13_sea_festival_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "14_mapmarker_history_festival_daytrip.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "15_wrapped_agentcore_history_art_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "16_wrapped_http_nature_festival_daytrip.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "17_rare_combo_art_healing_clarify.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "18_invalid_mapmarker_missing_destination.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "19_intent_short_query.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "20_intent_long_complex_query.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "21_mapmarker_history_2d1n.json",
+    "statusCode": 200,
+    "traceId": null
+  },
+  {
+    "fixture": "22_no_candidate_inland_coast.json",
+    "statusCode": 200,
+    "traceId": null
+  }
+]

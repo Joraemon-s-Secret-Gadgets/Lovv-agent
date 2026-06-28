@@ -1,0 +1,1256 @@
+{
+  "request": {
+    "request_id": "REQ-TC-01",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 7,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "sea_coast"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶어요. 사람이 적고 조용하고 한적한 바닷가 마을이면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-01",
+    "agent_run_id": "run-0b1a5113-06f5-4410-8e98-64c9de3850a6",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 7,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "sea_coast"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶어요. 사람이 적고 조용하고 한적한 바닷가 마을이면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶어요 사람이 적고 조용하고 한적한 바닷가 마을이면 좋겠어요",
+      "soft_preference_query": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶어요 사람이 적고 조용하고 한적한 바닷가 마을이면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "searchable_place_themes": [
+      "바다·해안"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶다. 사람이 적고 조용하고 한적한 바닷가 마을을 원한다.",
+    "soft_preference_query": "사람이 적고 조용하며 한적하고, 천천히 거닐기 좋은 평온한 바닷가 마을.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 7,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "바다·해안"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶다. 사람이 적고 조용하고 한적한 바닷가 마을을 원한다.",
+      "soft_preference_query": "사람이 적고 조용하며 한적하고, 천천히 거닐기 좋은 평온한 바닷가 마을.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-230",
+        "city_name_ko": "삼척시",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-230",
+          "city_score": 2.5803,
+          "score_breakdown": {
+            "semantic_evidence": 0.7312,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2029
+          },
+          "top_place_ids": [
+            "attraction#125688",
+            "attraction#129582",
+            "attraction#125710",
+            "attraction#125709",
+            "attraction#125690",
+            "attraction#127727",
+            "attraction#125705",
+            "attraction#126649",
+            "attraction#127872",
+            "attraction#125719"
+          ],
+          "candidate_count": 12,
+          "city_name_ko": "삼척시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 2.5748,
+          "score_breakdown": {
+            "semantic_evidence": 0.7222,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1994
+          },
+          "top_place_ids": [
+            "attraction#2714604",
+            "attraction#2784323",
+            "attraction#125685",
+            "attraction#2714607",
+            "attraction#2704932",
+            "attraction#125703",
+            "attraction#125681",
+            "attraction#2714611",
+            "attraction#2710829",
+            "attraction#125716"
+          ],
+          "candidate_count": 15,
+          "city_name_ko": "양양군",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 2.3746,
+          "score_breakdown": {
+            "semantic_evidence": 0.667,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3445
+          },
+          "top_place_ids": [
+            "attraction#125696",
+            "attraction#125699",
+            "attraction#128728",
+            "attraction#585585",
+            "attraction#585605",
+            "attraction#125694",
+            "attraction#585615",
+            "attraction#125697",
+            "attraction#585522",
+            "attraction#127722"
+          ],
+          "candidate_count": 13,
+          "city_name_ko": "강릉시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-940",
+          "city_score": 2.0439,
+          "score_breakdown": {
+            "semantic_evidence": 0.0578,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#264502"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "울릉군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-770",
+          "city_score": 1.9987,
+          "score_breakdown": {
+            "semantic_evidence": 0.1885,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1621
+          },
+          "top_place_ids": [
+            "attraction#2912266",
+            "attraction#127160",
+            "attraction#2614528"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "영덕군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-170",
+          "city_score": 1.9337,
+          "score_breakdown": {
+            "semantic_evidence": 0.1896,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2282
+          },
+          "top_place_ids": [
+            "attraction#2710184",
+            "attraction#127713",
+            "attraction#2714642"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "동해시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 1.8247,
+          "score_breakdown": {
+            "semantic_evidence": 0.2024,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#1621854",
+            "attraction#128680",
+            "attraction#3569951"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "경주시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#125688",
+          "title": "한재밑해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.4080671263,
+          "longitude": 129.2050024313,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125688",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.783,
+            "score_components": {
+              "raw_similarity": 0.1919,
+              "soft_similarity": 0.1911,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#129582",
+          "title": "부남해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.361148432,
+          "longitude": 129.2514275017,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#129582",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7713,
+            "score_components": {
+              "raw_similarity": 0.1833,
+              "soft_similarity": 0.188,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125710",
+          "title": "임원해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.2231104837,
+          "longitude": 129.3408348715,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125710",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7709,
+            "score_components": {
+              "raw_similarity": 0.2346,
+              "soft_similarity": 0.1362,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125709",
+          "title": "용화해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.8297538027,
+          "longitude": 129.3052303106,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125709",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7425,
+            "score_components": {
+              "raw_similarity": 0.1695,
+              "soft_similarity": 0.173,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125690",
+          "title": "문암해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.309005149,
+          "longitude": 129.2883702491,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125690",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7306,
+            "score_components": {
+              "raw_similarity": 0.1833,
+              "soft_similarity": 0.1472,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127727",
+          "title": "증산해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.474593462341716,
+          "longitude": 129.16173478156367,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#127727",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7255,
+            "score_components": {
+              "raw_similarity": 0.1792,
+              "soft_similarity": 0.1463,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125705",
+          "title": "삼척해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.468333,
+          "longitude": 129.169169,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125705",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7122,
+            "score_components": {
+              "raw_similarity": 0.1703,
+              "soft_similarity": 0.1419,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126649",
+          "title": "궁촌해변(궁촌해수욕장)",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.3243001987,
+          "longitude": 129.2671938924,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#126649",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6983,
+            "score_components": {
+              "raw_similarity": 0.1709,
+              "soft_similarity": 0.1274,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127872",
+          "title": "맹방해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.3898030893,
+          "longitude": 129.2320061341,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#127872",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6982,
+            "score_components": {
+              "raw_similarity": 0.169,
+              "soft_similarity": 0.1292,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125719",
+          "title": "작은후진해수욕장",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.4638879088,
+          "longitude": 129.1758977619,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125719",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6796,
+            "score_components": {
+              "raw_similarity": 0.1435,
+              "soft_similarity": 0.1362,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [
+        {
+          "place_id": "attraction#127871",
+          "title": "하맹방해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.3935775318,
+          "longitude": 129.2256954711,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#127871",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6734,
+            "score_components": {
+              "raw_similarity": 0.1433,
+              "soft_similarity": 0.1301,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125711",
+          "title": "장호해변·장호항",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.2859,
+          "longitude": 129.3142,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125711",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5407,
+            "score_components": {
+              "raw_similarity": 0.1407,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "바다·해안"
+        ],
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "바다·해안": 10
+        },
+        "reserve_theme_counts": {
+          "바다·해안": 2
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 4,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 10,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 7,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 50,
+        "city_count": 7,
+        "recommended_places": 10,
+        "reserve_places": 2,
+        "available_places": 10,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "place_pool",
+          "text_ko": "한재밑해변은 넓은 백사장과 잔잔한 파도가 조용한 분위기를 만들어, 사람의 발길이 적은 평온한 산책을 즐기기에 적합합니다.",
+          "evidence_refs": [
+            "attraction#125688"
+          ],
+          "required_place_ids": [
+            "attraction#125688"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "부남해변은 주변에 주택가가 적고, 한적한 해안길이 잘 정비되어 있어 여유롭게 바다 풍경을 감상하며 산책하기 좋습니다.",
+          "evidence_refs": [
+            "attraction#129582"
+          ],
+          "required_place_ids": [
+            "attraction#129582"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "임원해변은 인파가 드물고, 부드러운 모래와 조용한 물결이 있어 조용한 해변 산책을 원하는 이들에게 안성맞춤입니다.",
+          "evidence_refs": [
+            "attraction#125710"
+          ],
+          "required_place_ids": [
+            "attraction#125710"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "용화해변은 주변에 큰 관광 시설이 없어 한적한 분위기를 유지하며, 바다를 천천히 바라보며 걷기에 좋은 환경을 제공합니다.",
+          "evidence_refs": [
+            "attraction#125709"
+          ],
+          "required_place_ids": [
+            "attraction#125709"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_5",
+          "scope": "place_pool",
+          "text_ko": "문암해변은 조용한 물결과 넓은 해변길이 특징으로, 사람의 발걸음이 적은 평화로운 해안 산책을 즐길 수 있습니다.",
+          "evidence_refs": [
+            "attraction#125690"
+          ],
+          "required_place_ids": [
+            "attraction#125690"
+          ],
+          "public_eligible": false
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#125688",
+          "title": "한재밑해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125688",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Samcheok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/13/3071213_image2_1.jpg",
+            "latitude": 37.4080671263,
+            "phone": "근덕면사무소 033-572-3011",
+            "city_name_en": "Samcheok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 삼척시 근덕면",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125688",
+            "longitude": 129.2050024313,
+            "description": "삼척 시내에서 남쪽으로 4km의 가까운 거리에 있는 한재밑해변은 송림으로 둘러싸인 400여 미터의 백사장이 아름다운 자그마한 해변이다. 다른 해변에 비해 주변에 갯바위들이 넓게 흩어져있어 낚시할 수 있으며, 근덕면 소재 명사십리의 시발점이기도 하다. 삼척 시내에서 차로 10분 거리에 있으며 승공, 맹방해변과 이어져 있고 아직 이용객이 적어 자연 상태 그대로 보존되어 있다. 수심이 낮아 남녀노소 누구나 물놀이를 즐길 수 있으며 차량을 이용한 소단위 피서지로 많이들 찾는 해변이다. \n주변 관광지로는 새천년 해안 유원지, 죽서루, 환선굴 등이 있고 덕산항, 대진항, 궁촌항, 부남, 맹방해변 등이 있다.",
+            "PK": "CITY#Samcheok",
+            "city_id": "KR-Samcheok",
+            "title": "한재밑해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125688",
+            "overview": "삼척 시내에서 남쪽으로 4km의 가까운 거리에 있는 한재밑해변은 송림으로 둘러싸인 400여 미터의 백사장이 아름다운 자그마한 해변이다. 다른 해변에 비해 주변에 갯바위들이 넓게 흩어져있어 낚시할 수 있으며, 근덕면 소재 명사십리의 시발점이기도 하다. 삼척 시내에서 차로 10분 거리에 있으며 승공, 맹방해변과 이어져 있고 아직 이용객이 적어 자연 상태 그대로 보존되어 있다. 수심이 낮아 남녀노소 누구나 물놀이를 즐길 수 있으며 차량을 이용한 소단위 피서지로 많이들 찾는 해변이다. \n주변 관광지로는 새천년 해안 유원지, 죽서루, 환선굴 등이 있고 덕산항, 대진항, 궁촌항, 부남, 맹방해변 등이 있다."
+          },
+          "latitude": 37.4080671263,
+          "longitude": 129.2050024313,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125688",
+          "body": "송림에 둘러싸인 400m 백사장과 갯바위 낚시가 가능한 조용한 해변",
+          "reason": "가까운 거리와 수심이 얕아 물놀이가 편리해 가족 단위 여행에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#129582",
+          "title": "부남해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "129582",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Samcheok.json",
+            "image_url": "",
+            "latitude": 37.361148432,
+            "phone": "033-570-4806",
+            "city_name_en": "Samcheok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 삼척시 근덕면 부남해변길",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-129582",
+            "longitude": 129.2514275017,
+            "description": "부남해변은 해수욕장이라기보다 마을 해변에 가깝지만 해안선을 따라 갯바위 등이 드문드문 솟아있어 운치가 있고 멋스럽다. 백사장 길이 400m, 폭 50m로 예전에는 지도에도 표시되지 않았을 정도로 숨겨진 해변이다. 규모가 작고 진입로가 눈에 잘 띄지 않는 덕분에 외지인에게 잘 알려지지 않았으나 근덕면 소재 해변 중 가장 경치가 뛰어나 사진작가들의 방문이 끊이지 않는다. \n부남해변은 물이 맑고 잔잔한 파도로 아이들과 함께 파도타기, 스노클링을 즐길 수 있어 가족 단위 피서지로 최적이다. 영화 <헤어질 결심>의 마지막 장면 촬영지로 알려지며 찾는 사람이 늘었다. 이곳은 군사보호 지역으로, 마을이 관리하는 해수욕장이라 여름휴가철만 한시적으로 개방한다. \n\n◎ 한류의 매력을 만나는 여행 정보 - 영화 <헤어질 결심>\n엔딩 장면의 환상적인 바다는 세 곳의 해안을 합쳐 만든 장소이다. 그중 하나인 부남해변은 갯바위가 운치 있는 작은 해변으로 물이 맑고 물살이 잔잔하다. 주변의 다른 해수욕장에 비해 조용히 숨어 있는 듯한 느낌을 주며 누구에게도 말할 수 없는 비밀스러운 일이 일어날 것만 같다.",
+            "PK": "CITY#Samcheok",
+            "city_id": "KR-Samcheok",
+            "title": "부남해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#129582",
+            "overview": "부남해변은 해수욕장이라기보다 마을 해변에 가깝지만 해안선을 따라 갯바위 등이 드문드문 솟아있어 운치가 있고 멋스럽다. 백사장 길이 400m, 폭 50m로 예전에는 지도에도 표시되지 않았을 정도로 숨겨진 해변이다. 규모가 작고 진입로가 눈에 잘 띄지 않는 덕분에 외지인에게 잘 알려지지 않았으나 근덕면 소재 해변 중 가장 경치가 뛰어나 사진작가들의 방문이 끊이지 않는다. \n부남해변은 물이 맑고 잔잔한 파도로 아이들과 함께 파도타기, 스노클링을 즐길 수 있어 가족 단위 피서지로 최적이다. 영화 <헤어질 결심>의 마지막 장면 촬영지로 알려지며 찾는 사람이 늘었다. 이곳은 군사보호 지역으로, 마을이 관리하는 해수욕장이라 여름휴가철만 한시적으로 개방한다. \n\n◎ 한류의 매력을 만나는 여행 정보 - 영화 <헤어질 결심>\n엔딩 장면의 환상적인 바다는 세 곳의 해안을 합쳐 만든 장소이다. 그중 하나인 부남해변은 갯바위가 운치 있는 작은 해변으로 물이 맑고 물살이 잔잔하다. 주변의 다른 해수욕장에 비해 조용히 숨어 있는 듯한 느낌을 주며 누구에게도 말할 수 없는 비밀스러운 일이 일어날 것만 같다."
+          },
+          "latitude": 37.361148432,
+          "longitude": 129.2514275017,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#129582",
+          "body": "작고 숨은 해변으로 맑은 물과 잔잔한 파도가 특징인 해변",
+          "reason": "조용하고 경치가 뛰어나 사진 촬영과 아이와의 파도타기에 알맞습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#125710",
+          "title": "임원해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125710",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Samcheok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/07/3071007_image2_1.jpg",
+            "latitude": 37.2231104837,
+            "phone": "033-572-6011",
+            "city_name_en": "Samcheok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 삼척시 원덕읍 임원리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125710",
+            "longitude": 129.3408348715,
+            "description": "삼척시내에서 남쪽으로 35㎞ 정도의 거리에 위치하고 있다. 백사장 길이 200m, 폭 50m 크기의 아담한 해수욕장으로 뒤쪽에는 소봉산정과 해안동굴로 손꼽히는 화방굴 및 소공대비가 절경을 이루고 그 옆에 임원천이 흘러내려 담수 조건도 좋다. 인근에는 전국적으로 유명한 임원항이 있어 싱싱한 활어회를 싼값에 즐길 수 있으며 활어회 외에 오징어, 가오리, 가자미 등을 비롯한 건조해산물이 다양하게 판매되고 있어 제수용 등으로 구입이 용이하다. 임원항 방파제에는 전국 제일의 감성돔 낚시터가 마련되어 있어 바다낚시를 즐기러 오는 강태공들이 많다. 물이 맑고 깨끗하며 수심이 낮아 스노클링 하기에 적당하고 화장실, 샤워장, 넓은 주차장등 편의시설이 비교적 잘 갖추어져 있어 캠핑을 즐기러 오는 사람들도 많다. \n가까운 거리에 수로부인 헌화공원, 해맞이 테마공원이 있어 삼척의 바다와 함께 명소를 둘러보는 것을 추천한다.",
+            "PK": "CITY#Samcheok",
+            "city_id": "KR-Samcheok",
+            "title": "임원해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125710",
+            "overview": "삼척시내에서 남쪽으로 35㎞ 정도의 거리에 위치하고 있다. 백사장 길이 200m, 폭 50m 크기의 아담한 해수욕장으로 뒤쪽에는 소봉산정과 해안동굴로 손꼽히는 화방굴 및 소공대비가 절경을 이루고 그 옆에 임원천이 흘러내려 담수 조건도 좋다. 인근에는 전국적으로 유명한 임원항이 있어 싱싱한 활어회를 싼값에 즐길 수 있으며 활어회 외에 오징어, 가오리, 가자미 등을 비롯한 건조해산물이 다양하게 판매되고 있어 제수용 등으로 구입이 용이하다. 임원항 방파제에는 전국 제일의 감성돔 낚시터가 마련되어 있어 바다낚시를 즐기러 오는 강태공들이 많다. 물이 맑고 깨끗하며 수심이 낮아 스노클링 하기에 적당하고 화장실, 샤워장, 넓은 주차장등 편의시설이 비교적 잘 갖추어져 있어 캠핑을 즐기러 오는 사람들도 많다. \n가까운 거리에 수로부인 헌화공원, 해맞이 테마공원이 있어 삼척의 바다와 함께 명소를 둘러보는 것을 추천한다."
+          },
+          "latitude": 37.2231104837,
+          "longitude": 129.3408348715,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125710",
+          "body": "백사장 200m와 감성돔 낚시터가 있는 물이 맑은 해변",
+          "reason": "스노클링, 낚시, 해산물 시장 접근성이 있어 다양한 해양 활동을 즐길 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#125709",
+          "title": "용화해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125709",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Samcheok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/38/3561038_image2_1.jpg",
+            "latitude": 37.8297538027,
+            "phone": "근덕면사무소  033-572-3011",
+            "city_name_en": "Samcheok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 삼척시 근덕면 용화리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125709",
+            "longitude": 129.3052303106,
+            "description": "용화해변은 삼척시 근덕면에 위치한 작은 해수욕장이다. 삼척 시내에서 남쪽으로 24㎞ 정도의 거리에 위치하며, 옆으로는 용화천이 흐르고 뒤편으로는 송림이 우거져 있다. 반달형의 아름다운 해안선은 기암괴석과 함께 장관을 이룬다. 해변 자체는 수심이 1~1.5m, 백사장 길이는 1k㎞ 정도로 크지 않다. 파도도 높지 않아 아이들이 뛰어놀기에 좋고, 해변 가운데로 시냇물이 흐르고 있어 담수욕도 함께 즐길 수 있다. \n해수욕장 개장 기간에는 스노클링, 바나나 보트 등 해상 레저를 즐길 수 있다. 해변 주변으로 각종 편의 시설과 민박, 횟집들이 많이 모여있어 이용하기에 편리하다. 또한 즐길 거리도 다양하다. 해양레일바이크가 이곳에서 출발하며, 삼척해상케이블카도 탈 수 있다. 전망대도 있어 용화해변을 한눈에 내려다볼 수 있다.",
+            "PK": "CITY#Samcheok",
+            "city_id": "KR-Samcheok",
+            "title": "용화해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125709",
+            "overview": "용화해변은 삼척시 근덕면에 위치한 작은 해수욕장이다. 삼척 시내에서 남쪽으로 24㎞ 정도의 거리에 위치하며, 옆으로는 용화천이 흐르고 뒤편으로는 송림이 우거져 있다. 반달형의 아름다운 해안선은 기암괴석과 함께 장관을 이룬다. 해변 자체는 수심이 1~1.5m, 백사장 길이는 1k㎞ 정도로 크지 않다. 파도도 높지 않아 아이들이 뛰어놀기에 좋고, 해변 가운데로 시냇물이 흐르고 있어 담수욕도 함께 즐길 수 있다. \n해수욕장 개장 기간에는 스노클링, 바나나 보트 등 해상 레저를 즐길 수 있다. 해변 주변으로 각종 편의 시설과 민박, 횟집들이 많이 모여있어 이용하기에 편리하다. 또한 즐길 거리도 다양하다. 해양레일바이크가 이곳에서 출발하며, 삼척해상케이블카도 탈 수 있다. 전망대도 있어 용화해변을 한눈에 내려다볼 수 있다."
+          },
+          "latitude": 37.8297538027,
+          "longitude": 129.3052303106,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125709",
+          "body": "반달형 해안선과 시냇물 흐르는 작은 해변, 레저 시설이 풍부함",
+          "reason": "아이들이 안전하게 물놀이하고 해양레일바이크 등 레저를 즐기기에 좋습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#125690",
+          "title": "문암해변",
+          "city_id": "KR-51-230",
+          "city_name_ko": "삼척시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125690",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Samcheok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/07/3342107_image2_1.jpg",
+            "latitude": 37.309005149,
+            "phone": "근덕면 행정복지센터 033-570-4806<br>\n근덕면 해수욕장 033-572-3011",
+            "city_name_en": "Samcheok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 삼척시 근덕면 초곡길 340",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125690",
+            "longitude": 129.2883702491,
+            "description": "삼척 시내에서 남쪽으로 17㎞에 위치한 작고 조용한 해변으로 길이 1㎞의 백사장과 깨끗한 바닷물이 어우러져 천혜의 자연경관을 자랑하는 곳이다. 해변길을 따라 울창한 송림이 줄지어서 있는 문암해변은 인근에 바르셀로나 올림픽의 마라톤 영웅인 황영조의 생가와 바르셀로나 올림픽 제패기념으로 지어진 황영조 기념공원이 위치하고 있고 일제가 자원수탈을 위해 건설한 기차터널이 남아 있어서 볼거리가 많다. 최근에는 해변가에 자연석으로 이루어진 미륵불이 발견되어 화제가 되기도 하였다. 인근 초곡항에서 입항하는 배에서 잡아 올린 싱싱한 회를 맛볼 수 있는 먹거리환경도 좋다. 주변에 길이 6.2㎞이며 국내 최장의 동굴로 다양한 동굴 구조물과 석순, 석영 등이 관찰되는 환선굴, 장호항등이 있어 함께 들러보길 추천한다.",
+            "PK": "CITY#Samcheok",
+            "city_id": "KR-Samcheok",
+            "title": "문암해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125690",
+            "overview": "삼척 시내에서 남쪽으로 17㎞에 위치한 작고 조용한 해변으로 길이 1㎞의 백사장과 깨끗한 바닷물이 어우러져 천혜의 자연경관을 자랑하는 곳이다. 해변길을 따라 울창한 송림이 줄지어서 있는 문암해변은 인근에 바르셀로나 올림픽의 마라톤 영웅인 황영조의 생가와 바르셀로나 올림픽 제패기념으로 지어진 황영조 기념공원이 위치하고 있고 일제가 자원수탈을 위해 건설한 기차터널이 남아 있어서 볼거리가 많다. 최근에는 해변가에 자연석으로 이루어진 미륵불이 발견되어 화제가 되기도 하였다. 인근 초곡항에서 입항하는 배에서 잡아 올린 싱싱한 회를 맛볼 수 있는 먹거리환경도 좋다. 주변에 길이 6.2㎞이며 국내 최장의 동굴로 다양한 동굴 구조물과 석순, 석영 등이 관찰되는 환선굴, 장호항등이 있어 함께 들러보길 추천한다."
+          },
+          "latitude": 37.309005149,
+          "longitude": 129.2883702491,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SAMCHEOK",
+          "ddb_sk": "ATTRACTION#125690",
+          "body": "1km 백사장과 울창한 송림이 어우러진 조용한 해변",
+          "reason": "자연풍경과 인근 문화유산이 함께 있어 여유로운 산책과 관광에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "삼척시는 바다·해안을 중심으로 다양한 규모와 특색의 해변을 제공한다.",
+        "대부분의 해변이 수심이 낮고 편의시설이 잘 갖춰져 있어 가족 친화적이다.",
+        "각 해변이 서로 가까워 하루 일정에 효율적인 동선을 구성할 수 있다."
+      ],
+      "itinerary_flow_reason": "삼척 시내에서 남쪽으로 차례로 이동하며, 가까운 해변들을 연속으로 방문해 동선이 자연스럽게 이어집니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "삼척시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%82%BC%EC%B2%99%EC%8B%9C",
+          "query": "삼척시",
+          "city_name_ko": "삼척시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "삼척시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%82%BC%EC%B2%99%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "삼척시 숙소",
+          "city_name_ko": "삼척시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "삼척시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%82%BC%EC%B2%99%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "삼척시 맛집",
+          "city_name_ko": "삼척시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#125688",
+              "place:attraction#129582",
+              "place:attraction#125710",
+              "place:attraction#125709",
+              "place:attraction#125690"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "삼척시는 바다·해안을 중심으로 다양한 규모와 특색의 해변을 제공한다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#125688",
+              "place:attraction#129582",
+              "place:attraction#125710",
+              "place:attraction#125709",
+              "place:attraction#125690"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "대부분의 해변이 수심이 낮고 편의시설이 잘 갖춰져 있어 가족 친화적이다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#125688",
+              "place:attraction#129582",
+              "place:attraction#125710",
+              "place:attraction#125709",
+              "place:attraction#125690"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "각 해변이 서로 가까워 하루 일정에 효율적인 동선을 구성할 수 있다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#125688",
+          "place:attraction#129582",
+          "place:attraction#125710",
+          "place:attraction#125709",
+          "place:attraction#125690"
+        ],
+        "hidden_internal_notes": [
+          "skipped_non_public_claim:claim_1",
+          "skipped_non_public_claim:claim_2",
+          "skipped_non_public_claim:claim_3",
+          "skipped_non_public_claim:claim_4",
+          "skipped_non_public_claim:claim_5",
+          "fallback_reason_used:no_public_claims",
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-01",
+      "expiresAt": "2026-06-27T19:40:30Z",
+      "destination": {
+        "destinationId": "KR-51-230",
+        "name": "삼척시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#125688",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "한재밑해변",
+                "body": "송림에 둘러싸인 400m 백사장과 갯바위 낚시가 가능한 조용한 해변",
+                "reason": "가까운 거리와 수심이 얕아 물놀이가 편리해 가족 단위 여행에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 37.4080671263,
+                "longitude": 129.2050024313
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#129582",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "부남해변",
+                "body": "작고 숨은 해변으로 맑은 물과 잔잔한 파도가 특징인 해변",
+                "reason": "조용하고 경치가 뛰어나 사진 촬영과 아이와의 파도타기에 알맞습니다.",
+                "moveMinutes": null,
+                "latitude": 37.361148432,
+                "longitude": 129.2514275017
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#125710",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "임원해변",
+                "body": "백사장 200m와 감성돔 낚시터가 있는 물이 맑은 해변",
+                "reason": "스노클링, 낚시, 해산물 시장 접근성이 있어 다양한 해양 활동을 즐길 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 37.2231104837,
+                "longitude": 129.3408348715
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#125709",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "용화해변",
+                "body": "반달형 해안선과 시냇물 흐르는 작은 해변, 레저 시설이 풍부함",
+                "reason": "아이들이 안전하게 물놀이하고 해양레일바이크 등 레저를 즐기기에 좋습니다.",
+                "moveMinutes": null,
+                "latitude": 37.8297538027,
+                "longitude": 129.3052303106
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#125690",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "문암해변",
+                "body": "1km 백사장과 울창한 송림이 어우러진 조용한 해변",
+                "reason": "자연풍경과 인근 문화유산이 함께 있어 여유로운 산책과 관광에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 37.309005149,
+                "longitude": 129.2883702491
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "sea_coast",
+          "travelMonth:7"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "삼척시는 바다·해안을 중심으로 다양한 규모와 특색의 해변을 제공한다.",
+          "대부분의 해변이 수심이 낮고 편의시설이 잘 갖춰져 있어 가족 친화적이다.",
+          "각 해변이 서로 가까워 하루 일정에 효율적인 동선을 구성할 수 있다."
+        ],
+        "itineraryFlowReason": "삼척 시내에서 남쪽으로 차례로 이동하며, 가까운 해변들을 연속으로 방문해 동선이 자연스럽게 이어집니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%82%BC%EC%B2%99%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EC%82%BC%EC%B2%99%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%82%BC%EC%B2%99%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

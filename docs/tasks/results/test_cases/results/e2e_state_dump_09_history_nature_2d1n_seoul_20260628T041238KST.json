@@ -1,0 +1,1571 @@
+{
+  "request": {
+    "request_id": "REQ-TC-09",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 10,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "history_tradition",
+      "nature_trekking"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "역사 유적과 주변 자연을 함께 둘러보고 싶어요. 이동 부담이 적고 고즈넉한 분위기면 좋겠어요.",
+    "user_location": {
+      "latitude": 37.5665,
+      "longitude": 126.978
+    }
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-09",
+    "agent_run_id": "run-215a3244-cd46-42ef-8a52-a40c0f374fbb",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 10,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "history_tradition",
+        "nature_trekking"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "역사 유적과 주변 자연을 함께 둘러보고 싶어요. 이동 부담이 적고 고즈넉한 분위기면 좋겠어요.",
+      "user_location": {
+        "latitude": 37.5665,
+        "longitude": 126.978
+      },
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "역사 유적과 주변 자연을 함께 둘러보고 싶어요 이동 부담이 적고 고즈넉한 분위기면 좋겠어요",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "역사·전통",
+      "자연·트레킹"
+    ],
+    "searchable_place_themes": [
+      "역사·전통",
+      "자연·트레킹"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "역사 유적과 주변 자연을 함께 둘러보고 싶다. 이동 부담이 적고 고즈넉한 분위기를 원한다.",
+    "soft_preference_query": "고즈넉하고 차분하며 여유롭게 탐방할 수 있는 평온한 곳.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 10,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "역사·전통",
+        "자연·트레킹"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "역사 유적과 주변 자연을 함께 둘러보고 싶다. 이동 부담이 적고 고즈넉한 분위기를 원한다.",
+      "soft_preference_query": "고즈넉하고 차분하며 여유롭게 탐방할 수 있는 평온한 곳.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": {
+        "latitude": 37.5665,
+        "longitude": 126.978
+      },
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-47-830",
+        "city_name_ko": "고령군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-47-830",
+          "city_score": 2.5775,
+          "score_breakdown": {
+            "semantic_evidence": 0.6678,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.1172,
+            "congestion_penalty": 0.0252
+          },
+          "top_place_ids": [
+            "attraction#2753903",
+            "attraction#3447823",
+            "attraction#231926",
+            "attraction#128080",
+            "attraction#127720",
+            "attraction#250434",
+            "attraction#1958207",
+            "attraction#2990283",
+            "attraction#2732615",
+            "attraction#127418"
+          ],
+          "candidate_count": 11,
+          "city_name_ko": "고령군",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-250",
+          "city_score": 2.1132,
+          "score_breakdown": {
+            "semantic_evidence": 0.3973,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0783,
+            "congestion_penalty": 0.1853
+          },
+          "top_place_ids": [
+            "attraction#3345822",
+            "attraction#128743",
+            "attraction#127199",
+            "attraction#126630",
+            "attraction#128738",
+            "attraction#129002"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "상주시",
+          "available_place_count": 6,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-770",
+          "city_score": 2.076,
+          "score_breakdown": {
+            "semantic_evidence": 0.2776,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0792,
+            "congestion_penalty": 0.0902
+          },
+          "top_place_ids": [
+            "attraction#130534",
+            "attraction#125776",
+            "attraction#128661",
+            "attraction#2778965"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "정선군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 2.0654,
+          "score_breakdown": {
+            "semantic_evidence": 0.5445,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9544,
+            "scale_correction": 0.0439,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.1396,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#3006866",
+            "attraction#2756706",
+            "attraction#2015553",
+            "attraction#3101682",
+            "attraction#127484",
+            "attraction#126166",
+            "attraction#971032",
+            "attraction#128117"
+          ],
+          "candidate_count": 8,
+          "city_name_ko": "경주시",
+          "available_place_count": 8,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-170",
+          "city_score": 2.0441,
+          "score_breakdown": {
+            "semantic_evidence": 0.5787,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.7642,
+            "scale_correction": 0.0461,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0952,
+            "congestion_penalty": 0.2576
+          },
+          "top_place_ids": [
+            "attraction#2661435",
+            "attraction#2912253",
+            "attraction#127254",
+            "attraction#894027",
+            "attraction#3036029",
+            "attraction#127339",
+            "attraction#1959079",
+            "attraction#1180879",
+            "attraction#130671"
+          ],
+          "candidate_count": 9,
+          "city_name_ko": "안동시",
+          "available_place_count": 9,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-920",
+          "city_score": 2.0294,
+          "score_breakdown": {
+            "semantic_evidence": 0.1438,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0917,
+            "congestion_penalty": 0.0006
+          },
+          "top_place_ids": [
+            "attraction#2708092",
+            "attraction#3089068"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "봉화군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-210",
+          "city_score": 2.0233,
+          "score_breakdown": {
+            "semantic_evidence": 0.3549,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0765,
+            "congestion_penalty": 0.2345
+          },
+          "top_place_ids": [
+            "attraction#250357",
+            "attraction#2713187",
+            "attraction#127586",
+            "attraction#2513888",
+            "attraction#130895",
+            "attraction#125806"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "속초시",
+          "available_place_count": 6,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-790",
+          "city_score": 2.022,
+          "score_breakdown": {
+            "semantic_evidence": 0.1779,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0465,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#2569465",
+            "attraction#2616559",
+            "attraction#2568711"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "화천군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-780",
+          "city_score": 1.9881,
+          "score_breakdown": {
+            "semantic_evidence": 0.2316,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0399,
+            "congestion_penalty": 0.0942
+          },
+          "top_place_ids": [
+            "attraction#2353577",
+            "attraction#2749319",
+            "attraction#2715375"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "철원군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-190",
+          "city_score": 1.9478,
+          "score_breakdown": {
+            "semantic_evidence": 0.224,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0914,
+            "congestion_penalty": 0.0753
+          },
+          "top_place_ids": [
+            "attraction#1337616",
+            "attraction#2702608",
+            "attraction#126732"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "태백시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-840",
+          "city_score": 1.9326,
+          "score_breakdown": {
+            "semantic_evidence": 0.1388,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.1089,
+            "congestion_penalty": 0.0754
+          },
+          "top_place_ids": [
+            "attraction#2784167",
+            "attraction#3444683"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "성주군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-810",
+          "city_score": 1.9126,
+          "score_breakdown": {
+            "semantic_evidence": 0.2093,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0671,
+            "congestion_penalty": 0.1201
+          },
+          "top_place_ids": [
+            "attraction#3424152",
+            "attraction#2570364",
+            "attraction#572984"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "인제군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-750",
+          "city_score": 1.9006,
+          "score_breakdown": {
+            "semantic_evidence": 0.2516,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.072,
+            "congestion_penalty": 0.058
+          },
+          "top_place_ids": [
+            "attraction#2702475",
+            "attraction#2669251",
+            "attraction#126886",
+            "attraction#2777377"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "영월군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-280",
+          "city_score": 1.8856,
+          "score_breakdown": {
+            "semantic_evidence": 0.1207,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0661,
+            "congestion_penalty": 0.1471
+          },
+          "top_place_ids": [
+            "attraction#126017",
+            "attraction#130314"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "문경시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 1.8834,
+          "score_breakdown": {
+            "semantic_evidence": 0.121,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0783,
+            "congestion_penalty": 0.1373
+          },
+          "top_place_ids": [
+            "attraction#130930",
+            "attraction#125749"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "양양군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-720",
+          "city_score": 1.8567,
+          "score_breakdown": {
+            "semantic_evidence": 0.1169,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0487,
+            "congestion_penalty": 0.1895
+          },
+          "top_place_ids": [
+            "attraction#3036718",
+            "attraction#250290"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "홍천군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-900",
+          "city_score": 1.8514,
+          "score_breakdown": {
+            "semantic_evidence": 0.2376,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0812,
+            "congestion_penalty": 0.0841
+          },
+          "top_place_ids": [
+            "attraction#2716143",
+            "attraction#705621",
+            "attraction#2782667",
+            "attraction#2912292"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "예천군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 1.8498,
+          "score_breakdown": {
+            "semantic_evidence": 0.2587,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0347,
+            "congestion_penalty": 0.342
+          },
+          "top_place_ids": [
+            "attraction#2774537",
+            "attraction#1607565",
+            "attraction#128781",
+            "attraction#2788128"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "춘천시",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-850",
+          "city_score": 1.8289,
+          "score_breakdown": {
+            "semantic_evidence": 0.161,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.1068,
+            "congestion_penalty": 0.2033
+          },
+          "top_place_ids": [
+            "attraction#2674142",
+            "attraction#2818242"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "칠곡군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 1.627,
+          "score_breakdown": {
+            "semantic_evidence": 0.2542,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0847,
+            "congestion_penalty": 0.3215
+          },
+          "top_place_ids": [
+            "attraction#2990291",
+            "attraction#129585",
+            "attraction#3547638",
+            "attraction#130057"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "강릉시",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#231926",
+          "title": "고령안화리암각화",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7018190201,
+          "longitude": 128.2613384112,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#231926",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7773,
+            "score_components": {
+              "raw_similarity": 0.1999,
+              "soft_similarity": 0.1774,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127720",
+          "title": "김면장군유적",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7159532571,
+          "longitude": 128.2461671415,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#127720",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.6482,
+            "score_components": {
+              "raw_similarity": 0.2482,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#1958207",
+          "title": "도암서원(고령)",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7161622909878,
+          "longitude": 128.246671053045,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#1958207",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.6067,
+            "score_components": {
+              "raw_similarity": 0.2067,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2753903",
+          "title": "미천공원",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 35.8029897079,
+          "longitude": 128.1955442343,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#2753903",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.8249,
+            "score_components": {
+              "raw_similarity": 0.2151,
+              "soft_similarity": 0.2098,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3447823",
+          "title": "우륵공원",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 35.7430141721,
+          "longitude": 128.2510381968,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#3447823",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.7863,
+            "score_components": {
+              "raw_similarity": 0.1839,
+              "soft_similarity": 0.2024,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128080",
+          "title": "개경포기념공원",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 35.7099420866,
+          "longitude": 128.3584240802,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#128080",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.6578,
+            "score_components": {
+              "raw_similarity": 0.2578,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#250434",
+          "title": "고령 신촌숲",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 35.6744568508,
+          "longitude": 128.1852958581,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#250434",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.6224,
+            "score_components": {
+              "raw_similarity": 0.2224,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2990283",
+          "title": "다산 좌학리 은행나무 숲",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 35.8113430788,
+          "longitude": 128.4326230913,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#2990283",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5859,
+            "score_components": {
+              "raw_similarity": 0.1859,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2732615",
+          "title": "대가야생활촌",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7118958019,
+          "longitude": 128.269265216,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#2732615",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5841,
+            "score_components": {
+              "raw_similarity": 0.1841,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127418",
+          "title": "고령 지산리 당간지주",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7274078719,
+          "longitude": 128.265740104,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#127418",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5841,
+            "score_components": {
+              "raw_similarity": 0.1841,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [
+        {
+          "place_id": "attraction#1059119",
+          "title": "우륵박물관",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7422956081991,
+          "longitude": 128.263771495572,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#1059119",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5778,
+            "score_components": {
+              "raw_similarity": 0.1778,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "역사·전통",
+          "자연·트레킹"
+        ],
+        "searchable_place_themes": [
+          "역사·전통",
+          "자연·트레킹"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "역사·전통": 5,
+          "자연·트레킹": 5
+        },
+        "reserve_theme_counts": {
+          "역사·전통": 1,
+          "자연·트레킹": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 3,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": false,
+        "relaxed_slots": 0,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 10,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "역사·전통",
+          "자연·트레킹"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 100,
+        "merged_candidate_count": 100,
+        "survived_city_count": 20,
+        "eliminated_cities": [
+          "KR-51-760",
+          "KR-47-210",
+          "KR-47-150",
+          "KR-47-750",
+          "KR-47-930",
+          "KR-51-170",
+          "KR-51-230",
+          "KR-47-760",
+          "KR-47-770",
+          "KR-47-230"
+        ]
+      },
+      "candidate_counts": {
+        "retrieved": 100,
+        "merged": 100,
+        "scored": 84,
+        "city_count": 20,
+        "recommended_places": 10,
+        "reserve_places": 1,
+        "available_places": 10,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "city_selection",
+          "text_ko": "고령군은 조용하고 고즈넉한 분위기의 역사적인 유적과 자연 트레킹 코스를 동시에 즐길 수 있어, 여유로운 탐방에 적합합니다.",
+          "evidence_refs": [
+            "city_score_rank_1",
+            "candidate_sufficiency"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "고령안화리암각화는 선사시대 암각화가 보존된 역사적 명소로, 조용히 시간을 들여 관람하기에 좋은 장소입니다.",
+          "evidence_refs": [
+            "attraction#231926"
+          ],
+          "required_place_ids": [
+            "attraction#231926"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "도암서원은 고령군의 전통 서원으로, 주변 산책로와 어우러져 한적한 자연 속에서 역사적 의미를 되새길 수 있습니다.",
+          "evidence_refs": [
+            "attraction#1958207"
+          ],
+          "required_place_ids": [
+            "attraction#1958207"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "미천공원은 울창한 숲과 잘 정비된 산책로가 있어, 트레킹을 즐기면서도 조용한 휴식을 취하기에 알맞은 장소입니다.",
+          "evidence_refs": [
+            "attraction#2753903"
+          ],
+          "required_place_ids": [
+            "attraction#2753903"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_5",
+          "scope": "place_pool",
+          "text_ko": "우륵공원은 자연 친화적인 환경과 낮은 방문객 밀도로, 평온한 분위기 속에서 산책과 가벼운 트레킹을 즐길 수 있습니다.",
+          "evidence_refs": [
+            "attraction#3447823"
+          ],
+          "required_place_ids": [
+            "attraction#3447823"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#231926",
+          "title": "고령안화리암각화",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "231926",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Goryeong.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/63/3412063_image2_1.jpg",
+            "latitude": 35.7018190201,
+            "phone": "고령군청 문화유산과 054-950-6322",
+            "city_name_en": "Goryeong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 고령군 쌍림면",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-231926",
+            "longitude": 128.2613384112,
+            "description": "고령안화리암각화는 선사시대의 사람들이 암벽에 새긴 바위그림으로, 가로 115㎝, 세로 90㎝의 바위 면에 쪼기 수법으로 3개의 그림을 새겨 놓았다. 먼저 U자형 반원을 기본으로, 좌우에 활모양의 선을 대칭되도록 그렸으며, 오른쪽 그림에는 작은 구멍을 팠다. 그림의 위쪽 절벽의 바위 면에도 같은 종류의 그림이 2∼3개 더 있는데, 영일 칠포리 암각화와 유사한 점으로 미루어 해안에 살았던 사람과 내륙에 살았던 사람이 같은 의식을 가졌던 것으로 보인다. \n\n(출처 : 국가유산청)",
+            "PK": "CITY#Goryeong",
+            "city_id": "KR-Goryeong",
+            "title": "고령안화리암각화",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#231926",
+            "overview": "고령안화리암각화는 선사시대의 사람들이 암벽에 새긴 바위그림으로, 가로 115㎝, 세로 90㎝의 바위 면에 쪼기 수법으로 3개의 그림을 새겨 놓았다. 먼저 U자형 반원을 기본으로, 좌우에 활모양의 선을 대칭되도록 그렸으며, 오른쪽 그림에는 작은 구멍을 팠다. 그림의 위쪽 절벽의 바위 면에도 같은 종류의 그림이 2∼3개 더 있는데, 영일 칠포리 암각화와 유사한 점으로 미루어 해안에 살았던 사람과 내륙에 살았던 사람이 같은 의식을 가졌던 것으로 보인다. \n\n(출처 : 국가유산청)"
+          },
+          "latitude": 35.7018190201,
+          "longitude": 128.2613384112,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#231926",
+          "body": "선사시대 암각화가 새겨진 바위면, 조용히 감상 가능",
+          "reason": "고령안화리암각화는 선사시대 암각화가 보존된 역사적 명소로, 조용히 시간을 들여 관람하기에 좋은 장소입니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#127720",
+          "title": "김면장군유적",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "127720",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Goryeong.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/41/3412141_image2_1.jpg",
+            "latitude": 35.7159532571,
+            "phone": "고령군 문화유산과 054-950-6762",
+            "city_name_en": "Goryeong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 고령군 쌍림면 칠등길 138",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-127720",
+            "longitude": 128.2461671415,
+            "description": "김면장군유적은 임진왜란 때 의병장으로 활약하다가 순국한 송암 김면(1541～1593) 장군의 묘소, 신도비, 도암사, 도암재, 도암서당을 일괄하여 지정한 사적지이다. 김면장군은 조선 선조 25년(1592) 임진왜란이 일어나자 고령, 거창 등지에서 의병을 규합, 수십 여 차례에 걸친 전투에서 승리하면서 의병장으로 추대되었다. 1593년 경상우도병마절도사가 되었으나, 선산대전을 앞두고 충청․전라도 의병과 함께 금산, 개령에 주둔하고 있을 당시에 병을 얻었다. 장군은 ‘오로지 나라만이 있는 줄 알았고, 내 몸이 있는 줄은 몰랐다’라는 충절의 말을 남기고 순국하였다. 저서로는 「송암실기」 3권이 있다. 현종 7년(1667) 유학자들이 고령읍에 추모사당을 건립하였다. 정조 13년(1789) 사당을 현재의 위치로 옮기면서 신도비를 건립하여 그의 높은 충절을 후세에 길이 전하도록 하고 있다.",
+            "PK": "CITY#Goryeong",
+            "city_id": "KR-Goryeong",
+            "title": "김면장군유적",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127720",
+            "overview": "김면장군유적은 임진왜란 때 의병장으로 활약하다가 순국한 송암 김면(1541～1593) 장군의 묘소, 신도비, 도암사, 도암재, 도암서당을 일괄하여 지정한 사적지이다. 김면장군은 조선 선조 25년(1592) 임진왜란이 일어나자 고령, 거창 등지에서 의병을 규합, 수십 여 차례에 걸친 전투에서 승리하면서 의병장으로 추대되었다. 1593년 경상우도병마절도사가 되었으나, 선산대전을 앞두고 충청․전라도 의병과 함께 금산, 개령에 주둔하고 있을 당시에 병을 얻었다. 장군은 ‘오로지 나라만이 있는 줄 알았고, 내 몸이 있는 줄은 몰랐다’라는 충절의 말을 남기고 순국하였다. 저서로는 「송암실기」 3권이 있다. 현종 7년(1667) 유학자들이 고령읍에 추모사당을 건립하였다. 정조 13년(1789) 사당을 현재의 위치로 옮기면서 신도비를 건립하여 그의 높은 충절을 후세에 길이 전하도록 하고 있다."
+          },
+          "latitude": 35.7159532571,
+          "longitude": 128.2461671415,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#127720",
+          "body": "임진왜란 의병 장군 김면의 묘소와 사당이 있는 사적지",
+          "reason": "삶과 역사를 느낄 수 있는 사적지로, 조용한 분위기와 역사·전통 테마에 부합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#1958207",
+          "title": "도암서원(고령)",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "1958207",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Goryeong.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/89/3580689_image2_1.jpg",
+            "latitude": 35.7161622909878,
+            "phone": "054-950-6322",
+            "city_name_en": "Goryeong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 고령군 쌍림면 칠등길 138",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-1958207",
+            "longitude": 128.246671053045,
+            "description": "김면 장군 유적지 내에 위치한 도암서원은 김면 장군을 배향하기 위해 세운 조선 후기 서원이다. 1666년에 건립된 도암서원은 초기에는 대가야읍 연조리에 위치하고 있었다. 그 후 1789년에 쌍림면 고곡리의 현재 위치로 이건 하였으나, 이후 흥선대원군의 서원철폐령에 의해 훼철되었다. 그 후 1907년 지방 유림들이 도암서당 유계를 조직하여 해마다 곡식을 내어 김면의 묘사를 지냈으나 1910년 이후 없어졌다. 문중에서 1975년 도암재를 건립하여 문중의 재실로 사용하다가 2002년 고령 내 유림들이 발의하여 이 건물을 도암서원으로 복원하였다. 김면 장군은 임진왜란이 일어나자 조종도, 문위 등과 거창, 고령 등지에서 의병을 규합하여 적군 10만과 우지에서 대치하여 적을 격퇴하고 무계에서 승전하였다. 그 공으로 합천 군수로 임명되었으며 의병대장의 칭호를 받았다.",
+            "PK": "CITY#Goryeong",
+            "city_id": "KR-Goryeong",
+            "title": "도암서원(고령)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#1958207",
+            "overview": "김면 장군 유적지 내에 위치한 도암서원은 김면 장군을 배향하기 위해 세운 조선 후기 서원이다. 1666년에 건립된 도암서원은 초기에는 대가야읍 연조리에 위치하고 있었다. 그 후 1789년에 쌍림면 고곡리의 현재 위치로 이건 하였으나, 이후 흥선대원군의 서원철폐령에 의해 훼철되었다. 그 후 1907년 지방 유림들이 도암서당 유계를 조직하여 해마다 곡식을 내어 김면의 묘사를 지냈으나 1910년 이후 없어졌다. 문중에서 1975년 도암재를 건립하여 문중의 재실로 사용하다가 2002년 고령 내 유림들이 발의하여 이 건물을 도암서원으로 복원하였다. 김면 장군은 임진왜란이 일어나자 조종도, 문위 등과 거창, 고령 등지에서 의병을 규합하여 적군 10만과 우지에서 대치하여 적을 격퇴하고 무계에서 승전하였다. 그 공으로 합천 군수로 임명되었으며 의병대장의 칭호를 받았다."
+          },
+          "latitude": 35.7161622909878,
+          "longitude": 128.246671053045,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#1958207",
+          "body": "복원된 서원으로 김면 장군을 기리며 산책로와 어우러짐",
+          "reason": "도암서원은 고령군의 전통 서원으로, 주변 산책로와 어우러져 한적한 자연 속에서 역사적 의미를 되새길 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#2753903",
+          "title": "미천공원",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2753903",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Goryeong.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/32/3541932_image2_1.jpg",
+            "latitude": 35.8029897079,
+            "phone": "고령관광안내소 055-955-4790",
+            "city_name_en": "Goryeong",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 고령군 덕곡면 노리 481",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2753903",
+            "longitude": 128.1955442343,
+            "description": "고령군의 덕곡면의 예마을을 지나 덕곡저수지 초입의 좌측에 위치한 미천공원은 작은 규모지만 휴식과 함께 맨발걷기도 가능한 공원이다. 가볍게 산책을 즐기다 가기에도 좋으며, 주차가 가능한 공간 옆에 정자도 마련되어 있어 여름에도 그늘에서 쉬어갈 수 있다. 또한, 지역민을 비롯하여 방문객들이 가볍게 스트레칭을 할 수 있게 다양한 운동기구도 마련되어 있다. 나무그늘 아래 벤치에서 자연풍경을 감상하며 가벼운 피크닉과 휴식을 즐길 수 있는 공원이다.",
+            "PK": "CITY#Goryeong",
+            "city_id": "KR-Goryeong",
+            "title": "미천공원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2753903",
+            "overview": "고령군의 덕곡면의 예마을을 지나 덕곡저수지 초입의 좌측에 위치한 미천공원은 작은 규모지만 휴식과 함께 맨발걷기도 가능한 공원이다. 가볍게 산책을 즐기다 가기에도 좋으며, 주차가 가능한 공간 옆에 정자도 마련되어 있어 여름에도 그늘에서 쉬어갈 수 있다. 또한, 지역민을 비롯하여 방문객들이 가볍게 스트레칭을 할 수 있게 다양한 운동기구도 마련되어 있다. 나무그늘 아래 벤치에서 자연풍경을 감상하며 가벼운 피크닉과 휴식을 즐길 수 있는 공원이다."
+          },
+          "latitude": 35.8029897079,
+          "longitude": 128.1955442343,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#2753903",
+          "body": "작은 규모의 공원으로 맨발 걷기와 휴식을 즐길 수 있음",
+          "reason": "미천공원은 울창한 숲과 잘 정비된 산책로가 있어, 트레킹을 즐기면서도 조용한 휴식을 취하기에 알맞은 장소입니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#3447823",
+          "title": "우륵공원",
+          "city_id": "KR-47-830",
+          "city_name_ko": "고령군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "3447823",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Goryeong.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/56/3448556_image2_1.jpg",
+            "latitude": 35.7430141721,
+            "phone": "",
+            "city_name_en": "Goryeong",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 고령군 대가야읍 낫질로 208",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-3447823",
+            "longitude": 128.2510381968,
+            "description": "우륵공원은 경상북도 고령군에 위치한 생태공원으로, 중화저수지 주변에 조성된 휴식 공간입니다. 가야금 명인 우륵의 역사적 의미를 담고 있으며, 산책로, 생태놀이터, 숲속 쉼터 등 자연과 어우러진 시설을 제공합니다. 산책과 자연 체험을 즐기기 좋은 가족 친화적인 장소입니다.",
+            "PK": "CITY#Goryeong",
+            "city_id": "KR-Goryeong",
+            "title": "우륵공원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3447823",
+            "overview": "우륵공원은 경상북도 고령군에 위치한 생태공원으로, 중화저수지 주변에 조성된 휴식 공간입니다. 가야금 명인 우륵의 역사적 의미를 담고 있으며, 산책로, 생태놀이터, 숲속 쉼터 등 자연과 어우러진 시설을 제공합니다. 산책과 자연 체험을 즐기기 좋은 가족 친화적인 장소입니다."
+          },
+          "latitude": 35.7430141721,
+          "longitude": 128.2510381968,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GORYEONG",
+          "ddb_sk": "ATTRACTION#3447823",
+          "body": "생태공원으로 산책로와 자연놀이터가 있어 평온한 산책 가능",
+          "reason": "우륵공원은 자연 친화적인 환경과 낮은 방문객 밀도로, 평온한 분위기 속에서 산책과 가벼운 트레킹을 즐길 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "고령군은 조용하고 고즈넉한 분위기의 역사적인 유적과 자연 트레킹 코스를 동시에 즐길 수 있어, 여유로운 탐방에 적합합니다.",
+        "고령안화리암각화는 선사시대 암각화가 보존된 역사적 명소로, 조용히 시간을 들여 관람하기에 좋은 장소입니다.",
+        "미천공원은 울창한 숲과 잘 정비된 산책로가 있어, 트레킹을 즐기면서도 조용한 휴식을 취하기에 알맞은 장소입니다."
+      ],
+      "itinerary_flow_reason": "고령 안화리암각화와 김면장군유적 등 역사 유적을 둘러본 뒤, 도암서원·미천공원·우륵공원에서 자연 속 휴식을 이어갑니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "고령군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EA%B3%A0%EB%A0%B9%EA%B5%B0",
+          "query": "고령군",
+          "city_name_ko": "고령군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "고령군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B3%A0%EB%A0%B9%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "고령군 숙소",
+          "city_name_ko": "고령군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "고령군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B3%A0%EB%A0%B9%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "고령군 맛집",
+          "city_name_ko": "고령군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#231926",
+              "place:attraction#127720",
+              "place:attraction#1958207",
+              "place:attraction#2753903",
+              "place:attraction#3447823"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "고령군은 조용하고 고즈넉한 분위기의 역사적인 유적과 자연 트레킹 코스를 동시에 즐길 수 있어, 여유로운 탐방에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#231926",
+              "place:attraction#127720",
+              "place:attraction#1958207",
+              "place:attraction#2753903",
+              "place:attraction#3447823"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "고령안화리암각화는 선사시대 암각화가 보존된 역사적 명소로, 조용히 시간을 들여 관람하기에 좋은 장소입니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#231926",
+              "place:attraction#127720",
+              "place:attraction#1958207",
+              "place:attraction#2753903",
+              "place:attraction#3447823"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "미천공원은 울창한 숲과 잘 정비된 산책로가 있어, 트레킹을 즐기면서도 조용한 휴식을 취하기에 알맞은 장소입니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#231926",
+          "place:attraction#127720",
+          "place:attraction#1958207",
+          "place:attraction#2753903",
+          "place:attraction#3447823"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-09",
+      "expiresAt": "2026-06-27T19:42:38Z",
+      "destination": {
+        "destinationId": "KR-47-830",
+        "name": "고령군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#231926",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "고령안화리암각화",
+                "body": "선사시대 암각화가 새겨진 바위면, 조용히 감상 가능",
+                "reason": "고령안화리암각화는 선사시대 암각화가 보존된 역사적 명소로, 조용히 시간을 들여 관람하기에 좋은 장소입니다.",
+                "moveMinutes": null,
+                "latitude": 35.7018190201,
+                "longitude": 128.2613384112
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#127720",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "김면장군유적",
+                "body": "임진왜란 의병 장군 김면의 묘소와 사당이 있는 사적지",
+                "reason": "삶과 역사를 느낄 수 있는 사적지로, 조용한 분위기와 역사·전통 테마에 부합합니다.",
+                "moveMinutes": null,
+                "latitude": 35.7159532571,
+                "longitude": 128.2461671415
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#1958207",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "도암서원(고령)",
+                "body": "복원된 서원으로 김면 장군을 기리며 산책로와 어우러짐",
+                "reason": "도암서원은 고령군의 전통 서원으로, 주변 산책로와 어우러져 한적한 자연 속에서 역사적 의미를 되새길 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 35.7161622909878,
+                "longitude": 128.246671053045
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#2753903",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "미천공원",
+                "body": "작은 규모의 공원으로 맨발 걷기와 휴식을 즐길 수 있음",
+                "reason": "미천공원은 울창한 숲과 잘 정비된 산책로가 있어, 트레킹을 즐기면서도 조용한 휴식을 취하기에 알맞은 장소입니다.",
+                "moveMinutes": null,
+                "latitude": 35.8029897079,
+                "longitude": 128.1955442343
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#3447823",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "우륵공원",
+                "body": "생태공원으로 산책로와 자연놀이터가 있어 평온한 산책 가능",
+                "reason": "우륵공원은 자연 친화적인 환경과 낮은 방문객 밀도로, 평온한 분위기 속에서 산책과 가벼운 트레킹을 즐길 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 35.7430141721,
+                "longitude": 128.2510381968
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "history_tradition",
+          "nature_trekking",
+          "travelMonth:10"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "고령군은 조용하고 고즈넉한 분위기의 역사적인 유적과 자연 트레킹 코스를 동시에 즐길 수 있어, 여유로운 탐방에 적합합니다.",
+          "고령안화리암각화는 선사시대 암각화가 보존된 역사적 명소로, 조용히 시간을 들여 관람하기에 좋은 장소입니다.",
+          "미천공원은 울창한 숲과 잘 정비된 산책로가 있어, 트레킹을 즐기면서도 조용한 휴식을 취하기에 알맞은 장소입니다."
+        ],
+        "itineraryFlowReason": "고령 안화리암각화와 김면장군유적 등 역사 유적을 둘러본 뒤, 도암서원·미천공원·우륵공원에서 자연 속 휴식을 이어갑니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EA%B3%A0%EB%A0%B9%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%EA%B3%A0%EB%A0%B9%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EA%B3%A0%EB%A0%B9%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

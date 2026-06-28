@@ -1,0 +1,1401 @@
+{
+  "request": {
+    "request_id": "REQ-TC-17",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 1,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "art_sense",
+      "healing_rest"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "예술 작품을 감상하고 온천에서 쉬는 여행을 하고 싶어요. 조용하고 따뜻한 겨울 휴식이면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-17",
+    "agent_run_id": "run-23b3d2c8-4435-439c-966d-e65bdd66fc34",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 1,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "art_sense",
+        "healing_rest"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "예술 작품을 감상하고 온천에서 쉬는 여행을 하고 싶어요. 조용하고 따뜻한 겨울 휴식이면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "예술 작품을 감상하고 온천에서 쉬는 여행을 하고 싶어요 조용하고 따뜻한 겨울 휴식이면 좋겠어요",
+      "soft_preference_query": "조용하고 따뜻한 겨울 휴식이면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "예술·감성",
+      "온천·휴양"
+    ],
+    "searchable_place_themes": [
+      "예술·감성",
+      "온천·휴양"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "예술 작품을 감상하고 온천에서 쉬는 여행을 하고 싶다. 조용하고 따뜻한 겨울 휴식을 원한다.",
+    "soft_preference_query": "조용하고 따뜻하며 여유로운 겨울의 휴식을 즐길 수 있는 평온한 곳.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 1,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "예술·감성",
+        "온천·휴양"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "예술 작품을 감상하고 온천에서 쉬는 여행을 하고 싶다. 조용하고 따뜻한 겨울 휴식을 원한다.",
+      "soft_preference_query": "조용하고 따뜻하며 여유로운 겨울의 휴식을 즐길 수 있는 평온한 곳.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-810",
+        "city_name_ko": "인제군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-810",
+          "city_score": 2.3886,
+          "score_breakdown": {
+            "semantic_evidence": 0.4051,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0775
+          },
+          "top_place_ids": [
+            "attraction#126677",
+            "attraction#125412",
+            "attraction#1835658",
+            "attraction#2773530",
+            "attraction#2514804",
+            "attraction#2774513"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "인제군",
+          "available_place_count": 6,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-930",
+          "city_score": 2.2625,
+          "score_breakdown": {
+            "semantic_evidence": 0.3552,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.971,
+            "scale_correction": 0.0358,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1278
+          },
+          "top_place_ids": [
+            "attraction#2638527",
+            "attraction#128051",
+            "attraction#125430",
+            "attraction#2613465",
+            "attraction#2994740"
+          ],
+          "candidate_count": 5,
+          "city_name_ko": "울진군",
+          "available_place_count": 5,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-730",
+          "city_score": 2.2608,
+          "score_breakdown": {
+            "semantic_evidence": 0.4022,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1208
+          },
+          "top_place_ids": [
+            "attraction#2789625",
+            "attraction#407202",
+            "attraction#125266",
+            "attraction#126773",
+            "attraction#2613675",
+            "attraction#2774609"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "횡성군",
+          "available_place_count": 6,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-800",
+          "city_score": 2.1168,
+          "score_breakdown": {
+            "semantic_evidence": 0.1388,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#1089831",
+            "attraction#130493"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "양구군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-750",
+          "city_score": 2.0754,
+          "score_breakdown": {
+            "semantic_evidence": 0.1278,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0304
+          },
+          "top_place_ids": [
+            "attraction#3407888",
+            "attraction#130905"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "청송군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 2.065,
+          "score_breakdown": {
+            "semantic_evidence": 0.4933,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8631,
+            "scale_correction": 0.0416,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3499
+          },
+          "top_place_ids": [
+            "attraction#2648390",
+            "attraction#407225",
+            "attraction#130661",
+            "attraction#128785",
+            "attraction#127531",
+            "attraction#2699726",
+            "attraction#129416"
+          ],
+          "candidate_count": 7,
+          "city_name_ko": "춘천시",
+          "available_place_count": 7,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-750",
+          "city_score": 2.0543,
+          "score_breakdown": {
+            "semantic_evidence": 0.3231,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.7219,
+            "scale_correction": 0.0358,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0549
+          },
+          "top_place_ids": [
+            "attraction#2681536",
+            "attraction#2719984",
+            "attraction#3072217",
+            "attraction#798017",
+            "attraction#2633903"
+          ],
+          "candidate_count": 5,
+          "city_name_ko": "영월군",
+          "available_place_count": 5,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 2.0538,
+          "score_breakdown": {
+            "semantic_evidence": 0.5278,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0439,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3414
+          },
+          "top_place_ids": [
+            "attraction#1870612",
+            "attraction#125417",
+            "attraction#2913890",
+            "attraction#2821072",
+            "attraction#3100746",
+            "attraction#127951",
+            "attraction#2804197",
+            "attraction#2706817"
+          ],
+          "candidate_count": 8,
+          "city_name_ko": "강릉시",
+          "available_place_count": 7,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-230",
+          "city_score": 2.0423,
+          "score_breakdown": {
+            "semantic_evidence": 0.2593,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1848
+          },
+          "top_place_ids": [
+            "attraction#3407187",
+            "attraction#1839066",
+            "attraction#1838591",
+            "attraction#615222"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "영천시",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-730",
+          "city_score": 2.0118,
+          "score_breakdown": {
+            "semantic_evidence": 0.1313,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0976
+          },
+          "top_place_ids": [
+            "attraction#407373",
+            "attraction#4071855"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "의성군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-280",
+          "city_score": 1.9778,
+          "score_breakdown": {
+            "semantic_evidence": 0.1376,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1378
+          },
+          "top_place_ids": [
+            "attraction#125407",
+            "attraction#3346734"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "문경시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-780",
+          "city_score": 1.956,
+          "score_breakdown": {
+            "semantic_evidence": 0.2621,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0853
+          },
+          "top_place_ids": [
+            "attraction#2638573",
+            "attraction#561034",
+            "attraction#3532144",
+            "attraction#2679579"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "철원군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-760",
+          "city_score": 1.9233,
+          "score_breakdown": {
+            "semantic_evidence": 0.2199,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1872
+          },
+          "top_place_ids": [
+            "attraction#2772886",
+            "attraction#3351239",
+            "attraction#407252"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "평창군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-250",
+          "city_score": 1.8961,
+          "score_breakdown": {
+            "semantic_evidence": 0.1988,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1933
+          },
+          "top_place_ids": [
+            "attraction#252565",
+            "attraction#2756622",
+            "attraction#3056661"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "상주시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-720",
+          "city_score": 1.8839,
+          "score_breakdown": {
+            "semantic_evidence": 0.1102,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2043
+          },
+          "top_place_ids": [
+            "attraction#2791411",
+            "attraction#125420"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "홍천군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 1.8555,
+          "score_breakdown": {
+            "semantic_evidence": 0.238,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1616
+          },
+          "top_place_ids": [
+            "attraction#2715405",
+            "attraction#687616",
+            "attraction#2699773",
+            "attraction#2776832"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "삼척시",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-170",
+          "city_score": 1.8066,
+          "score_breakdown": {
+            "semantic_evidence": 0.1839,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2679
+          },
+          "top_place_ids": [
+            "attraction#2436209",
+            "attraction#3407174",
+            "attraction#988449"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "안동시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-190",
+          "city_score": 1.7898,
+          "score_breakdown": {
+            "semantic_evidence": 0.1557,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.344
+          },
+          "top_place_ids": [
+            "attraction#407291",
+            "attraction#2736702"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "구미시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 1.6867,
+          "score_breakdown": {
+            "semantic_evidence": 0.2576,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#130509",
+            "attraction#125405",
+            "attraction#3486762",
+            "attraction#2752134"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "경주시",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#1835658",
+          "title": "내설악 백공미술관",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 38.2132523005745,
+          "longitude": 128.362122716697,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#1835658",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.7358,
+            "score_components": {
+              "raw_similarity": 0.2327,
+              "soft_similarity": 0.103,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2773530",
+          "title": "공립인제내설악미술관",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 38.1455549761,
+          "longitude": 128.2533294992,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#2773530",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.6733,
+            "score_components": {
+              "raw_similarity": 0.1657,
+              "soft_similarity": 0.1076,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2514804",
+          "title": "진부령미술관",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 38.2654124845,
+          "longitude": 128.3588495234,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#2514804",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.6046,
+            "score_components": {
+              "raw_similarity": 0.2046,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126677",
+          "title": "국립 방태산자연휴양림",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 37.9296818478176,
+          "longitude": 128.387954026394,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#126677",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.7488,
+            "score_components": {
+              "raw_similarity": 0.1699,
+              "soft_similarity": 0.1789,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125412",
+          "title": "국립 용대자연휴양림",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 38.2316443099,
+          "longitude": 128.364663931,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#125412",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.741,
+            "score_components": {
+              "raw_similarity": 0.1595,
+              "soft_similarity": 0.1815,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2774513",
+          "title": "하추자연휴양림",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 38.0347496922,
+          "longitude": 128.3193324547,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#2774513",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.5471,
+            "score_components": {
+              "raw_similarity": 0.1471,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "예술·감성",
+          "온천·휴양"
+        ],
+        "searchable_place_themes": [
+          "예술·감성",
+          "온천·휴양"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "예술·감성": 3,
+          "온천·휴양": 3
+        },
+        "reserve_theme_counts": {
+          "예술·감성": 0,
+          "온천·휴양": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 3,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": false,
+        "relaxed_slots": 0,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 4,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 6,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "예술·감성",
+          "온천·휴양"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 100,
+        "merged_candidate_count": 100,
+        "survived_city_count": 19,
+        "eliminated_cities": [
+          "KR-51-210",
+          "KR-51-190",
+          "KR-51-790",
+          "KR-47-770",
+          "KR-51-770",
+          "KR-47-920",
+          "KR-47-150",
+          "KR-47-840",
+          "KR-51-830",
+          "KR-47-850",
+          "KR-51-130",
+          "KR-47-830",
+          "KR-47-820",
+          "KR-47-760",
+          "KR-47-210",
+          "KR-47-900"
+        ]
+      },
+      "candidate_counts": {
+        "retrieved": 100,
+        "merged": 100,
+        "scored": 74,
+        "city_count": 19,
+        "recommended_places": 6,
+        "reserve_places": 0,
+        "available_places": 6,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "place_pool",
+          "text_ko": "내설악 백공미술관에서는 지역 예술가들의 작품을 감상하며 조용한 분위기 속에서 예술적 영감을 얻을 수 있습니다.",
+          "evidence_refs": [
+            "attraction#1835658"
+          ],
+          "required_place_ids": [
+            "attraction#1835658"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "공립인제내설악미술관은 현대 미술 전시와 워크숍을 제공해 감성적인 여행을 원하는 이들에게 적합합니다.",
+          "evidence_refs": [
+            "attraction#2773530"
+          ],
+          "required_place_ids": [
+            "attraction#2773530"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "국립 방태산자연휴양림은 울창한 숲과 조용한 트레일이 있어 겨울에도 따뜻하고 평온한 휴식을 취할 수 있습니다.",
+          "evidence_refs": [
+            "attraction#126677"
+          ],
+          "required_place_ids": [
+            "attraction#126677"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "국립 용대자연휴양림은 눈 덮인 산책로와 휴식 공간이 마련돼 겨울철 조용한 힐링을 원하는 여행자에게 알맞습니다.",
+          "evidence_refs": [
+            "attraction#125412"
+          ],
+          "required_place_ids": [
+            "attraction#125412"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#1835658",
+          "title": "내설악 백공미술관",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "details": {
+            "content_id": "1835658",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "14",
+            "source_key": "raw/KR/details/20260609/Inje.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/95/3502895_image2_1.jpg",
+            "latitude": 38.2132523005745,
+            "phone": "",
+            "city_name_en": "Inje",
+            "theme": "예술·감성",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 인제군 북면 황태길 245",
+            "theme_tags": [
+              "예술·감성"
+            ],
+            "entity_id": "ATT-1835658",
+            "longitude": 128.362122716697,
+            "description": "내설악 백공미술관은 설악산의 풍요로움과 내린천의 시원함이 함께하는 인제군 백담사 입구에 자리하고 있다. 이곳은 자연 속에서 예술을 감상할 수 있는 특별한 공간으로, 자연의 휴식과 예술의 향기를 동시에 느낄 수 있는 곳이다. 2011년에 개관한 백공미술관은 한국 근대 회화의 대표적인 작가들의 작품을 소장하고 있으며, 매년 기획 전시를 통해 현대 젊은 작가들의 작품도 함께 선보이고 있다. 또한, 작가들의 창작 활동을 지원하고 지역 주민과 관광객들에게 예술 체험의 기회를 제공하는 다양한 프로그램도 운영 중이다. 미술관 건물은 심플하면서도 소박한 외형을 지니고 있으며, 1층과 2층으로 구성되어 있다. 1층에는 ‘정(靜)’과 ‘동(動)’ 전시실이 있어 고요함과 역동성을 주제로 한 작품들을 감상할 수 있다. 2층으로 올라가는 계단 벽에는 환상적인 모습의 벽화가 그려져 있어, 관람객들은 계단을 오르며 예술 작품을 감상하는 또 다른 즐거움을 느낄 수 있다. 2층 전시실에는 근현대 회화 작품들이 다양하게 전시되어 있다. 총 2만 평의 대지에는 미술관 본관 외에도 도자기실, 별도의 전시실, 조각 공원이 조성되어 있다. 조각 공원에는 마리아 조각상 등 유명 조각가들의 작품이 야외에 전시되어 있어 자연과 예술이 조화를 이루는 풍경을 제공한다. 또한, 인근에는 우리나라에서 황태가 가장 많이 생산되는 용대리 황태마을이 위치해 있어, 황태를 활용한 다양한 음식을 맛볼 수 있는 미식 여행도 함께 즐길 수 있다.",
+            "PK": "CITY#Inje",
+            "city_id": "KR-Inje",
+            "title": "내설악 백공미술관",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#1835658",
+            "overview": "내설악 백공미술관은 설악산의 풍요로움과 내린천의 시원함이 함께하는 인제군 백담사 입구에 자리하고 있다. 이곳은 자연 속에서 예술을 감상할 수 있는 특별한 공간으로, 자연의 휴식과 예술의 향기를 동시에 느낄 수 있는 곳이다. 2011년에 개관한 백공미술관은 한국 근대 회화의 대표적인 작가들의 작품을 소장하고 있으며, 매년 기획 전시를 통해 현대 젊은 작가들의 작품도 함께 선보이고 있다. 또한, 작가들의 창작 활동을 지원하고 지역 주민과 관광객들에게 예술 체험의 기회를 제공하는 다양한 프로그램도 운영 중이다. 미술관 건물은 심플하면서도 소박한 외형을 지니고 있으며, 1층과 2층으로 구성되어 있다. 1층에는 ‘정(靜)’과 ‘동(動)’ 전시실이 있어 고요함과 역동성을 주제로 한 작품들을 감상할 수 있다. 2층으로 올라가는 계단 벽에는 환상적인 모습의 벽화가 그려져 있어, 관람객들은 계단을 오르며 예술 작품을 감상하는 또 다른 즐거움을 느낄 수 있다. 2층 전시실에는 근현대 회화 작품들이 다양하게 전시되어 있다. 총 2만 평의 대지에는 미술관 본관 외에도 도자기실, 별도의 전시실, 조각 공원이 조성되어 있다. 조각 공원에는 마리아 조각상 등 유명 조각가들의 작품이 야외에 전시되어 있어 자연과 예술이 조화를 이루는 풍경을 제공한다. 또한, 인근에는 우리나라에서 황태가 가장 많이 생산되는 용대리 황태마을이 위치해 있어, 황태를 활용한 다양한 음식을 맛볼 수 있는 미식 여행도 함께 즐길 수 있다."
+          },
+          "latitude": 38.2132523005745,
+          "longitude": 128.362122716697,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#1835658",
+          "body": "백공미술관은 자연 속에서 한국 근대·현대 회화를 감상할 수 있는 공간입니다.",
+          "reason": "내설악 백공미술관에서는 지역 예술가들의 작품을 감상하며 조용한 분위기 속에서 예술적 영감을 얻을 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#2773530",
+          "title": "공립인제내설악미술관",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "details": {
+            "content_id": "2773530",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "14",
+            "source_key": "raw/KR/details/20260609/Inje.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/43/3340443_image2_1.jpg",
+            "latitude": 38.1455549761,
+            "phone": "",
+            "city_name_en": "Inje",
+            "theme": "예술·감성",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 인제군 북면 예술인촌길 66-12",
+            "theme_tags": [
+              "예술·감성"
+            ],
+            "entity_id": "ATT-2773530",
+            "longitude": 128.2533294992,
+            "description": "인제내설악미술관은 현대미술을 중심으로 운영되는 공립미술관으로 한국을 대표하는 현대미술 작가들을 소개하고, 세계적인 작가들의 작품들을 선보임으로써 문화 예술의 발자취를 쌓아 가고 있으며 지역 작가들을 발굴하여 인제군의 문화 예술 르네상스를 꽃피우고자 한다.\n또한 내설악예술인촌 마을입구에 지하 1층, 지상 2층으로 건축되었으며 지역예술 진흥과 육성을 위하여 내설악예술인촌에 거주하는 유명작가들 및 인제군 관내 문화예술단체의 작품활동 지원과 작품을 전시하는 공간으로 활용되고 있다.\n아울러 전문미술관 교육을 추진하여 소외된 지역 어린이들에게는 예술가로 성장할 수 있는 꿈과 희망이 되도록 하며, 인제군민들에게는 예술과 함께 공유하며 살아갈 수 있도록 여러 장르의 성인아카데미 강좌를 진행한다.",
+            "PK": "CITY#Inje",
+            "city_id": "KR-Inje",
+            "title": "공립인제내설악미술관",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2773530",
+            "overview": "인제내설악미술관은 현대미술을 중심으로 운영되는 공립미술관으로 한국을 대표하는 현대미술 작가들을 소개하고, 세계적인 작가들의 작품들을 선보임으로써 문화 예술의 발자취를 쌓아 가고 있으며 지역 작가들을 발굴하여 인제군의 문화 예술 르네상스를 꽃피우고자 한다.\n또한 내설악예술인촌 마을입구에 지하 1층, 지상 2층으로 건축되었으며 지역예술 진흥과 육성을 위하여 내설악예술인촌에 거주하는 유명작가들 및 인제군 관내 문화예술단체의 작품활동 지원과 작품을 전시하는 공간으로 활용되고 있다.\n아울러 전문미술관 교육을 추진하여 소외된 지역 어린이들에게는 예술가로 성장할 수 있는 꿈과 희망이 되도록 하며, 인제군민들에게는 예술과 함께 공유하며 살아갈 수 있도록 여러 장르의 성인아카데미 강좌를 진행한다."
+          },
+          "latitude": 38.1455549761,
+          "longitude": 128.2533294992,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#2773530",
+          "body": "공립인제내설악미술관은 현대미술 전시와 교육 워크숍을 제공하는 공공 미술관입니다.",
+          "reason": "공립인제내설악미술관은 현대 미술 전시와 워크숍을 제공해 감성적인 여행을 원하는 이들에게 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#2514804",
+          "title": "진부령미술관",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "details": {
+            "content_id": "2514804",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "14",
+            "source_key": "raw/KR/details/20260609/Inje.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/70/3353370_image2_1.jpg",
+            "latitude": 38.2654124845,
+            "phone": "",
+            "city_name_en": "Inje",
+            "theme": "예술·감성",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 인제군 북면 진부령로 663",
+            "theme_tags": [
+              "예술·감성"
+            ],
+            "entity_id": "ATT-2514804",
+            "longitude": 128.3588495234,
+            "description": "강원특별자치도 고성군에서 운영하는 진부령미술관은 진부령 정상(해발 526m)에 자리하고 있다. 지난 2000년 고성읍 출장사무소 건물을 개조해 진부령문화스튜디오로 개관하였고, 2005년 대대적인 리모델링을 거쳐 4개 전시관을 갖춘 지금의 모습으로 다시 태어났다. 매년 기획 전시회를 개최하여 다양한 분야의 미술 작품들을 전시하고 있으며, 이중섭 상설 전시실에서는 대향 이중섭과 관련된 다양한 자료와 2.7m*4m의 대형 액자에 담긴 황소 작품도 볼 수 있다.",
+            "PK": "CITY#Inje",
+            "city_id": "KR-Inje",
+            "title": "진부령미술관",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2514804",
+            "overview": "강원특별자치도 고성군에서 운영하는 진부령미술관은 진부령 정상(해발 526m)에 자리하고 있다. 지난 2000년 고성읍 출장사무소 건물을 개조해 진부령문화스튜디오로 개관하였고, 2005년 대대적인 리모델링을 거쳐 4개 전시관을 갖춘 지금의 모습으로 다시 태어났다. 매년 기획 전시회를 개최하여 다양한 분야의 미술 작품들을 전시하고 있으며, 이중섭 상설 전시실에서는 대향 이중섭과 관련된 다양한 자료와 2.7m*4m의 대형 액자에 담긴 황소 작품도 볼 수 있다."
+          },
+          "latitude": 38.2654124845,
+          "longitude": 128.3588495234,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#2514804",
+          "body": "진부령미술관은 정상에 위치해 이중섭 전시와 기획 전시를 관람할 수 있습니다.",
+          "reason": "진부령미술관은 정상에 자리해 이중섭 상설 전시와 다양한 기획 전시를 선보이는 문화 공간입니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#126677",
+          "title": "국립 방태산자연휴양림",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "details": {
+            "content_id": "126677",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Inje.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/35/3426835_image2_1.jpg",
+            "latitude": 37.9296818478176,
+            "phone": "033-463-8590",
+            "city_name_en": "Inje",
+            "theme": "온천·휴양",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 인제군 방태산길 241 방태산자연휴양림",
+            "theme_tags": [
+              "온천·휴양"
+            ],
+            "entity_id": "ATT-126677",
+            "longitude": 128.387954026394,
+            "description": "한국판 노아의 방주라고 할 수 있는 곳이 이름 그대로 방태산이다. 방태산 정상에는 약 2톤가량의 암석이 있었고 여기에는 수작업으로 정을 꽂아 뚫은 구멍이 있었는데 옛날 대홍수가 났을 때 이곳에다 배를 떠내려가지 않게 하기 위해 밧줄을 매달았다고 하여 그 돌을 가리켜 배달은 돌이라고 부르며, 그 당시를 입증해 주기라도 하듯 방태산 정상에는 지금도 바위틈바구니의 흙이나 모래 속에서 조개껍질이 출토되고 있다고 하나 현재는 그 돌은 찾아볼 수 없다.\n방태산의 식생은 대부분의 천연 활엽수 임지이며 일부 인공조림지도 있다.  주봉인 구룡덕봉(해발 1,388m)과 주억봉(해발 1,443m) 계곡이 발원지로서 본 휴양림의 주된 수계를 이루고 있어 수량이 풍부하다. 특히 마당바위(마당처럼 평평하고 넓은 바위)와 2단 폭포는 절경이라 할 수 있다. 피나무, 박달, 소나무, 참나무류 등 수종이 다양하여 계절에 따라 녹음, 단풍, 설경 등  자연경관이 수려할 뿐만 아니라 열목어, 메기, 꺽지등의 물고기와 멧돼지, 토끼, 꿩 노루,  다람쥐 등의 야생동물도 다양하게 서식하고 있다.",
+            "PK": "CITY#Inje",
+            "city_id": "KR-Inje",
+            "title": "국립 방태산자연휴양림",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126677",
+            "overview": "한국판 노아의 방주라고 할 수 있는 곳이 이름 그대로 방태산이다. 방태산 정상에는 약 2톤가량의 암석이 있었고 여기에는 수작업으로 정을 꽂아 뚫은 구멍이 있었는데 옛날 대홍수가 났을 때 이곳에다 배를 떠내려가지 않게 하기 위해 밧줄을 매달았다고 하여 그 돌을 가리켜 배달은 돌이라고 부르며, 그 당시를 입증해 주기라도 하듯 방태산 정상에는 지금도 바위틈바구니의 흙이나 모래 속에서 조개껍질이 출토되고 있다고 하나 현재는 그 돌은 찾아볼 수 없다.\n방태산의 식생은 대부분의 천연 활엽수 임지이며 일부 인공조림지도 있다.  주봉인 구룡덕봉(해발 1,388m)과 주억봉(해발 1,443m) 계곡이 발원지로서 본 휴양림의 주된 수계를 이루고 있어 수량이 풍부하다. 특히 마당바위(마당처럼 평평하고 넓은 바위)와 2단 폭포는 절경이라 할 수 있다. 피나무, 박달, 소나무, 참나무류 등 수종이 다양하여 계절에 따라 녹음, 단풍, 설경 등  자연경관이 수려할 뿐만 아니라 열목어, 메기, 꺽지등의 물고기와 멧돼지, 토끼, 꿩 노루,  다람쥐 등의 야생동물도 다양하게 서식하고 있다."
+          },
+          "latitude": 37.9296818478176,
+          "longitude": 128.387954026394,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#126677",
+          "body": "국립 방태산자연휴양림은 울창한 숲과 폭포, 야생동물이 어우러진 휴양림입니다.",
+          "reason": "국립 방태산자연휴양림은 울창한 숲과 조용한 트레일이 있어 겨울에도 따뜻하고 평온한 휴식을 취할 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#125412",
+          "title": "국립 용대자연휴양림",
+          "city_id": "KR-51-810",
+          "city_name_ko": "인제군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "details": {
+            "content_id": "125412",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Inje.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/53/3042453_image2_1.jpg",
+            "latitude": 38.2316443099,
+            "phone": "용대자연휴양림 033-462-5031",
+            "city_name_en": "Inje",
+            "theme": "온천·휴양",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 인제군 북면 연화동길 7",
+            "theme_tags": [
+              "온천·휴양"
+            ],
+            "entity_id": "ATT-125412",
+            "longitude": 128.364663931,
+            "description": "한반도의 허리를 이루고 있는 태백산맥 북측의 진부령 정상 부근에 있으며, 국립공원 설악산과 동해로 통하는 46번 국도 주변에 있다. 비무장지대(DMZ)와 근접한 최북단 해발 600m에 위치한 휴양림으로, 주변이 울창한 숲으로 둘러싸여 한여름에도 계곡물이 차가워 10분 이상 발을 담글 수 없는 심산 계곡에 자리하고 있다. 휴양림은 대부분 인공 낙엽수림과 참나무, 피나무, 박달나무, 소나무 등 천연림이 서로 조화를 이루고 있으며 산림 수종도 다양하여 계절에 따라 녹음, 단풍, 설경 등 자연경관이 수려하다. \n매봉산(해발 1,271m)과 칠절봉(해발 1,172m)으로부터 형성된 크고 작은 계곡을 따라 맑고 깨끗한 물이 휴양림 중앙으로 흐르고 있어 천연기념물인 열목어와 야생동물이 다양하게 서식하고 있다. 휴양림인 연화동은 지형이 ‘연화 분 수형’으로 마치 연꽃이 물 위에 떠 있는 형상을 띠고 있는 지형이다. \n주변에 설악산국립공원 내 백담사, 십이선녀탕, 장수대, 대승폭포와 동해 관광권 등 인근 관광지와 연계 이용이 가능한 체류형 휴양지로 적합하며 인제군에서는 1월 빙어, 3월 고로쇠, 5월 황태, 7월 레포츠 축제가 열리며, 10월에는 합강문화제등 향토축제도 열려 축제 시즌에 맞추어 축제도 즐기고 휴양림에서 편안한 휴식을 갖는 것도 추천할 만하다.",
+            "PK": "CITY#Inje",
+            "city_id": "KR-Inje",
+            "title": "국립 용대자연휴양림",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125412",
+            "overview": "한반도의 허리를 이루고 있는 태백산맥 북측의 진부령 정상 부근에 있으며, 국립공원 설악산과 동해로 통하는 46번 국도 주변에 있다. 비무장지대(DMZ)와 근접한 최북단 해발 600m에 위치한 휴양림으로, 주변이 울창한 숲으로 둘러싸여 한여름에도 계곡물이 차가워 10분 이상 발을 담글 수 없는 심산 계곡에 자리하고 있다. 휴양림은 대부분 인공 낙엽수림과 참나무, 피나무, 박달나무, 소나무 등 천연림이 서로 조화를 이루고 있으며 산림 수종도 다양하여 계절에 따라 녹음, 단풍, 설경 등 자연경관이 수려하다. \n매봉산(해발 1,271m)과 칠절봉(해발 1,172m)으로부터 형성된 크고 작은 계곡을 따라 맑고 깨끗한 물이 휴양림 중앙으로 흐르고 있어 천연기념물인 열목어와 야생동물이 다양하게 서식하고 있다. 휴양림인 연화동은 지형이 ‘연화 분 수형’으로 마치 연꽃이 물 위에 떠 있는 형상을 띠고 있는 지형이다. \n주변에 설악산국립공원 내 백담사, 십이선녀탕, 장수대, 대승폭포와 동해 관광권 등 인근 관광지와 연계 이용이 가능한 체류형 휴양지로 적합하며 인제군에서는 1월 빙어, 3월 고로쇠, 5월 황태, 7월 레포츠 축제가 열리며, 10월에는 합강문화제등 향토축제도 열려 축제 시즌에 맞추어 축제도 즐기고 휴양림에서 편안한 휴식을 갖는 것도 추천할 만하다."
+          },
+          "latitude": 38.2316443099,
+          "longitude": 128.364663931,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#INJE",
+          "ddb_sk": "ATTRACTION#125412",
+          "body": "국립 용대자연휴양림은 고산 계곡과 연화동 지형을 갖춘 겨울 힐링 휴양지입니다.",
+          "reason": "국립 용대자연휴양림은 눈 덮인 산책로와 휴식 공간이 마련돼 겨울철 조용한 힐링을 원하는 여행자에게 알맞습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "내설악 백공미술관에서는 지역 예술가들의 작품을 감상하며 조용한 분위기 속에서 예술적 영감을 얻을 수 있습니다.",
+        "공립인제내설악미술관은 현대 미술 전시와 워크숍을 제공해 감성적인 여행을 원하는 이들에게 적합합니다.",
+        "국립 방태산자연휴양림은 울창한 숲과 조용한 트레일이 있어 겨울에도 따뜻하고 평온한 휴식을 취할 수 있습니다."
+      ],
+      "itinerary_flow_reason": "인제군에서는 먼저 미술관들을 방문해 예술을 체험하고, 이어서 방태산·용대 자연휴양림에서 겨울 산책과 휴식을 즐기는 일정으로 구성했습니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "인제군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%9D%B8%EC%A0%9C%EA%B5%B0",
+          "query": "인제군",
+          "city_name_ko": "인제군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "인제군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%9D%B8%EC%A0%9C%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "인제군 숙소",
+          "city_name_ko": "인제군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "인제군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%9D%B8%EC%A0%9C%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "인제군 맛집",
+          "city_name_ko": "인제군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#1835658",
+              "place:attraction#2773530",
+              "place:attraction#2514804",
+              "place:attraction#126677",
+              "place:attraction#125412"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "내설악 백공미술관에서는 지역 예술가들의 작품을 감상하며 조용한 분위기 속에서 예술적 영감을 얻을 수 있습니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#1835658",
+              "place:attraction#2773530",
+              "place:attraction#2514804",
+              "place:attraction#126677",
+              "place:attraction#125412"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "공립인제내설악미술관은 현대 미술 전시와 워크숍을 제공해 감성적인 여행을 원하는 이들에게 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#1835658",
+              "place:attraction#2773530",
+              "place:attraction#2514804",
+              "place:attraction#126677",
+              "place:attraction#125412"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "국립 방태산자연휴양림은 울창한 숲과 조용한 트레일이 있어 겨울에도 따뜻하고 평온한 휴식을 취할 수 있습니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#1835658",
+          "place:attraction#2773530",
+          "place:attraction#2514804",
+          "place:attraction#126677",
+          "place:attraction#125412"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-17",
+      "expiresAt": "2026-06-27T19:44:26Z",
+      "destination": {
+        "destinationId": "KR-51-810",
+        "name": "인제군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#1835658",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "내설악 백공미술관",
+                "body": "백공미술관은 자연 속에서 한국 근대·현대 회화를 감상할 수 있는 공간입니다.",
+                "reason": "내설악 백공미술관에서는 지역 예술가들의 작품을 감상하며 조용한 분위기 속에서 예술적 영감을 얻을 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 38.2132523005745,
+                "longitude": 128.362122716697
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#2773530",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "공립인제내설악미술관",
+                "body": "공립인제내설악미술관은 현대미술 전시와 교육 워크숍을 제공하는 공공 미술관입니다.",
+                "reason": "공립인제내설악미술관은 현대 미술 전시와 워크숍을 제공해 감성적인 여행을 원하는 이들에게 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 38.1455549761,
+                "longitude": 128.2533294992
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#2514804",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "진부령미술관",
+                "body": "진부령미술관은 정상에 위치해 이중섭 전시와 기획 전시를 관람할 수 있습니다.",
+                "reason": "진부령미술관은 정상에 자리해 이중섭 상설 전시와 다양한 기획 전시를 선보이는 문화 공간입니다.",
+                "moveMinutes": null,
+                "latitude": 38.2654124845,
+                "longitude": 128.3588495234
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#126677",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "국립 방태산자연휴양림",
+                "body": "국립 방태산자연휴양림은 울창한 숲과 폭포, 야생동물이 어우러진 휴양림입니다.",
+                "reason": "국립 방태산자연휴양림은 울창한 숲과 조용한 트레일이 있어 겨울에도 따뜻하고 평온한 휴식을 취할 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 37.9296818478176,
+                "longitude": 128.387954026394
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#125412",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "국립 용대자연휴양림",
+                "body": "국립 용대자연휴양림은 고산 계곡과 연화동 지형을 갖춘 겨울 힐링 휴양지입니다.",
+                "reason": "국립 용대자연휴양림은 눈 덮인 산책로와 휴식 공간이 마련돼 겨울철 조용한 힐링을 원하는 여행자에게 알맞습니다.",
+                "moveMinutes": null,
+                "latitude": 38.2316443099,
+                "longitude": 128.364663931
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "art_sense",
+          "healing_rest",
+          "travelMonth:1"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "내설악 백공미술관에서는 지역 예술가들의 작품을 감상하며 조용한 분위기 속에서 예술적 영감을 얻을 수 있습니다.",
+          "공립인제내설악미술관은 현대 미술 전시와 워크숍을 제공해 감성적인 여행을 원하는 이들에게 적합합니다.",
+          "국립 방태산자연휴양림은 울창한 숲과 조용한 트레일이 있어 겨울에도 따뜻하고 평온한 휴식을 취할 수 있습니다."
+        ],
+        "itineraryFlowReason": "인제군에서는 먼저 미술관들을 방문해 예술을 체험하고, 이어서 방태산·용대 자연휴양림에서 겨울 산책과 휴식을 즐기는 일정으로 구성했습니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%9D%B8%EC%A0%9C%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%EC%9D%B8%EC%A0%9C%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%9D%B8%EC%A0%9C%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

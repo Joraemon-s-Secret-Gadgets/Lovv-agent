@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-13",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 7,
+  "tripType": "2d1n",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": true,
+  "naturalLanguageQuery": "여름 동해안 해변 축제와 바다 풍경을 함께 즐기고 싶어요. 사람이 많고 활기찬 분위기면 좋겠어요.",
+  "userLocation": null
+}

@@ -1,0 +1,96 @@
+{
+  "request": {
+    "request_id": "REQ-TC-18",
+    "entry_type": "map_marker",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 10,
+    "trip_type": "daytrip",
+    "destination_id": null,
+    "themes": [
+      "sea_coast"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "map_marker인데 destinationId가 없는 validation negative 케이스.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-18",
+    "agent_run_id": "run-c5ff0fe9-ff55-44f8-aa05-25c88b144689",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "response_packager"
+      ]
+    }
+  },
+  "intent": {
+    "extracted_inputs": {},
+    "active_required_themes": [],
+    "searchable_place_themes": [],
+    "external_link_themes": [],
+    "cleaned_raw_query": "",
+    "soft_preference_query": "",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": null
+  },
+  "routing": {
+    "next_node": "END_WAIT_USER",
+    "fulfilled_matrix": {
+      "evidence": "X",
+      "festival": "N/A",
+      "planning": "X"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": true,
+    "clarifying_question": "추천 생성을 위해 구조화 입력을 보완해 주세요: destinationId is required for map_marker entryType"
+  },
+  "evidence": {
+    "candidate_evidence_package": null,
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": null,
+    "validation_result": null
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-18",
+      "expiresAt": "2026-06-27T19:44:26Z",
+      "destination": {
+        "destinationId": null,
+        "name": null,
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "daytrip",
+        "days": []
+      },
+      "explainability": {
+        "matchedConditions": [
+          "sea_coast",
+          "travelMonth:10"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [],
+        "itineraryFlowReason": "",
+        "confidence": 0.0,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {}
+    },
+    "response_status": "END_WAIT_USER"
+  }
+}

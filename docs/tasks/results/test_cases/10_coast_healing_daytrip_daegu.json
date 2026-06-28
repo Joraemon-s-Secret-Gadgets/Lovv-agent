@@ -1,0 +1,19 @@
+{
+  "requestId": "REQ-TC-10",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 8,
+  "tripType": "daytrip",
+  "themes": [
+    "sea_coast",
+    "healing_rest"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "당일치기로 동해 바다도 보고 온천에서 쉬고 싶어요. 이동 시간이 짧고 편안한 휴식이면 좋겠어요.",
+  "userLocation": {
+    "latitude": 35.8714,
+    "longitude": 128.6014
+  }
+}

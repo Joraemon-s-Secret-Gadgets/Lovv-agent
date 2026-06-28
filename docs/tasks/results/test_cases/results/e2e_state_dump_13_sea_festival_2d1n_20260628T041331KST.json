@@ -1,0 +1,1220 @@
+{
+  "request": {
+    "request_id": "REQ-TC-13",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 7,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "sea_coast"
+    ],
+    "include_festivals": true,
+    "natural_language_query": "여름 동해안 해변 축제와 바다 풍경을 함께 즐기고 싶어요. 사람이 많고 활기찬 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-13",
+    "agent_run_id": "run-8185b39e-1f36-4cfe-b6bc-175292551195",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "festival_verifier_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 7,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "sea_coast"
+      ],
+      "includeFestivals": true,
+      "naturalLanguageQuery": "여름 동해안 해변 축제와 바다 풍경을 함께 즐기고 싶어요. 사람이 많고 활기찬 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "festival_seeded_city_discovery",
+      "cleaned_raw_query": "여름 동해안 해변 축제와 바다 풍경을 함께 즐기고 싶어요 사람이 많고 활기찬 분위기면 좋겠어요",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "searchable_place_themes": [
+      "바다·해안"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "여름 동해안 해변 축제와 바다 풍경을 함께 즐기고 싶다. 사람이 많고 활기찬 분위기를 원한다.",
+    "soft_preference_query": "사람이 많고 활기차며 북적이는, 에너지 넘치는 분위기의 곳.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 7,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "바다·해안"
+      ],
+      "include_festivals": true,
+      "cleaned_raw_query": "여름 동해안 해변 축제와 바다 풍경을 함께 즐기고 싶다. 사람이 많고 활기찬 분위기를 원한다.",
+      "soft_preference_query": "사람이 많고 활기차며 북적이는, 에너지 넘치는 분위기의 곳.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "festival_seeded_city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "O",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "festival_seeded_city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-150",
+        "city_name_ko": "강릉시",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-150",
+          "city_score": 2.7714,
+          "score_breakdown": {
+            "semantic_evidence": 0.4654,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0439,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": -0.25
+          },
+          "top_place_ids": [
+            "attraction#585615",
+            "attraction#585522",
+            "attraction#128728",
+            "attraction#125699",
+            "attraction#1625166",
+            "attraction#128757",
+            "attraction#2946241",
+            "attraction#128758"
+          ],
+          "candidate_count": 8,
+          "city_name_ko": "강릉시",
+          "available_place_count": 8,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-51-170",
+          "city_score": 2.6552,
+          "score_breakdown": {
+            "semantic_evidence": 0.6032,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": -0.0
+          },
+          "top_place_ids": [
+            "attraction#125708",
+            "attraction#2710184",
+            "attraction#125713",
+            "attraction#2716757",
+            "attraction#2714642",
+            "attraction#2714641",
+            "attraction#125718",
+            "attraction#2774430",
+            "attraction#2714696",
+            "attraction#129588"
+          ],
+          "candidate_count": 11,
+          "city_name_ko": "동해시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#585615",
+          "title": "도직해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.6093412454,
+          "longitude": 129.0676585323,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#585615",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6742,
+            "score_components": {
+              "raw_similarity": 0.1618,
+              "soft_similarity": 0.1123,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#585522",
+          "title": "강문해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.7947975418039,
+          "longitude": 128.91901514704,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#585522",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5773,
+            "score_components": {
+              "raw_similarity": 0.1773,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128728",
+          "title": "영진해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.8695,
+          "longitude": 128.8449,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#128728",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5766,
+            "score_components": {
+              "raw_similarity": 0.1766,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125699",
+          "title": "주문진해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.9105787154618,
+          "longitude": 128.818821192809,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#125699",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5734,
+            "score_components": {
+              "raw_similarity": 0.1734,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#1625166",
+          "title": "주문진항",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.8875872848439,
+          "longitude": 128.829873624106,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#1625166",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5656,
+            "score_components": {
+              "raw_similarity": 0.1656,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128757",
+          "title": "정동진해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.691360328107315,
+          "longitude": 129.0325745067553,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#128757",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5631,
+            "score_components": {
+              "raw_similarity": 0.1631,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2946241",
+          "title": "향호해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.9129,
+          "longitude": 128.8166,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#2946241",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5625,
+            "score_components": {
+              "raw_similarity": 0.1625,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128758",
+          "title": "경포해수욕장",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.8034055083,
+          "longitude": 128.9102102476,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#128758",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5612,
+            "score_components": {
+              "raw_similarity": 0.1612,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [
+        {
+          "festival_id": "FEST-140833",
+          "name": "홍천 찰옥수수 축제",
+          "country": "KR",
+          "city_id": "KR-51-720",
+          "city_name": "홍천군",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-17",
+          "event_end_date": "2026-07-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-1831344",
+          "name": "평창더위사냥축제",
+          "country": "KR",
+          "city_id": "KR-51-760",
+          "city_name": "평창군",
+          "month": 7,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-24",
+          "event_end_date": "2026-08-02",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2391294",
+          "name": "한강·낙동강 발원지 축제",
+          "country": "KR",
+          "city_id": "KR-51-190",
+          "city_name": "태백시",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-25",
+          "event_end_date": "2026-08-02",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2607445",
+          "name": "강릉비치비어페스티벌",
+          "country": "KR",
+          "city_id": "KR-51-150",
+          "city_name": "강릉시",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-03",
+          "event_end_date": "2026-07-05",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2661137",
+          "name": "안동 국가유산 야행 \"월영야행\"",
+          "country": "KR",
+          "city_id": "KR-47-170",
+          "city_name": "안동시",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-31",
+          "event_end_date": "2026-08-09",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2993769",
+          "name": "안동 수(水)페스타",
+          "country": "KR",
+          "city_id": "KR-47-170",
+          "city_name": "안동시",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-07-26",
+          "event_end_date": "2025-08-03",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3304549",
+          "name": "여름愛 인제愛 빠지다",
+          "country": "KR",
+          "city_id": "KR-51-810",
+          "city_name": "인제군",
+          "month": 7,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-07-26",
+          "event_end_date": "2025-08-10",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3330805",
+          "name": "묵호 도째비페스타",
+          "country": "KR",
+          "city_id": "KR-51-170",
+          "city_name": "동해시",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-07-18",
+          "event_end_date": "2025-07-20",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3487396",
+          "name": "칠곡 꿀맥 페스티벌",
+          "country": "KR",
+          "city_id": "KR-47-850",
+          "city_name": "칠곡군",
+          "month": 7,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-11",
+          "event_end_date": "2026-07-12",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-581063",
+          "name": "동강뗏목축제",
+          "country": "KR",
+          "city_id": "KR-51-750",
+          "city_name": "영월군",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-31",
+          "event_end_date": "2026-08-02",
+          "source": "tourapi"
+        }
+      ],
+      "selected_festival_candidates": [
+        {
+          "festival_id": "FEST-2607445",
+          "name": "강릉비치비어페스티벌",
+          "country": "KR",
+          "city_id": "KR-51-150",
+          "city_name": "강릉시",
+          "month": 7,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-07-03",
+          "event_end_date": "2026-07-05",
+          "source": "tourapi"
+        }
+      ],
+      "festival_seed_audit": {
+        "status": "ok",
+        "candidate_count": 10,
+        "seed_city_ids": [
+          "KR-51-720",
+          "KR-51-760",
+          "KR-51-190",
+          "KR-51-150",
+          "KR-47-170",
+          "KR-51-810",
+          "KR-51-170",
+          "KR-47-850",
+          "KR-51-750"
+        ],
+        "failure_signals": [],
+        "needs_clarification": false
+      },
+      "coverage_audit": {
+        "required_themes": [
+          "바다·해안"
+        ],
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "바다·해안": 8
+        },
+        "reserve_theme_counts": {
+          "바다·해안": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 2,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 2,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 8,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "festival_seeded_city_discovery",
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 2,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 19,
+        "city_count": 2,
+        "recommended_places": 8,
+        "reserve_places": 0,
+        "available_places": 8,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": true,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim-1",
+          "scope": "festival_anchor",
+          "text_ko": "강릉비치비어페스티벌은 여름에 동해안 해변가에서 열리는 활기찬 축제로, 많은 방문객이 모여 에너지 넘치는 분위기를 경험할 수 있습니다.",
+          "evidence_refs": [
+            "FEST-2607445"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": [
+      {
+        "festival_id": "FEST-2607445",
+        "name": "강릉비치비어페스티벌",
+        "date_status": "confirmed",
+        "start_date": "2026-07-03",
+        "end_date": "2026-07-05",
+        "is_applicable_to_trip": true,
+        "planner_policy": "placeable",
+        "source_type": "tourapi",
+        "confidence": 0.8,
+        "evidence_summary": "내부 정규화 detail의 시작일 2026-07-03이 2026년과 일치하고 7월 여행에 해당한다."
+      }
+    ]
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#585615",
+          "title": "도직해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "585615",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/81/3069081_image2_1.jpg",
+            "latitude": 37.6093412454,
+            "phone": "강릉시청 관광정책과 033-640-5128",
+            "city_name_en": "Gangneung",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 옥계면 도직리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-585615",
+            "longitude": 129.0676585323,
+            "description": "도직해변은 옥계면 도직리, 강릉시 최남단에 있는 길이 500m, 5만㎡의 간이 해변으로 길이 똑바르다고 해 도직이라 불렸다. 동해고속도로가 개설되면서 마을이 두 곳으로 나누어져 집단으로 이주했고 원래 마을은 없어졌다. 마을 이름과 같이 국도, 철도, 고속도로, 항공로, 해로 등 5차로가 평행선을 달리는 보기 드문 곳이다. 도직해변은 모래가 깨끗하고 주차장이 넓어 가족 단위로 많이 찾는 조용한 해변으로, 숙박시설로는 민박을 이용하면 된다. 약 3,000㎡의 간이 주차장과 1,000㎡에 약 66곳 텐트를 설치할 수 있는 야영장이 있다. 도직해변은 군사지역이라 철조망이 쳐져 있어 사뭇 엄숙하고 두려움이 다가오기도 하며 분단의 아픔을 또 한 번 새삼 느껴지게 하는 곳이기도 하다. 도직해변에는 해수욕을 즐기는 사람들도 많지만, 노래미를 잡으러 오는 낚시꾼들도 많다. \n\n<출처 : 비짓강릉>",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "도직해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#585615",
+            "overview": "도직해변은 옥계면 도직리, 강릉시 최남단에 있는 길이 500m, 5만㎡의 간이 해변으로 길이 똑바르다고 해 도직이라 불렸다. 동해고속도로가 개설되면서 마을이 두 곳으로 나누어져 집단으로 이주했고 원래 마을은 없어졌다. 마을 이름과 같이 국도, 철도, 고속도로, 항공로, 해로 등 5차로가 평행선을 달리는 보기 드문 곳이다. 도직해변은 모래가 깨끗하고 주차장이 넓어 가족 단위로 많이 찾는 조용한 해변으로, 숙박시설로는 민박을 이용하면 된다. 약 3,000㎡의 간이 주차장과 1,000㎡에 약 66곳 텐트를 설치할 수 있는 야영장이 있다. 도직해변은 군사지역이라 철조망이 쳐져 있어 사뭇 엄숙하고 두려움이 다가오기도 하며 분단의 아픔을 또 한 번 새삼 느껴지게 하는 곳이기도 하다. 도직해변에는 해수욕을 즐기는 사람들도 많지만, 노래미를 잡으러 오는 낚시꾼들도 많다. \n\n<출처 : 비짓강릉>"
+          },
+          "latitude": 37.6093412454,
+          "longitude": 129.0676585323,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#585615",
+          "body": "도직해변은 깨끗한 모래와 넓은 주차장을 갖춘 조용한 해변입니다.",
+          "reason": "가족 단위가 편리히 이용할 수 있는 넓은 주차장과 조용한 분위기가 일정에 부합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon_festival",
+          "item_type": "festival",
+          "festivalId": "FEST-2607445",
+          "title": "강릉비치비어페스티벌",
+          "source": "festival_verifier",
+          "date_status": "confirmed",
+          "start_date": "2026-07-03",
+          "end_date": "2026-07-05",
+          "body": "여름 동해안 해변가에서 열리는 활기찬 맥주 축제",
+          "reason": "강릉비치비어페스티벌은 여름 해변가에서 활기를 더해 일정에 색다른 경험을 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#585522",
+          "title": "강문해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "585522",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/85/2921985_image2_1.jpg",
+            "latitude": 37.7947975418039,
+            "phone": "033-640-4920",
+            "city_name_en": "Gangneung",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 창해로 352",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-585522",
+            "longitude": 128.91901514704,
+            "description": "강문해변은 강문동에 자리 잡고 있으며 주변에 작은 포구인 강문항이 있어 근처 횟집에서 새벽에 잡은 싱싱한 생선회를 맛볼 수 있다. 깨끗이 정비된 숙박시설과 경포지구가 근접해 있다. 강문해변에서는 보트로 5∼10분 걸리는 곳에 정박을 하여 수심 5∼30m의 바닷속에 방대하게 펼쳐진 자연짬(바위), 말미잘, 대형 어류 등 뛰어난 수중경관을 감상할 수 있어 스킨스쿠버 동호인들이 많이 찾고 있으며 특히 추억을 남기고 싶은 신혼부부를 위한 수중 다이빙도 하고 있다. 또한 강문항이 있어 16척의 어선이 가자미, 노래미, 문어, 민들조개(째복), 성게, 멍게, 해삼 등을 수시로 잡고 봄에는 넙치, 광어, 대복 조개, 여름과 가을에는 삼치, 겨울에는 우럭 등을 잡고 있다. 낚시 애호가들은 항구에서 황어와 노래미(놀래기) 등을 낚기도 한다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 \n성준이 혜진과 바다를 보며 화보 촬영 아이디어를 떠올린 곳이다. 두 사람은 이곳에서 서로의 속마음을 드러내며 낭만적 기류를 형성하기도 했다. 동해를 배경으로 인생 사진을 찍을 수 있는 포토존이 많아 연인들의 데이트 코스로도 인기다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "강문해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#585522",
+            "overview": "강문해변은 강문동에 자리 잡고 있으며 주변에 작은 포구인 강문항이 있어 근처 횟집에서 새벽에 잡은 싱싱한 생선회를 맛볼 수 있다. 깨끗이 정비된 숙박시설과 경포지구가 근접해 있다. 강문해변에서는 보트로 5∼10분 걸리는 곳에 정박을 하여 수심 5∼30m의 바닷속에 방대하게 펼쳐진 자연짬(바위), 말미잘, 대형 어류 등 뛰어난 수중경관을 감상할 수 있어 스킨스쿠버 동호인들이 많이 찾고 있으며 특히 추억을 남기고 싶은 신혼부부를 위한 수중 다이빙도 하고 있다. 또한 강문항이 있어 16척의 어선이 가자미, 노래미, 문어, 민들조개(째복), 성게, 멍게, 해삼 등을 수시로 잡고 봄에는 넙치, 광어, 대복 조개, 여름과 가을에는 삼치, 겨울에는 우럭 등을 잡고 있다. 낚시 애호가들은 항구에서 황어와 노래미(놀래기) 등을 낚기도 한다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 \n성준이 혜진과 바다를 보며 화보 촬영 아이디어를 떠올린 곳이다. 두 사람은 이곳에서 서로의 속마음을 드러내며 낭만적 기류를 형성하기도 했다. 동해를 배경으로 인생 사진을 찍을 수 있는 포토존이 많아 연인들의 데이트 코스로도 인기다."
+          },
+          "latitude": 37.7947975418039,
+          "longitude": 128.91901514704,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#585522",
+          "body": "스킨스쿠버와 낚시가 가능한 깨끗한 해변입니다.",
+          "reason": "수중 경관과 낚시 환경이 바다 테마 일정에 어울립니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#128728",
+          "title": "영진해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "128728",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/10/3422710_image2_1.png",
+            "latitude": 37.8695,
+            "phone": "033-640-5422",
+            "city_name_en": "Gangneung",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 연곡면 영진리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-128728",
+            "longitude": 128.8449,
+            "description": "영진 해수욕장은 조용하고 깨끗하여 가족 단위로 피서를 즐기기에 가장 좋은 곳으로서 바다 냄새가 물씬 풍기는 조그마한 어촌 마을이다. 완만한 항구 바로 옆에 있어 피서철에 외지 피서객이 많이 방문한다. 60여 가구 어민이 35척의 어선으로 2월부터 10월 사이에 가자미와 조개를 많이 잡는다. 영진항은 좋은 물고기들이 많이 잡히는 곳으로 유명해 배낚시를 즐기는 동호인들을 많이 볼 수 있다. 삼 년에 한 번씩 지내는 풍어제는 관광객들에게 색다른 경험이 될 수 있다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 \n은탁이 홀로 열아홉 생일을 자축하며 케이크 촛불을 끄다가 운명처럼 김신을 만난 장소다. 김신은 생일을 맞은 은탁에게 들고 있던 메밀꽃을 건넸고, 꽃말이 ‘연인’임을 알려 두 사람의 미래를 짐작게 했다. 두 사람이 서 있던 방파제는 지금도 도깨비 커플을 추억하며 사진을 찍는 사람들로 붐빈다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "영진해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#128728",
+            "overview": "영진 해수욕장은 조용하고 깨끗하여 가족 단위로 피서를 즐기기에 가장 좋은 곳으로서 바다 냄새가 물씬 풍기는 조그마한 어촌 마을이다. 완만한 항구 바로 옆에 있어 피서철에 외지 피서객이 많이 방문한다. 60여 가구 어민이 35척의 어선으로 2월부터 10월 사이에 가자미와 조개를 많이 잡는다. 영진항은 좋은 물고기들이 많이 잡히는 곳으로 유명해 배낚시를 즐기는 동호인들을 많이 볼 수 있다. 삼 년에 한 번씩 지내는 풍어제는 관광객들에게 색다른 경험이 될 수 있다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 \n은탁이 홀로 열아홉 생일을 자축하며 케이크 촛불을 끄다가 운명처럼 김신을 만난 장소다. 김신은 생일을 맞은 은탁에게 들고 있던 메밀꽃을 건넸고, 꽃말이 ‘연인’임을 알려 두 사람의 미래를 짐작게 했다. 두 사람이 서 있던 방파제는 지금도 도깨비 커플을 추억하며 사진을 찍는 사람들로 붐빈다."
+          },
+          "latitude": 37.8695,
+          "longitude": 128.8449,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#128728",
+          "body": "조용하고 깨끗한 해변으로 가족 피서에 적합합니다.",
+          "reason": "조용한 분위기와 풍어제가 일정의 지역 경험을 풍부하게 합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#125699",
+          "title": "주문진해변",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125699",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "",
+            "latitude": 37.9105787154618,
+            "phone": "033-640-4535",
+            "city_name_en": "Gangneung",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 주문진읍 주문북로 210",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125699",
+            "longitude": 128.818821192809,
+            "description": "주문진 해변은 주문진읍 향호리에 위치하고 길이 700m,  면적 9,608㎡의 넓은 백사장과 수심이 얕고 바닷물이 맑아 가족 단위 피서지에 적합한 곳이다. 하얀 모래밭이 흰 속살을 드러내고 파도가 연안에서 흰 거품을 드리우면 무더위를 잊게 한다. 울창한 해송은, 피서객들에게 그늘을 만들어 주고 포근한 분위기를 주어 밤새 이야기꽃을 피워 낭만과 젊음을 발산하게 한다. 또한 솔밭 안에 있는 체육공원은 피서를 즐기면서 체력도 단련할 수 있으며, 주변에는 가족호텔과 깨끗이 정비된 민박집과 6,600㎡의 소나무 숲에 하루 440곳의 텐트를 설치할 수 있는 야영장이 있다. 바로 옆에는 향호 저수지가 있어 담수어 낚시도 가능하며 멀지 않은 곳에 주문진항, 우암진항, 오리진항 등 항구가 많아 신선한 해물을 저렴한 가격에 즐길 수 있다. 봄철에는 꽁치, 여름에는 오징어가, 가을, 겨울에는 복어와 양미리 등이 많이 잡혀 제철에 가면 저렴한 가격으로 구입할 수 있다. 또 바다를 끼고 횟집과 회센터들이 밀집해 있어 즉석에서 횟감을 맛볼 수 있다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "주문진해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125699",
+            "overview": "주문진 해변은 주문진읍 향호리에 위치하고 길이 700m,  면적 9,608㎡의 넓은 백사장과 수심이 얕고 바닷물이 맑아 가족 단위 피서지에 적합한 곳이다. 하얀 모래밭이 흰 속살을 드러내고 파도가 연안에서 흰 거품을 드리우면 무더위를 잊게 한다. 울창한 해송은, 피서객들에게 그늘을 만들어 주고 포근한 분위기를 주어 밤새 이야기꽃을 피워 낭만과 젊음을 발산하게 한다. 또한 솔밭 안에 있는 체육공원은 피서를 즐기면서 체력도 단련할 수 있으며, 주변에는 가족호텔과 깨끗이 정비된 민박집과 6,600㎡의 소나무 숲에 하루 440곳의 텐트를 설치할 수 있는 야영장이 있다. 바로 옆에는 향호 저수지가 있어 담수어 낚시도 가능하며 멀지 않은 곳에 주문진항, 우암진항, 오리진항 등 항구가 많아 신선한 해물을 저렴한 가격에 즐길 수 있다. 봄철에는 꽁치, 여름에는 오징어가, 가을, 겨울에는 복어와 양미리 등이 많이 잡혀 제철에 가면 저렴한 가격으로 구입할 수 있다. 또 바다를 끼고 횟집과 회센터들이 밀집해 있어 즉석에서 횟감을 맛볼 수 있다."
+          },
+          "latitude": 37.9105787154618,
+          "longitude": 128.818821192809,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#125699",
+          "body": "넓은 백사장과 맑은 물, 주변 어항이 매력적인 해변입니다.",
+          "reason": "넓은 모래밭과 신선한 해산물 체험이 일정에 다양성을 더합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#1625166",
+          "title": "주문진항",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "1625166",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/68/2921868_image2_1.jpg",
+            "latitude": 37.8875872848439,
+            "phone": "033-662-3639",
+            "city_name_en": "Gangneung",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 주문진읍 해안로 1758-22",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-1625166",
+            "longitude": 128.829873624106,
+            "description": "주문진항은 주로 화물선이 주로 입출항하고 있으며 동해안의 주요 어항 기지, 약 350여 척의 어선이 드나들며 난류와 한류가 만나는 동해의 특성상 오징어, 양미리, 명태, 청어, 멸치 등이 많이 잡힌다. 배에서 갓 내려놓은 횟감이 무척 싱싱하며 관광객의 구미를 당기기에 충분하다. 저렴한 가격으로 많은 회를 즐길 수 있다. 또한, 주문진시장은 주문진항을 끼고 1936년부터 형성된 재래시장으로 종합시장, 건어물시장, 회 센터 등을 포함한 다양한 형태의 상가와 연계되어 있는 동해안 최대 규모의 어시장이자 국내, 관광객이 많이 찾고 있는 전통시장이다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "주문진항",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#1625166",
+            "overview": "주문진항은 주로 화물선이 주로 입출항하고 있으며 동해안의 주요 어항 기지, 약 350여 척의 어선이 드나들며 난류와 한류가 만나는 동해의 특성상 오징어, 양미리, 명태, 청어, 멸치 등이 많이 잡힌다. 배에서 갓 내려놓은 횟감이 무척 싱싱하며 관광객의 구미를 당기기에 충분하다. 저렴한 가격으로 많은 회를 즐길 수 있다. 또한, 주문진시장은 주문진항을 끼고 1936년부터 형성된 재래시장으로 종합시장, 건어물시장, 회 센터 등을 포함한 다양한 형태의 상가와 연계되어 있는 동해안 최대 규모의 어시장이자 국내, 관광객이 많이 찾고 있는 전통시장이다."
+          },
+          "latitude": 37.8875872848439,
+          "longitude": 128.829873624106,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#1625166",
+          "body": "신선한 회와 전통시장이 있는 활기찬 어항입니다.",
+          "reason": "신선한 해산물과 전통시장이 지역 문화 체험에 도움이 됩니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "강릉비치비어페스티벌은 여름 해변가에서 열리는 활기찬 축제로 에너지 넘치는 분위기를 제공합니다.",
+        "동해안 해변 인근에서 열려 바다 테마 일정과 자연스럽게 연결됩니다.",
+        "다양한 방문객이 모여 지역 특색과 문화 교류를 촉진합니다."
+      ],
+      "itinerary_flow_reason": "첫날은 도직·강문·영진·주문진 해변을 차례로 방문해 해변을 체험하고, 마지막에 강릉비치비어페스티벌로 마무리합니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "강릉시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EA%B0%95%EB%A6%89%EC%8B%9C",
+          "query": "강릉시",
+          "city_name_ko": "강릉시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "강릉시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "강릉시 숙소",
+          "city_name_ko": "강릉시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "강릉시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "강릉시 맛집",
+          "city_name_ko": "강릉시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 6,
+        "planner_status_gate": "ok",
+        "include_festivals": true,
+        "festival_verification_count": 1,
+        "festival_placed_count": 1,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#585615",
+              "festival:FEST-2607445",
+              "place:attraction#585522",
+              "place:attraction#128728",
+              "place:attraction#125699",
+              "place:attraction#1625166"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "강릉비치비어페스티벌은 여름 해변가에서 열리는 활기찬 축제로 에너지 넘치는 분위기를 제공합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#585615",
+              "festival:FEST-2607445",
+              "place:attraction#585522",
+              "place:attraction#128728",
+              "place:attraction#125699",
+              "place:attraction#1625166"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "동해안 해변 인근에서 열려 바다 테마 일정과 자연스럽게 연결됩니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#585615",
+              "festival:FEST-2607445",
+              "place:attraction#585522",
+              "place:attraction#128728",
+              "place:attraction#125699",
+              "place:attraction#1625166"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "다양한 방문객이 모여 지역 특색과 문화 교류를 촉진합니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#585615",
+          "festival:FEST-2607445",
+          "place:attraction#585522",
+          "place:attraction#128728",
+          "place:attraction#125699",
+          "place:attraction#1625166"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 6,
+      "planner_status_gate": "ok",
+      "include_festivals": true,
+      "festival_verification_count": 1,
+      "festival_placed_count": 1,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-13",
+      "expiresAt": "2026-06-27T19:43:31Z",
+      "destination": {
+        "destinationId": "KR-51-150",
+        "name": "강릉시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#585615",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "도직해변",
+                "body": "도직해변은 깨끗한 모래와 넓은 주차장을 갖춘 조용한 해변입니다.",
+                "reason": "가족 단위가 편리히 이용할 수 있는 넓은 주차장과 조용한 분위기가 일정에 부합합니다.",
+                "moveMinutes": null,
+                "latitude": 37.6093412454,
+                "longitude": 129.0676585323
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "FEST-2607445",
+                "timeOfDay": "afternoon_festival",
+                "sortOrder": 2,
+                "title": "강릉비치비어페스티벌",
+                "body": "여름 동해안 해변가에서 열리는 활기찬 맥주 축제",
+                "reason": "강릉비치비어페스티벌은 여름 해변가에서 활기를 더해 일정에 색다른 경험을 제공합니다.",
+                "moveMinutes": null,
+                "latitude": null,
+                "longitude": null
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#585522",
+                "timeOfDay": "afternoon",
+                "sortOrder": 3,
+                "title": "강문해변",
+                "body": "스킨스쿠버와 낚시가 가능한 깨끗한 해변입니다.",
+                "reason": "수중 경관과 낚시 환경이 바다 테마 일정에 어울립니다.",
+                "moveMinutes": null,
+                "latitude": 37.7947975418039,
+                "longitude": 128.91901514704
+              },
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#128728",
+                "timeOfDay": "evening",
+                "sortOrder": 4,
+                "title": "영진해변",
+                "body": "조용하고 깨끗한 해변으로 가족 피서에 적합합니다.",
+                "reason": "조용한 분위기와 풍어제가 일정의 지역 경험을 풍부하게 합니다.",
+                "moveMinutes": null,
+                "latitude": 37.8695,
+                "longitude": 128.8449
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#125699",
+                "timeOfDay": "morning",
+                "sortOrder": 5,
+                "title": "주문진해변",
+                "body": "넓은 백사장과 맑은 물, 주변 어항이 매력적인 해변입니다.",
+                "reason": "넓은 모래밭과 신선한 해산물 체험이 일정에 다양성을 더합니다.",
+                "moveMinutes": null,
+                "latitude": 37.9105787154618,
+                "longitude": 128.818821192809
+              },
+              {
+                "itemId": "item-6",
+                "contentId": "attraction#1625166",
+                "timeOfDay": "afternoon",
+                "sortOrder": 6,
+                "title": "주문진항",
+                "body": "신선한 회와 전통시장이 있는 활기찬 어항입니다.",
+                "reason": "신선한 해산물과 전통시장이 지역 문화 체험에 도움이 됩니다.",
+                "moveMinutes": null,
+                "latitude": 37.8875872848439,
+                "longitude": 128.829873624106
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "sea_coast",
+          "travelMonth:7"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "강릉비치비어페스티벌은 여름 해변가에서 열리는 활기찬 축제로 에너지 넘치는 분위기를 제공합니다.",
+          "동해안 해변 인근에서 열려 바다 테마 일정과 자연스럽게 연결됩니다.",
+          "다양한 방문객이 모여 지역 특색과 문화 교류를 촉진합니다."
+        ],
+        "itineraryFlowReason": "첫날은 도직·강문·영진·주문진 해변을 차례로 방문해 해변을 체험하고, 마지막에 강릉비치비어페스티벌로 마무리합니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [
+        {
+          "festivalId": "FEST-2607445",
+          "dateStatus": "confirmed",
+          "startDate": "2026-07-03",
+          "endDate": "2026-07-05",
+          "sourceUrl": null,
+          "confidence": 0.8
+        }
+      ],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EA%B0%95%EB%A6%89%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

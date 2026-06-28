@@ -1,0 +1,1478 @@
+{
+  "request": {
+    "request_id": "REQ-TC-08",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 9,
+    "trip_type": "3d2n",
+    "destination_id": null,
+    "themes": [
+      "nature_trekking",
+      "sea_coast"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-08",
+    "agent_run_id": "run-7486633b-f316-47f5-9ddf-1323927556fe",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 9,
+      "travelYear": 2026,
+      "tripType": "3d2n",
+      "destinationId": null,
+      "themes": [
+        "nature_trekking",
+        "sea_coast"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요 조용하고 탁 트인 자연 분위기면 좋겠어요",
+      "soft_preference_query": "조용하고 탁 트인 자연 분위기면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "자연·트레킹",
+      "바다·해안"
+    ],
+    "searchable_place_themes": [
+      "자연·트레킹",
+      "바다·해안"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+    "soft_preference_query": "조용하고 탁 트인, 여유로운 자연 속에서 평온하게 거닐 수 있는 분위기.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 9,
+      "travel_year": 2026,
+      "trip_type": "3d2n",
+      "active_required_themes": [
+        "자연·트레킹",
+        "바다·해안"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+      "soft_preference_query": "조용하고 탁 트인, 여유로운 자연 속에서 평온하게 거닐 수 있는 분위기.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-47-770",
+        "city_name_ko": "영덕군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-47-770",
+          "city_score": 2.3133,
+          "score_breakdown": {
+            "semantic_evidence": 0.4165,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1552
+          },
+          "top_place_ids": [
+            "attraction#127161",
+            "attraction#127710",
+            "attraction#2614528",
+            "attraction#2661431",
+            "attraction#126104",
+            "attraction#2616061",
+            "attraction#2614455",
+            "attraction#2715732",
+            "attraction#127160",
+            "attraction#127159"
+          ],
+          "candidate_count": 10,
+          "city_name_ko": "영덕군",
+          "available_place_count": 10,
+          "required_place_count": 8,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-51-170",
+          "city_score": 2.2687,
+          "score_breakdown": {
+            "semantic_evidence": 0.4729,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.971,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2271
+          },
+          "top_place_ids": [
+            "attraction#2714889",
+            "attraction#2364047",
+            "attraction#2716757",
+            "attraction#127713",
+            "attraction#125708",
+            "attraction#2710184",
+            "attraction#2714642",
+            "attraction#2773848",
+            "attraction#125713",
+            "attraction#129000"
+          ],
+          "candidate_count": 10,
+          "city_name_ko": "동해시",
+          "available_place_count": 10,
+          "required_place_count": 8,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 2.2354,
+          "score_breakdown": {
+            "semantic_evidence": 0.5903,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.7793,
+            "scale_correction": 0.0528,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1815
+          },
+          "top_place_ids": [
+            "attraction#125703",
+            "attraction#125716",
+            "attraction#2714607",
+            "attraction#2710820",
+            "attraction#2388953",
+            "attraction#125685",
+            "attraction#2710849",
+            "attraction#2913902",
+            "attraction#2710838",
+            "attraction#2773573",
+            "attraction#2710736",
+            "attraction#2710737",
+            "attraction#2714611"
+          ],
+          "candidate_count": 13,
+          "city_name_ko": "양양군",
+          "available_place_count": 13,
+          "required_place_count": 8,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 2.1134,
+          "score_breakdown": {
+            "semantic_evidence": 0.6777,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.5917,
+            "scale_correction": 0.0542,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2019
+          },
+          "top_place_ids": [
+            "attraction#125710",
+            "attraction#125690",
+            "attraction#125709",
+            "attraction#125688",
+            "attraction#127728",
+            "attraction#2714543",
+            "attraction#127729",
+            "attraction#127871",
+            "attraction#2610236",
+            "attraction#125705",
+            "attraction#125719",
+            "attraction#127381",
+            "attraction#125687",
+            "attraction#127872"
+          ],
+          "candidate_count": 16,
+          "city_name_ko": "삼척시",
+          "available_place_count": 14,
+          "required_place_count": 8,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-940",
+          "city_score": 2.0371,
+          "score_breakdown": {
+            "semantic_evidence": 0.1465,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#2614692",
+            "attraction#2614704",
+            "attraction#264502"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "울릉군",
+          "available_place_count": 3,
+          "required_place_count": 8,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 1.9143,
+          "score_breakdown": {
+            "semantic_evidence": 0.4276,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.7642,
+            "scale_correction": 0.0461,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3314
+          },
+          "top_place_ids": [
+            "attraction#125699",
+            "attraction#128728",
+            "attraction#2775497",
+            "attraction#128758",
+            "attraction#127722",
+            "attraction#2946241",
+            "attraction#129585",
+            "attraction#2706354",
+            "attraction#585522"
+          ],
+          "candidate_count": 9,
+          "city_name_ko": "강릉시",
+          "available_place_count": 9,
+          "required_place_count": 8,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-930",
+          "city_score": 1.8647,
+          "score_breakdown": {
+            "semantic_evidence": 0.1391,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.165
+          },
+          "top_place_ids": [
+            "attraction#2670505",
+            "attraction#1331230",
+            "attraction#126100"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "울진군",
+          "available_place_count": 3,
+          "required_place_count": 8,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 1.8634,
+          "score_breakdown": {
+            "semantic_evidence": 0.2919,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8631,
+            "scale_correction": 0.0416,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#2756619",
+            "attraction#3101682",
+            "attraction#128680",
+            "attraction#1621854",
+            "attraction#129161",
+            "attraction#2015553",
+            "attraction#126095"
+          ],
+          "candidate_count": 7,
+          "city_name_ko": "경주시",
+          "available_place_count": 7,
+          "required_place_count": 8,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#127710",
+          "title": "영덕해맞이공원",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 36.4274,
+          "longitude": 129.4353,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127710",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5936,
+            "score_components": {
+              "raw_similarity": 0.1936,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2661431",
+          "title": "벌영리 메타세콰이어길",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 36.53034604,
+          "longitude": 129.3841296935,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2661431",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5832,
+            "score_components": {
+              "raw_similarity": 0.1832,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2616061",
+          "title": "해파랑공원",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 36.3608460305,
+          "longitude": 129.3929311468,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2616061",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5624,
+            "score_components": {
+              "raw_similarity": 0.1624,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2614455",
+          "title": "경정리 백악기 퇴적암 (경북 동해안 국가지질공원)",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 36.4878492121,
+          "longitude": 129.4418758582,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2614455",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5573,
+            "score_components": {
+              "raw_similarity": 0.1573,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127161",
+          "title": "오보해수욕장",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 36.4410460237,
+          "longitude": 129.4328308196,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127161",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7324,
+            "score_components": {
+              "raw_similarity": 0.1779,
+              "soft_similarity": 0.1544,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2614528",
+          "title": "영덕 화강섬록암 해안 (경북 동해안 국가지질공원)",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 36.425045099,
+          "longitude": 129.434656132,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2614528",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5873,
+            "score_components": {
+              "raw_similarity": 0.1873,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126104",
+          "title": "대진해수욕장",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 36.5645374176,
+          "longitude": 129.4266915867,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#126104",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5634,
+            "score_components": {
+              "raw_similarity": 0.1634,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127160",
+          "title": "하저해수욕장 (하저리 해수욕장)",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 36.3898346941,
+          "longitude": 129.4079234165,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127160",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5481,
+            "score_components": {
+              "raw_similarity": 0.1481,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2715732",
+          "title": "산성계곡생태공원",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 36.3511198941,
+          "longitude": 129.2762333833,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2715732",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5571,
+            "score_components": {
+              "raw_similarity": 0.1571,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127159",
+          "title": "남호해수욕장",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 36.3276,
+          "longitude": 129.3799,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127159",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5456,
+            "score_components": {
+              "raw_similarity": 0.1456,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "자연·트레킹",
+          "바다·해안"
+        ],
+        "searchable_place_themes": [
+          "자연·트레킹",
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "자연·트레킹": 5,
+          "바다·해안": 5
+        },
+        "reserve_theme_counts": {
+          "자연·트레킹": 0,
+          "바다·해안": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 4,
+        "theme_max_quota": 7,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": false,
+        "relaxed_slots": 0,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 4,
+        "primary_budget": 14,
+        "reserve_budget": 10,
+        "itinerary_required_place_count": 8,
+        "available_place_count": 10,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "자연·트레킹",
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 99,
+        "merged_candidate_count": 99,
+        "survived_city_count": 8,
+        "eliminated_cities": [
+          "KR-47-250",
+          "KR-47-760",
+          "KR-51-750",
+          "KR-47-170",
+          "KR-51-130",
+          "KR-51-210",
+          "KR-51-760",
+          "KR-51-810",
+          "KR-47-730",
+          "KR-47-900",
+          "KR-47-150",
+          "KR-47-210",
+          "KR-47-190",
+          "KR-47-750",
+          "KR-47-850",
+          "KR-47-230"
+        ]
+      },
+      "candidate_counts": {
+        "retrieved": 99,
+        "merged": 99,
+        "scored": 71,
+        "city_count": 8,
+        "recommended_places": 10,
+        "reserve_places": 0,
+        "available_places": 10,
+        "required_itinerary_places": 8,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "city_selection",
+          "text_ko": "영덕군은 동해안과 인접해 있어 맑은 바다 풍경을 가까이에서 감상할 수 있습니다.",
+          "evidence_refs": [
+            "city#KR-47-770"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "영덕해맞이공원은 넓은 잔디와 산책로가 있어 조용히 걸으며 탁 트인 바다 전망을 즐기기에 적합합니다.",
+          "evidence_refs": [
+            "attraction#127710"
+          ],
+          "required_place_ids": [
+            "attraction#127710"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "벌영리 메타세콰이어길은 울창한 숲길이 이어져 자연 속 트레킹을 편안하게 할 수 있는 환경을 제공합니다.",
+          "evidence_refs": [
+            "attraction#2661431"
+          ],
+          "required_place_ids": [
+            "attraction#2661431"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "오보해수욕장은 고요한 파도와 넓은 모래사장이 있어 바다를 바라보며 여유로운 휴식을 취하기에 이상적입니다.",
+          "evidence_refs": [
+            "attraction#127161"
+          ],
+          "required_place_ids": [
+            "attraction#127161"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#127710",
+          "title": "영덕해맞이공원",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "127710",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/18/3520018_image2_1.jpg",
+            "latitude": 36.4274,
+            "phone": "054-730-7052",
+            "city_name_en": "Yeongdeok",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 영덕읍 창포리",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-127710",
+            "longitude": 129.4353,
+            "description": "영덕해맞이공원은 강구면과 축산면의 해안선을 따라 이어지는 64㎞ 해안도로변에 조성한 해안형 자연공원이다. 1997년 화재로 인해 해안변뿐만 아니라 인근 산 전역이 불타버리자 황폐한 전역을 복구하고, 자연 그대로의 공원 조성을 목표로 친환경소재를 이용해 바다접 근이 용이한 것에 주안점을 두어 만들었다.\n영덕해맞이공원은 전면의 푸른 바다와 뒷면 넓은 초지, 해송조림지로 열린 공간이 형성되어 있다. 1,500여 개의 나무계단이 파고라와 파고라를, 해안도로와 바다까지를 얼기설기 엮어 멋진 산책로를 이루고 있다. 산책로를 따라 걷는 도중에는 전망테크가 두 군데 설치되어 있으며, 이곳에서는 동해바다를 한눈에 조망하면서 사진을 촬영하기에 좋다. 또한, 공원의 랜드마크인 창포말 등대는 주변 자연경관과 조화롭게 설치되어 있다. \n가장 선명하고 멋진 일출 광경을 볼 수 있다는 매력 때문에 새해에는 물론 평일에도 일출을 보려는 사람들과 여유로운 휴식을 취하기 위해 찾아드는 사람들의 발길이 계속 이어지고 있다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "영덕해맞이공원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127710",
+            "overview": "영덕해맞이공원은 강구면과 축산면의 해안선을 따라 이어지는 64㎞ 해안도로변에 조성한 해안형 자연공원이다. 1997년 화재로 인해 해안변뿐만 아니라 인근 산 전역이 불타버리자 황폐한 전역을 복구하고, 자연 그대로의 공원 조성을 목표로 친환경소재를 이용해 바다접 근이 용이한 것에 주안점을 두어 만들었다.\n영덕해맞이공원은 전면의 푸른 바다와 뒷면 넓은 초지, 해송조림지로 열린 공간이 형성되어 있다. 1,500여 개의 나무계단이 파고라와 파고라를, 해안도로와 바다까지를 얼기설기 엮어 멋진 산책로를 이루고 있다. 산책로를 따라 걷는 도중에는 전망테크가 두 군데 설치되어 있으며, 이곳에서는 동해바다를 한눈에 조망하면서 사진을 촬영하기에 좋다. 또한, 공원의 랜드마크인 창포말 등대는 주변 자연경관과 조화롭게 설치되어 있다. \n가장 선명하고 멋진 일출 광경을 볼 수 있다는 매력 때문에 새해에는 물론 평일에도 일출을 보려는 사람들과 여유로운 휴식을 취하기 위해 찾아드는 사람들의 발길이 계속 이어지고 있다."
+          },
+          "latitude": 36.4274,
+          "longitude": 129.4353,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127710",
+          "body": "푸른 바다와 초지를 끼느른 1,500계단 산책로",
+          "reason": "영덕해맞이공원은 넓은 잔디와 산책로가 있어 조용히 걸으며 탁 트인 바다 전망을 즐기기에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#2661431",
+          "title": "벌영리 메타세콰이어길",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2661431",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/07/3048107_image2_1.JPG",
+            "latitude": 36.53034604,
+            "phone": "영덕군청 문화관광과 054-730-6533",
+            "city_name_en": "Yeongdeok",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 영해면 벌영리",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2661431",
+            "longitude": 129.3841296935,
+            "description": "벌영리 메타세콰이어길은 20만 평 규모의 사유지에 조성된 메타세콰이어 숲에 난 산책로이다. 영덕 출신의 한 개인이 20여 년 전부터 메타세쿼이아, 측백나무와 편백을 심어 일반인에게 무료로 개방하고 있다. 주차장을 지나 메타세콰이어숲으로 들어서면 가운데로 산책길이 잘 조성되어 있고, 이 숲길은 편도 약 420m로 양쪽으로 20M가 넘는 거대한 나무가 하늘을 향해 곧게 뻗어 있어 시원한 풍경뿐 아니라 상쾌한 공기도 느낄 수 있다. 길을 따라 이어지는 철계단 위로는 진달래 전망대가 있어 동해를 조망할 수 있다. 전망대에서 내려와 오른쪽으로 들어서면 일반 나무의 10배가 넘는 피톤치드를 내뿜는다는 편백 숲이 이어진다. 숲길을 오가는 곳곳에는 잠시 쉬며 피크닉을 즐길 수 있는 탁자와 의자들이 놓여 있어 새소리, 바람 소리 들으며 잠시 앉아 숲을 오감으로 즐기며 휴식을 취할 수 있는 웰니스 여행코스이다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "벌영리 메타세콰이어길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2661431",
+            "overview": "벌영리 메타세콰이어길은 20만 평 규모의 사유지에 조성된 메타세콰이어 숲에 난 산책로이다. 영덕 출신의 한 개인이 20여 년 전부터 메타세쿼이아, 측백나무와 편백을 심어 일반인에게 무료로 개방하고 있다. 주차장을 지나 메타세콰이어숲으로 들어서면 가운데로 산책길이 잘 조성되어 있고, 이 숲길은 편도 약 420m로 양쪽으로 20M가 넘는 거대한 나무가 하늘을 향해 곧게 뻗어 있어 시원한 풍경뿐 아니라 상쾌한 공기도 느낄 수 있다. 길을 따라 이어지는 철계단 위로는 진달래 전망대가 있어 동해를 조망할 수 있다. 전망대에서 내려와 오른쪽으로 들어서면 일반 나무의 10배가 넘는 피톤치드를 내뿜는다는 편백 숲이 이어진다. 숲길을 오가는 곳곳에는 잠시 쉬며 피크닉을 즐길 수 있는 탁자와 의자들이 놓여 있어 새소리, 바람 소리 들으며 잠시 앉아 숲을 오감으로 즐기며 휴식을 취할 수 있는 웰니스 여행코스이다."
+          },
+          "latitude": 36.53034604,
+          "longitude": 129.3841296935,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2661431",
+          "body": "420m 메타세쿼이아 숲길과 진달래 전망대로 신선한 공기",
+          "reason": "벌영리 메타세콰이어길은 울창한 숲길이 이어져 자연 속 트레킹을 편안하게 할 수 있는 환경을 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#2616061",
+          "title": "해파랑공원",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2616061",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/60/3576460_image2_1.jpg",
+            "latitude": 36.3608460305,
+            "phone": "054-730-6114",
+            "city_name_en": "Yeongdeok",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 강구면 강구리",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2616061",
+            "longitude": 129.3929311468,
+            "description": "영덕 강구항에 위치한 해파랑공원은 영덕대게축제 등 넓은 공간이 필요한 다양한 행사를 진행하기 위한 장소 조성과 함께 시민과 관광객들에게 휴식 공간을 제공하기 위해 만든 공원이다. 해파랑공원 옆에는 대게거리가 있고 공원에서 바닷길을 따라 영덕 블루로드길을 걸을 수 있는 산책로가 있어 식사 후 동해안의 눈부신 바다를 보며 산책하기에 알맞다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "해파랑공원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2616061",
+            "overview": "영덕 강구항에 위치한 해파랑공원은 영덕대게축제 등 넓은 공간이 필요한 다양한 행사를 진행하기 위한 장소 조성과 함께 시민과 관광객들에게 휴식 공간을 제공하기 위해 만든 공원이다. 해파랑공원 옆에는 대게거리가 있고 공원에서 바닷길을 따라 영덕 블루로드길을 걸을 수 있는 산책로가 있어 식사 후 동해안의 눈부신 바다를 보며 산책하기에 알맞다."
+          },
+          "latitude": 36.3608460305,
+          "longitude": 129.3929311468,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2616061",
+          "body": "대게거리와 블루로드 산책로가 연결된 해안 휴식공원",
+          "reason": "해파랑공원은 바다와 인접해 바다 전망을 즐기며 휴식하기에 좋은 공간을 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#2614455",
+          "title": "경정리 백악기 퇴적암 (경북 동해안 국가지질공원)",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2614455",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/55/2917755_image2_1.jpg",
+            "latitude": 36.4878492121,
+            "phone": "경북동해안지질공원 053-950-7996",
+            "city_name_en": "Yeongdeok",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 축산면 경정리",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2614455",
+            "longitude": 129.4418758582,
+            "description": "차유마을과 경정마을 사이의 해안가에는 약 1억 년 된 백악기의 이암과 사암이 파식 대지를 이루고 있으며, 붉은 이암이 동해 앞에 펼쳐진 흔하지 않은 풍경을 볼 수 있다. 차유마을 쪽에서는 붉은 이암이 관찰되고, 경정마을 쪽에서는 붉은 이암과 흰 사암이 함께 펼쳐져 있다. 보통 얕은 바닷속에서 만들어지는 파식 대지가 해수면 위에 있다는 점을 통해 동해안 지역의 땅이 솟아올랐다는 것을 알 수 있다.\n붉은 이암과 흰 사암이 편평하게 펼쳐져 있는 것은 이 암석들의 알갱이들이 편평하게 쌓여있는 것에 영향받았기 때문이다. 북쪽의 차유마을 해안가에서는 과거 강이 흘렀던 흔적과 조개가 굴을 파고 들어간 흔적이 나타난다. 남쪽의 경정마을 해안가에 분포하는 사암층에는 사암을 이루는 모래 알갱이 크기가 위로 갈수록 점점 작아지는 점이층리가 있으며 사암층에 포함된 석회암 조각에서는 과거에 살았던 생물 일부분을 발견할 수 있다.\n* 파식 대지: 파도에 의해 깎여 해저에 생긴 평탄면\n* 이암: 1/16 mm보다 작은 크기의 진흙이 쌓여 만들어진 암석\n* 사암: 1/16~2mm 크기의 모래가 쌓여 만들어진 암석",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "경정리 백악기 퇴적암 (경북 동해안 국가지질공원)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2614455",
+            "overview": "차유마을과 경정마을 사이의 해안가에는 약 1억 년 된 백악기의 이암과 사암이 파식 대지를 이루고 있으며, 붉은 이암이 동해 앞에 펼쳐진 흔하지 않은 풍경을 볼 수 있다. 차유마을 쪽에서는 붉은 이암이 관찰되고, 경정마을 쪽에서는 붉은 이암과 흰 사암이 함께 펼쳐져 있다. 보통 얕은 바닷속에서 만들어지는 파식 대지가 해수면 위에 있다는 점을 통해 동해안 지역의 땅이 솟아올랐다는 것을 알 수 있다.\n붉은 이암과 흰 사암이 편평하게 펼쳐져 있는 것은 이 암석들의 알갱이들이 편평하게 쌓여있는 것에 영향받았기 때문이다. 북쪽의 차유마을 해안가에서는 과거 강이 흘렀던 흔적과 조개가 굴을 파고 들어간 흔적이 나타난다. 남쪽의 경정마을 해안가에 분포하는 사암층에는 사암을 이루는 모래 알갱이 크기가 위로 갈수록 점점 작아지는 점이층리가 있으며 사암층에 포함된 석회암 조각에서는 과거에 살았던 생물 일부분을 발견할 수 있다.\n* 파식 대지: 파도에 의해 깎여 해저에 생긴 평탄면\n* 이암: 1/16 mm보다 작은 크기의 진흙이 쌓여 만들어진 암석\n* 사암: 1/16~2mm 크기의 모래가 쌓여 만들어진 암석"
+          },
+          "latitude": 36.4878492121,
+          "longitude": 129.4418758582,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2614455",
+          "body": "1억 년 백악기 이암·사암이 펼쳐진 해안 지질공원",
+          "reason": "오랜 지질 역사를 직접 관찰할 수 있어 자연 탐구에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#127161",
+          "title": "오보해수욕장",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "127161",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/96/3590496_image2_1.jpg",
+            "latitude": 36.4410460237,
+            "phone": "054-730-7122",
+            "city_name_en": "Yeongdeok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 영덕읍 대부리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-127161",
+            "longitude": 129.4328308196,
+            "description": "오보해수욕장은 영덕군 영덕읍 대탄리·오보리에 있는 아담한 해변이다. 백사장의 길이는 약 600m 정도이며, 맨발로 백사장을 걸어보면 모래가 잘 달라붙지 않는다. 이곳의 모래는 규사질 성분의 왕모래 여서 깔끔하고 모래찜질에도 적합하다. \n오보리해변은 작지만 주변 산세도 수려하고 산 너머에서 돌아가는 거대한 풍력발전기는 이국적 분위기를 더해준다. 파도가 잔잔하기 때문에 아이들도 걱정 없이 놀 수 있는 안전한 해변이다. 또한 물놀이를 넘어 수상레포츠를 즐기는 사람들도 많다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "오보해수욕장",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127161",
+            "overview": "오보해수욕장은 영덕군 영덕읍 대탄리·오보리에 있는 아담한 해변이다. 백사장의 길이는 약 600m 정도이며, 맨발로 백사장을 걸어보면 모래가 잘 달라붙지 않는다. 이곳의 모래는 규사질 성분의 왕모래 여서 깔끔하고 모래찜질에도 적합하다. \n오보리해변은 작지만 주변 산세도 수려하고 산 너머에서 돌아가는 거대한 풍력발전기는 이국적 분위기를 더해준다. 파도가 잔잔하기 때문에 아이들도 걱정 없이 놀 수 있는 안전한 해변이다. 또한 물놀이를 넘어 수상레포츠를 즐기는 사람들도 많다."
+          },
+          "latitude": 36.4410460237,
+          "longitude": 129.4328308196,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127161",
+          "body": "600m 백사장과 잔잔한 파도가 있는 아담한 해변",
+          "reason": "오보해수욕장은 고요한 파도와 넓은 모래사장이 있어 바다를 바라보며 여유로운 휴식을 취하기에 이상적입니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#2614528",
+          "title": "영덕 화강섬록암 해안 (경북 동해안 국가지질공원)",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "2614528",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/23/2614523_image2_1.bmp",
+            "latitude": 36.425045099,
+            "phone": "053-950-7996<br>\n054-783-9195",
+            "city_name_en": "Yeongdeok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 영덕읍 창포리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-2614528",
+            "longitude": 129.434656132,
+            "description": "이곳은 선명하고 멋진 일출로 매년 수많은 관광객이 찾아오는 동해안의 대표적인 일출 명소이다. 영덕 화강섬록암 해안에는 동해 바닷물에 의해 지속적으로 깎여 생긴 다양한 침식지형이 발달해 있다. 바닷가의 낭떠러지인 해식애, 바닷물에 의해 평평하게 깎인 땅인 파식대지, 그리고 서로 부딪혀서 둥글게 된 돌들이 모인 몽돌해변과 같은 경관은 이곳의 암석이 땅 위에 드러난 이후부터 오랜 시간 동안 파도에 의해 만들어졌으며 이러한 과정은 현재에도 계속 진행 중이다. 이곳의 흰 암석은 약 2억 년 전(중생대)에 땅 속 깊은 곳에서 마그마가 굳어져만들어진 화강섬록암이다. 이 화강섬록암에서 관찰되는 크고 작은 얼룩(포유암)은 오래 전 땅 속에서 화강섬록암의 마그마에 반쯤 섞인 검은 마그마로 물에 섞인 기름방울처럼 대부분 둥근 모양을 가지고 있다. 이곳의 한 바위 면에는 손등이 보이게 새끼손가락을 편 왼손 주먹모양의 약속바위가 있다. 약속바위는 바위 면에 볼록하게 조각된 듯한 형태를 보이고 있는데 이는 오랜 시간에 걸쳐 바위가 힘을 받아 갈라지면서 자연적으로 만들어진 것이다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "영덕 화강섬록암 해안 (경북 동해안 국가지질공원)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2614528",
+            "overview": "이곳은 선명하고 멋진 일출로 매년 수많은 관광객이 찾아오는 동해안의 대표적인 일출 명소이다. 영덕 화강섬록암 해안에는 동해 바닷물에 의해 지속적으로 깎여 생긴 다양한 침식지형이 발달해 있다. 바닷가의 낭떠러지인 해식애, 바닷물에 의해 평평하게 깎인 땅인 파식대지, 그리고 서로 부딪혀서 둥글게 된 돌들이 모인 몽돌해변과 같은 경관은 이곳의 암석이 땅 위에 드러난 이후부터 오랜 시간 동안 파도에 의해 만들어졌으며 이러한 과정은 현재에도 계속 진행 중이다. 이곳의 흰 암석은 약 2억 년 전(중생대)에 땅 속 깊은 곳에서 마그마가 굳어져만들어진 화강섬록암이다. 이 화강섬록암에서 관찰되는 크고 작은 얼룩(포유암)은 오래 전 땅 속에서 화강섬록암의 마그마에 반쯤 섞인 검은 마그마로 물에 섞인 기름방울처럼 대부분 둥근 모양을 가지고 있다. 이곳의 한 바위 면에는 손등이 보이게 새끼손가락을 편 왼손 주먹모양의 약속바위가 있다. 약속바위는 바위 면에 볼록하게 조각된 듯한 형태를 보이고 있는데 이는 오랜 시간에 걸쳐 바위가 힘을 받아 갈라지면서 자연적으로 만들어진 것이다."
+          },
+          "latitude": 36.425045099,
+          "longitude": 129.434656132,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#2614528",
+          "body": "다양한 침식지형과 약속바위가 있는 일출 명소",
+          "reason": "독특한 암석과 일출 풍경이 동해 해안의 매력을 보여줍니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 3,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#126104",
+          "title": "대진해수욕장",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "126104",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/38/3042738_image2_1.JPG",
+            "latitude": 36.5645374176,
+            "phone": "054-730-7721",
+            "city_name_en": "Yeongdeok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 영해면 영덕대게로 2840",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-126104",
+            "longitude": 129.4266915867,
+            "description": "영덕군 영해면 해안마을인 대진리를 중심으로 펼쳐진 대진해수욕장은 어디 내놓아도 손색이 없을 만큼 해수욕장으로서의 조건을 두루 갖추고 있다. 맑고 깨끗한 바닷물이 그대로 간직되어 있으며, 길이 8km, 폭 100m의 백사장 뒤로는 송림이 병풍처럼 둘러쳐져 있어 장관을 이루고 있다. 또한, 수심이 1~2m 정도로 깊지 않고 경사도 완만하여 어린이를 동반한 가족 단위 피서지로 적당하다. \n백사장의 모래는 알이 굵고 질이 좋아 모래찜질에는 그만이며 몸에 잘 붙지 않는 것이 특징이다. 대진해수욕장의 가장 큰 자랑거리는 백사장을 가로질러 흐르는 폭 200m의 송천천이다. 이곳에서는 담수욕을 즐길 수 있어서 천연 샤워장으로도 안성맞춤이다. 또한, 민물과 바닷물이 만나는 곳이라 민물낚시와 바다낚시를 한꺼번에 즐길 수 있고 어족도 풍부한 편이다. \n일반적으로 동해안의 해안선을 단조로운 것으로 알고 있지만 축산면 해안만은 예외이다. 산지가 해안에 인접해 있으며, 죽도산 등이 바다로 튀어나와 복잡한 해안선을 그리고 있다. 그 중 대나무 숲이 무성한 죽도산과 동해가 어우러진 풍경은 한 폭의 동양화를 떠올릴 만큼 그윽하다. 또한, 축산1리에서 대진해수욕장에 이르는 해안도로는 드라이브를 즐기기에 아주 좋고, 금빛 백사장 위로 하얀 파도가 밀려드는 풍경은 눈부실 정도로 아름답다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "대진해수욕장",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126104",
+            "overview": "영덕군 영해면 해안마을인 대진리를 중심으로 펼쳐진 대진해수욕장은 어디 내놓아도 손색이 없을 만큼 해수욕장으로서의 조건을 두루 갖추고 있다. 맑고 깨끗한 바닷물이 그대로 간직되어 있으며, 길이 8km, 폭 100m의 백사장 뒤로는 송림이 병풍처럼 둘러쳐져 있어 장관을 이루고 있다. 또한, 수심이 1~2m 정도로 깊지 않고 경사도 완만하여 어린이를 동반한 가족 단위 피서지로 적당하다. \n백사장의 모래는 알이 굵고 질이 좋아 모래찜질에는 그만이며 몸에 잘 붙지 않는 것이 특징이다. 대진해수욕장의 가장 큰 자랑거리는 백사장을 가로질러 흐르는 폭 200m의 송천천이다. 이곳에서는 담수욕을 즐길 수 있어서 천연 샤워장으로도 안성맞춤이다. 또한, 민물과 바닷물이 만나는 곳이라 민물낚시와 바다낚시를 한꺼번에 즐길 수 있고 어족도 풍부한 편이다. \n일반적으로 동해안의 해안선을 단조로운 것으로 알고 있지만 축산면 해안만은 예외이다. 산지가 해안에 인접해 있으며, 죽도산 등이 바다로 튀어나와 복잡한 해안선을 그리고 있다. 그 중 대나무 숲이 무성한 죽도산과 동해가 어우러진 풍경은 한 폭의 동양화를 떠올릴 만큼 그윽하다. 또한, 축산1리에서 대진해수욕장에 이르는 해안도로는 드라이브를 즐기기에 아주 좋고, 금빛 백사장 위로 하얀 파도가 밀려드는 풍경은 눈부실 정도로 아름답다."
+          },
+          "latitude": 36.5645374176,
+          "longitude": 129.4266915867,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#126104",
+          "body": "8km 백사장과 송천천이 어우러진 넓은 해수욕장",
+          "reason": "넓은 공간과 얕은 물 깊이로 가족 방문에 편리합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 3,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#127160",
+          "title": "하저해수욕장 (하저리 해수욕장)",
+          "city_id": "KR-47-770",
+          "city_name_ko": "영덕군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "127160",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongdeok.json",
+            "image_url": "",
+            "latitude": 36.3898346941,
+            "phone": "강구면사무소 054-730-7200",
+            "city_name_en": "Yeongdeok",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영덕군 강구면 하저리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-127160",
+            "longitude": 129.4079234165,
+            "description": "하저해수욕장은 1㎞의 부드러운 백사장이 해안선을 따라 길게 이어져 있는 비교적 작은 동해안 해수욕장이다. 수심은 1.3m 안팎이고 경사가 완만하여 가족휴양지로서 아주 좋다. 가자미, 보리멸, 우럭 등이 잘 낚여서 바다낚시터로도 인기가 있으며 주변 펜션과 민박, 카페 등 편의시설이 갖추어져 있다. 주변 대게로 유명한 강구항과 어촌마을이 있어 해수욕 이외의 관광을 즐길 수 있다.",
+            "PK": "CITY#Yeongdeok",
+            "city_id": "KR-Yeongdeok",
+            "title": "하저해수욕장 (하저리 해수욕장)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127160",
+            "overview": "하저해수욕장은 1㎞의 부드러운 백사장이 해안선을 따라 길게 이어져 있는 비교적 작은 동해안 해수욕장이다. 수심은 1.3m 안팎이고 경사가 완만하여 가족휴양지로서 아주 좋다. 가자미, 보리멸, 우럭 등이 잘 낚여서 바다낚시터로도 인기가 있으며 주변 펜션과 민박, 카페 등 편의시설이 갖추어져 있다. 주변 대게로 유명한 강구항과 어촌마을이 있어 해수욕 이외의 관광을 즐길 수 있다."
+          },
+          "latitude": 36.3898346941,
+          "longitude": 129.4079234165,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGDEOK",
+          "ddb_sk": "ATTRACTION#127160",
+          "body": "1km 부드러운 백사장과 완만한 경사의 조용한 해변",
+          "reason": "얕은 수심과 완만한 경사로 가족·낚시 활동에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "영덕군은 동해안과 인접해 있어 맑은 바다 풍경을 가까이에서 감상할 수 있습니다.",
+        "영덕해맞이공원은 넓은 잔디와 산책로가 있어 조용히 걸으며 탁 트인 바다 전망을 즐기기에 적합합니다.",
+        "오보해수욕장은 고요한 파도와 넓은 모래사장이 있어 바다를 바라보며 여유로운 휴식을 취하기에 이상적입니다."
+      ],
+      "itinerary_flow_reason": "해안공원과 숲길을 순차적으로 탐방한 뒤, 해수욕장과 지질공원을 이어가며 동해안을 골고루 체험합니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "영덕군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%98%81%EB%8D%95%EA%B5%B0",
+          "query": "영덕군",
+          "city_name_ko": "영덕군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "영덕군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%98%81%EB%8D%95%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "영덕군 숙소",
+          "city_name_ko": "영덕군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "영덕군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%98%81%EB%8D%95%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "영덕군 맛집",
+          "city_name_ko": "영덕군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 8,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#127710",
+              "place:attraction#2661431",
+              "place:attraction#2616061",
+              "place:attraction#2614455",
+              "place:attraction#127161",
+              "place:attraction#2614528",
+              "place:attraction#126104",
+              "place:attraction#127160"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "영덕군은 동해안과 인접해 있어 맑은 바다 풍경을 가까이에서 감상할 수 있습니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#127710",
+              "place:attraction#2661431",
+              "place:attraction#2616061",
+              "place:attraction#2614455",
+              "place:attraction#127161",
+              "place:attraction#2614528",
+              "place:attraction#126104",
+              "place:attraction#127160"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "영덕해맞이공원은 넓은 잔디와 산책로가 있어 조용히 걸으며 탁 트인 바다 전망을 즐기기에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#127710",
+              "place:attraction#2661431",
+              "place:attraction#2616061",
+              "place:attraction#2614455",
+              "place:attraction#127161",
+              "place:attraction#2614528",
+              "place:attraction#126104",
+              "place:attraction#127160"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "오보해수욕장은 고요한 파도와 넓은 모래사장이 있어 바다를 바라보며 여유로운 휴식을 취하기에 이상적입니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#127710",
+          "place:attraction#2661431",
+          "place:attraction#2616061",
+          "place:attraction#2614455",
+          "place:attraction#127161",
+          "place:attraction#2614528",
+          "place:attraction#126104",
+          "place:attraction#127160"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 8,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-08",
+      "expiresAt": "2026-06-27T19:42:17Z",
+      "destination": {
+        "destinationId": "KR-47-770",
+        "name": "영덕군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "3d2n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#127710",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "영덕해맞이공원",
+                "body": "푸른 바다와 초지를 끼느른 1,500계단 산책로",
+                "reason": "영덕해맞이공원은 넓은 잔디와 산책로가 있어 조용히 걸으며 탁 트인 바다 전망을 즐기기에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 36.4274,
+                "longitude": 129.4353
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#2661431",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "벌영리 메타세콰이어길",
+                "body": "420m 메타세쿼이아 숲길과 진달래 전망대로 신선한 공기",
+                "reason": "벌영리 메타세콰이어길은 울창한 숲길이 이어져 자연 속 트레킹을 편안하게 할 수 있는 환경을 제공합니다.",
+                "moveMinutes": null,
+                "latitude": 36.53034604,
+                "longitude": 129.3841296935
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#2616061",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "해파랑공원",
+                "body": "대게거리와 블루로드 산책로가 연결된 해안 휴식공원",
+                "reason": "해파랑공원은 바다와 인접해 바다 전망을 즐기며 휴식하기에 좋은 공간을 제공합니다.",
+                "moveMinutes": null,
+                "latitude": 36.3608460305,
+                "longitude": 129.3929311468
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#2614455",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "경정리 백악기 퇴적암 (경북 동해안 국가지질공원)",
+                "body": "1억 년 백악기 이암·사암이 펼쳐진 해안 지질공원",
+                "reason": "오랜 지질 역사를 직접 관찰할 수 있어 자연 탐구에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 36.4878492121,
+                "longitude": 129.4418758582
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#127161",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "오보해수욕장",
+                "body": "600m 백사장과 잔잔한 파도가 있는 아담한 해변",
+                "reason": "오보해수욕장은 고요한 파도와 넓은 모래사장이 있어 바다를 바라보며 여유로운 휴식을 취하기에 이상적입니다.",
+                "moveMinutes": null,
+                "latitude": 36.4410460237,
+                "longitude": 129.4328308196
+              },
+              {
+                "itemId": "item-6",
+                "contentId": "attraction#2614528",
+                "timeOfDay": "evening",
+                "sortOrder": 6,
+                "title": "영덕 화강섬록암 해안 (경북 동해안 국가지질공원)",
+                "body": "다양한 침식지형과 약속바위가 있는 일출 명소",
+                "reason": "독특한 암석과 일출 풍경이 동해 해안의 매력을 보여줍니다.",
+                "moveMinutes": null,
+                "latitude": 36.425045099,
+                "longitude": 129.434656132
+              }
+            ]
+          },
+          {
+            "day": 3,
+            "items": [
+              {
+                "itemId": "item-7",
+                "contentId": "attraction#126104",
+                "timeOfDay": "morning",
+                "sortOrder": 7,
+                "title": "대진해수욕장",
+                "body": "8km 백사장과 송천천이 어우러진 넓은 해수욕장",
+                "reason": "넓은 공간과 얕은 물 깊이로 가족 방문에 편리합니다.",
+                "moveMinutes": null,
+                "latitude": 36.5645374176,
+                "longitude": 129.4266915867
+              },
+              {
+                "itemId": "item-8",
+                "contentId": "attraction#127160",
+                "timeOfDay": "afternoon",
+                "sortOrder": 8,
+                "title": "하저해수욕장 (하저리 해수욕장)",
+                "body": "1km 부드러운 백사장과 완만한 경사의 조용한 해변",
+                "reason": "얕은 수심과 완만한 경사로 가족·낚시 활동에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 36.3898346941,
+                "longitude": 129.4079234165
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "nature_trekking",
+          "sea_coast",
+          "travelMonth:9"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "영덕군은 동해안과 인접해 있어 맑은 바다 풍경을 가까이에서 감상할 수 있습니다.",
+          "영덕해맞이공원은 넓은 잔디와 산책로가 있어 조용히 걸으며 탁 트인 바다 전망을 즐기기에 적합합니다.",
+          "오보해수욕장은 고요한 파도와 넓은 모래사장이 있어 바다를 바라보며 여유로운 휴식을 취하기에 이상적입니다."
+        ],
+        "itineraryFlowReason": "해안공원과 숲길을 순차적으로 탐방한 뒤, 해수욕장과 지질공원을 이어가며 동해안을 골고루 체험합니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%98%81%EB%8D%95%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%EC%98%81%EB%8D%95%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%98%81%EB%8D%95%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

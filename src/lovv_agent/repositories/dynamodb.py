@@ -7,7 +7,7 @@ the caller-facing tools.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -41,6 +41,9 @@ class DynamoDbClient(Protocol):
 
     def scan(self, **request: Any) -> Mapping[str, Any]:
         """Return DynamoDB scan results for the provided scan request."""
+
+    def batch_get_item(self, **request: Any) -> Mapping[str, Any]:
+        """Return DynamoDB items for the provided batch key request."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +102,81 @@ class DynamoDbRepository:
             },
             consistent_read=consistent_read,
         )
+
+    def batch_get_city_visitor_stats(
+        self,
+        *,
+        city_ids: Iterable[str],
+        travel_month: int,
+        partition_key_by_city: Mapping[str, str] | None = None,
+    ) -> dict[str, float | None]:
+        """Fetch per-city monthly visitor totals in one BatchGetItem.
+
+        Key: ``PK=CITY#{city}``, ``SK=STAT#2025{MM}``, attribute ``total_visitors``.
+        통계가 없는 도시는 ``None``(중립 처리용). 방문객 데이터는 2025만 존재하므로
+        travelYear와 무관하게 2025 계절 패턴을 혼잡도 proxy로 사용한다.
+        BatchGetItem은 항목당 RCU로 과금되어 비용은 GetItem N회와 동일하고, 왕복만 1회다.
+        """
+
+        unique_ids = list(dict.fromkeys(city_ids))
+        result: dict[str, float | None] = {cid: None for cid in unique_ids}
+        if not unique_ids:
+            return result
+        sk = f"STAT#2025{_month(travel_month, 'travel_month'):02d}"
+        pk_to_city: dict[str, str] = {}
+        keys: list[dict[str, Any]] = []
+        for cid in unique_ids:
+            raw_pk = (
+                partition_key_by_city.get(cid)
+                if partition_key_by_city is not None
+                else None
+            )
+            # 전이기: 신규 vector ddb_pk(CITY#대문자)를 현 Dynamo 타이틀케이스로 정규화.
+            # ddb_pk가 없으면(legacy 이름 기반 city_id) 기존 유도식으로 폴백.
+            pk = _to_legacy_city_pk(raw_pk) if raw_pk else _city_partition_key(cid)
+            pk_to_city[pk] = cid
+            keys.append({"PK": {"S": pk}, "SK": {"S": sk}})
+        table = self.settings.table_name
+        pending: dict[str, Any] = {table: {"Keys": keys}}
+        with _TRACER.start_as_current_span("dynamodb.BatchGetItem") as span:
+            span.set_attribute("aws.service", "dynamodb")
+            span.set_attribute("dynamodb.table", table)
+            span.set_attribute("dynamodb.operation", "BatchGetItem")
+            span.set_attribute("dynamodb.request_key_count", len(keys))
+            try:
+                for _ in range(2):  # 초기 1회 + UnprocessedKeys 1회 재시도
+                    response = self.client.batch_get_item(RequestItems=pending)
+                    if not isinstance(response, Mapping):
+                        raise SchemaValidationError(
+                            "dynamodb batch_get_item response must be a mapping",
+                        )
+                    rows = response.get("Responses", {})
+                    for item in rows.get(table, ()) if isinstance(rows, Mapping) else ():
+                        pk_value = item.get("PK", {}).get("S")
+                        # total_visitors는 statistics 맵 안에 중첩돼 있다(현 스키마):
+                        # statistics.M.total_visitors.N. 구 스키마(최상위)도 폴백 지원.
+                        stats_map = item.get("statistics", {}).get("M", {})
+                        total = stats_map.get("total_visitors", {}).get("N") or item.get(
+                            "total_visitors", {}
+                        ).get("N")
+                        cid = pk_to_city.get(pk_value)
+                        if cid is not None and total is not None:
+                            result[cid] = float(total)
+                    unprocessed = response.get("UnprocessedKeys") or {}
+                    if not unprocessed:
+                        break
+                    pending = dict(unprocessed)
+                span.set_attribute(
+                    "dynamodb.resolved_count",
+                    sum(1 for value in result.values() if value is not None),
+                )
+                return result
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
 
     def query_items(self, request: Mapping[str, Any]) -> dict[str, Any]:
         """Run a query against the configured table."""
@@ -223,7 +301,7 @@ class DynamoDbRepository:
                     "#month": "month",
                 },
                 "ExpressionAttributeValues": {
-                    ":pk": {"S": _city_partition_key(normalized_city_id)},
+                    ":pk": {"S": _to_legacy_city_pk(_city_partition_key(normalized_city_id))},
                     ":festival_prefix": {"S": "FESTIVAL#"},
                     ":month": {"N": str(normalized_month)},
                 },
@@ -272,6 +350,23 @@ def _city_partition_key(city_id: str) -> str:
     prefix, separator, suffix = normalized.partition("-")
     city_name = suffix if separator and len(prefix) == 2 and prefix.isupper() else normalized
     return f"CITY#{city_name}"
+
+
+def _to_legacy_city_pk(pk: str | None) -> str | None:
+    """전이기(pre-V2) 키 정규화 shim.
+
+    신규 vector metadata는 city PK를 ``CITY#<대문자>``(예: ``CITY#GUNSAN``)로 기록하지만,
+    V2 이행 전 현재 DynamoDB는 ``CITY#Andong``처럼 도시명 첫 글자만 대문자(타이틀케이스)다.
+    도시명 세그먼트만 타이틀케이스로 맞춰 PK 불일치를 해소한다.
+    Dynamo가 대문자 키로 이행하면(V2) 이 함수와 호출부를 제거하면 된다.
+    """
+
+    if not pk:
+        return pk
+    prefix, separator, city = pk.partition("#")
+    if not separator or prefix != "CITY" or not city:
+        return pk
+    return f"{prefix}#{city.capitalize()}"
 
 def _month(value: Any, field_name: str) -> int:
     """Validate a 1-12 month number."""

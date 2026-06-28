@@ -1,0 +1,19 @@
+{
+  "requestId": "REQ-TC-09",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "2d1n",
+  "themes": [
+    "history_tradition",
+    "nature_trekking"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "역사 유적과 주변 자연을 함께 둘러보고 싶어요. 이동 부담이 적고 고즈넉한 분위기면 좋겠어요.",
+  "userLocation": {
+    "latitude": 37.5665,
+    "longitude": 126.9780
+  }
+}

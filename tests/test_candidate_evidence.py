@@ -123,12 +123,14 @@ class FakeDestinationSearch:
         query_vector: tuple[float, ...],
         *,
         city_id: str | None = None,
+        ddb_pk: str | None = None,
         theme: str | None = None,
     ) -> tuple[AttractionCandidate, ...]:
         self.calls.append(
             {
                 "query_vector": query_vector,
                 "city_id": city_id,
+                "ddb_pk": ddb_pk,
                 "theme": theme,
             },
         )
@@ -407,7 +409,8 @@ class CandidateEvidenceOrchestrationTest(unittest.TestCase):
         self.assertTrue(
             all(place["city_id"] == "KR-A" for place in package.recommended_places),
         )
-        self.assertEqual(search.calls[0]["city_id"], "KR-A")
+        self.assertIsNone(search.calls[0]["city_id"])
+        self.assertEqual(search.calls[0]["ddb_pk"], "CITY#A")
         self.assertEqual(package.retrieval_audit["fixed_city_id"], "KR-A")
 
     def test_city_discovery_package_validates_for_insufficient_candidates(self) -> None:
@@ -582,7 +585,6 @@ class CandidateEvidenceFestivalSeedTest(unittest.TestCase):
                 status="ok",
                 candidates=(
                     festival("F-A", city_id="KR-A", city_name="에이군"),
-                    festival("F-B", city_id="KR-B", city_name="비군"),
                 ),
             ),
         )
@@ -607,7 +609,8 @@ class CandidateEvidenceFestivalSeedTest(unittest.TestCase):
             [item["city_id"] for item in package.selected_festival_candidates],
             ["KR-A"],
         )
-        self.assertEqual(search.calls[0]["city_id"], "KR-A")
+        self.assertIsNone(search.calls[0]["city_id"])
+        self.assertEqual(search.calls[0]["ddb_pk"], "CITY#A")
 
 
 class CandidateEvidencePackageAndReasonClaimTest(unittest.TestCase):

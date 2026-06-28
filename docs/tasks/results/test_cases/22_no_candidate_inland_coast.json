@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-22",
+  "entryType": "map_marker",
+  "destinationId": "KR-Yeongyang",
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "daytrip",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "영양에서 바닷가 해안을 천천히 걷고 싶어요.",
+  "userLocation": null
+}

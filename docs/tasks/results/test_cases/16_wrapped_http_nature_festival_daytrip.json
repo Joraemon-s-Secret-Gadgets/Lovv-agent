@@ -1,0 +1,7 @@
+{
+  "requestId": "REQ-TC-16",
+  "headers": {
+    "x-request-id": "REQ-TC-16"
+  },
+  "body": "{\"entryType\":\"chat\",\"destinationId\":null,\"country\":\"KR\",\"travelYear\":2026,\"travelMonth\":9,\"tripType\":\"daytrip\",\"themes\":[\"nature_trekking\"],\"includeFestivals\":true,\"naturalLanguageQuery\":\"가볍게 숲길을 걷고 가을 축제도 즐기는 당일 여행을 추천해줘. 한적한 분위기면 좋겠어요.\",\"userLocation\":null}"
+}

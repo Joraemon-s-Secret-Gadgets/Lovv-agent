@@ -1,0 +1,1234 @@
+{
+  "request": {
+    "request_id": "REQ-TC-21",
+    "entry_type": "map_marker",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 10,
+    "trip_type": "2d1n",
+    "destination_id": "KR-Gyeongju",
+    "themes": [
+      "history_tradition"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "경주에서 역사 유적과 전통 명소를 차분하게 둘러보는 1박 2일 코스를 추천해줘.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-21",
+    "agent_run_id": "run-8969add2-8934-48cd-9eff-950f980cf8fd",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "map_marker",
+      "country": "KR",
+      "travelMonth": 10,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": "KR-Gyeongju",
+      "themes": [
+        "history_tradition"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "경주에서 역사 유적과 전통 명소를 차분하게 둘러보는 1박 2일 코스를 추천해줘.",
+      "user_location": null,
+      "execution_mode": "anchored_place_search",
+      "cleaned_raw_query": "경주에서 역사 유적과 전통 명소를 차분하게 둘러보는 1박 2일 코스를 추천해줘",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "역사·전통"
+    ],
+    "searchable_place_themes": [
+      "역사·전통"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "경주에서 역사 유적과 전통 명소를 차분하게 둘러보는 1박 2일 코스를 추천해줘.",
+    "soft_preference_query": "차분하고 여유로운, 조용하게 역사를 느낄 수 있는 분위기.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 10,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "역사·전통"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "경주에서 역사 유적과 전통 명소를 차분하게 둘러보는 1박 2일 코스를 추천해줘.",
+      "soft_preference_query": "차분하고 여유로운, 조용하게 역사를 느낄 수 있는 분위기.",
+      "unsupported_conditions": [],
+      "destination_id": "KR-Gyeongju",
+      "user_location": null,
+      "execution_mode": "anchored_place_search",
+      "fixed_city_id": "KR-Gyeongju",
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "anchored_place_search",
+      "selected_city": {
+        "city_id": "KR-47-130",
+        "city_name_ko": "경주시",
+        "country": "KR",
+        "selection_reason_code": [
+          "anchored_city",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-47-130",
+          "city_score": 2.727,
+          "score_breakdown": {
+            "semantic_evidence": 0.85,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.175
+          },
+          "top_place_ids": [
+            "attraction#971032",
+            "attraction#128636",
+            "attraction#126166",
+            "attraction#126229",
+            "attraction#319572",
+            "attraction#128117",
+            "attraction#319577",
+            "attraction#128526",
+            "attraction#231933",
+            "attraction#127985"
+          ],
+          "candidate_count": 50,
+          "city_name_ko": "경주시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#971032",
+          "title": "경주역사유적지구 [유네스코 세계유산]",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8385656047,
+          "longitude": 129.2122926901,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#971032",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.9804,
+            "score_components": {
+              "raw_similarity": 0.4509,
+              "soft_similarity": 0.1295,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128636",
+          "title": "통일전(경주)",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.798022,
+          "longitude": 129.240565,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#128636",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8787,
+            "score_components": {
+              "raw_similarity": 0.3373,
+              "soft_similarity": 0.1415,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126166",
+          "title": "경주 불국사 [유네스코 세계유산]",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7923023161,
+          "longitude": 129.3317253913,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#126166",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8735,
+            "score_components": {
+              "raw_similarity": 0.3082,
+              "soft_similarity": 0.1653,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126229",
+          "title": "경주민속공예촌",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8043148332711,
+          "longitude": 129.311409323375,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#126229",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8683,
+            "score_components": {
+              "raw_similarity": 0.3142,
+              "soft_similarity": 0.1541,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#319572",
+          "title": "경주 동부 사적지대",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8354105128,
+          "longitude": 129.2179617281,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#319572",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8354,
+            "score_components": {
+              "raw_similarity": 0.2929,
+              "soft_similarity": 0.1425,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128117",
+          "title": "경주 월성",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8325,
+          "longitude": 129.2249,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#128117",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8201,
+            "score_components": {
+              "raw_similarity": 0.3053,
+              "soft_similarity": 0.1148,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#319577",
+          "title": "경주 독락당",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.0165159212675,
+          "longitude": 129.160076428523,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#319577",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.816,
+            "score_components": {
+              "raw_similarity": 0.2616,
+              "soft_similarity": 0.1544,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128526",
+          "title": "경주 동궁과 월지",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8352023996,
+          "longitude": 129.2283747104,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#128526",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8112,
+            "score_components": {
+              "raw_similarity": 0.2484,
+              "soft_similarity": 0.1627,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#231933",
+          "title": "경주 양동 무첨당",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.0020201213,
+          "longitude": 129.252656696,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#231933",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8092,
+            "score_components": {
+              "raw_similarity": 0.2534,
+              "soft_similarity": 0.1558,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127985",
+          "title": "경주 황룡사지",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8374438969,
+          "longitude": 129.2328298118,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#127985",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8071,
+            "score_components": {
+              "raw_similarity": 0.2503,
+              "soft_similarity": 0.1568,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [
+        {
+          "place_id": "attraction#128637",
+          "title": "경주 감은사지",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7483222,
+          "longitude": 129.4766275,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#128637",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8017,
+            "score_components": {
+              "raw_similarity": 0.2726,
+              "soft_similarity": 0.1291,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#1621780",
+          "title": "경주유연정",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.940038,
+          "longitude": 129.301743,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#1621780",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7982,
+            "score_components": {
+              "raw_similarity": 0.2674,
+              "soft_similarity": 0.1308,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#250267",
+          "title": "경주 동방동 와요지",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8098419476,
+          "longitude": 129.2588283203,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#250267",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7944,
+            "score_components": {
+              "raw_similarity": 0.2719,
+              "soft_similarity": 0.1225,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#129518",
+          "title": "경주 양동마을 송첨종택",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.0038143817,
+          "longitude": 129.2536260037,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#129518",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7943,
+            "score_components": {
+              "raw_similarity": 0.255,
+              "soft_similarity": 0.1393,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126204",
+          "title": "경주 석빙고",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8332025414,
+          "longitude": 129.2239418227,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#126204",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7942,
+            "score_components": {
+              "raw_similarity": 0.2683,
+              "soft_similarity": 0.1259,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#479934",
+          "title": "주사암(경주)",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.853341436,
+          "longitude": 129.0499565087,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#479934",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7901,
+            "score_components": {
+              "raw_similarity": 0.2633,
+              "soft_similarity": 0.1268,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128116",
+          "title": "경주 계림",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8326027781,
+          "longitude": 129.2189678803,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#128116",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.79,
+            "score_components": {
+              "raw_similarity": 0.2733,
+              "soft_similarity": 0.1167,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#129778",
+          "title": "국립경주박물관",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.8304796951968,
+          "longitude": 129.2283703802744,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#129778",
+          "slot_role": "reserve",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7899,
+            "score_components": {
+              "raw_similarity": 0.2826,
+              "soft_similarity": 0.1073,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "역사·전통"
+        ],
+        "searchable_place_themes": [
+          "역사·전통"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "역사·전통": 10
+        },
+        "reserve_theme_counts": {
+          "역사·전통": 8
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 4,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 10,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "anchored_place_search",
+        "searchable_place_themes": [
+          "역사·전통"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": "KR-Gyeongju",
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 1,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 50,
+        "city_count": 1,
+        "recommended_places": 10,
+        "reserve_places": 8,
+        "available_places": 10,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "city_selection",
+          "text_ko": "경주역사유적지구는 유네스코 세계유산으로 지정돼 고요한 분위기 속에서 다양한 신라 시대 유적을 차분히 감상할 수 있어 1박 2일 일정에 적합합니다.",
+          "evidence_refs": [
+            "attraction#971032"
+          ],
+          "required_place_ids": [
+            "attraction#971032"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "city_selection",
+          "text_ko": "통일전(경주)은 신라와 통일신라 시대의 역사를 조용히 되돌아볼 수 있는 전시 공간으로, 여유로운 관람에 알맞은 장소입니다.",
+          "evidence_refs": [
+            "attraction#128636"
+          ],
+          "required_place_ids": [
+            "attraction#128636"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "city_selection",
+          "text_ko": "경주 불국사는 섬세한 건축미와 평화로운 정원이 어우러져 조용히 명상을 하며 역사를 체험하기에 좋은 곳입니다.",
+          "evidence_refs": [
+            "attraction#126166"
+          ],
+          "required_place_ids": [
+            "attraction#126166"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "city_selection",
+          "text_ko": "경주민속공예촌은 전통 공예 체험을 통해 차분히 문화와 역사를 느낄 수 있는 공간으로, 여유로운 일정에 잘 맞습니다.",
+          "evidence_refs": [
+            "attraction#126229"
+          ],
+          "required_place_ids": [
+            "attraction#126229"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_5",
+          "scope": "city_selection",
+          "text_ko": "경주 동부 사적지대는 비교적 인적이 적은 고요한 산책길과 신라 시대 유적이 어우러져 조용히 역사를 탐방하기에 이상적입니다.",
+          "evidence_refs": [
+            "attraction#319572"
+          ],
+          "required_place_ids": [
+            "attraction#319572"
+          ],
+          "public_eligible": false
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#971032",
+          "title": "경주역사유적지구 [유네스코 세계유산]",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "971032",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gyeongju.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/72/3554372_image2_1.jpg",
+            "latitude": 35.8385656047,
+            "phone": "054-772-3843",
+            "city_name_en": "Gyeongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 경주시 태종로 757",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-971032",
+            "longitude": 129.2122926901,
+            "description": "2000년 12월에 세계유산으로 등재된 경주역사유적지구(慶州歷史遺蹟地區)는 신라시대(新羅, 57-935)의 고도인 경주의 역사와 문화를 고스란히 담고있는 유적 지구(地區)이다. 유적의 성격에 따라 모두 5개 지구로 나누어져 있는데 불교미술의 보고인 남산지구, 천년왕조의 궁궐터인 월성지구, 신라 왕을 비롯한 고분군 분포지역인 대능원지구, 신라불교의 정수인 황룡사지구, 왕경 방어시설의 핵심인 산성지구로 구분되어 있으며 52개의 지정문화재가 세계유산지역에 포함되어 있다.\n남산지구에는 경주 남산 미를곡 석조 여래좌상, 경주 남산 용장사곡 삼층석탑, 남간사지석정, 경주 남산 불곡 마애여래좌상 등이 있고 월성 지구에는 경주 계림, 경주 월성, 경주 동궁과 월지, 경주 첨성대가 있다. 또한 대능원지구에는 경주 미추왕릉, 경주 오릉, 경주 노동리고분군 등이 있으며 황룡사 지구에는 경주 황룡사지, 경주 분황사 보전석탑이 산성지구에는 경주 명활성이 있다.",
+            "PK": "CITY#Gyeongju",
+            "city_id": "KR-Gyeongju",
+            "title": "경주역사유적지구 [유네스코 세계유산]",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#971032",
+            "overview": "2000년 12월에 세계유산으로 등재된 경주역사유적지구(慶州歷史遺蹟地區)는 신라시대(新羅, 57-935)의 고도인 경주의 역사와 문화를 고스란히 담고있는 유적 지구(地區)이다. 유적의 성격에 따라 모두 5개 지구로 나누어져 있는데 불교미술의 보고인 남산지구, 천년왕조의 궁궐터인 월성지구, 신라 왕을 비롯한 고분군 분포지역인 대능원지구, 신라불교의 정수인 황룡사지구, 왕경 방어시설의 핵심인 산성지구로 구분되어 있으며 52개의 지정문화재가 세계유산지역에 포함되어 있다.\n남산지구에는 경주 남산 미를곡 석조 여래좌상, 경주 남산 용장사곡 삼층석탑, 남간사지석정, 경주 남산 불곡 마애여래좌상 등이 있고 월성 지구에는 경주 계림, 경주 월성, 경주 동궁과 월지, 경주 첨성대가 있다. 또한 대능원지구에는 경주 미추왕릉, 경주 오릉, 경주 노동리고분군 등이 있으며 황룡사 지구에는 경주 황룡사지, 경주 분황사 보전석탑이 산성지구에는 경주 명활성이 있다."
+          },
+          "latitude": 35.8385656047,
+          "longitude": 129.2122926901,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#971032",
+          "body": "신라 시대 유적이 5지구에 걸쳐 펼쳐진 세계유산 구역",
+          "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#128636",
+          "title": "통일전(경주)",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "128636",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gyeongju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/08/3501408_image2_1.jpg",
+            "latitude": 35.798022,
+            "phone": "054-774-8761",
+            "city_name_en": "Gyeongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 경주시 칠불암길 6",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-128636",
+            "longitude": 129.240565,
+            "description": "통일전은 삼국 통일의 정신을 계승하고, 다가올 남북통일을 기원하는 국민의 전당이다. 경내에는 태종무열왕, 문무대왕, 김유신 장군의 영정이 모셔져 있으며, 통일을 위한 격전을 생생히 보여주는 기록화가 긴 회랑을 따라 전시되어 있다. 통일전은 호국영령의 뜻을 기리기 위해 건립된 만큼, 초·중등학생들의 이념 교육장으로 활용되고 있으며, 수학여행의 필수 코스로 자리 잡고 있다. 삼국 통일 당시의 전투 장면이 여러 액자에 그려져 있는 것이 인상적이며, 남산 답사 중 잠시 호국영령에게 참배하고, 넓은 잔디밭에서 쉬어가는 것도 좋다.",
+            "PK": "CITY#Gyeongju",
+            "city_id": "KR-Gyeongju",
+            "title": "통일전(경주)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#128636",
+            "overview": "통일전은 삼국 통일의 정신을 계승하고, 다가올 남북통일을 기원하는 국민의 전당이다. 경내에는 태종무열왕, 문무대왕, 김유신 장군의 영정이 모셔져 있으며, 통일을 위한 격전을 생생히 보여주는 기록화가 긴 회랑을 따라 전시되어 있다. 통일전은 호국영령의 뜻을 기리기 위해 건립된 만큼, 초·중등학생들의 이념 교육장으로 활용되고 있으며, 수학여행의 필수 코스로 자리 잡고 있다. 삼국 통일 당시의 전투 장면이 여러 액자에 그려져 있는 것이 인상적이며, 남산 답사 중 잠시 호국영령에게 참배하고, 넓은 잔디밭에서 쉬어가는 것도 좋다."
+          },
+          "latitude": 35.798022,
+          "longitude": 129.240565,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#128636",
+          "body": "삼국 통일 정신을 기리는 전시와 넓은 잔디밭을 갖춘 곳",
+          "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#126166",
+          "title": "경주 불국사 [유네스코 세계유산]",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "126166",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gyeongju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/70/3506170_image2_1.jpg",
+            "latitude": 35.7923023161251,
+            "phone": "054-746-9913",
+            "city_name_en": "Gyeongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 경주시 불국로 385 (진현동)",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-126166",
+            "longitude": 129.331725391321,
+            "description": "불국사는 신라 법흥왕 15년에 어머니의 뜻에 따라 국가의 안녕과 백성의 평안을 기원하며 창건되었다. 경덕왕 10년인 751년에는 재상 김대성이 절을 다시 지어 현재의 규모로 정비하였다. 임진왜란 때 건물과 문화유산 대부분이 불에 타거나 약탈되었다. 1920년 이전까지 일부 건물과 탑만 남아 있었으나 이후 원형 복구와 보수가 이루어졌다. 현재는 국보 7점을 포함한 문화유산을 보유한 대사찰로 자리 잡고 있다. 불국사에서 약 3㎞ 떨어진 산등성이에는 석굴암이 위치해 있다. 석굴암은 동해를 향해 앉은 여래좌상 본존불이 중심을 이루며 동양의 걸작으로 꼽힌다. 불국사와 석굴암은 1995년 12월 6일 유네스코 세계문화유산으로 등재되었다. 이로써 두 유적은 국내외적으로 신라 불교문화의 정수로 평가받고 있다.",
+            "PK": "CITY#Gyeongju",
+            "city_id": "KR-Gyeongju",
+            "title": "경주 불국사 [유네스코 세계유산]",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126166",
+            "overview": "불국사는 신라 법흥왕 15년에 어머니의 뜻에 따라 국가의 안녕과 백성의 평안을 기원하며 창건되었다. 경덕왕 10년인 751년에는 재상 김대성이 절을 다시 지어 현재의 규모로 정비하였다. 임진왜란 때 건물과 문화유산 대부분이 불에 타거나 약탈되었다. 1920년 이전까지 일부 건물과 탑만 남아 있었으나 이후 원형 복구와 보수가 이루어졌다. 현재는 국보 7점을 포함한 문화유산을 보유한 대사찰로 자리 잡고 있다. 불국사에서 약 3㎞ 떨어진 산등성이에는 석굴암이 위치해 있다. 석굴암은 동해를 향해 앉은 여래좌상 본존불이 중심을 이루며 동양의 걸작으로 꼽힌다. 불국사와 석굴암은 1995년 12월 6일 유네스코 세계문화유산으로 등재되었다. 이로써 두 유적은 국내외적으로 신라 불교문화의 정수로 평가받고 있다."
+          },
+          "latitude": 35.7923023161,
+          "longitude": 129.3317253913,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#126166",
+          "body": "신라 불교 문화의 정수를 품은 대사찰과 석굴암 인접",
+          "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#126229",
+          "title": "경주민속공예촌",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "126229",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gyeongju.json",
+            "image_url": "",
+            "latitude": 35.8043148332711,
+            "phone": "054-746-7270",
+            "city_name_en": "Gyeongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 경주시 보불로 230 (하동)",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-126229",
+            "longitude": 129.311409323375,
+            "description": "경주민속공예촌은 1986년 신라시대의 공예기술을 보존하고 개발하기 위해 토함산 기슭에 조성한 마을로 전통 민예품을 재현하고 민속공예를 계승·발전하기 위해 흩어져 있던 경주 지역 장인들을 한 곳에 모은 촌락 형태의 민속품협업단지이다. 옛 모습을 지닌 전통 골기와집과 초가 45동으로 이루어진 이곳은 전통가구와 토우를 비롯하여 신라금관, 불상, 칠보 등의 금속공예품, 청자, 백자, 토기 등 도자기공예품 및 목가구, 목불상 등 목공예품과 죽세공예품, 보석공예품 등을 옛날 그대로 재현하고 있다. 재래식 생산과정과 장인들의 솜씨를 관광객이 직접 관람할 수 있도록 개방하고 생산품을 전시·판매하는 현대식 종합전시장도 있다. 공예촌에는 신라역사과학관이 있어 석굴암 석굴의 신비를 밝히는 석굴 모형도와 해부도 및 경주 첨성대를 통하여 관측한 천문도, 서라벌의 옛 모습을 재현하는 왕경도(王京圖)를 제작·전시하고 석굴암 석굴 모형도를 제작하여 석굴의 과학성을 설명하였다. 보문단지와 불국사를 연계하는 관광코스로 한옥과 어우러진 마을의 풍경이 아름다워 관광객들이 즐겨 찾는 곳이다.",
+            "PK": "CITY#Gyeongju",
+            "city_id": "KR-Gyeongju",
+            "title": "경주민속공예촌",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126229",
+            "overview": "경주민속공예촌은 1986년 신라시대의 공예기술을 보존하고 개발하기 위해 토함산 기슭에 조성한 마을로 전통 민예품을 재현하고 민속공예를 계승·발전하기 위해 흩어져 있던 경주 지역 장인들을 한 곳에 모은 촌락 형태의 민속품협업단지이다. 옛 모습을 지닌 전통 골기와집과 초가 45동으로 이루어진 이곳은 전통가구와 토우를 비롯하여 신라금관, 불상, 칠보 등의 금속공예품, 청자, 백자, 토기 등 도자기공예품 및 목가구, 목불상 등 목공예품과 죽세공예품, 보석공예품 등을 옛날 그대로 재현하고 있다. 재래식 생산과정과 장인들의 솜씨를 관광객이 직접 관람할 수 있도록 개방하고 생산품을 전시·판매하는 현대식 종합전시장도 있다. 공예촌에는 신라역사과학관이 있어 석굴암 석굴의 신비를 밝히는 석굴 모형도와 해부도 및 경주 첨성대를 통하여 관측한 천문도, 서라벌의 옛 모습을 재현하는 왕경도(王京圖)를 제작·전시하고 석굴암 석굴 모형도를 제작하여 석굴의 과학성을 설명하였다. 보문단지와 불국사를 연계하는 관광코스로 한옥과 어우러진 마을의 풍경이 아름다워 관광객들이 즐겨 찾는 곳이다."
+          },
+          "latitude": 35.8043148332711,
+          "longitude": 129.311409323375,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#126229",
+          "body": "전통 공예품과 장인 작업을 직접 볼 수 있는 민속공예촌",
+          "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#319572",
+          "title": "경주 동부 사적지대",
+          "city_id": "KR-47-130",
+          "city_name_ko": "경주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "319572",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gyeongju.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/21/3582421_image2_1.jpg",
+            "latitude": 35.8354105128,
+            "phone": "054-772-3843",
+            "city_name_en": "Gyeongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 경주시 황남동",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-319572",
+            "longitude": 129.2179617281,
+            "description": "동서는 안압지로부터 교동까지 남북은 반월성 남쪽의 남천에서 고분공원 앞 첨성로에 이르는 광대한 지역이다. 이 지역은 신라 왕도의 중심부였기 때문에 반월성, 안압지, 첨성대, 계림 등 중요한 유적이 많을 뿐만 아니라 내물왕을 위시한 수십 기에 달하는 신라시대의 고분이 밀집되어 있는 곳이다. 이 일대의 면적은 668,121㎡(202,46평)이다.",
+            "PK": "CITY#Gyeongju",
+            "city_id": "KR-Gyeongju",
+            "title": "경주 동부 사적지대",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#319572",
+            "overview": "동서는 안압지로부터 교동까지 남북은 반월성 남쪽의 남천에서 고분공원 앞 첨성로에 이르는 광대한 지역이다. 이 지역은 신라 왕도의 중심부였기 때문에 반월성, 안압지, 첨성대, 계림 등 중요한 유적이 많을 뿐만 아니라 내물왕을 위시한 수십 기에 달하는 신라시대의 고분이 밀집되어 있는 곳이다. 이 일대의 면적은 668,121㎡(202,46평)이다."
+          },
+          "latitude": 35.8354105128,
+          "longitude": 129.2179617281,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GYEONGJU",
+          "ddb_sk": "ATTRACTION#319572",
+          "body": "반월성·안압지·첨성대 등 고분과 사적이 밀집한 동부 지역",
+          "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "경주의 풍부한 신라 유산을 체험할 수 있습니다.",
+        "다양한 고분·사적이 근접해 효율적인 동선을 제공합니다."
+      ],
+      "itinerary_flow_reason": "동부 사적지대 → 경주역사유적지구 → 통일전 → 불국사 → 경주민속공예촌 순으로 이동합니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "경주시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EA%B2%BD%EC%A3%BC%EC%8B%9C",
+          "query": "경주시",
+          "city_name_ko": "경주시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "경주시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B2%BD%EC%A3%BC%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "경주시 숙소",
+          "city_name_ko": "경주시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "경주시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B2%BD%EC%A3%BC%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "경주시 맛집",
+          "city_name_ko": "경주시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#971032",
+              "place:attraction#128636",
+              "place:attraction#126166",
+              "place:attraction#126229",
+              "place:attraction#319572"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "경주의 풍부한 신라 유산을 체험할 수 있습니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#971032",
+              "place:attraction#128636",
+              "place:attraction#126166",
+              "place:attraction#126229",
+              "place:attraction#319572"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "다양한 고분·사적이 근접해 효율적인 동선을 제공합니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#971032",
+          "place:attraction#128636",
+          "place:attraction#126166",
+          "place:attraction#126229",
+          "place:attraction#319572"
+        ],
+        "hidden_internal_notes": [
+          "skipped_non_public_claim:claim_1",
+          "skipped_non_public_claim:claim_2",
+          "skipped_non_public_claim:claim_3",
+          "skipped_non_public_claim:claim_4",
+          "skipped_non_public_claim:claim_5",
+          "fallback_reason_used:no_public_claims",
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-21",
+      "expiresAt": "2026-06-27T20:34:32Z",
+      "destination": {
+        "destinationId": "KR-47-130",
+        "name": "경주시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#971032",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "경주역사유적지구 [유네스코 세계유산]",
+                "body": "신라 시대 유적이 5지구에 걸쳐 펼쳐진 세계유산 구역",
+                "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+                "moveMinutes": null,
+                "latitude": 35.8385656047,
+                "longitude": 129.2122926901
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#128636",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "통일전(경주)",
+                "body": "삼국 통일 정신을 기리는 전시와 넓은 잔디밭을 갖춘 곳",
+                "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+                "moveMinutes": null,
+                "latitude": 35.798022,
+                "longitude": 129.240565
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#126166",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "경주 불국사 [유네스코 세계유산]",
+                "body": "신라 불교 문화의 정수를 품은 대사찰과 석굴암 인접",
+                "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+                "moveMinutes": null,
+                "latitude": 35.7923023161,
+                "longitude": 129.3317253913
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#126229",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "경주민속공예촌",
+                "body": "전통 공예품과 장인 작업을 직접 볼 수 있는 민속공예촌",
+                "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+                "moveMinutes": null,
+                "latitude": 35.8043148332711,
+                "longitude": 129.311409323375
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#319572",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "경주 동부 사적지대",
+                "body": "반월성·안압지·첨성대 등 고분과 사적이 밀집한 동부 지역",
+                "reason": "역사·전통 테마에 맞춰 선택되었습니다.",
+                "moveMinutes": null,
+                "latitude": 35.8354105128,
+                "longitude": 129.2179617281
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "history_tradition",
+          "travelMonth:10"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "경주의 풍부한 신라 유산을 체험할 수 있습니다.",
+          "다양한 고분·사적이 근접해 효율적인 동선을 제공합니다."
+        ],
+        "itineraryFlowReason": "동부 사적지대 → 경주역사유적지구 → 통일전 → 불국사 → 경주민속공예촌 순으로 이동합니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EA%B2%BD%EC%A3%BC%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EA%B2%BD%EC%A3%BC%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EA%B2%BD%EC%A3%BC%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

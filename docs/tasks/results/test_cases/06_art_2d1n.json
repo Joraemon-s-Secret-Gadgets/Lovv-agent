@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-06",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 9,
+  "tripType": "2d1n",
+  "themes": [
+    "art_sense"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "갤러리와 예술 공간을 둘러보는 여행을 하고 싶어요. 조용하고 감성적인 골목 분위기면 좋겠어요.",
+  "userLocation": null
+}

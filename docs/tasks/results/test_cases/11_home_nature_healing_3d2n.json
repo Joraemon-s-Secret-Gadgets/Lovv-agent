@@ -1,0 +1,19 @@
+{
+  "requestId": "REQ-TC-11",
+  "entryType": "home_recommendation",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "3d2n",
+  "themes": [
+    "nature_trekking",
+    "healing_rest"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "서울에서 출발해 자연 산책과 온천 휴식을 함께 하는 2박 3일 여행을 추천해줘. 여유롭고 한적한 분위기면 좋겠어요.",
+  "userLocation": {
+    "latitude": 37.5665,
+    "longitude": 126.9780
+  }
+}

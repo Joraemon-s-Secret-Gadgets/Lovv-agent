@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-01",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 7,
+  "tripType": "2d1n",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "바다 풍경을 천천히 보며 해안 산책로를 걷고 싶어요. 사람이 적고 조용하고 한적한 바닷가 마을이면 좋겠어요.",
+  "userLocation": null
+}

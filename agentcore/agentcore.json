@@ -23,11 +23,11 @@
         },
         {
           "name": "LOVV_S3_VECTOR_BUCKET",
-          "value": "lovv-vector-dev"
+          "value": "lovv-agentcore-v1-vector"
         },
         {
           "name": "LOVV_S3_VECTOR_INDEX",
-          "value": "kr-tour-domain-v1"
+          "value": "kr-agentcore-v1"
         },
         {
           "name": "LOVV_DYNAMODB_TABLE",
@@ -72,6 +72,14 @@
         {
           "name": "LOVV_READ_TIMEOUT_SECONDS",
           "value": "60"
+        },
+        {
+          "name": "OTEL_PYTHON_EXCLUDED_URLS",
+          "value": "ping"
+        },
+        {
+          "name": "OTEL_PYTHON_STARLETTE_EXCLUDED_URLS",
+          "value": "ping"
         }
       ],
       "tags": {

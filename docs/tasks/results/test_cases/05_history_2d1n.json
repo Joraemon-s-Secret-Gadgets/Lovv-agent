@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-05",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 10,
+  "tripType": "2d1n",
+  "themes": [
+    "history_tradition"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "오래된 전통 유적과 고택을 둘러보는 여행을 하고 싶어요. 고즈넉하고 차분한 옛 마을 분위기면 좋겠어요.",
+  "userLocation": null
+}

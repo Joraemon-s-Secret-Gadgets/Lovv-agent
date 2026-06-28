@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-02",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 7,
+  "tripType": "2d1n",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "활기찬 바닷가에서 신나게 놀고 싶어요. 사람이 많고 인기 있는 해변과 핫플 분위기면 좋겠어요.",
+  "userLocation": null
+}

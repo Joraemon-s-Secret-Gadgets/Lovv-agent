@@ -1,0 +1,1485 @@
+{
+  "request": {
+    "request_id": "REQ-TC-03",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 5,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "nature_trekking"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "숲길을 여유롭게 걷는 자연 여행을 하고 싶어요. 한적하고 평온한 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-03",
+    "agent_run_id": "run-09594b37-cd87-4f16-90bd-e7d7b06e49b6",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 5,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "nature_trekking"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "숲길을 여유롭게 걷는 자연 여행을 하고 싶어요. 한적하고 평온한 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "숲길을 여유롭게 걷는 자연 여행을 하고 싶어요 한적하고 평온한 분위기면 좋겠어요",
+      "soft_preference_query": "숲길을 여유롭게 걷는 자연 여행을 하고 싶어요 한적하고 평온한 분위기면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "자연·트레킹"
+    ],
+    "searchable_place_themes": [
+      "자연·트레킹"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "숲길을 여유롭게 걷는 자연 여행을 하고 싶다. 한적하고 평온한 분위기를 원한다.",
+    "soft_preference_query": "한적하고 평온하며 여유롭게 걸을 수 있는, 고요하고 차분한 자연 속 거리.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 5,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "자연·트레킹"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "숲길을 여유롭게 걷는 자연 여행을 하고 싶다. 한적하고 평온한 분위기를 원한다.",
+      "soft_preference_query": "한적하고 평온하며 여유롭게 걸을 수 있는, 고요하고 차분한 자연 속 거리.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-130",
+        "city_name_ko": "원주시",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-130",
+          "city_score": 2.1322,
+          "score_breakdown": {
+            "semantic_evidence": 0.4212,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#4060180",
+            "attraction#3426645",
+            "attraction#2778036",
+            "attraction#3500117",
+            "attraction#2613313",
+            "attraction#125587"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "원주시",
+          "available_place_count": 6,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 2.1203,
+          "score_breakdown": {
+            "semantic_evidence": 0.3978,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3385
+          },
+          "top_place_ids": [
+            "attraction#2756694",
+            "attraction#3090417",
+            "attraction#704151",
+            "attraction#2752130",
+            "attraction#3032505",
+            "attraction#127619"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "경주시",
+          "available_place_count": 6,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-760",
+          "city_score": 2.0644,
+          "score_breakdown": {
+            "semantic_evidence": 0.0783,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#127047"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영양군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-760",
+          "city_score": 2.0568,
+          "score_breakdown": {
+            "semantic_evidence": 0.2742,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1853
+          },
+          "top_place_ids": [
+            "attraction#2798331",
+            "attraction#4010144",
+            "attraction#2798965",
+            "attraction#2798764"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "평창군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 1.984,
+          "score_breakdown": {
+            "semantic_evidence": 0.1928,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.181
+          },
+          "top_place_ids": [
+            "attraction#2788991",
+            "attraction#125749",
+            "attraction#2710736"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "양양군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-800",
+          "city_score": 1.9667,
+          "score_breakdown": {
+            "semantic_evidence": 0.0573,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0767
+          },
+          "top_place_ids": [
+            "attraction#2913879"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "양구군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-720",
+          "city_score": 1.9507,
+          "score_breakdown": {
+            "semantic_evidence": 0.1984,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2199
+          },
+          "top_place_ids": [
+            "attraction#125626",
+            "attraction#3036718",
+            "attraction#1899635"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "홍천군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-830",
+          "city_score": 1.9431,
+          "score_breakdown": {
+            "semantic_evidence": 0.0569,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0999
+          },
+          "top_place_ids": [
+            "attraction#250434"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "고령군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 1.9372,
+          "score_breakdown": {
+            "semantic_evidence": 0.1539,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1947
+          },
+          "top_place_ids": [
+            "attraction#127381",
+            "attraction#2610236"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "삼척시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-810",
+          "city_score": 1.9246,
+          "score_breakdown": {
+            "semantic_evidence": 0.0766,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1381
+          },
+          "top_place_ids": [
+            "attraction#572984"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "인제군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-730",
+          "city_score": 1.9026,
+          "score_breakdown": {
+            "semantic_evidence": 0.0574,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1409
+          },
+          "top_place_ids": [
+            "attraction#2720029"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "의성군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-820",
+          "city_score": 1.9022,
+          "score_breakdown": {
+            "semantic_evidence": 0.0576,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1415
+          },
+          "top_place_ids": [
+            "attraction#126040"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "청도군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-170",
+          "city_score": 1.9015,
+          "score_breakdown": {
+            "semantic_evidence": 0.2002,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.271
+          },
+          "top_place_ids": [
+            "attraction#2661435",
+            "attraction#2912253",
+            "attraction#3038793"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "안동시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-900",
+          "city_score": 1.9005,
+          "score_breakdown": {
+            "semantic_evidence": 0.0565,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1421
+          },
+          "top_place_ids": [
+            "attraction#2609519"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "예천군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-770",
+          "city_score": 1.8939,
+          "score_breakdown": {
+            "semantic_evidence": 0.0573,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1496
+          },
+          "top_place_ids": [
+            "attraction#2715732"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영덕군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-230",
+          "city_score": 1.8853,
+          "score_breakdown": {
+            "semantic_evidence": 0.1155,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2083
+          },
+          "top_place_ids": [
+            "attraction#2721931",
+            "attraction#3536520"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영천시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-170",
+          "city_score": 1.8759,
+          "score_breakdown": {
+            "semantic_evidence": 0.116,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2182
+          },
+          "top_place_ids": [
+            "attraction#2714889",
+            "attraction#2364047"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "동해시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-210",
+          "city_score": 1.8532,
+          "score_breakdown": {
+            "semantic_evidence": 0.0801,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2131
+          },
+          "top_place_ids": [
+            "attraction#2998586"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영주시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-250",
+          "city_score": 1.8306,
+          "score_breakdown": {
+            "semantic_evidence": 0.0592,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2148
+          },
+          "top_place_ids": [
+            "attraction#3345822"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "상주시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-850",
+          "city_score": 1.8124,
+          "score_breakdown": {
+            "semantic_evidence": 0.056,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2298
+          },
+          "top_place_ids": [
+            "attraction#2674142"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "칠곡군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-150",
+          "city_score": 1.8041,
+          "score_breakdown": {
+            "semantic_evidence": 0.0591,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2411
+          },
+          "top_place_ids": [
+            "attraction#2781610"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "김천시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-190",
+          "city_score": 1.7819,
+          "score_breakdown": {
+            "semantic_evidence": 0.1345,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3306
+          },
+          "top_place_ids": [
+            "attraction#2757018",
+            "attraction#2736731"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "구미시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 1.7671,
+          "score_breakdown": {
+            "semantic_evidence": 0.1164,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3274
+          },
+          "top_place_ids": [
+            "attraction#2706354",
+            "attraction#2773857"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "강릉시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 1.7555,
+          "score_breakdown": {
+            "semantic_evidence": 0.1181,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3407
+          },
+          "top_place_ids": [
+            "attraction#3011803",
+            "attraction#2710610"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "춘천시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-290",
+          "city_score": 1.7405,
+          "score_breakdown": {
+            "semantic_evidence": 0.0561,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3018
+          },
+          "top_place_ids": [
+            "attraction#2745623"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "경산시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#4060180",
+          "title": "[원주 소풍길] 1코스 운곡솔바람숲길",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.3571419272712,
+          "longitude": 128.013240725993,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#4060180",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.8584,
+            "score_components": {
+              "raw_similarity": 0.2184,
+              "soft_similarity": 0.24,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3426645",
+          "title": "황장목숲길",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.404775891,
+          "longitude": 128.0464649475,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#3426645",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.7893,
+            "score_components": {
+              "raw_similarity": 0.2184,
+              "soft_similarity": 0.1709,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2778036",
+          "title": "단관공원",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.3181926004,
+          "longitude": 127.9592309066,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#2778036",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.735,
+            "score_components": {
+              "raw_similarity": 0.1649,
+              "soft_similarity": 0.1701,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3500117",
+          "title": "치악산 바람길숲",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.3524980890893,
+          "longitude": 127.952111443509,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#3500117",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.6486,
+            "score_components": {
+              "raw_similarity": 0.2486,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2613313",
+          "title": "황장목 숲길",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.4047280216985,
+          "longitude": 128.047144607369,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#2613313",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5969,
+            "score_components": {
+              "raw_similarity": 0.1969,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125587",
+          "title": "치악산국립공원",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.414146,
+          "longitude": 128.051051,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#125587",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5833,
+            "score_components": {
+              "raw_similarity": 0.1833,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "자연·트레킹"
+        ],
+        "searchable_place_themes": [
+          "자연·트레킹"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "자연·트레킹": 6
+        },
+        "reserve_theme_counts": {
+          "자연·트레킹": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": false,
+        "relaxed_slots": 0,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 4,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 6,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "자연·트레킹"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 25,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 50,
+        "city_count": 25,
+        "recommended_places": 6,
+        "reserve_places": 0,
+        "available_places": 6,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "c1",
+          "scope": "city_selection",
+          "text_ko": "원주시는 울창한 숲길과 조용한 산책로가 많아 한적하고 평온한 자연 여행에 적합합니다.",
+          "evidence_refs": [
+            "city_score_rank_1"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "c2",
+          "scope": "place_pool",
+          "text_ko": "[원주 소풍길] 1코스 운곡솔바람숲길은 나무와 솔향이 풍부하고 인파가 적어 여유롭게 산책하기에 좋습니다.",
+          "evidence_refs": [
+            "attraction#4060180"
+          ],
+          "required_place_ids": [
+            "attraction#4060180"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "c3",
+          "scope": "place_pool",
+          "text_ko": "황장목숲길은 작은 개울과 울창한 숲이 어우러져 고요하고 차분한 분위기를 제공합니다.",
+          "evidence_refs": [
+            "attraction#3426645"
+          ],
+          "required_place_ids": [
+            "attraction#3426645"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "c4",
+          "scope": "place_pool",
+          "text_ko": "단관공원은 넓은 잔디와 숲길이 잘 정비돼 한적하게 걸으며 자연을 감상하기에 이상적입니다.",
+          "evidence_refs": [
+            "attraction#2778036"
+          ],
+          "required_place_ids": [
+            "attraction#2778036"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "c5",
+          "scope": "place_pool",
+          "text_ko": "치악산 바람길숲은 산림 사이에 바람이 부는 길이 있어 상쾌한 기분으로 트레킹을 즐길 수 있습니다.",
+          "evidence_refs": [
+            "attraction#3500117"
+          ],
+          "required_place_ids": [
+            "attraction#3500117"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#4060180",
+          "title": "[원주 소풍길] 1코스 운곡솔바람숲길",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "4060180",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Wonju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/30/4059830_image2_1.png",
+            "latitude": 37.3571419272712,
+            "phone": "원주걷기여행길 안내센터 033-762-2080",
+            "city_name_en": "Wonju",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 원주시 석경길 53",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-4060180",
+            "longitude": 128.013240725993,
+            "description": "수만 그루의 소나무가 내뿜는 피톤치드가 가득한 숲길을 맨발로 걸으며 몸과 마음을 함께 쉬게 하는 원주의 대표 힐링 명소다. 운곡솔바람숲길은 원주원씨 종중 소유 부지 안에 조성된 원주소풍길 1코스로, 전 구간 약 3km가 울창한 소나무 숲으로 이루어진 순환형 산책로다. 경사가 완만해 남녀노소 누구나 부담 없이 걸을 수 있으며, 성인 기준 약 50분이면 완주할 수 있다. 지면이 부드럽고 솔향이 짙어 맨발 걷기에 최적화된 코스로 알려져 있으며, 연간 방문객이 11만 명을 넘는 전국적인 맨발걷기 명소로 자리 잡았다. 맨발 걷기를 마친 뒤 발을 씻을 수 있는 세족시설과 먼지털이기·신발장·벤치·화장실 등 편의시설이 갖추어져 있다.",
+            "PK": "CITY#Wonju",
+            "city_id": "KR-Wonju",
+            "title": "[원주 소풍길] 1코스 운곡솔바람숲길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#4060180",
+            "overview": "수만 그루의 소나무가 내뿜는 피톤치드가 가득한 숲길을 맨발로 걸으며 몸과 마음을 함께 쉬게 하는 원주의 대표 힐링 명소다. 운곡솔바람숲길은 원주원씨 종중 소유 부지 안에 조성된 원주소풍길 1코스로, 전 구간 약 3km가 울창한 소나무 숲으로 이루어진 순환형 산책로다. 경사가 완만해 남녀노소 누구나 부담 없이 걸을 수 있으며, 성인 기준 약 50분이면 완주할 수 있다. 지면이 부드럽고 솔향이 짙어 맨발 걷기에 최적화된 코스로 알려져 있으며, 연간 방문객이 11만 명을 넘는 전국적인 맨발걷기 명소로 자리 잡았다. 맨발 걷기를 마친 뒤 발을 씻을 수 있는 세족시설과 먼지털이기·신발장·벤치·화장실 등 편의시설이 갖추어져 있다."
+          },
+          "latitude": 37.3571419272712,
+          "longitude": 128.013240725993,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#4060180",
+          "body": "피톤치드 가득한 소나무 숲길을 맨발로 걷는 힐링 코스",
+          "reason": "운곡솔바람숲길은 나무와 솔향이 풍부하고 인파가 적어 여유롭게 산책하기에 좋습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#3426645",
+          "title": "황장목숲길",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "3426645",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Wonju.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/57/3430757_image2_1.jpg",
+            "latitude": 37.404775891,
+            "phone": "033-732-5231",
+            "city_name_en": "Wonju",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 원주시 소초면 구룡사로 430",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-3426645",
+            "longitude": 128.0464649475,
+            "description": "황장목 숲길은 장애 유형, 아동 동반, 유모차 등을 포함한 다양한 이용자가 환경적 제약 없이 편리하게 즐길 수 있는 자연 관광지입니다. 장애인 전용 주차장이 마련되어 있어 주차가 용이하고, 장애인 화장실에는 유아변기도 설치되어 있어 가족 단위 방문객들이 더욱 편리하게 이용할 수 있습니다.",
+            "PK": "CITY#Wonju",
+            "city_id": "KR-Wonju",
+            "title": "황장목숲길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3426645",
+            "overview": "황장목 숲길은 장애 유형, 아동 동반, 유모차 등을 포함한 다양한 이용자가 환경적 제약 없이 편리하게 즐길 수 있는 자연 관광지입니다. 장애인 전용 주차장이 마련되어 있어 주차가 용이하고, 장애인 화장실에는 유아변기도 설치되어 있어 가족 단위 방문객들이 더욱 편리하게 이용할 수 있습니다."
+          },
+          "latitude": 37.404775891,
+          "longitude": 128.0464649475,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#3426645",
+          "body": "장애·가족 친화적인 울창한 숲길",
+          "reason": "황장목숲길은 작은 개울과 울창한 숲이 어우러져 고요하고 차분한 분위기를 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#2778036",
+          "title": "단관공원",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2778036",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Wonju.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/43/3334543_image2_1.jpg",
+            "latitude": 37.3181926004,
+            "phone": "033-742-2111",
+            "city_name_en": "Wonju",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 원주시 단관공원길 63",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2778036",
+            "longitude": 127.9592309066,
+            "description": "강원도 원주시 관설동에 있는 공원으로 인조잔디가 깔린 축구장, 테니스장, 농구장, 배드민턴장, 족구장이 설치되어 있다. 축구장 바깥쪽으로 400m 길이의 육상트랙이 설치되어 있어 달리기나 걷기를 할 수 있는 공간으로 활용된다.  족구장 옆에는 2013년 세워진 한국전쟁과 월남전쟁에서 숨진 원주지역의 참전 무공용사를 기리는 무공탑이 세워져 있으며,  ‘농업인의 날’을 기념하는 기념조형물 ‘치악의 웅지’도 공원 내에 설치되어 있다. 공원 주변으로 아파트 단지가 많아 광장에서는 연주회, 벼룩시장 등이 열리기도 한다.",
+            "PK": "CITY#Wonju",
+            "city_id": "KR-Wonju",
+            "title": "단관공원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2778036",
+            "overview": "강원도 원주시 관설동에 있는 공원으로 인조잔디가 깔린 축구장, 테니스장, 농구장, 배드민턴장, 족구장이 설치되어 있다. 축구장 바깥쪽으로 400m 길이의 육상트랙이 설치되어 있어 달리기나 걷기를 할 수 있는 공간으로 활용된다.  족구장 옆에는 2013년 세워진 한국전쟁과 월남전쟁에서 숨진 원주지역의 참전 무공용사를 기리는 무공탑이 세워져 있으며,  ‘농업인의 날’을 기념하는 기념조형물 ‘치악의 웅지’도 공원 내에 설치되어 있다. 공원 주변으로 아파트 단지가 많아 광장에서는 연주회, 벼룩시장 등이 열리기도 한다."
+          },
+          "latitude": 37.3181926004,
+          "longitude": 127.9592309066,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#2778036",
+          "body": "잔디와 운동시설이 어우러진 넓은 공원",
+          "reason": "단관공원은 넓은 잔디와 숲길이 잘 정비돼 한적하게 걸으며 자연을 감상하기에 이상적입니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#3500117",
+          "title": "치악산 바람길숲",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "3500117",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Wonju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/34/4059634_image2_1.jpg",
+            "latitude": 37.3524980890893,
+            "phone": "033-737-3642",
+            "city_name_en": "Wonju",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 원주시 치악산바람길 230 (평원동)",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-3500117",
+            "longitude": 127.952111443509,
+            "description": "치악산 바람길숲은 중앙선 폐철도를 활용한 원주 도심 중심부를 통과하는 숲길로 총 구간은 우산동 한라비발디 아파트 앞에서부터 (구)반곡역까지 총 11.3㎞에 해당된다. 주요 공간으로는 중앙동의 도래미 시장과 연꼐하여 시민들이 쉴 수 있는 중앙광장, 봉산동의 큰 나무쉼터를 조성한 봉산정원, 보리밭 및 은하수 조명을 설치한 길이 150m의 원주터널, 다목적 잔디광장을 조성한 번재마을숲, 무지개철길 및 파라솔을 설치한 (구)유교역 광장 등이 있다. 주요 수목은 원주 시목인 은행나무를 비롯하여 느티나무, 왕벚나무, 메타세콰이아, 이팝나무, 수국 등으로 총 23만 주를 식재하여 특색 있는 걷기 길을 조성하였다.",
+            "PK": "CITY#Wonju",
+            "city_id": "KR-Wonju",
+            "title": "치악산 바람길숲",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3500117",
+            "overview": "치악산 바람길숲은 중앙선 폐철도를 활용한 원주 도심 중심부를 통과하는 숲길로 총 구간은 우산동 한라비발디 아파트 앞에서부터 (구)반곡역까지 총 11.3㎞에 해당된다. 주요 공간으로는 중앙동의 도래미 시장과 연꼐하여 시민들이 쉴 수 있는 중앙광장, 봉산동의 큰 나무쉼터를 조성한 봉산정원, 보리밭 및 은하수 조명을 설치한 길이 150m의 원주터널, 다목적 잔디광장을 조성한 번재마을숲, 무지개철길 및 파라솔을 설치한 (구)유교역 광장 등이 있다. 주요 수목은 원주 시목인 은행나무를 비롯하여 느티나무, 왕벚나무, 메타세콰이아, 이팝나무, 수국 등으로 총 23만 주를 식재하여 특색 있는 걷기 길을 조성하였다."
+          },
+          "latitude": 37.3524980890893,
+          "longitude": 127.952111443509,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#3500117",
+          "body": "폐철도 활용, 나무와 바람이 어우러진 트레킹 길",
+          "reason": "치악산 바람길숲은 산림 사이에 바람이 부는 길이 있어 상쾌한 기분으로 트레킹을 즐길 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#2613313",
+          "title": "황장목 숲길",
+          "city_id": "KR-51-130",
+          "city_name_ko": "원주시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2613313",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Wonju.json",
+            "image_url": "",
+            "latitude": 37.4047280216985,
+            "phone": "원주시 관광안내소 033-742-2111",
+            "city_name_en": "Wonju",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 원주시 소초면 구룡사로 429",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2613313",
+            "longitude": 128.047144607369,
+            "description": "치악산 금강송은 치악산 구룡사 입구에 있는 소나무로 이곳 치악산의 소나무는 몸이 단단하고 질이 좋아 조선 시대 때 궁을 짓거나 관을 만들 때 주로 사용하였다. 이에 치악산 일대의 숲을 왕실이 사용하는 나무인 황장목(黃腸木)으로 지정하고 황장목의 보호를 위해 황장금표(강원특별자치도 기념물)를 세워 일반인의 출입을 금지했다. 치악산의 금강송은 나무 안쪽 색깔이 누렇고 질이 좋은 소나무로 왕실에 올리는 특산물 중 하나였고 전국 30여 개의 황장목 보호림 중 이름난 곳이었다. 조선 시대 때부터 철저히 관리해 온 이 일대에는 현재 20~30m 높이에 달하는 크고 웅장한 소나무 숲이 들어서 있다.",
+            "PK": "CITY#Wonju",
+            "city_id": "KR-Wonju",
+            "title": "황장목 숲길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2613313",
+            "overview": "치악산 금강송은 치악산 구룡사 입구에 있는 소나무로 이곳 치악산의 소나무는 몸이 단단하고 질이 좋아 조선 시대 때 궁을 짓거나 관을 만들 때 주로 사용하였다. 이에 치악산 일대의 숲을 왕실이 사용하는 나무인 황장목(黃腸木)으로 지정하고 황장목의 보호를 위해 황장금표(강원특별자치도 기념물)를 세워 일반인의 출입을 금지했다. 치악산의 금강송은 나무 안쪽 색깔이 누렇고 질이 좋은 소나무로 왕실에 올리는 특산물 중 하나였고 전국 30여 개의 황장목 보호림 중 이름난 곳이었다. 조선 시대 때부터 철저히 관리해 온 이 일대에는 현재 20~30m 높이에 달하는 크고 웅장한 소나무 숲이 들어서 있다."
+          },
+          "latitude": 37.4047280216985,
+          "longitude": 128.047144607369,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#WONJU",
+          "ddb_sk": "ATTRACTION#2613313",
+          "body": "왕실용 소나무가 우거진 대형 숲림",
+          "reason": "울창한 소나무 숲이 한적한 자연 경험을 제공해 평온한 여행에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "원주시는 울창한 숲길과 조용한 산책로가 많아 한적하고 평온한 자연 여행에 적합합니다.",
+        "운곡솔바람숲길은 나무와 솔향이 풍부하고 인파가 적어 여유롭게 산책하기에 좋습니다.",
+        "황장목숲길은 작은 개울과 울창한 숲이 어우러져 고요하고 차분한 분위기를 제공합니다."
+      ],
+      "itinerary_flow_reason": "첫날 운곡솔바람숲길에서 시작해 황장목숲길·단관공원·치악산 바람길숲을 순차적으로 이동하며, 마지막에 황장목 숲길을 찾아 자연과 힐링을 이어가는 동선으로 구성되었습니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "원주시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%9B%90%EC%A3%BC%EC%8B%9C",
+          "query": "원주시",
+          "city_name_ko": "원주시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "원주시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%9B%90%EC%A3%BC%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "원주시 숙소",
+          "city_name_ko": "원주시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "원주시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%9B%90%EC%A3%BC%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "원주시 맛집",
+          "city_name_ko": "원주시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#4060180",
+              "place:attraction#3426645",
+              "place:attraction#2778036",
+              "place:attraction#3500117",
+              "place:attraction#2613313"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "원주시는 울창한 숲길과 조용한 산책로가 많아 한적하고 평온한 자연 여행에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#4060180",
+              "place:attraction#3426645",
+              "place:attraction#2778036",
+              "place:attraction#3500117",
+              "place:attraction#2613313"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "운곡솔바람숲길은 나무와 솔향이 풍부하고 인파가 적어 여유롭게 산책하기에 좋습니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#4060180",
+              "place:attraction#3426645",
+              "place:attraction#2778036",
+              "place:attraction#3500117",
+              "place:attraction#2613313"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "황장목숲길은 작은 개울과 울창한 숲이 어우러져 고요하고 차분한 분위기를 제공합니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#4060180",
+          "place:attraction#3426645",
+          "place:attraction#2778036",
+          "place:attraction#3500117",
+          "place:attraction#2613313"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-03",
+      "expiresAt": "2026-06-27T19:41:03Z",
+      "destination": {
+        "destinationId": "KR-51-130",
+        "name": "원주시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#4060180",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "[원주 소풍길] 1코스 운곡솔바람숲길",
+                "body": "피톤치드 가득한 소나무 숲길을 맨발로 걷는 힐링 코스",
+                "reason": "운곡솔바람숲길은 나무와 솔향이 풍부하고 인파가 적어 여유롭게 산책하기에 좋습니다.",
+                "moveMinutes": null,
+                "latitude": 37.3571419272712,
+                "longitude": 128.013240725993
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#3426645",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "황장목숲길",
+                "body": "장애·가족 친화적인 울창한 숲길",
+                "reason": "황장목숲길은 작은 개울과 울창한 숲이 어우러져 고요하고 차분한 분위기를 제공합니다.",
+                "moveMinutes": null,
+                "latitude": 37.404775891,
+                "longitude": 128.0464649475
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#2778036",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "단관공원",
+                "body": "잔디와 운동시설이 어우러진 넓은 공원",
+                "reason": "단관공원은 넓은 잔디와 숲길이 잘 정비돼 한적하게 걸으며 자연을 감상하기에 이상적입니다.",
+                "moveMinutes": null,
+                "latitude": 37.3181926004,
+                "longitude": 127.9592309066
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#3500117",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "치악산 바람길숲",
+                "body": "폐철도 활용, 나무와 바람이 어우러진 트레킹 길",
+                "reason": "치악산 바람길숲은 산림 사이에 바람이 부는 길이 있어 상쾌한 기분으로 트레킹을 즐길 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 37.3524980890893,
+                "longitude": 127.952111443509
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#2613313",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "황장목 숲길",
+                "body": "왕실용 소나무가 우거진 대형 숲림",
+                "reason": "울창한 소나무 숲이 한적한 자연 경험을 제공해 평온한 여행에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 37.4047280216985,
+                "longitude": 128.047144607369
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "nature_trekking",
+          "travelMonth:5"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "원주시는 울창한 숲길과 조용한 산책로가 많아 한적하고 평온한 자연 여행에 적합합니다.",
+          "운곡솔바람숲길은 나무와 솔향이 풍부하고 인파가 적어 여유롭게 산책하기에 좋습니다.",
+          "황장목숲길은 작은 개울과 울창한 숲이 어우러져 고요하고 차분한 분위기를 제공합니다."
+        ],
+        "itineraryFlowReason": "첫날 운곡솔바람숲길에서 시작해 황장목숲길·단관공원·치악산 바람길숲을 순차적으로 이동하며, 마지막에 황장목 숲길을 찾아 자연과 힐링을 이어가는 동선으로 구성되었습니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%9B%90%EC%A3%BC%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EC%9B%90%EC%A3%BC%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%9B%90%EC%A3%BC%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

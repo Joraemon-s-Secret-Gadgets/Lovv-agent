@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-04",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 5,
+  "tripType": "2d1n",
+  "themes": [
+    "nature_trekking"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "자연 명소를 두루 둘러보고 싶어요. 사람이 많고 활기찬 인기 관광지면 좋겠어요.",
+  "userLocation": null
+}

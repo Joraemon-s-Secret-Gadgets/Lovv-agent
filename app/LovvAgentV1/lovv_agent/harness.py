@@ -339,19 +339,19 @@ def _merge_llm_intent_enrichment(
 ) -> IntentNormalizationResult:
     """Merge only model-derived natural-language signals into trusted core input."""
 
-    model_candidate = llm_result.candidate_evidence_input
     trusted_candidate = deterministic.candidate_evidence_input
-    if model_candidate is None or trusted_candidate is None:
+    if trusted_candidate is None:
         return deterministic
     mode = resolve_execution_mode(
         trusted_candidate.destination_id,
         trusted_candidate.include_festivals,
     )
+    # 모델은 이제 NL 신호만 top-level로 반환한다. deterministic을 기반으로 그 3개만 덮는다.
     merged_candidate = replace(
         trusted_candidate,
-        cleaned_raw_query=model_candidate.cleaned_raw_query,
-        soft_preference_query=model_candidate.soft_preference_query,
-        unsupported_conditions=model_candidate.unsupported_conditions,
+        cleaned_raw_query=llm_result.cleaned_raw_query,
+        soft_preference_query=llm_result.soft_preference_query,
+        unsupported_conditions=llm_result.unsupported_conditions,
         execution_mode=mode,
         fixed_city_id=(
             trusted_candidate.destination_id
@@ -360,16 +360,12 @@ def _merge_llm_intent_enrichment(
         ),
     )
     return replace(
-        llm_result,
-        extracted_inputs=deterministic.extracted_inputs,
+        deterministic,
         candidate_evidence_input=merged_candidate,
-        active_required_themes=deterministic.active_required_themes,
-        searchable_place_themes=deterministic.searchable_place_themes,
-        external_link_themes=deterministic.external_link_themes,
         cleaned_raw_query=merged_candidate.cleaned_raw_query,
         soft_preference_query=merged_candidate.soft_preference_query,
         unsupported_conditions=merged_candidate.unsupported_conditions,
-        fulfilled_matrix=deterministic.fulfilled_matrix,
+        handoff_notes=deterministic.handoff_notes + llm_result.handoff_notes,
     )
 
 
@@ -379,18 +375,11 @@ def _intent_llm_result_is_safe(
 ) -> bool:
     """Accept LLM enrichment only when it preserves deterministic core fields."""
 
-    llm_input = llm_result.candidate_evidence_input
-    expected = deterministic.candidate_evidence_input
-    if llm_result.needs_clarification or llm_input is None or expected is None:
+    # 모델이 더 이상 core 필드를 내보내지 않으므로 override가 구조적으로 불가능하다.
+    # 안전성은 "clarification 요청이 아니고 deterministic candidate가 있다"로 충분하다.
+    if llm_result.needs_clarification:
         return False
-    return (
-        llm_input.country == expected.country
-        and llm_input.travel_month == expected.travel_month
-        and llm_input.travel_year == expected.travel_year
-        and llm_input.trip_type == expected.trip_type
-        and llm_input.destination_id == expected.destination_id
-        and llm_input.include_festivals == expected.include_festivals
-    )
+    return deterministic.candidate_evidence_input is not None
 
 
 def _embedding_query(candidate_input: CandidateEvidenceInput) -> str:

@@ -1,0 +1,15 @@
+{
+  "requestId": "REQ-TC-19",
+  "entryType": "chat",
+  "destinationId": null,
+  "country": "KR",
+  "travelYear": 2026,
+  "travelMonth": 6,
+  "tripType": "daytrip",
+  "themes": [
+    "sea_coast"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "바다",
+  "userLocation": null
+}
