@@ -123,8 +123,15 @@ def fetch_traces(xray, trace_ids: list[str], *, include_raw: bool = False) -> li
     return out
 
 
-def fetch_logs(logs, *, since_min: int, log_group: str | None) -> dict[str, Any]:
-    """AGENT_NODE_METRIC 로그 best-effort 조회 (OB-01/NF-06 샘플)."""
+def fetch_logs(
+    logs,
+    *,
+    since_min: int,
+    log_group: str | None,
+    limit: int = 10000,
+    pattern: str = "AGENT_NODE_METRIC",
+) -> dict[str, Any]:
+    """CloudWatch Logs Insights 조회. pattern 빈 문자열이면 필터 없이 전체 메시지."""
 
     groups = []
     if log_group:
@@ -136,21 +143,28 @@ def fetch_logs(logs, *, since_min: int, log_group: str | None) -> dict[str, Any]
     if not groups:
         return {"error": "no /aws/bedrock-agentcore log groups found", "groups": []}
 
+    filter_clause = f"| filter @message like /{pattern}/ " if pattern else ""
     end = int(datetime.now(timezone.utc).timestamp())
     start = end - since_min * 60
     qid = logs.start_query(
-        logGroupNames=groups[:20],
+        logGroupNames=groups[:50],  # start_query 로그그룹 최대 50
         startTime=start,
         endTime=end,
-        queryString='fields @timestamp, @message | filter @message like /AGENT_NODE_METRIC/ | sort @timestamp desc | limit 5',
+        queryString=f"fields @timestamp, @logStream, @message {filter_clause}| sort @timestamp asc | limit {limit}",
     )["queryId"]
     import time
 
-    for _ in range(30):
+    for _ in range(90):  # 대량 결과는 집계가 오래 걸린다
         res = logs.get_query_results(queryId=qid)
         if res["status"] in {"Complete", "Failed", "Cancelled"}:
-            return {"groups": groups, "status": res["status"], "results": res.get("results", [])}
+            return {
+                "groups": groups,
+                "status": res["status"],
+                "result_count": len(res.get("results", [])),
+                "results": res.get("results", []),
+            }
         time.sleep(1)
+    logs.stop_query(queryId=qid)
     return {"groups": groups, "status": "Timeout", "results": []}
 
 
@@ -163,8 +177,11 @@ def main() -> int:
     p.add_argument("--region", default="us-east-1")
     p.add_argument("--profile", default=None, help="AWS 프로필 (예: skn26_final)")
     p.add_argument("--out", type=Path, default=None, help="결과 JSON 저장 경로")
-    p.add_argument("--logs", action="store_true", help="AGENT_NODE_METRIC 로그도 조회")
+    p.add_argument("--logs", action="store_true", help="CloudWatch 로그도 조회")
     p.add_argument("--log-group", default=None, help="로그그룹 직접 지정")
+    p.add_argument("--log-since-min", type=int, default=180, help="로그 조회 시간창(분)")
+    p.add_argument("--log-limit", type=int, default=10000, help="로그 최대 행수 (Insights 한도 10000)")
+    p.add_argument("--log-pattern", default="AGENT_NODE_METRIC", help="필터 패턴(빈 문자열이면 전체)")
     p.add_argument("--raw", action="store_true", help="원본 segment Document 통째 포함")
     args = p.parse_args()
 
@@ -194,7 +211,13 @@ def main() -> int:
 
     if args.logs:
         logs = _client("logs", args.region, args.profile)
-        result["agent_node_metric_logs"] = fetch_logs(logs, since_min=60, log_group=args.log_group)
+        result["agent_node_metric_logs"] = fetch_logs(
+            logs,
+            since_min=args.log_since_min,
+            log_group=args.log_group,
+            limit=args.log_limit,
+            pattern=args.log_pattern,
+        )
 
     text = json.dumps(result, ensure_ascii=False, indent=2)
     if args.out:
