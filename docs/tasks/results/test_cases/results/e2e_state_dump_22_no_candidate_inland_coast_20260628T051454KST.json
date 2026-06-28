@@ -1,0 +1,174 @@
+{
+  "request": {
+    "request_id": "REQ-TC-22",
+    "entry_type": "map_marker",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 10,
+    "trip_type": "daytrip",
+    "destination_id": "KR-Yeongyang",
+    "themes": [
+      "sea_coast"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "영양에서 바닷가 해안을 천천히 걷고 싶어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-22",
+    "agent_run_id": "run-b797e76f-d43b-4040-97eb-cede160e6003",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "map_marker",
+      "country": "KR",
+      "travelMonth": 10,
+      "travelYear": 2026,
+      "tripType": "daytrip",
+      "destinationId": "KR-Yeongyang",
+      "themes": [
+        "sea_coast"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "영양에서 바닷가 해안을 천천히 걷고 싶어요.",
+      "user_location": null,
+      "execution_mode": "anchored_place_search",
+      "cleaned_raw_query": "영양에서 바닷가 해안을 천천히 걷고 싶어요",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "searchable_place_themes": [
+      "바다·해안"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "영양에서 바닷가 해안을 천천히 걷고 싶다.",
+    "soft_preference_query": "천천히 거닐기 좋은 여유롭고 평온한 분위기.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 10,
+      "travel_year": 2026,
+      "trip_type": "daytrip",
+      "active_required_themes": [
+        "바다·해안"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "영양에서 바닷가 해안을 천천히 걷고 싶다.",
+      "soft_preference_query": "천천히 거닐기 좋은 여유롭고 평온한 분위기.",
+      "unsupported_conditions": [],
+      "destination_id": "KR-Yeongyang",
+      "user_location": null,
+      "execution_mode": "anchored_place_search",
+      "fixed_city_id": "KR-Yeongyang",
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "END_WAIT_USER",
+    "fulfilled_matrix": {
+      "evidence": "X",
+      "festival": "N/A",
+      "planning": "X"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": true,
+    "clarifying_question": "현재 조건에 맞는 후보 도시를 찾지 못했습니다."
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "no_candidate",
+      "failure_signals": [
+        "no_city_after_theme_gate"
+      ],
+      "needs_clarification": true,
+      "clarifying_question": "현재 조건에 맞는 후보 도시를 찾지 못했습니다.",
+      "mode": "anchored_place_search",
+      "selected_city": null,
+      "city_anchor": null,
+      "city_rankings": [],
+      "recommended_places": [],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {},
+      "retrieval_audit": {
+        "mode": "anchored_place_search",
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": "KR-Yeongyang",
+        "retrieved_candidate_count": 0,
+        "merged_candidate_count": 0,
+        "survived_city_count": 0,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {},
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": false,
+        "failure_signal": "no_city_after_theme_gate",
+        "festival_seed_applied": false
+      },
+      "candidate_reason_claims": []
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": null,
+    "validation_result": null
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-22",
+      "expiresAt": "2026-06-27T20:44:54Z",
+      "destination": {
+        "destinationId": "KR-Yeongyang",
+        "name": null,
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "daytrip",
+        "days": []
+      },
+      "explainability": {
+        "matchedConditions": [
+          "sea_coast",
+          "travelMonth:10"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [],
+        "itineraryFlowReason": "",
+        "confidence": 0.0,
+        "userNotice": "현재 조건에 맞는 후보 도시를 찾지 못했습니다."
+      },
+      "festivalDateVerifications": [],
+      "links": {}
+    },
+    "response_status": "END_WAIT_USER"
+  }
+}

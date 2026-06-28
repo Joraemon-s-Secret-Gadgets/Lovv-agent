@@ -1,0 +1,1535 @@
+{
+  "request": {
+    "request_id": "REQ-TC-05",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 10,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "history_tradition"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "오래된 전통 유적과 고택을 둘러보는 여행을 하고 싶어요. 고즈넉하고 차분한 옛 마을 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-05",
+    "agent_run_id": "run-aca46e0a-8a2d-4b91-9ddc-cf7100d5534d",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 10,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "history_tradition"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "오래된 전통 유적과 고택을 둘러보는 여행을 하고 싶어요. 고즈넉하고 차분한 옛 마을 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "오래된 전통 유적과 고택을 둘러보는 여행을 하고 싶어요 고즈넉하고 차분한 옛 마을 분위기면 좋겠어요",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "역사·전통"
+    ],
+    "searchable_place_themes": [
+      "역사·전통"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "오래된 전통 유적과 고택을 둘러보는 여행을 하고 싶다. 고즈넉하고 차분한 옛 마을 분위기를 원한다.",
+    "soft_preference_query": "고즈넉하고 차분하며 옛 정취가 물씬 느껴지는 평온한 마을.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 10,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "역사·전통"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "오래된 전통 유적과 고택을 둘러보는 여행을 하고 싶다. 고즈넉하고 차분한 옛 마을 분위기를 원한다.",
+      "soft_preference_query": "고즈넉하고 차분하며 옛 정취가 물씬 느껴지는 평온한 마을.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-47-170",
+        "city_name_ko": "안동시",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-47-170",
+          "city_score": 2.4734,
+          "score_breakdown": {
+            "semantic_evidence": 0.7047,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2833
+          },
+          "top_place_ids": [
+            "attraction#2720207",
+            "attraction#126680",
+            "attraction#894027",
+            "attraction#1180879",
+            "attraction#128558",
+            "attraction#127254",
+            "attraction#130310",
+            "attraction#128763",
+            "attraction#264450",
+            "attraction#129035"
+          ],
+          "candidate_count": 10,
+          "city_name_ko": "안동시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-830",
+          "city_score": 2.1505,
+          "score_breakdown": {
+            "semantic_evidence": 0.2821,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0994
+          },
+          "top_place_ids": [
+            "attraction#127418",
+            "attraction#231926",
+            "attraction#127417",
+            "attraction#127416"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "고령군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-760",
+          "city_score": 2.1451,
+          "score_breakdown": {
+            "semantic_evidence": 0.1671,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#547873",
+            "attraction#894008"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영양군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-750",
+          "city_score": 2.0765,
+          "score_breakdown": {
+            "semantic_evidence": 0.2296,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1254
+          },
+          "top_place_ids": [
+            "attraction#2713395",
+            "attraction#128159",
+            "attraction#250296"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "영월군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-800",
+          "city_score": 2.0315,
+          "score_breakdown": {
+            "semantic_evidence": 0.1204,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.067
+          },
+          "top_place_ids": [
+            "attraction#2702469",
+            "attraction#2569459"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "양구군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-770",
+          "city_score": 2.0171,
+          "score_breakdown": {
+            "semantic_evidence": 0.2005,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1615
+          },
+          "top_place_ids": [
+            "attraction#127714",
+            "attraction#128026"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영덕군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-750",
+          "city_score": 2.0054,
+          "score_breakdown": {
+            "semantic_evidence": 0.1224,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0951
+          },
+          "top_place_ids": [
+            "attraction#129051",
+            "attraction#795829"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "청송군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-900",
+          "city_score": 1.9945,
+          "score_breakdown": {
+            "semantic_evidence": 0.1625,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.146
+          },
+          "top_place_ids": [
+            "attraction#894158",
+            "attraction#2414517"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "예천군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-920",
+          "city_score": 1.9865,
+          "score_breakdown": {
+            "semantic_evidence": 0.0804,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.08
+          },
+          "top_place_ids": [
+            "attraction#127035"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "봉화군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-840",
+          "city_score": 1.981,
+          "score_breakdown": {
+            "semantic_evidence": 0.1421,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1391
+          },
+          "top_place_ids": [
+            "attraction#127717",
+            "attraction#3444479"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "성주군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-250",
+          "city_score": 1.9746,
+          "score_breakdown": {
+            "semantic_evidence": 0.2328,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.226
+          },
+          "top_place_ids": [
+            "attraction#127199",
+            "attraction#128738",
+            "attraction#129002",
+            "attraction#128745"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "상주시",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-790",
+          "city_score": 1.9695,
+          "score_breakdown": {
+            "semantic_evidence": 0.0629,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0795
+          },
+          "top_place_ids": [
+            "attraction#2569465"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "화천군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-730",
+          "city_score": 1.9282,
+          "score_breakdown": {
+            "semantic_evidence": 0.0827,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1406
+          },
+          "top_place_ids": [
+            "attraction#894183"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "의성군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-760",
+          "city_score": 1.9202,
+          "score_breakdown": {
+            "semantic_evidence": 0.1412,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.199
+          },
+          "top_place_ids": [
+            "attraction#126842",
+            "attraction#2798468"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "평창군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-210",
+          "city_score": 1.915,
+          "score_breakdown": {
+            "semantic_evidence": 0.1599,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2229
+          },
+          "top_place_ids": [
+            "attraction#894087",
+            "attraction#129430"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영주시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-780",
+          "city_score": 1.9113,
+          "score_breakdown": {
+            "semantic_evidence": 0.0792,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1541
+          },
+          "top_place_ids": [
+            "attraction#2702546"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "철원군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 1.9072,
+          "score_breakdown": {
+            "semantic_evidence": 0.1173,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1881
+          },
+          "top_place_ids": [
+            "attraction#2710739",
+            "attraction#250380"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "양양군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-810",
+          "city_score": 1.8871,
+          "score_breakdown": {
+            "semantic_evidence": 0.0754,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1745
+          },
+          "top_place_ids": [
+            "attraction#128775"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "인제군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-230",
+          "city_score": 1.881,
+          "score_breakdown": {
+            "semantic_evidence": 0.1185,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2156
+          },
+          "top_place_ids": [
+            "attraction#252602",
+            "attraction#127248"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영천시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-280",
+          "city_score": 1.8506,
+          "score_breakdown": {
+            "semantic_evidence": 0.0603,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1958
+          },
+          "top_place_ids": [
+            "attraction#130314"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "문경시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-170",
+          "city_score": 1.8482,
+          "score_breakdown": {
+            "semantic_evidence": 0.0847,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2226
+          },
+          "top_place_ids": [
+            "attraction#2710984"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "동해시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-720",
+          "city_score": 1.8175,
+          "score_breakdown": {
+            "semantic_evidence": 0.0608,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2294
+          },
+          "top_place_ids": [
+            "attraction#250290"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "홍천군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 1.6944,
+          "score_breakdown": {
+            "semantic_evidence": 0.0583,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#914428"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "춘천시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#2720207",
+          "title": "예끼마을",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.6995158058,
+          "longitude": 128.8123448093,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#2720207",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8713,
+            "score_components": {
+              "raw_similarity": 0.2246,
+              "soft_similarity": 0.2467,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126680",
+          "title": "안동포마을",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.5048906321489,
+          "longitude": 128.851344136905,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#126680",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8318,
+            "score_components": {
+              "raw_similarity": 0.2262,
+              "soft_similarity": 0.2056,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#894027",
+          "title": "안동 하회마을 [유네스코 세계유산]",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.5506148855,
+          "longitude": 128.5282935032,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#894027",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8127,
+            "score_components": {
+              "raw_similarity": 0.258,
+              "soft_similarity": 0.1547,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#1180879",
+          "title": "안동 하회마을 겸암정사",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.5427419723,
+          "longitude": 128.5132759373,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#1180879",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8039,
+            "score_components": {
+              "raw_similarity": 0.2105,
+              "soft_similarity": 0.1934,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128558",
+          "title": "안동 군자마을(오천유적지)",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.6735519186,
+          "longitude": 128.8025019983,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#128558",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7389,
+            "score_components": {
+              "raw_similarity": 0.1962,
+              "soft_similarity": 0.1426,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127254",
+          "title": "지례예술촌",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.5100511642,
+          "longitude": 128.9508713825,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#127254",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.6402,
+            "score_components": {
+              "raw_similarity": 0.2402,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#130310",
+          "title": "안동소주전통음식박물관",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.5496587455,
+          "longitude": 128.7091861099,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#130310",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.596,
+            "score_components": {
+              "raw_similarity": 0.196,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#128763",
+          "title": "안동 진성이씨 온혜파 종택(퇴계태실)",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.749721482,
+          "longitude": 128.8283502491,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#128763",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5854,
+            "score_components": {
+              "raw_similarity": 0.1854,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#264450",
+          "title": "안동 고성이씨 탑동파 종택",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.5663297727,
+          "longitude": 128.7467128503,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#264450",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5844,
+            "score_components": {
+              "raw_similarity": 0.1844,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#129035",
+          "title": "안동 묵계서원 및 보백당 종택",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 36.4174860341,
+          "longitude": 128.915393879,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#129035",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.582,
+            "score_components": {
+              "raw_similarity": 0.182,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "역사·전통"
+        ],
+        "searchable_place_themes": [
+          "역사·전통"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "역사·전통": 10
+        },
+        "reserve_theme_counts": {
+          "역사·전통": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 4,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 10,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "역사·전통"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 23,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 50,
+        "city_count": 23,
+        "recommended_places": 10,
+        "reserve_places": 0,
+        "available_places": 10,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "place_pool",
+          "text_ko": "예끼마을은 옛 정취가 살아있는 고즈넉한 마을로, 전통 가옥과 조용한 골목길이 차분한 분위기를 전달합니다.",
+          "evidence_refs": [
+            "attraction#2720207"
+          ],
+          "required_place_ids": [
+            "attraction#2720207"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "안동포마을은 전통 건축과 고택이 밀집해 있어 과거 생활 모습을 체험하기에 적합합니다.",
+          "evidence_refs": [
+            "attraction#126680"
+          ],
+          "required_place_ids": [
+            "attraction#126680"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "하회마을은 유네스코 세계유산으로 지정된 전통 마을이며, 고요한 전통 문화와 풍경을 즐길 수 있습니다.",
+          "evidence_refs": [
+            "attraction#894027"
+          ],
+          "required_place_ids": [
+            "attraction#894027"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "하회마을 겸암정사는 전통 사당과 고택이 조화를 이루어 차분한 역사 체험을 제공합니다.",
+          "evidence_refs": [
+            "attraction#1180879"
+          ],
+          "required_place_ids": [
+            "attraction#1180879"
+          ],
+          "public_eligible": false
+        },
+        {
+          "claim_id": "claim_5",
+          "scope": "place_pool",
+          "text_ko": "군자마을(오천유적지)은 고대 유적과 전통 주거 형태가 남아 있어 고요한 옛 시대 분위기를 느낄 수 있습니다.",
+          "evidence_refs": [
+            "attraction#128558"
+          ],
+          "required_place_ids": [
+            "attraction#128558"
+          ],
+          "public_eligible": false
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#2720207",
+          "title": "예끼마을",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "2720207",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Andong.json",
+            "image_url": "",
+            "latitude": 36.6995158058,
+            "phone": "054-841-5800",
+            "city_name_en": "Andong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 안동시 도산면 선성길 14",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-2720207",
+            "longitude": 128.8123448093,
+            "description": "예끼마을의 여름날은 옥빛 도포를 입은 선비처럼 멋스럽고 느긋함이 느껴지는 마을로 알록달록한 벽화로 꾸민 골목길, 지역 작가의 작품을 감상할 수 있는 갤러리, 달콤한 잠을 보장하는 한옥체험관까지 다양한 재미를 느낄 수 있다. 옛 건물을 갤러리, 한옥 카페, 인포메이션 센터로 꾸미고 마을 곳곳에 예술적인 손길을 더해 ‘예(藝)끼 마을’로 부른다. 한옥체험관이 들어서고 최근에는 선성현문화단지까지 문을 열어 새로운 관광명소로 부상하고 있다. 예끼 마을의 가장 큰 즐거움은 호수 위를 걷는 선성수상길이다. 선성수상길은 푸른 호수 위에 그림 같은 산책로가 놓여 있으며, 푸른 하늘과 더없이 어울리는 여름 풍경을 연출한다.",
+            "PK": "CITY#Andong",
+            "city_id": "KR-Andong",
+            "title": "예끼마을",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2720207",
+            "overview": "예끼마을의 여름날은 옥빛 도포를 입은 선비처럼 멋스럽고 느긋함이 느껴지는 마을로 알록달록한 벽화로 꾸민 골목길, 지역 작가의 작품을 감상할 수 있는 갤러리, 달콤한 잠을 보장하는 한옥체험관까지 다양한 재미를 느낄 수 있다. 옛 건물을 갤러리, 한옥 카페, 인포메이션 센터로 꾸미고 마을 곳곳에 예술적인 손길을 더해 ‘예(藝)끼 마을’로 부른다. 한옥체험관이 들어서고 최근에는 선성현문화단지까지 문을 열어 새로운 관광명소로 부상하고 있다. 예끼 마을의 가장 큰 즐거움은 호수 위를 걷는 선성수상길이다. 선성수상길은 푸른 호수 위에 그림 같은 산책로가 놓여 있으며, 푸른 하늘과 더없이 어울리는 여름 풍경을 연출한다."
+          },
+          "latitude": 36.6995158058,
+          "longitude": 128.8123448093,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#2720207",
+          "body": "벽화 골목과 한옥 체험, 호수 위 수상길을 즐길 수 있는 마을",
+          "reason": "역사·전통 테마에 맞춰 다양한 체험을 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#126680",
+          "title": "안동포마을",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "126680",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Andong.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/33/3552233_image2_1.jpg",
+            "latitude": 36.5048906321489,
+            "phone": "054-822-1112",
+            "city_name_en": "Andong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 안동시 임하면 금소3길 3",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-126680",
+            "longitude": 128.851344136905,
+            "description": "안동포마을은 안동포의 명맥을 이어오는 곳이다. 안동포란 신라시대에는 화랑도 옷감으로 사용되고 조선시대에는 궁중 진상품으로 명성을 누려온 옷감으로 현재 이곳 금소리 안동포마을에서는 영세성과 중국산 삼베의 수입 등의 이중고 속에서도 안동포의 전통을 잇기 위해 노력하고 있다. 안동시는 옛 안동포의 명성을 되찾기 위해 금소리를 농어촌 특산 단지로 지정하여 대마 재배면적 확대와 안동포의 고부가가치화 등의 방안을 추진 중이다. 안동포의 맥을 꾸준히 이어올 수 있었던 것은 이 지역이 배수가 잘 되는 사질토로 삼베의 재료인 대마가 자라기 쉬운 기후 조건 때문이다. 마을 안에는 안동포의 역사와 제작방법, 생산품을 전시 판매하는 안동포 전시관과 안동포의 전승과 개발, 활성화를 노력하는 빛타래길쌈마을이 있다.",
+            "PK": "CITY#Andong",
+            "city_id": "KR-Andong",
+            "title": "안동포마을",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126680",
+            "overview": "안동포마을은 안동포의 명맥을 이어오는 곳이다. 안동포란 신라시대에는 화랑도 옷감으로 사용되고 조선시대에는 궁중 진상품으로 명성을 누려온 옷감으로 현재 이곳 금소리 안동포마을에서는 영세성과 중국산 삼베의 수입 등의 이중고 속에서도 안동포의 전통을 잇기 위해 노력하고 있다. 안동시는 옛 안동포의 명성을 되찾기 위해 금소리를 농어촌 특산 단지로 지정하여 대마 재배면적 확대와 안동포의 고부가가치화 등의 방안을 추진 중이다. 안동포의 맥을 꾸준히 이어올 수 있었던 것은 이 지역이 배수가 잘 되는 사질토로 삼베의 재료인 대마가 자라기 쉬운 기후 조건 때문이다. 마을 안에는 안동포의 역사와 제작방법, 생산품을 전시 판매하는 안동포 전시관과 안동포의 전승과 개발, 활성화를 노력하는 빛타래길쌈마을이 있다."
+          },
+          "latitude": 36.5048906321489,
+          "longitude": 128.851344136905,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#126680",
+          "body": "안동포 전시와 제작 과정을 볼 수 있는 전통 직물 마을",
+          "reason": "전통 직물 문화가 살아있어 역사·전통 관심에 부합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#894027",
+          "title": "안동 하회마을 [유네스코 세계유산]",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "894027",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Andong.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/33/3542033_image2_1.jpg",
+            "latitude": 36.55061488550214,
+            "phone": "하회마을 관광안내소 054-852-3588",
+            "city_name_en": "Andong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 안동시 풍천면 전서로 186-8",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-894027",
+            "longitude": 128.52829350319018,
+            "description": "하회마을은 풍산 류 (柳)씨가 대대로 살아오던 전형적인 집성촌으로 한국 전통가옥의 미(美)가 살아 숨 쉬는 마을이다. 조선시대의 대유학자 겸암 류운룡 선생과 서애 류성룡선생이 태어난 곳이기도 한 안동 하회마을은 1999년 4월 21일에는 방한 3일째였던 영국 엘리자베스 2세 여왕이 한국 전통의 고장으로서 방문하여 더욱 유명해졌다. 이곳 하회 (河回)라는 지명은 낙동강물이 동쪽으로 흐르다가 S자형을 이루면서 마을을 감싸도는 데서 유래했다. 동으로는 태백산의 지맥인 화산이 있고 그 줄기의 끝이 마을까지 뻗어서 아주 낮은 구릉을 이루고 있다. 집들은 구릉을 중심으로 낮은 곳을 향하여 배치되어 있기 때문에 집의 좌향이 일정하지 않고 동서남북 각각으로 집들이 앉혀져 있는 것이 특징이다. 마을 중심부에는 류 씨들의 집인 큰 기와집이 자리 잡고 있으며 원형이 잘 보존된 초가집들이 그 주위를 둘러싸고 있다. 마을 앞쪽에 유유히 흐르는 낙동강과 멋들어지게 깎아지른 부용대, 끝없이 펼쳐진 백사장, 울창한 노송숲이 절경을 이룬다. 한편, 부용대 앞에 물길이 다시 열려 나룻배를 이용할 수 있다. \n하회마을에서는 하회별신굿탈놀이를 상설공연으로 진행하고, 매년 가을 안동국제탈춤페스티벌을 진행하며 주변에는 신라 시대에 창건되었다는 봉정사, 고산서원, 귀래정, 계명산 자연휴양림, 학가산 자연휴양림, 와룡산 등 다양한 볼거리가 많은 곳이다. 특히 2010년 7월 31일 안동 하회마을과 경주 양동마을이 ‘한국의 역사마을’로서 유네스코 세계문화유산에 등재됐다. 두 마을의 등재로 한국의 세계유산은 석굴암ㆍ불국사, 해인사 장경판전, 종묘(이상 1995), 창덕궁, 수원 화성(1997), 경주역사유적지구, 고창ㆍ화순ㆍ강화 고인돌 유적(이상 2000), 그리고 제주 화산섬과 용암 동굴(2007), 조선왕릉(2009)에 이어 통산 10번째 세계유산을 보유하게 됐다. 하회마을의 대표적인 먹을거리는 안동소주와 유명한 서원이 많아 생기게 되었다는 헛제삿밥, 안동 간고등어, 안동 국시 등이 있다.  \n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 \n해발 64m 절벽에서 줄을 타고 수많은 불꽃이 다가온다. 강에는 달걀 불이 유유히 떠내려오고, ‘낙화(洛花)야!’라는 소리와 함께 커다란 불꽃이 절벽 아래로 폭포처럼 떨어진다. 한국식 불꽃놀이 축제 선유줄불놀이는 그곳에 모인 이들의 염원을 담아낸 거대한 정화의식이다. 그 누구를 위해서가 아닌 온전히 자신의 의지로 살아가겠다는 구산영은 실명의 위기 속에서도 희망과 소원이 별빛처럼 빛나는 그곳에서 환하게 미소 짓는다.",
+            "PK": "CITY#Andong",
+            "city_id": "KR-Andong",
+            "title": "안동 하회마을 [유네스코 세계유산]",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#894027",
+            "overview": "하회마을은 풍산 류 (柳)씨가 대대로 살아오던 전형적인 집성촌으로 한국 전통가옥의 미(美)가 살아 숨 쉬는 마을이다. 조선시대의 대유학자 겸암 류운룡 선생과 서애 류성룡선생이 태어난 곳이기도 한 안동 하회마을은 1999년 4월 21일에는 방한 3일째였던 영국 엘리자베스 2세 여왕이 한국 전통의 고장으로서 방문하여 더욱 유명해졌다. 이곳 하회 (河回)라는 지명은 낙동강물이 동쪽으로 흐르다가 S자형을 이루면서 마을을 감싸도는 데서 유래했다. 동으로는 태백산의 지맥인 화산이 있고 그 줄기의 끝이 마을까지 뻗어서 아주 낮은 구릉을 이루고 있다. 집들은 구릉을 중심으로 낮은 곳을 향하여 배치되어 있기 때문에 집의 좌향이 일정하지 않고 동서남북 각각으로 집들이 앉혀져 있는 것이 특징이다. 마을 중심부에는 류 씨들의 집인 큰 기와집이 자리 잡고 있으며 원형이 잘 보존된 초가집들이 그 주위를 둘러싸고 있다. 마을 앞쪽에 유유히 흐르는 낙동강과 멋들어지게 깎아지른 부용대, 끝없이 펼쳐진 백사장, 울창한 노송숲이 절경을 이룬다. 한편, 부용대 앞에 물길이 다시 열려 나룻배를 이용할 수 있다. \n하회마을에서는 하회별신굿탈놀이를 상설공연으로 진행하고, 매년 가을 안동국제탈춤페스티벌을 진행하며 주변에는 신라 시대에 창건되었다는 봉정사, 고산서원, 귀래정, 계명산 자연휴양림, 학가산 자연휴양림, 와룡산 등 다양한 볼거리가 많은 곳이다. 특히 2010년 7월 31일 안동 하회마을과 경주 양동마을이 ‘한국의 역사마을’로서 유네스코 세계문화유산에 등재됐다. 두 마을의 등재로 한국의 세계유산은 석굴암ㆍ불국사, 해인사 장경판전, 종묘(이상 1995), 창덕궁, 수원 화성(1997), 경주역사유적지구, 고창ㆍ화순ㆍ강화 고인돌 유적(이상 2000), 그리고 제주 화산섬과 용암 동굴(2007), 조선왕릉(2009)에 이어 통산 10번째 세계유산을 보유하게 됐다. 하회마을의 대표적인 먹을거리는 안동소주와 유명한 서원이 많아 생기게 되었다는 헛제삿밥, 안동 간고등어, 안동 국시 등이 있다.  \n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 \n해발 64m 절벽에서 줄을 타고 수많은 불꽃이 다가온다. 강에는 달걀 불이 유유히 떠내려오고, ‘낙화(洛花)야!’라는 소리와 함께 커다란 불꽃이 절벽 아래로 폭포처럼 떨어진다. 한국식 불꽃놀이 축제 선유줄불놀이는 그곳에 모인 이들의 염원을 담아낸 거대한 정화의식이다. 그 누구를 위해서가 아닌 온전히 자신의 의지로 살아가겠다는 구산영은 실명의 위기 속에서도 희망과 소원이 별빛처럼 빛나는 그곳에서 환하게 미소 짓는다."
+          },
+          "latitude": 36.5506148855,
+          "longitude": 128.5282935032,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#894027",
+          "body": "보존된 전통 가옥과 자연경관이 어우러진 유네스코 세계유산",
+          "reason": "유네스코 등재 마을이라 전통 문화 탐방에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#1180879",
+          "title": "안동 하회마을 겸암정사",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "1180879",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Andong.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/67/3585467_image2_1.jpg",
+            "latitude": 36.5427419723,
+            "phone": "안동시 문화유산과 054-840-5225",
+            "city_name_en": "Andong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 안동시 풍천면 풍일로 181",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-1180879",
+            "longitude": 128.5132759373,
+            "description": "안동 하회마을은 풍산 유씨의 동족마을로 빼어난 자연경관과 민속·유교 전통을 잘 유지하고 있는 조선시대 양반촌이다.\n겸암정사는 서애 유성룡(1542~1607) 선생의 맏형인 겸암 유운룡(1539~1601) 선생이 학문 연구와 제자를 가르치기 위해 세운 것이다. 조선 명종 22년(1567)에 지었다고 하며 부용대 서쪽 높은 절벽 위에 자리 잡고 있다.\n정사(사랑채)는 하회마을이 바라다 보이는 남쪽 절벽 위편에 안채는 정사 뒤쪽에 배치하였다. 정사는 2층 누각 형식으로 앞면 4칸·옆면 2칸 크기이다. 가운데에 대청 4칸을 두고 좌우로는 방을 두었다. 방 앞쪽으로 좁은 퇴를 마련하였으며 ‘겸암정’이라고 쓴 현판은 스승인 이황 선생의 글씨라고 한다. 안채는 ㄱ자형 평면을 이루고 있고, 대청을 중심으로 왼쪽에 부엌 2칸과 안방 2칸, 오른쪽에 건넌방 2칸을 두었다. 안방과 건넌방 앞쪽으로는 툇마루를 마련해 놓았다. 짚을 이어 올린 헛간채는 안채 왼쪽에 자리 잡고 있다.\n높은 절벽 아래 굽이도는 강줄기, 자연이 어울려진 진풍경을 느낄 수 있는 곳으로 정사(精舍)다운 지형 요건과 전통이 배어 있어 귀한 자료가 되고 있다.\n\n(출처 : 국가유산청)",
+            "PK": "CITY#Andong",
+            "city_id": "KR-Andong",
+            "title": "안동 하회마을 겸암정사",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#1180879",
+            "overview": "안동 하회마을은 풍산 유씨의 동족마을로 빼어난 자연경관과 민속·유교 전통을 잘 유지하고 있는 조선시대 양반촌이다.\n겸암정사는 서애 유성룡(1542~1607) 선생의 맏형인 겸암 유운룡(1539~1601) 선생이 학문 연구와 제자를 가르치기 위해 세운 것이다. 조선 명종 22년(1567)에 지었다고 하며 부용대 서쪽 높은 절벽 위에 자리 잡고 있다.\n정사(사랑채)는 하회마을이 바라다 보이는 남쪽 절벽 위편에 안채는 정사 뒤쪽에 배치하였다. 정사는 2층 누각 형식으로 앞면 4칸·옆면 2칸 크기이다. 가운데에 대청 4칸을 두고 좌우로는 방을 두었다. 방 앞쪽으로 좁은 퇴를 마련하였으며 ‘겸암정’이라고 쓴 현판은 스승인 이황 선생의 글씨라고 한다. 안채는 ㄱ자형 평면을 이루고 있고, 대청을 중심으로 왼쪽에 부엌 2칸과 안방 2칸, 오른쪽에 건넌방 2칸을 두었다. 안방과 건넌방 앞쪽으로는 툇마루를 마련해 놓았다. 짚을 이어 올린 헛간채는 안채 왼쪽에 자리 잡고 있다.\n높은 절벽 아래 굽이도는 강줄기, 자연이 어울려진 진풍경을 느낄 수 있는 곳으로 정사(精舍)다운 지형 요건과 전통이 배어 있어 귀한 자료가 되고 있다.\n\n(출처 : 국가유산청)"
+          },
+          "latitude": 36.5427419723,
+          "longitude": 128.5132759373,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#1180879",
+          "body": "조선 시대 학자 겸암이 세운 절벽 위 정사와 주변 풍경",
+          "reason": "전통 학문 사적과 자연경관이 결합된 장소입니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#128558",
+          "title": "안동 군자마을(오천유적지)",
+          "city_id": "KR-47-170",
+          "city_name_ko": "안동시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "128558",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Andong.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/09/3414809_image2_1.jpg",
+            "latitude": 36.6735519186,
+            "phone": "054-852-5414",
+            "city_name_en": "Andong",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 안동시 와룡면 군자리길 29",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-128558",
+            "longitude": 128.8025019983,
+            "description": "500~600년 전 광산 김씨 농수 김효로(金孝盧)가 정착하면서 형성된 이 마을은 안동 부사였던 한강 정구 선생이 ＂오천 한 마을에는 군자 아닌 사람이 없다.＂라고 한 말에서 연유하여 군자 마을이라는 이름이 지어졌으며 안동댐 건설로 현 마을에서 2km 떨어진 지금의 위치인 안동시 와룡면 오천 리에 옛 마을의 가옥과 정자 등을 그대로 옮겨와 조성한 마을로 오천 유적지라고도 한다.\n조선시대 전기부터 끊임없이 많은 학자들을 배출해 낸 군자마을은 그 분위기에 걸맞게 매우 단아한 분위기를 풍긴다. 광산 김씨 종중의 종가인 후조당, 수운잡방(需雲雜方)의 저자인 김유의 고택, 탁청정 등 20여 채의 고택 등이 원형 그대로 잘 보존되어 있으며 오천유적지의 대표적인 문화재로는 탁청정을 들 수 있다. 경상북도 유형문화재로 등재된 탁청정은 1541년(중종 36) 김수(金綬)가 지은 가옥에 딸린 정자로서 개인 정자 중 가장 아름다우며 규모는 정면 7칸, 측면 2칸의 팔작지붕이고 명필 한석봉의 현판이 걸려 있다. 이와 함께 광산김씨 예안파 종가소장 고문서(보물), 광산김씨 예안파 종가소장 전적(보물), 후조당 유물(경상북도 유형문화재) 등이 잘 보존되어 있으며 유물전시관인 숭원각에는 선대 유물, 고문서, 서적 수백 점이 전시되어 있다. 후조당에서는 고택체험-한옥스테이도 운영한다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 <악귀>\n화원재는 구산영이 아버지의 유품인 댕기를 받으며 모든 일이 시작된 곳이다. 화원재의 배경이 된 안동 군자마을 후조당 종택은 600여 년의 역사를 지닌 고택이다. 한국의 고풍스러운 아름다움을 느끼고 20대에 걸쳐 살아온 마을 사람들 사이에서 고택 스테이를 해보는 것을 추천한다.",
+            "PK": "CITY#Andong",
+            "city_id": "KR-Andong",
+            "title": "안동 군자마을(오천유적지)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#128558",
+            "overview": "500~600년 전 광산 김씨 농수 김효로(金孝盧)가 정착하면서 형성된 이 마을은 안동 부사였던 한강 정구 선생이 ＂오천 한 마을에는 군자 아닌 사람이 없다.＂라고 한 말에서 연유하여 군자 마을이라는 이름이 지어졌으며 안동댐 건설로 현 마을에서 2km 떨어진 지금의 위치인 안동시 와룡면 오천 리에 옛 마을의 가옥과 정자 등을 그대로 옮겨와 조성한 마을로 오천 유적지라고도 한다.\n조선시대 전기부터 끊임없이 많은 학자들을 배출해 낸 군자마을은 그 분위기에 걸맞게 매우 단아한 분위기를 풍긴다. 광산 김씨 종중의 종가인 후조당, 수운잡방(需雲雜方)의 저자인 김유의 고택, 탁청정 등 20여 채의 고택 등이 원형 그대로 잘 보존되어 있으며 오천유적지의 대표적인 문화재로는 탁청정을 들 수 있다. 경상북도 유형문화재로 등재된 탁청정은 1541년(중종 36) 김수(金綬)가 지은 가옥에 딸린 정자로서 개인 정자 중 가장 아름다우며 규모는 정면 7칸, 측면 2칸의 팔작지붕이고 명필 한석봉의 현판이 걸려 있다. 이와 함께 광산김씨 예안파 종가소장 고문서(보물), 광산김씨 예안파 종가소장 전적(보물), 후조당 유물(경상북도 유형문화재) 등이 잘 보존되어 있으며 유물전시관인 숭원각에는 선대 유물, 고문서, 서적 수백 점이 전시되어 있다. 후조당에서는 고택체험-한옥스테이도 운영한다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마 <악귀>\n화원재는 구산영이 아버지의 유품인 댕기를 받으며 모든 일이 시작된 곳이다. 화원재의 배경이 된 안동 군자마을 후조당 종택은 600여 년의 역사를 지닌 고택이다. 한국의 고풍스러운 아름다움을 느끼고 20대에 걸쳐 살아온 마을 사람들 사이에서 고택 스테이를 해보는 것을 추천한다."
+          },
+          "latitude": 36.6735519186,
+          "longitude": 128.8025019983,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#ANDONG",
+          "ddb_sk": "ATTRACTION#128558",
+          "body": "조선 시대 고택과 정자가 보존된 군자 마을, 전통 체험 가능",
+          "reason": "고택 체험을 통해 깊은 역사·전통을 느낄 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "안동시는 풍부한 전통 문화유산을 보유하고 있어 역사·전통에 관심이 있는 여행자에게 적합합니다.",
+        "선택된 마을들은 모두 전통 건축·예술·공예를 직접 체험할 수 있는 기회를 제공합니다."
+      ],
+      "itinerary_flow_reason": "예끼마을 → 안동포마을 → 하회마을 → 겸암정사 → 군자마을 순으로 전통 마을을 탐방하도록 일정이 구성되었습니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "안동시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%95%88%EB%8F%99%EC%8B%9C",
+          "query": "안동시",
+          "city_name_ko": "안동시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "안동시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%95%88%EB%8F%99%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "안동시 숙소",
+          "city_name_ko": "안동시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "안동시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%95%88%EB%8F%99%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "안동시 맛집",
+          "city_name_ko": "안동시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#2720207",
+              "place:attraction#126680",
+              "place:attraction#894027",
+              "place:attraction#1180879",
+              "place:attraction#128558"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "안동시는 풍부한 전통 문화유산을 보유하고 있어 역사·전통에 관심이 있는 여행자에게 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#2720207",
+              "place:attraction#126680",
+              "place:attraction#894027",
+              "place:attraction#1180879",
+              "place:attraction#128558"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "선택된 마을들은 모두 전통 건축·예술·공예를 직접 체험할 수 있는 기회를 제공합니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#2720207",
+          "place:attraction#126680",
+          "place:attraction#894027",
+          "place:attraction#1180879",
+          "place:attraction#128558"
+        ],
+        "hidden_internal_notes": [
+          "skipped_non_public_claim:claim_1",
+          "skipped_non_public_claim:claim_2",
+          "skipped_non_public_claim:claim_3",
+          "skipped_non_public_claim:claim_4",
+          "skipped_non_public_claim:claim_5",
+          "fallback_reason_used:no_public_claims",
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-05",
+      "expiresAt": "2026-06-27T19:41:30Z",
+      "destination": {
+        "destinationId": "KR-47-170",
+        "name": "안동시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#2720207",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "예끼마을",
+                "body": "벽화 골목과 한옥 체험, 호수 위 수상길을 즐길 수 있는 마을",
+                "reason": "역사·전통 테마에 맞춰 다양한 체험을 제공합니다.",
+                "moveMinutes": null,
+                "latitude": 36.6995158058,
+                "longitude": 128.8123448093
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#126680",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "안동포마을",
+                "body": "안동포 전시와 제작 과정을 볼 수 있는 전통 직물 마을",
+                "reason": "전통 직물 문화가 살아있어 역사·전통 관심에 부합합니다.",
+                "moveMinutes": null,
+                "latitude": 36.5048906321489,
+                "longitude": 128.851344136905
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#894027",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "안동 하회마을 [유네스코 세계유산]",
+                "body": "보존된 전통 가옥과 자연경관이 어우러진 유네스코 세계유산",
+                "reason": "유네스코 등재 마을이라 전통 문화 탐방에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 36.5506148855,
+                "longitude": 128.5282935032
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#1180879",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "안동 하회마을 겸암정사",
+                "body": "조선 시대 학자 겸암이 세운 절벽 위 정사와 주변 풍경",
+                "reason": "전통 학문 사적과 자연경관이 결합된 장소입니다.",
+                "moveMinutes": null,
+                "latitude": 36.5427419723,
+                "longitude": 128.5132759373
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#128558",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "안동 군자마을(오천유적지)",
+                "body": "조선 시대 고택과 정자가 보존된 군자 마을, 전통 체험 가능",
+                "reason": "고택 체험을 통해 깊은 역사·전통을 느낄 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 36.6735519186,
+                "longitude": 128.8025019983
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "history_tradition",
+          "travelMonth:10"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "안동시는 풍부한 전통 문화유산을 보유하고 있어 역사·전통에 관심이 있는 여행자에게 적합합니다.",
+          "선택된 마을들은 모두 전통 건축·예술·공예를 직접 체험할 수 있는 기회를 제공합니다."
+        ],
+        "itineraryFlowReason": "예끼마을 → 안동포마을 → 하회마을 → 겸암정사 → 군자마을 순으로 전통 마을을 탐방하도록 일정이 구성되었습니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%95%88%EB%8F%99%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EC%95%88%EB%8F%99%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%95%88%EB%8F%99%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

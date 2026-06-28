@@ -1,0 +1,1677 @@
+{
+  "request": {
+    "request_id": "REQ-TC-12",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 10,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "history_tradition"
+    ],
+    "include_festivals": true,
+    "natural_language_query": "가을 전통 축제와 오래된 유적을 함께 즐기는 1박 2일 여행을 하고 싶어요. 고즈넉한 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-12",
+    "agent_run_id": "run-5c623f1d-772e-40f8-a743-ce43966d5438",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "festival_verifier_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 10,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "history_tradition"
+      ],
+      "includeFestivals": true,
+      "naturalLanguageQuery": "가을 전통 축제와 오래된 유적을 함께 즐기는 1박 2일 여행을 하고 싶어요. 고즈넉한 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "festival_seeded_city_discovery",
+      "cleaned_raw_query": "가을 전통 축제와 오래된 유적을 함께 즐기는 1박 2일 여행을 하고 싶어요 고즈넉한 분위기면 좋겠어요",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "역사·전통"
+    ],
+    "searchable_place_themes": [
+      "역사·전통"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "가을 전통 축제와 오래된 유적을 함께 즐기는 1박 2일 여행을 하고 싶다. 고즈넉한 분위기를 원한다.",
+    "soft_preference_query": "고즈넉하고 차분한, 옛 정취가 흐르는 평온한 곳.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 10,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "역사·전통"
+      ],
+      "include_festivals": true,
+      "cleaned_raw_query": "가을 전통 축제와 오래된 유적을 함께 즐기는 1박 2일 여행을 하고 싶다. 고즈넉한 분위기를 원한다.",
+      "soft_preference_query": "고즈넉하고 차분한, 옛 정취가 흐르는 평온한 곳.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "festival_seeded_city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "O",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "festival_seeded_city_discovery",
+      "selected_city": {
+        "city_id": "KR-47-840",
+        "city_name_ko": "성주군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-47-840",
+          "city_score": 2.46,
+          "score_breakdown": {
+            "semantic_evidence": 0.4017,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0416,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0001
+          },
+          "top_place_ids": [
+            "attraction#127718",
+            "attraction#3444479",
+            "attraction#127717",
+            "attraction#3446558",
+            "attraction#1959031",
+            "attraction#1958166",
+            "attraction#2027207"
+          ],
+          "candidate_count": 7,
+          "city_name_ko": "성주군",
+          "available_place_count": 7,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 2.2955,
+          "score_breakdown": {
+            "semantic_evidence": 0.3103,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0358,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.079
+          },
+          "top_place_ids": [
+            "attraction#2710739",
+            "attraction#250380",
+            "attraction#2717271",
+            "attraction#130930",
+            "attraction#125773"
+          ],
+          "candidate_count": 5,
+          "city_name_ko": "양양군",
+          "available_place_count": 5,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-930",
+          "city_score": 2.1596,
+          "score_breakdown": {
+            "semantic_evidence": 0.2281,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0363
+          },
+          "top_place_ids": [
+            "attraction#2782886",
+            "attraction#128715",
+            "attraction#1957972",
+            "attraction#127921"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "울진군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-190",
+          "city_score": 2.0918,
+          "score_breakdown": {
+            "semantic_evidence": 0.1138,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#2702608",
+            "attraction#2718059"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "태백시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-770",
+          "city_score": 2.0757,
+          "score_breakdown": {
+            "semantic_evidence": 0.1166,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0189
+          },
+          "top_place_ids": [
+            "attraction#3072020",
+            "attraction#130534"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "정선군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-280",
+          "city_score": 2.0226,
+          "score_breakdown": {
+            "semantic_evidence": 0.136,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0914
+          },
+          "top_place_ids": [
+            "attraction#130314",
+            "attraction#129451"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "문경시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-760",
+          "city_score": 1.9991,
+          "score_breakdown": {
+            "semantic_evidence": 0.1176,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0965
+          },
+          "top_place_ids": [
+            "attraction#2798468",
+            "attraction#125772"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "평창군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-210",
+          "city_score": 1.9276,
+          "score_breakdown": {
+            "semantic_evidence": 0.0766,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1351
+          },
+          "top_place_ids": [
+            "attraction#129430"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영주시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-150",
+          "city_score": 1.8685,
+          "score_breakdown": {
+            "semantic_evidence": 0.0579,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1756
+          },
+          "top_place_ids": [
+            "attraction#126189"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "김천시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 1.6935,
+          "score_breakdown": {
+            "semantic_evidence": 0.0574,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#126166"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "경주시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#127718",
+          "title": "독용산성",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.9064435413,
+          "longitude": 128.1345773495,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#127718",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5871,
+            "score_components": {
+              "raw_similarity": 0.1871,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3444479",
+          "title": "성주 예산리 배리댁",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.923368649371405,
+          "longitude": 128.2851093925002,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#3444479",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5864,
+            "score_components": {
+              "raw_similarity": 0.1864,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127717",
+          "title": "성주 한개마을",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.9286579107945,
+          "longitude": 128.326379848561,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#127717",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.572,
+            "score_components": {
+              "raw_similarity": 0.172,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3446558",
+          "title": "성주 만귀정",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.85111962195776,
+          "longitude": 128.10827631429513,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#3446558",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5714,
+            "score_components": {
+              "raw_similarity": 0.1714,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#1959031",
+          "title": "오암서원",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7944057263,
+          "longitude": 128.2593082852,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#1959031",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5688,
+            "score_components": {
+              "raw_similarity": 0.1688,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#1958166",
+          "title": "덕암서원(성주)",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.9586188156,
+          "longitude": 128.3222870957,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#1958166",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5656,
+            "score_components": {
+              "raw_similarity": 0.1656,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2027207",
+          "title": "자비선사",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 35.7942689274,
+          "longitude": 128.2205478209,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#2027207",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5656,
+            "score_components": {
+              "raw_similarity": 0.1656,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [
+        {
+          "festival_id": "FEST-1122739",
+          "name": "청춘양구 펀치볼 시래기사과축제",
+          "country": "KR",
+          "city_id": "KR-51-800",
+          "city_name": "양구군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-31",
+          "event_end_date": "2025-11-02",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-1399407",
+          "name": "청도반시축제",
+          "country": "KR",
+          "city_id": "KR-47-820",
+          "city_name": "청도군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-17",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-141252",
+          "name": "김삿갓 문화제",
+          "country": "KR",
+          "city_id": "KR-51-750",
+          "city_name": "영월군",
+          "month": 10,
+          "theme": "미식·노포",
+          "theme_tags": [
+            "미식·노포"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-17",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-1718137",
+          "name": "신라문화제",
+          "country": "KR",
+          "city_id": "KR-47-130",
+          "city_name": "경주시",
+          "month": 10,
+          "theme": "미식·노포",
+          "theme_tags": [
+            "미식·노포"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-09",
+          "event_end_date": "2026-10-11",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-1844150",
+          "name": "칠곡낙동강평화축제",
+          "country": "KR",
+          "city_id": "KR-47-850",
+          "city_name": "칠곡군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-16",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-229052",
+          "name": "양양연어축제",
+          "country": "KR",
+          "city_id": "KR-51-830",
+          "city_name": "양양군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-24",
+          "event_end_date": "2025-10-26",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-232325",
+          "name": "횡성한우축제",
+          "country": "KR",
+          "city_id": "KR-51-730",
+          "city_name": "횡성군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-07",
+          "event_end_date": "2026-10-11",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2667583",
+          "name": "백두대간 봉자페스티벌",
+          "country": "KR",
+          "city_id": "KR-47-920",
+          "city_name": "봉화군",
+          "month": 10,
+          "theme": "자연·트레킹",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-02",
+          "event_end_date": "2025-10-12",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2759249",
+          "name": "경산 대추축제 & 농산물 한마당",
+          "country": "KR",
+          "city_id": "KR-47-290",
+          "city_name": "경산시",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-17",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2852354",
+          "name": "청도세계코미디아트페스티벌",
+          "country": "KR",
+          "city_id": "KR-47-820",
+          "city_name": "청도군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-17",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2858894",
+          "name": "성주가야산황금들녘메뚜기축제",
+          "country": "KR",
+          "city_id": "KR-47-840",
+          "city_name": "성주군",
+          "month": 10,
+          "theme": "자연·트레킹",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-18",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2873042",
+          "name": "홍천 사과축제",
+          "country": "KR",
+          "city_id": "KR-51-720",
+          "city_name": "홍천군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-30",
+          "event_end_date": "2025-11-02",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2930716",
+          "name": "강릉누들축제",
+          "country": "KR",
+          "city_id": "KR-51-150",
+          "city_name": "강릉시",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-30",
+          "event_end_date": "2025-11-02",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2997256",
+          "name": "평창농악축제",
+          "country": "KR",
+          "city_id": "KR-51-760",
+          "city_name": "평창군",
+          "month": 10,
+          "theme": "미식·노포",
+          "theme_tags": [
+            "미식·노포"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-24",
+          "event_end_date": "2025-10-26",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3017799",
+          "name": "구미푸드페스티벌",
+          "country": "KR",
+          "city_id": "KR-47-190",
+          "city_name": "구미시",
+          "month": 10,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-17",
+          "event_end_date": "2026-10-18",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3021124",
+          "name": "보현사 산사천년문화제",
+          "country": "KR",
+          "city_id": "KR-51-150",
+          "city_name": "강릉시",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-25",
+          "event_end_date": "2025-10-26",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3370464",
+          "name": "구미산단 페스티벌",
+          "country": "KR",
+          "city_id": "KR-47-190",
+          "city_name": "구미시",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-08",
+          "event_end_date": "2025-10-09",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3377995",
+          "name": "김천김밥축제",
+          "country": "KR",
+          "city_id": "KR-47-150",
+          "city_name": "김천시",
+          "month": 10,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-23",
+          "event_end_date": "2026-10-25",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3545976",
+          "name": "태백제",
+          "country": "KR",
+          "city_id": "KR-51-190",
+          "city_name": "태백시",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-02",
+          "event_end_date": "2025-10-03",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3546696",
+          "name": "트리헌드레드 페스티벌 울진",
+          "country": "KR",
+          "city_id": "KR-47-930",
+          "city_name": "울진군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-09",
+          "event_end_date": "2025-10-09",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-506544",
+          "name": "봉화송이축제",
+          "country": "KR",
+          "city_id": "KR-47-920",
+          "city_name": "봉화군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-16",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-506708",
+          "name": "양양송이축제",
+          "country": "KR",
+          "city_id": "KR-51-830",
+          "city_name": "양양군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-10",
+          "event_end_date": "2025-10-12",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-506766",
+          "name": "경북영주 풍기인삼축제",
+          "country": "KR",
+          "city_id": "KR-47-210",
+          "city_name": "영주시",
+          "month": 10,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-03",
+          "event_end_date": "2026-10-11",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-506895",
+          "name": "정선아리랑제",
+          "country": "KR",
+          "city_id": "KR-51-770",
+          "city_name": "정선군",
+          "month": 10,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-01",
+          "event_end_date": "2026-10-04",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-635451",
+          "name": "문경사과축제",
+          "country": "KR",
+          "city_id": "KR-47-280",
+          "city_name": "문경시",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-18",
+          "event_end_date": "2025-10-26",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-790124",
+          "name": "홍천 인삼한우 명품축제",
+          "country": "KR",
+          "city_id": "KR-51-720",
+          "city_name": "홍천군",
+          "month": 10,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-30",
+          "event_end_date": "2025-11-02",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-825295",
+          "name": "강릉커피축제",
+          "country": "KR",
+          "city_id": "KR-51-150",
+          "city_name": "강릉시",
+          "month": 10,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-10-21",
+          "event_end_date": "2026-10-25",
+          "source": "tourapi"
+        }
+      ],
+      "selected_festival_candidates": [
+        {
+          "festival_id": "FEST-2858894",
+          "name": "성주가야산황금들녘메뚜기축제",
+          "country": "KR",
+          "city_id": "KR-47-840",
+          "city_name": "성주군",
+          "month": 10,
+          "theme": "자연·트레킹",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-10-18",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        }
+      ],
+      "festival_seed_audit": {
+        "status": "ok",
+        "candidate_count": 27,
+        "seed_city_ids": [
+          "KR-51-800",
+          "KR-47-820",
+          "KR-51-750",
+          "KR-47-130",
+          "KR-47-850",
+          "KR-51-830",
+          "KR-51-730",
+          "KR-47-920",
+          "KR-47-290",
+          "KR-47-840",
+          "KR-51-720",
+          "KR-51-150",
+          "KR-51-760",
+          "KR-47-190",
+          "KR-47-150",
+          "KR-51-190",
+          "KR-47-930",
+          "KR-47-210",
+          "KR-51-770",
+          "KR-47-280"
+        ],
+        "failure_signals": [],
+        "needs_clarification": false
+      },
+      "coverage_audit": {
+        "required_themes": [
+          "역사·전통"
+        ],
+        "searchable_place_themes": [
+          "역사·전통"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "역사·전통": 7
+        },
+        "reserve_theme_counts": {
+          "역사·전통": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 1,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 3,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 7,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "festival_seeded_city_discovery",
+        "searchable_place_themes": [
+          "역사·전통"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 10,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 27,
+        "city_count": 10,
+        "recommended_places": 7,
+        "reserve_places": 0,
+        "available_places": 7,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": true,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim-1",
+          "scope": "place_pool",
+          "text_ko": "독용산성은 성주군에 위치한 고대 산성으로, 가을에 조용히 산책하며 역사적 분위기를 체험할 수 있습니다.",
+          "evidence_refs": [
+            "attraction#127718"
+          ],
+          "required_place_ids": [
+            "attraction#127718"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim-2",
+          "scope": "place_pool",
+          "text_ko": "성주 예산리 배리댁은 전통 가옥과 정원을 보존하고 있어 옛 정취를 느끼며 여유로운 시간을 보낼 수 있습니다.",
+          "evidence_refs": [
+            "attraction#3444479"
+          ],
+          "required_place_ids": [
+            "attraction#3444479"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim-3",
+          "scope": "place_pool",
+          "text_ko": "성주 한개마을은 전통 문화 체험 프로그램이 운영돼 지역 역사를 직접 경험하기에 적합합니다.",
+          "evidence_refs": [
+            "attraction#127717"
+          ],
+          "required_place_ids": [
+            "attraction#127717"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim-4",
+          "scope": "place_pool",
+          "text_ko": "성주 만귀정은 조용한 정원과 고전 건축 양식이 어우러져 고즈넉한 분위기를 제공합니다.",
+          "evidence_refs": [
+            "attraction#3446558"
+          ],
+          "required_place_ids": [
+            "attraction#3446558"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim-5",
+          "scope": "place_pool",
+          "text_ko": "오암서원은 전통 서원으로, 학문과 문화의 흔적을 살펴보며 차분한 시간을 보낼 수 있습니다.",
+          "evidence_refs": [
+            "attraction#1959031"
+          ],
+          "required_place_ids": [
+            "attraction#1959031"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": [
+      {
+        "festival_id": "FEST-2858894",
+        "name": "성주가야산황금들녘메뚜기축제",
+        "date_status": "outdated",
+        "start_date": "2025-10-18",
+        "end_date": "2025-10-19",
+        "is_applicable_to_trip": true,
+        "planner_policy": "not_placeable",
+        "source_type": "tourapi",
+        "confidence": 0.4,
+        "evidence_summary": "내부 정규화 detail의 시작일 2025-10-18이 요청 연도 2026년과 일치하지 않는다."
+      }
+    ]
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#127718",
+          "title": "독용산성",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "127718",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Seongju.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/82/3047782_image2_1.jpg",
+            "latitude": 35.9064435413,
+            "phone": "성주군청 문화예술과 054- 930-6782",
+            "city_name_en": "Seongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 성주군 금수강산면 사더래길 144",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-127718",
+            "longitude": 128.1345773495,
+            "description": "성주군 가천면 금봉리에 위치한 독용산성은 소백산맥의 주봉인 수도산의 줄기인 해발 955m의 독용산 정상에 있다. 산성의 둘레는 7.7㎞(높이 2.5m, 폭 1.5m)에 이르며 산성 내 수원이 풍부하고 활용 공간이 넓어 장기 전투에 대비하여 만들어진 포곡식 산성이다. 성의 축조 연대는 정확하게 알 수 없으나 1,500년전 성산가야 때 쌓은 것으로 추측되며 임진왜란을 피하던 중 발견되었다고 한다. 조선 숙종 원년(1675년) 관찰사 정중휘가 개축하여, 동서남북 7개 포루, 아치형의 동문, 수구문, 남소문 등이 있었으며, 동서군량고가 있어 성주, 합천, 거창의 군량미도 보관하였다. 일제 강점기에 발굴된 군기고에서 쇠도끼, 쇠창, 쇠화살, 삼지창, 말안장, 갑옷 등이 출토되었다. 성주군에서는 1997년부터 성곽을 복원할 계획을 세워 훼손된 성곽의 일부와 아치만이 남아 있던 동문을 보수하여 원형으로 복원하였으며 성내에 관아터와 사지가 여기저기 흩어져 있다. 독용산성에 대한 역사적 기록은 이원정이 1677년에 편찬한 경산지를 통해 나타난다. 그 책에 따르면 합천과 거창의 군사가 배치되었고 성안에는 3개의 계곡, 객사, 군기고 등이 있었다는 기록으로 보아 정중휘가 개축할 당시의 규모를 짐작할 수 있다.",
+            "PK": "CITY#Seongju",
+            "city_id": "KR-Seongju",
+            "title": "독용산성",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127718",
+            "overview": "성주군 가천면 금봉리에 위치한 독용산성은 소백산맥의 주봉인 수도산의 줄기인 해발 955m의 독용산 정상에 있다. 산성의 둘레는 7.7㎞(높이 2.5m, 폭 1.5m)에 이르며 산성 내 수원이 풍부하고 활용 공간이 넓어 장기 전투에 대비하여 만들어진 포곡식 산성이다. 성의 축조 연대는 정확하게 알 수 없으나 1,500년전 성산가야 때 쌓은 것으로 추측되며 임진왜란을 피하던 중 발견되었다고 한다. 조선 숙종 원년(1675년) 관찰사 정중휘가 개축하여, 동서남북 7개 포루, 아치형의 동문, 수구문, 남소문 등이 있었으며, 동서군량고가 있어 성주, 합천, 거창의 군량미도 보관하였다. 일제 강점기에 발굴된 군기고에서 쇠도끼, 쇠창, 쇠화살, 삼지창, 말안장, 갑옷 등이 출토되었다. 성주군에서는 1997년부터 성곽을 복원할 계획을 세워 훼손된 성곽의 일부와 아치만이 남아 있던 동문을 보수하여 원형으로 복원하였으며 성내에 관아터와 사지가 여기저기 흩어져 있다. 독용산성에 대한 역사적 기록은 이원정이 1677년에 편찬한 경산지를 통해 나타난다. 그 책에 따르면 합천과 거창의 군사가 배치되었고 성안에는 3개의 계곡, 객사, 군기고 등이 있었다는 기록으로 보아 정중휘가 개축할 당시의 규모를 짐작할 수 있다."
+          },
+          "latitude": 35.9064435413,
+          "longitude": 128.1345773495,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#127718",
+          "body": "해발 955m 독용산 정상에 위치한 포곡식 산성",
+          "reason": "독용산성은 성주군에 위치한 고대 산성으로, 가을에 조용히 산책하며 역사적 분위기를 체험할 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#3444479",
+          "title": "성주 예산리 배리댁",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "3444479",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Seongju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/63/3444363_image2_1.jpg",
+            "latitude": 35.923368649371405,
+            "phone": "성주군청 문화예술과 054-930-6782",
+            "city_name_en": "Seongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 성주군 성주읍 예산3길 22",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-3444479",
+            "longitude": 128.2851093925002,
+            "description": "이 건물은 1936년에 도문환(都文煥)이 건립한 살림집으로 결혼한 아들 도재림(都在琳) 내외가 분가하여 살도록 한 집이다. 택호(宅號)는 도재림의 부인이 배리(裵里) 마을에서 시집온 데서 연유한다. 가옥의 건립자인 도문환(都文煥, 1887~1970)은 성주 지역의 선각적인 유림으로 계몽운동에 앞장선 만산(晩山) 도갑모(都甲模, 1864～1937)의 아들로서, 1920년대 성주지역의 청년운동과 신간회운동 등 여러 사회운동에 활동하였던 인물이다. 평기와로 우진각 지붕을 이은 동향한 대문채를 들어서면 넓은 마당을 사이에 두고 ㄱ자형의 안채가 남향으로 자리 잡고 있다. 안채 전방으로 넓은 빈터가 남아 있는데 이는 행랑채와 창고가 있었던 부지이며 주변으로 민가가 분포하고 있다. 가옥은 전체적으로 전통 한옥의 외관에 일본식 전통 가옥의 평면구조, 창호, 실내장식 등 2층 구조의 절충식 근대 가옥으로 한국 주거사 연구에 중요한 자료라 할 수 있다.",
+            "PK": "CITY#Seongju",
+            "city_id": "KR-Seongju",
+            "title": "성주 예산리 배리댁",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3444479",
+            "overview": "이 건물은 1936년에 도문환(都文煥)이 건립한 살림집으로 결혼한 아들 도재림(都在琳) 내외가 분가하여 살도록 한 집이다. 택호(宅號)는 도재림의 부인이 배리(裵里) 마을에서 시집온 데서 연유한다. 가옥의 건립자인 도문환(都文煥, 1887~1970)은 성주 지역의 선각적인 유림으로 계몽운동에 앞장선 만산(晩山) 도갑모(都甲模, 1864～1937)의 아들로서, 1920년대 성주지역의 청년운동과 신간회운동 등 여러 사회운동에 활동하였던 인물이다. 평기와로 우진각 지붕을 이은 동향한 대문채를 들어서면 넓은 마당을 사이에 두고 ㄱ자형의 안채가 남향으로 자리 잡고 있다. 안채 전방으로 넓은 빈터가 남아 있는데 이는 행랑채와 창고가 있었던 부지이며 주변으로 민가가 분포하고 있다. 가옥은 전체적으로 전통 한옥의 외관에 일본식 전통 가옥의 평면구조, 창호, 실내장식 등 2층 구조의 절충식 근대 가옥으로 한국 주거사 연구에 중요한 자료라 할 수 있다."
+          },
+          "latitude": 35.923368649371405,
+          "longitude": 128.2851093925002,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#3444479",
+          "body": "전통 한옥과 일본식 구조가 조화된 2층 근대 가옥",
+          "reason": "성주 예산리 배리댁은 전통 가옥과 정원을 보존하고 있어 옛 정취를 느끼며 여유로운 시간을 보낼 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#127717",
+          "title": "성주 한개마을",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "127717",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Seongju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/58/4063558_image2_1.jpg",
+            "latitude": 35.9286579107945,
+            "phone": "성주군 문화예술과 054-930-6782",
+            "city_name_en": "Seongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 성주군 월항면 대산리 67",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-127717",
+            "longitude": 128.326379848561,
+            "description": "성주 한개마을은 성산이씨가 대대로 살아온 전형적인 동성촌락이다. 조선세종 때 진주목사를 지낸 이우가 처음 이곳에 이주하여 마을을 만들었다. 현재는 월봉 이정현의 후손들이 집성촌을 이루어 살고 있으며, 한옥 보존 마을이다. 마을 북쪽으로는 영취산(331.7m)이 좌청룡 우백호로 뻗어 있고, 서남쪽으로 백천이 흐르고 있어 영남 제일의 길지를 이루고 있다. 또한 구한말 성리학자 이진상을 비롯, 응와 이원조 등 예로부터 이름난 선비를 많이 배출한 곳으로도 알려져 있다. \n\n한 개마을에는 특이한 담장이 있어 색다른 볼거리를 제공한다. 담장은 크게 외곽담과 내곽담으로 나눌 수 있다. 외곽담은 마을의 가옥이 대체로 경사지에 위치한 관계로 산지에 접한 담과 주택동 쪽의 측면담은 높은 반면 앞뒤 주택의 영역을 구획하는 담은 낮게 되어 있다. 내곽담은 주거건물의 처마보다 낮아 담 양측의 영역을 시각적으로 차단 또는 연속시키는 역할을 하고 있다. 전체적으로 이 마을 담장의 주류인 토석담은 전통 한옥들과 잘 어우러져 자연스러운 마을의 동선을 유도하면서 아름다운 마을 속에 잘 동화되어 있다.",
+            "PK": "CITY#Seongju",
+            "city_id": "KR-Seongju",
+            "title": "성주 한개마을",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127717",
+            "overview": "성주 한개마을은 성산이씨가 대대로 살아온 전형적인 동성촌락이다. 조선세종 때 진주목사를 지낸 이우가 처음 이곳에 이주하여 마을을 만들었다. 현재는 월봉 이정현의 후손들이 집성촌을 이루어 살고 있으며, 한옥 보존 마을이다. 마을 북쪽으로는 영취산(331.7m)이 좌청룡 우백호로 뻗어 있고, 서남쪽으로 백천이 흐르고 있어 영남 제일의 길지를 이루고 있다. 또한 구한말 성리학자 이진상을 비롯, 응와 이원조 등 예로부터 이름난 선비를 많이 배출한 곳으로도 알려져 있다. \n\n한 개마을에는 특이한 담장이 있어 색다른 볼거리를 제공한다. 담장은 크게 외곽담과 내곽담으로 나눌 수 있다. 외곽담은 마을의 가옥이 대체로 경사지에 위치한 관계로 산지에 접한 담과 주택동 쪽의 측면담은 높은 반면 앞뒤 주택의 영역을 구획하는 담은 낮게 되어 있다. 내곽담은 주거건물의 처마보다 낮아 담 양측의 영역을 시각적으로 차단 또는 연속시키는 역할을 하고 있다. 전체적으로 이 마을 담장의 주류인 토석담은 전통 한옥들과 잘 어우러져 자연스러운 마을의 동선을 유도하면서 아름다운 마을 속에 잘 동화되어 있다."
+          },
+          "latitude": 35.9286579107945,
+          "longitude": 128.326379848561,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#127717",
+          "body": "전통 한옥과 독특한 담장이 어우러진 보존 마을",
+          "reason": "성주 한개마을은 전통 문화 체험 프로그램이 운영돼 지역 역사를 직접 경험하기에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#3446558",
+          "title": "성주 만귀정",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "3446558",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Seongju.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/46/3446446_image2_1.jpg",
+            "latitude": 35.85111962195776,
+            "phone": "성주군 문화관광과 054-930-8371",
+            "city_name_en": "Seongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 성주군 가천면 신계2길 38",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-3446558",
+            "longitude": 128.10827631429513,
+            "description": "성주 만귀정은 조선 후기에 공조판서를 역임한 응와(凝窩) 이원조(1792~1871)가 1851년에 귀향하여 독서와 자연을 벗 삼으며 여생을 보낸 곳이다. 이원조는 입재(立齋) 정종로(鄭宗魯)의 제자로 1809년(순조 9) 증광문과에 을과로 급제 후 여러 관직을 역임하고 벼슬이 대사간을 거쳐 공조판서 판의금에 이르렀다. 당시에 유학과 문장에 있어 유림의 으뜸으로 추앙받았으며, 지방관으로서도 많은 치적을 올렸다. 그는 과거급제 후 근 40년간 관직생활에 몸담고 있어 학문과 후학양성에 뜻을 제대로 펴지 못하다가 만년에 이르러서야 비로소 수양과 강학에 전심할 수 있는 기회를 가질 수 있었는데, 건물의 이름을 만귀정이라 한 것도 이에서 연유한다.\n건물은 경사지에 북동 향하여 정면 4칸, 측면 1칸 반 규모의 만귀정과 평삼문이 안마당을 사이에 두고 이자형(二字形)으로 놓여 있으며, 평삼문 입구에는 이원조의 학문진흥에 대한 의지를 담은 철제로 된 흥학창선비(興學倡善碑)가 세워져 있다.\n우거진 숲 속에 위치한 만귀정 옆으로는 작지만 세찬 기운으로 떨어지는 폭포수가 빼어난 경관을 자랑하며, 성주 관광의 대표인 성주 10경 중에 하나이기도 하다.",
+            "PK": "CITY#Seongju",
+            "city_id": "KR-Seongju",
+            "title": "성주 만귀정",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3446558",
+            "overview": "성주 만귀정은 조선 후기에 공조판서를 역임한 응와(凝窩) 이원조(1792~1871)가 1851년에 귀향하여 독서와 자연을 벗 삼으며 여생을 보낸 곳이다. 이원조는 입재(立齋) 정종로(鄭宗魯)의 제자로 1809년(순조 9) 증광문과에 을과로 급제 후 여러 관직을 역임하고 벼슬이 대사간을 거쳐 공조판서 판의금에 이르렀다. 당시에 유학과 문장에 있어 유림의 으뜸으로 추앙받았으며, 지방관으로서도 많은 치적을 올렸다. 그는 과거급제 후 근 40년간 관직생활에 몸담고 있어 학문과 후학양성에 뜻을 제대로 펴지 못하다가 만년에 이르러서야 비로소 수양과 강학에 전심할 수 있는 기회를 가질 수 있었는데, 건물의 이름을 만귀정이라 한 것도 이에서 연유한다.\n건물은 경사지에 북동 향하여 정면 4칸, 측면 1칸 반 규모의 만귀정과 평삼문이 안마당을 사이에 두고 이자형(二字形)으로 놓여 있으며, 평삼문 입구에는 이원조의 학문진흥에 대한 의지를 담은 철제로 된 흥학창선비(興學倡善碑)가 세워져 있다.\n우거진 숲 속에 위치한 만귀정 옆으로는 작지만 세찬 기운으로 떨어지는 폭포수가 빼어난 경관을 자랑하며, 성주 관광의 대표인 성주 10경 중에 하나이기도 하다."
+          },
+          "latitude": 35.85111962195776,
+          "longitude": 128.10827631429513,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#3446558",
+          "body": "조용한 숲 속에 자리한 전통 건축과 폭포 경관",
+          "reason": "성주 만귀정은 조용한 정원과 고전 건축 양식이 어우러져 고즈넉한 분위기를 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#1959031",
+          "title": "오암서원",
+          "city_id": "KR-47-840",
+          "city_name_ko": "성주군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "1959031",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Seongju.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/54/3400454_image2_1.jpg",
+            "latitude": 35.7944057263,
+            "phone": "성주군청 문화예술과 054-930-6764",
+            "city_name_en": "Seongju",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 성주군 수륜면 참별로 1",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-1959031",
+            "longitude": 128.2593082852,
+            "description": "오암서원은 경상북도 성주군 수륜면 남은리에 있는 조선 후기의 서원이다. 1714년(숙종 40)에 사림이 오암에 운암서원을 세워 최항경(1560~1638)을 제향 하다가 1741년(영조 17)에 서원 정리령으로 훼철되었다. 이후 1781년(정조 5) 사림의 공론으로 복원하여 ‘오암서원’이라 편액 하였다.\n1782년(정조 6)에 죽헌정사 자리에 오암서원을 세우고 최항경의 두 아들 최은(583~1656)과 최린(1597~1644)을 추배 하였다. 이후 1865년(고종 2)에 다시 훼철되었다가, 1918년에 후손들이 서원이 있던 터에 서당을 세웠고, 1977년에 중수하였다. 1985년에 후손들이 대강당과 광영루를 지었다. 2002년에는 후손 최창곤이 효덕사를 건립하였고, 2009년에 정부의 지원으로 오암정을 세웠다.\n건물의 규모는 정면 5칸, 측면 1칸 반 규모의 홑처마 팔작지붕 건물이다. 구조는 중앙에 3칸 대청을 중심으로 양측 칸에 1칸 반씩 온돌방을 둔 ‘중당 협실형’이다. 사당인 효덕사는 3칸의 맞배지붕집 구조이다. 재사는 서원 밖에 동향하여 위치하고 있으며, 재사의 우측에 오암정이 있다.",
+            "PK": "CITY#Seongju",
+            "city_id": "KR-Seongju",
+            "title": "오암서원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#1959031",
+            "overview": "오암서원은 경상북도 성주군 수륜면 남은리에 있는 조선 후기의 서원이다. 1714년(숙종 40)에 사림이 오암에 운암서원을 세워 최항경(1560~1638)을 제향 하다가 1741년(영조 17)에 서원 정리령으로 훼철되었다. 이후 1781년(정조 5) 사림의 공론으로 복원하여 ‘오암서원’이라 편액 하였다.\n1782년(정조 6)에 죽헌정사 자리에 오암서원을 세우고 최항경의 두 아들 최은(583~1656)과 최린(1597~1644)을 추배 하였다. 이후 1865년(고종 2)에 다시 훼철되었다가, 1918년에 후손들이 서원이 있던 터에 서당을 세웠고, 1977년에 중수하였다. 1985년에 후손들이 대강당과 광영루를 지었다. 2002년에는 후손 최창곤이 효덕사를 건립하였고, 2009년에 정부의 지원으로 오암정을 세웠다.\n건물의 규모는 정면 5칸, 측면 1칸 반 규모의 홑처마 팔작지붕 건물이다. 구조는 중앙에 3칸 대청을 중심으로 양측 칸에 1칸 반씩 온돌방을 둔 ‘중당 협실형’이다. 사당인 효덕사는 3칸의 맞배지붕집 구조이다. 재사는 서원 밖에 동향하여 위치하고 있으며, 재사의 우측에 오암정이 있다."
+          },
+          "latitude": 35.7944057263,
+          "longitude": 128.2593082852,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#SEONGJU",
+          "ddb_sk": "ATTRACTION#1959031",
+          "body": "조선 후기 서원 건물로 학문과 문화 유산을 보존",
+          "reason": "오암서원은 전통 서원으로, 학문과 문화의 흔적을 살펴보며 차분한 시간을 보낼 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "독용산성은 가을에 조용히 산책하며 역사적 분위기를 체험할 수 있습니다.",
+        "성주 한개마을은 전통 문화 체험 프로그램으로 지역 역사를 직접 경험하기에 적합합니다.",
+        "오암서원은 학문과 문화의 흔적을 살펴보며 차분한 시간을 제공한다."
+      ],
+      "itinerary_flow_reason": "성주군의 역사와 전통을 따라 독용산성·배리댁·한개마을·만귀정·오암서원을 순차적으로 탐방합니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "성주군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%84%B1%EC%A3%BC%EA%B5%B0",
+          "query": "성주군",
+          "city_name_ko": "성주군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "성주군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%84%B1%EC%A3%BC%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "성주군 숙소",
+          "city_name_ko": "성주군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "성주군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%84%B1%EC%A3%BC%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "성주군 맛집",
+          "city_name_ko": "성주군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [
+        "확정되지 않았거나 일정에 맞지 않는 축제 후보는 일정에 배치하지 않았습니다."
+      ],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": true,
+        "festival_verification_count": 1,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 1,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#127718",
+              "place:attraction#3444479",
+              "place:attraction#127717",
+              "place:attraction#3446558",
+              "place:attraction#1959031"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "독용산성은 가을에 조용히 산책하며 역사적 분위기를 체험할 수 있습니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#127718",
+              "place:attraction#3444479",
+              "place:attraction#127717",
+              "place:attraction#3446558",
+              "place:attraction#1959031"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "성주 한개마을은 전통 문화 체험 프로그램으로 지역 역사를 직접 경험하기에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#127718",
+              "place:attraction#3444479",
+              "place:attraction#127717",
+              "place:attraction#3446558",
+              "place:attraction#1959031"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "오암서원은 학문과 문화의 흔적을 살펴보며 차분한 시간을 제공한다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#127718",
+          "place:attraction#3444479",
+          "place:attraction#127717",
+          "place:attraction#3446558",
+          "place:attraction#1959031"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": true,
+      "festival_verification_count": 1,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 1,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-12",
+      "expiresAt": "2026-06-27T19:43:19Z",
+      "destination": {
+        "destinationId": "KR-47-840",
+        "name": "성주군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#127718",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "독용산성",
+                "body": "해발 955m 독용산 정상에 위치한 포곡식 산성",
+                "reason": "독용산성은 성주군에 위치한 고대 산성으로, 가을에 조용히 산책하며 역사적 분위기를 체험할 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 35.9064435413,
+                "longitude": 128.1345773495
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#3444479",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "성주 예산리 배리댁",
+                "body": "전통 한옥과 일본식 구조가 조화된 2층 근대 가옥",
+                "reason": "성주 예산리 배리댁은 전통 가옥과 정원을 보존하고 있어 옛 정취를 느끼며 여유로운 시간을 보낼 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 35.923368649371405,
+                "longitude": 128.2851093925002
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#127717",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "성주 한개마을",
+                "body": "전통 한옥과 독특한 담장이 어우러진 보존 마을",
+                "reason": "성주 한개마을은 전통 문화 체험 프로그램이 운영돼 지역 역사를 직접 경험하기에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 35.9286579107945,
+                "longitude": 128.326379848561
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#3446558",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "성주 만귀정",
+                "body": "조용한 숲 속에 자리한 전통 건축과 폭포 경관",
+                "reason": "성주 만귀정은 조용한 정원과 고전 건축 양식이 어우러져 고즈넉한 분위기를 제공합니다.",
+                "moveMinutes": null,
+                "latitude": 35.85111962195776,
+                "longitude": 128.10827631429513
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#1959031",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "오암서원",
+                "body": "조선 후기 서원 건물로 학문과 문화 유산을 보존",
+                "reason": "오암서원은 전통 서원으로, 학문과 문화의 흔적을 살펴보며 차분한 시간을 보낼 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 35.7944057263,
+                "longitude": 128.2593082852
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "history_tradition",
+          "travelMonth:10"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "독용산성은 가을에 조용히 산책하며 역사적 분위기를 체험할 수 있습니다.",
+          "성주 한개마을은 전통 문화 체험 프로그램으로 지역 역사를 직접 경험하기에 적합합니다.",
+          "오암서원은 학문과 문화의 흔적을 살펴보며 차분한 시간을 제공한다."
+        ],
+        "itineraryFlowReason": "성주군의 역사와 전통을 따라 독용산성·배리댁·한개마을·만귀정·오암서원을 순차적으로 탐방합니다.",
+        "confidence": 0.72,
+        "userNotice": "확정되지 않았거나 일정에 맞지 않는 축제 후보는 일정에 배치하지 않았습니다."
+      },
+      "festivalDateVerifications": [
+        {
+          "festivalId": "FEST-2858894",
+          "dateStatus": "outdated",
+          "startDate": "2025-10-18",
+          "endDate": "2025-10-19",
+          "sourceUrl": null,
+          "confidence": 0.4
+        }
+      ],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%84%B1%EC%A3%BC%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%EC%84%B1%EC%A3%BC%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%84%B1%EC%A3%BC%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

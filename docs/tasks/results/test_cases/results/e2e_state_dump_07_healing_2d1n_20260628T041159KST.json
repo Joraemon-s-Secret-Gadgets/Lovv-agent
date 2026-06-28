@@ -1,0 +1,1253 @@
+{
+  "request": {
+    "request_id": "REQ-TC-07",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 11,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "healing_rest"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "온천에서 푹 쉬는 휴식 여행을 하고 싶어요. 한적하고 평화로운 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-07",
+    "agent_run_id": "run-35b71bf4-1835-48af-aa17-014d074d7a35",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 11,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "healing_rest"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "온천에서 푹 쉬는 휴식 여행을 하고 싶어요. 한적하고 평화로운 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "온천에서 푹 쉬는 휴식 여행을 하고 싶어요 한적하고 평화로운 분위기면 좋겠어요",
+      "soft_preference_query": "한적하고 평화로운 분위기면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "온천·휴양"
+    ],
+    "searchable_place_themes": [
+      "온천·휴양"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "온천에서 푹 쉬는 휴식 여행을 하고 싶다. 한적하고 평화로운 분위기를 원한다.",
+    "soft_preference_query": "한적하고 평화롭고 여유로운, 조용한 분위기의 장소.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 11,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "온천·휴양"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "온천에서 푹 쉬는 휴식 여행을 하고 싶다. 한적하고 평화로운 분위기를 원한다.",
+      "soft_preference_query": "한적하고 평화롭고 여유로운, 조용한 분위기의 장소.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "△",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "insufficient_candidates",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-47-760",
+        "city_name_ko": "영양군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "insufficient_candidates"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-47-760",
+          "city_score": 2.1315,
+          "score_breakdown": {
+            "semantic_evidence": 0.1535,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#3072418",
+            "attraction#126745"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영양군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": true
+        },
+        {
+          "city_id": "KR-51-730",
+          "city_score": 2.1224,
+          "score_breakdown": {
+            "semantic_evidence": 0.3054,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1508
+          },
+          "top_place_ids": [
+            "attraction#2789625",
+            "attraction#125266",
+            "attraction#407202",
+            "attraction#126773"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "횡성군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-810",
+          "city_score": 2.0582,
+          "score_breakdown": {
+            "semantic_evidence": 0.2314,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1455
+          },
+          "top_place_ids": [
+            "attraction#125412",
+            "attraction#126677",
+            "attraction#2774513"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "인제군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-750",
+          "city_score": 2.0276,
+          "score_breakdown": {
+            "semantic_evidence": 0.1529,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1033
+          },
+          "top_place_ids": [
+            "attraction#3407888",
+            "attraction#125408"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "청송군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-800",
+          "city_score": 2.0025,
+          "score_breakdown": {
+            "semantic_evidence": 0.0787,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0624
+          },
+          "top_place_ids": [
+            "attraction#1089831"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "양구군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 1.9997,
+          "score_breakdown": {
+            "semantic_evidence": 0.211,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1836
+          },
+          "top_place_ids": [
+            "attraction#2715405",
+            "attraction#2776832",
+            "attraction#687616"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "삼척시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-790",
+          "city_score": 1.9994,
+          "score_breakdown": {
+            "semantic_evidence": 0.0762,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0629
+          },
+          "top_place_ids": [
+            "attraction#128099"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "화천군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-770",
+          "city_score": 1.9986,
+          "score_breakdown": {
+            "semantic_evidence": 0.156,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1354
+          },
+          "top_place_ids": [
+            "attraction#2705058",
+            "attraction#789897"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "정선군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-920",
+          "city_score": 1.9826,
+          "score_breakdown": {
+            "semantic_evidence": 0.0611,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0646
+          },
+          "top_place_ids": [
+            "attraction#3030567"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "봉화군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-820",
+          "city_score": 1.9793,
+          "score_breakdown": {
+            "semantic_evidence": 0.1392,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1379
+          },
+          "top_place_ids": [
+            "attraction#127167",
+            "attraction#3507139"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "청도군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-930",
+          "city_score": 1.9621,
+          "score_breakdown": {
+            "semantic_evidence": 0.1382,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1541
+          },
+          "top_place_ids": [
+            "attraction#125430",
+            "attraction#128051"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "울진군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 1.9601,
+          "score_breakdown": {
+            "semantic_evidence": 0.1513,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1691
+          },
+          "top_place_ids": [
+            "attraction#2570330",
+            "attraction#127805"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "양양군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-760",
+          "city_score": 1.9567,
+          "score_breakdown": {
+            "semantic_evidence": 0.1535,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1749
+          },
+          "top_place_ids": [
+            "attraction#2772886",
+            "attraction#407252"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "평창군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-830",
+          "city_score": 1.9541,
+          "score_breakdown": {
+            "semantic_evidence": 0.0725,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1046
+          },
+          "top_place_ids": [
+            "attraction#3032775"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "고령군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-750",
+          "city_score": 1.9362,
+          "score_breakdown": {
+            "semantic_evidence": 0.0575,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1075
+          },
+          "top_place_ids": [
+            "attraction#2681536"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영월군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-840",
+          "city_score": 1.9298,
+          "score_breakdown": {
+            "semantic_evidence": 0.0739,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1303
+          },
+          "top_place_ids": [
+            "attraction#3393682"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "성주군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-720",
+          "city_score": 1.9178,
+          "score_breakdown": {
+            "semantic_evidence": 0.1462,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2064
+          },
+          "top_place_ids": [
+            "attraction#125420",
+            "attraction#126905"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "홍천군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-730",
+          "city_score": 1.916,
+          "score_breakdown": {
+            "semantic_evidence": 0.0616,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1317
+          },
+          "top_place_ids": [
+            "attraction#407373"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "의성군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-230",
+          "city_score": 1.9153,
+          "score_breakdown": {
+            "semantic_evidence": 0.1396,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2023
+          },
+          "top_place_ids": [
+            "attraction#3407187",
+            "attraction#1839066"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "영천시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-770",
+          "city_score": 1.9127,
+          "score_breakdown": {
+            "semantic_evidence": 0.0735,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1469
+          },
+          "top_place_ids": [
+            "attraction#127712"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영덕군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-900",
+          "city_score": 1.9037,
+          "score_breakdown": {
+            "semantic_evidence": 0.0576,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1401
+          },
+          "top_place_ids": [
+            "attraction#127697"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "예천군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-280",
+          "city_score": 1.8859,
+          "score_breakdown": {
+            "semantic_evidence": 0.0747,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.175
+          },
+          "top_place_ids": [
+            "attraction#125407"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "문경시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-210",
+          "city_score": 1.8481,
+          "score_breakdown": {
+            "semantic_evidence": 0.0723,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2104
+          },
+          "top_place_ids": [
+            "attraction#2447115"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "영주시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-850",
+          "city_score": 1.8307,
+          "score_breakdown": {
+            "semantic_evidence": 0.0743,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2297
+          },
+          "top_place_ids": [
+            "attraction#2738085"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "칠곡군",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 1.8079,
+          "score_breakdown": {
+            "semantic_evidence": 0.149,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3191
+          },
+          "top_place_ids": [
+            "attraction#1870612",
+            "attraction#125417"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "강릉시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-150",
+          "city_score": 1.8066,
+          "score_breakdown": {
+            "semantic_evidence": 0.058,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2374
+          },
+          "top_place_ids": [
+            "attraction#2369371"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "김천시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-170",
+          "city_score": 1.7919,
+          "score_breakdown": {
+            "semantic_evidence": 0.0767,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2709
+          },
+          "top_place_ids": [
+            "attraction#2436209"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "안동시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 1.7855,
+          "score_breakdown": {
+            "semantic_evidence": 0.1438,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3363
+          },
+          "top_place_ids": [
+            "attraction#407225",
+            "attraction#127531"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "춘천시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-130",
+          "city_score": 1.7747,
+          "score_breakdown": {
+            "semantic_evidence": 0.1467,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#128068",
+            "attraction#688257"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "원주시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-190",
+          "city_score": 1.7386,
+          "score_breakdown": {
+            "semantic_evidence": 0.0824,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.33
+          },
+          "top_place_ids": [
+            "attraction#407291"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "구미시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 1.7059,
+          "score_breakdown": {
+            "semantic_evidence": 0.0598,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.34
+          },
+          "top_place_ids": [
+            "attraction#125405"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "경주시",
+          "available_place_count": 1,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#3072418",
+          "title": "흥림산자연휴양림 (영양에코둥지)",
+          "city_id": "KR-47-760",
+          "city_name_ko": "영양군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 36.7019617339,
+          "longitude": 129.1126531864,
+          "ddb_pk": "CITY#YEONGYANG",
+          "ddb_sk": "ATTRACTION#3072418",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.7698,
+            "score_components": {
+              "raw_similarity": 0.1993,
+              "soft_similarity": 0.1706,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#126745",
+          "title": "국립검마산자연휴양림",
+          "city_id": "KR-47-760",
+          "city_name_ko": "영양군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 36.7620547345398,
+          "longitude": 129.25535013202,
+          "ddb_pk": "CITY#YEONGYANG",
+          "ddb_sk": "ATTRACTION#126745",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.7648,
+            "score_components": {
+              "raw_similarity": 0.2177,
+              "soft_similarity": 0.1471,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "온천·휴양"
+        ],
+        "searchable_place_themes": [
+          "온천·휴양"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "온천·휴양": 2
+        },
+        "reserve_theme_counts": {
+          "온천·휴양": 0
+        },
+        "candidate_sufficiency": "insufficient",
+        "theme_min_quota": 6,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {
+          "온천·휴양": 4
+        },
+        "max_quota_relaxed": false,
+        "relaxed_slots": 0,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 8,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 2,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "insufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "온천·휴양"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 31,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 50,
+        "city_count": 31,
+        "recommended_places": 2,
+        "reserve_places": 0,
+        "available_places": 2,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "insufficient_candidates",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "place_pool",
+          "text_ko": "흥림산자연휴양림은 울창한 숲과 함께 온천 시설이 있어 조용히 휴식을 취하기에 적합합니다.",
+          "evidence_refs": [
+            "attraction#3072418"
+          ],
+          "required_place_ids": [
+            "attraction#3072418"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "국립검마산자연휴양림은 자연 속 온천을 활용한 휴양 프로그램을 제공해 한적한 분위기에서 몸과 마음을 달래기에 좋습니다.",
+          "evidence_refs": [
+            "attraction#126745"
+          ],
+          "required_place_ids": [
+            "attraction#126745"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#3072418",
+          "title": "흥림산자연휴양림 (영양에코둥지)",
+          "city_id": "KR-47-760",
+          "city_name_ko": "영양군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "details": {
+            "content_id": "3072418",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongyang.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/13/3072413_image2_1.JPG",
+            "latitude": 36.7020101402,
+            "phone": "054-680-5050",
+            "city_name_en": "Yeongyang",
+            "theme": "온천·휴양",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영양군 일월면 재일로 2394-70",
+            "theme_tags": [
+              "온천·휴양"
+            ],
+            "entity_id": "ATT-3072418",
+            "longitude": 129.1126819604,
+            "description": "풍림산에 위치한 영양에코둥지는 주민의 정서함양, 휴양 및 산림교육과 지친 도시민들의 치유의 공간 제공을 위하여 영양에코둥지와 영양 목재문화체험장으로 조성된 종합 산림휴양타운이다. 5인, 6인, 8인 ,10인의 다양한 숙박시설이 있고 홈페이지를 통해 온라인 예약이 가능하다. 주요시설로는 산림문화휴양관, 테라스하우스 등 기본적인 휴양시설이 있다. 레포츠시설로는 짚코스터, 네트어드벤처가 있다. 목재문화체험관 및 전시장, 야외 목재체험 시설이 들어서 있어 대자연 속에서 자연의 소중함을 배우는 살아있는 교육의 장으로도 활용된다. 멀지 않은 곳에 청록파시인 조지훈의 고향 마을이자 문학의 꿈을 키우던 주실마을이 있어 자연과 더불어 문학과 전통의 향기도 더불어 느낄 수 있다.",
+            "PK": "CITY#Yeongyang",
+            "city_id": "KR-Yeongyang",
+            "title": "흥림산자연휴양림 (영양에코둥지)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3072418",
+            "overview": "풍림산에 위치한 영양에코둥지는 주민의 정서함양, 휴양 및 산림교육과 지친 도시민들의 치유의 공간 제공을 위하여 영양에코둥지와 영양 목재문화체험장으로 조성된 종합 산림휴양타운이다. 5인, 6인, 8인 ,10인의 다양한 숙박시설이 있고 홈페이지를 통해 온라인 예약이 가능하다. 주요시설로는 산림문화휴양관, 테라스하우스 등 기본적인 휴양시설이 있다. 레포츠시설로는 짚코스터, 네트어드벤처가 있다. 목재문화체험관 및 전시장, 야외 목재체험 시설이 들어서 있어 대자연 속에서 자연의 소중함을 배우는 살아있는 교육의 장으로도 활용된다. 멀지 않은 곳에 청록파시인 조지훈의 고향 마을이자 문학의 꿈을 키우던 주실마을이 있어 자연과 더불어 문학과 전통의 향기도 더불어 느낄 수 있다."
+          },
+          "latitude": 36.7019617339,
+          "longitude": 129.1126531864,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGYANG",
+          "ddb_sk": "ATTRACTION#3072418",
+          "body": "풍림산에 위치한 종합 산림휴양타운으로 숙박·레포츠·목재체험 가능",
+          "reason": "울창한 숲과 온천 시설이 있어 조용히 휴식을 취하기에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#126745",
+          "title": "국립검마산자연휴양림",
+          "city_id": "KR-47-760",
+          "city_name_ko": "영양군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "details": {
+            "content_id": "126745",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yeongyang.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/93/3526493_image2_1.jpg",
+            "latitude": 36.7620547345398,
+            "phone": "054-682-9009",
+            "city_name_en": "Yeongyang",
+            "theme": "온천·휴양",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "경상북도 영양군 수비면 한티로 1050",
+            "theme_tags": [
+              "온천·휴양"
+            ],
+            "entity_id": "ATT-126745",
+            "longitude": 129.25535013202,
+            "description": "검마산자연휴양림은 소나무 숲이 아름다워 미림 보존 단지로 지정될 만큼 수려한 자연경관을 자랑하고 있다. 휴양림 주변으로 조성된 아름다운 산책로와 정갈함을 자랑하는 산림문화휴양관에서의 휴식은 도심에서의 모든 피로를 녹여준다. 반려견동반이 가능한 휴양림으로 운영하고 있어 많은 반려가족들이 방문하고 있다. 숲에서의 자유로운 여행은 도심에서 갇혀 지내왔던 반려견들의 스트레스를 한방에 날려버릴 것이다. 휴양림에서 운영하는 숲속도서관에는 남녀노소 누구나 즐길 수 있는 유익한 도서로 가득하다. 피톤치드향이 가득한 산림욕장에서 즐기는 독서는 피로에 지친 몸과 마음을 정화하기 위한 최고의 위안이 될 것이다. 또한, 계절마다 옷을 바꿔 입는 아름다운 산책로는 보는 이들로 하여금 탄성을 자아낸다. 일대는 아름다운 밤하늘을 보유하고 있어 아시아 최초로 ‘국제밤하늘보호공원’으로 지정되었다. 인근 반딧불이생태공원과 반딧불이천문대에서는 한 여름밤 아름다운 반딧불이의 향연과 신비로운 밤하늘을 감상할 수 있다. 8월 말~9월 초에 ‘별빛 반딧불이 축제’가 열린다.",
+            "PK": "CITY#Yeongyang",
+            "city_id": "KR-Yeongyang",
+            "title": "국립검마산자연휴양림",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126745",
+            "overview": "검마산자연휴양림은 소나무 숲이 아름다워 미림 보존 단지로 지정될 만큼 수려한 자연경관을 자랑하고 있다. 휴양림 주변으로 조성된 아름다운 산책로와 정갈함을 자랑하는 산림문화휴양관에서의 휴식은 도심에서의 모든 피로를 녹여준다. 반려견동반이 가능한 휴양림으로 운영하고 있어 많은 반려가족들이 방문하고 있다. 숲에서의 자유로운 여행은 도심에서 갇혀 지내왔던 반려견들의 스트레스를 한방에 날려버릴 것이다. 휴양림에서 운영하는 숲속도서관에는 남녀노소 누구나 즐길 수 있는 유익한 도서로 가득하다. 피톤치드향이 가득한 산림욕장에서 즐기는 독서는 피로에 지친 몸과 마음을 정화하기 위한 최고의 위안이 될 것이다. 또한, 계절마다 옷을 바꿔 입는 아름다운 산책로는 보는 이들로 하여금 탄성을 자아낸다. 일대는 아름다운 밤하늘을 보유하고 있어 아시아 최초로 ‘국제밤하늘보호공원’으로 지정되었다. 인근 반딧불이생태공원과 반딧불이천문대에서는 한 여름밤 아름다운 반딧불이의 향연과 신비로운 밤하늘을 감상할 수 있다. 8월 말~9월 초에 ‘별빛 반딧불이 축제’가 열린다."
+          },
+          "latitude": 36.7620547345398,
+          "longitude": 129.25535013202,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YEONGYANG",
+          "ddb_sk": "ATTRACTION#126745",
+          "body": "소나무 숲과 산책로, 피톤치드 향 가득한 산림욕장과 밤하늘 관람이 가능한 휴양림",
+          "reason": "자연 속 온천을 활용한 휴양 프로그램으로 한적한 분위기에서 몸과 마음을 달래기 좋습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "두 휴양림 모두 온천·휴양 테마를 갖추어 자연 치유를 원하는 여행자에게 어울립니다.",
+        "풍부한 숲과 산책로, 레포츠·목재체험 시설이 있어 다양한 힐링 활동을 즐길 수 있습니다."
+      ],
+      "itinerary_flow_reason": "첫날은 흥림산자연휴양림에서 숙박과 레포츠를 즐기고, 둘째 날은 국립검마산자연휴양림에서 산책과 밤하늘 관람으로 여유로운 휴식을 이어갑니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "영양군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%98%81%EC%96%91%EA%B5%B0",
+          "query": "영양군",
+          "city_name_ko": "영양군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "영양군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%98%81%EC%96%91%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "영양군 숙소",
+          "city_name_ko": "영양군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "영양군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%98%81%EC%96%91%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "영양군 맛집",
+          "city_name_ko": "영양군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.5,
+      "user_notice": [
+        "조건에 맞는 후보 수가 적어 가능한 범위에서 축소 일정을 구성했습니다."
+      ],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 2,
+        "planner_status_gate": "insufficient_candidates",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#3072418",
+              "place:attraction#126745"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "두 휴양림 모두 온천·휴양 테마를 갖추어 자연 치유를 원하는 여행자에게 어울립니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#3072418",
+              "place:attraction#126745"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "풍부한 숲과 산책로, 레포츠·목재체험 시설이 있어 다양한 힐링 활동을 즐길 수 있습니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#3072418",
+          "place:attraction#126745"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:insufficient_candidates"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 2,
+      "planner_status_gate": "insufficient_candidates",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-07",
+      "expiresAt": "2026-06-27T19:41:59Z",
+      "destination": {
+        "destinationId": "KR-47-760",
+        "name": "영양군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#3072418",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "흥림산자연휴양림 (영양에코둥지)",
+                "body": "풍림산에 위치한 종합 산림휴양타운으로 숙박·레포츠·목재체험 가능",
+                "reason": "울창한 숲과 온천 시설이 있어 조용히 휴식을 취하기에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 36.7019617339,
+                "longitude": 129.1126531864
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#126745",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "국립검마산자연휴양림",
+                "body": "소나무 숲과 산책로, 피톤치드 향 가득한 산림욕장과 밤하늘 관람이 가능한 휴양림",
+                "reason": "자연 속 온천을 활용한 휴양 프로그램으로 한적한 분위기에서 몸과 마음을 달래기 좋습니다.",
+                "moveMinutes": null,
+                "latitude": 36.7620547345398,
+                "longitude": 129.25535013202
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "healing_rest",
+          "travelMonth:11"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "두 휴양림 모두 온천·휴양 테마를 갖추어 자연 치유를 원하는 여행자에게 어울립니다.",
+          "풍부한 숲과 산책로, 레포츠·목재체험 시설이 있어 다양한 힐링 활동을 즐길 수 있습니다."
+        ],
+        "itineraryFlowReason": "첫날은 흥림산자연휴양림에서 숙박과 레포츠를 즐기고, 둘째 날은 국립검마산자연휴양림에서 산책과 밤하늘 관람으로 여유로운 휴식을 이어갑니다.",
+        "confidence": 0.5,
+        "userNotice": "조건에 맞는 후보 수가 적어 가능한 범위에서 축소 일정을 구성했습니다."
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%98%81%EC%96%91%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%EC%98%81%EC%96%91%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%98%81%EC%96%91%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

@@ -1,0 +1,1231 @@
+{
+  "request": {
+    "request_id": "REQ-TC-16",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 9,
+    "trip_type": "daytrip",
+    "destination_id": null,
+    "themes": [
+      "nature_trekking"
+    ],
+    "include_festivals": true,
+    "natural_language_query": "가볍게 숲길을 걷고 가을 축제도 즐기는 당일 여행을 추천해줘. 한적한 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-16",
+    "agent_run_id": "run-7f78dd1b-4dd5-4af8-bc33-1c3a8b862893",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "festival_verifier_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 9,
+      "travelYear": 2026,
+      "tripType": "daytrip",
+      "destinationId": null,
+      "themes": [
+        "nature_trekking"
+      ],
+      "includeFestivals": true,
+      "naturalLanguageQuery": "가볍게 숲길을 걷고 가을 축제도 즐기는 당일 여행을 추천해줘. 한적한 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "festival_seeded_city_discovery",
+      "cleaned_raw_query": "가볍게 숲길을 걷고 가을 축제도 즐기는 당일 여행을 추천해줘 한적한 분위기면 좋겠어요",
+      "soft_preference_query": "한적한 분위기면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "자연·트레킹"
+    ],
+    "searchable_place_themes": [
+      "자연·트레킹"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "가볍게 숲길을 걷고 가을 축제도 즐기는 당일 여행을 원한다. 한적한 분위기면 좋겠다.",
+    "soft_preference_query": "한적하고 조용하며 평온한, 여유롭게 자연을 느낄 수 있는 곳.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 9,
+      "travel_year": 2026,
+      "trip_type": "daytrip",
+      "active_required_themes": [
+        "자연·트레킹"
+      ],
+      "include_festivals": true,
+      "cleaned_raw_query": "가볍게 숲길을 걷고 가을 축제도 즐기는 당일 여행을 원한다. 한적한 분위기면 좋겠다.",
+      "soft_preference_query": "한적하고 조용하며 평온한, 여유롭게 자연을 느낄 수 있는 곳.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "festival_seeded_city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "O",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "festival_seeded_city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-760",
+        "city_name_ko": "평창군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-760",
+          "city_score": 2.5571,
+          "score_breakdown": {
+            "semantic_evidence": 0.585,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0889
+          },
+          "top_place_ids": [
+            "attraction#2637753",
+            "attraction#2799025",
+            "attraction#2798331",
+            "attraction#2798965",
+            "attraction#3072030",
+            "attraction#2728430"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "평창군",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 2.3126,
+          "score_breakdown": {
+            "semantic_evidence": 0.5965,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3449
+          },
+          "top_place_ids": [
+            "attraction#3006866",
+            "attraction#3336522",
+            "attraction#2752130",
+            "attraction#2756694",
+            "attraction#127619",
+            "attraction#2756640"
+          ],
+          "candidate_count": 8,
+          "city_name_ko": "경주시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 2.211,
+          "score_breakdown": {
+            "semantic_evidence": 0.4969,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0358,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#3011803",
+            "attraction#3074839",
+            "attraction#1607565",
+            "attraction#2710610",
+            "attraction#2706334"
+          ],
+          "candidate_count": 5,
+          "city_name_ko": "춘천시",
+          "available_place_count": 5,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-810",
+          "city_score": 2.0765,
+          "score_breakdown": {
+            "semantic_evidence": 0.0903,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#129669"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "인제군",
+          "available_place_count": 1,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 2.0581,
+          "score_breakdown": {
+            "semantic_evidence": 0.1792,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0992
+          },
+          "top_place_ids": [
+            "attraction#127381",
+            "attraction#129012"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "삼척시",
+          "available_place_count": 2,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-170",
+          "city_score": 1.9778,
+          "score_breakdown": {
+            "semantic_evidence": 0.1328,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1411
+          },
+          "top_place_ids": [
+            "attraction#2364047"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "동해시",
+          "available_place_count": 1,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-170",
+          "city_score": 1.8773,
+          "score_breakdown": {
+            "semantic_evidence": 0.1316,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2404
+          },
+          "top_place_ids": [
+            "attraction#2661435"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "안동시",
+          "available_place_count": 1,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-290",
+          "city_score": 1.772,
+          "score_breakdown": {
+            "semantic_evidence": 0.0917,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3059
+          },
+          "top_place_ids": [
+            "attraction#4073941"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "경산시",
+          "available_place_count": 1,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#2637753",
+          "title": "평창 육백마지기",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.4068,
+          "longitude": 128.5116,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2637753",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.7633,
+            "score_components": {
+              "raw_similarity": 0.1571,
+              "soft_similarity": 0.2062,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2799025",
+          "title": "강따라 방림 가는길",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.4496304246681,
+          "longitude": 128.458631318266,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2799025",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5706,
+            "score_components": {
+              "raw_similarity": 0.1706,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2798331",
+          "title": "[효석문학100리길 1코스] 문학의 길",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.6063949106,
+          "longitude": 128.3762625265,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2798331",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5508,
+            "score_components": {
+              "raw_similarity": 0.1508,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2798965",
+          "title": "고랭길",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.5802666171,
+          "longitude": 128.3362530327,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2798965",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5482,
+            "score_components": {
+              "raw_similarity": 0.1482,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3072030",
+          "title": "육십마지기",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.3656134432,
+          "longitude": 128.472524955,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#3072030",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5449,
+            "score_components": {
+              "raw_similarity": 0.1449,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2728430",
+          "title": "금당산",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "latitude": 37.541,
+          "longitude": 128.4161,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2728430",
+          "slot_role": "primary",
+          "assigned_theme": "자연·트레킹",
+          "score_audit": {
+            "place_score": 0.5321,
+            "score_components": {
+              "raw_similarity": 0.1321,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [
+        {
+          "festival_id": "FEST-1063406",
+          "name": "삼척동해왕이사부축제",
+          "country": "KR",
+          "city_id": "KR-51-230",
+          "city_name": "삼척시",
+          "month": 9,
+          "theme": "미식·노포",
+          "theme_tags": [
+            "미식·노포"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-05",
+          "event_end_date": "2025-09-07",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-140897",
+          "name": "경산 갓바위소원성취축제",
+          "country": "KR",
+          "city_id": "KR-47-290",
+          "city_name": "경산시",
+          "month": 9,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-26",
+          "event_end_date": "2025-09-28",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2027280",
+          "name": "횡성더덕축제",
+          "country": "KR",
+          "city_id": "KR-51-730",
+          "city_name": "횡성군",
+          "month": 9,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-19",
+          "event_end_date": "2025-09-21",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2406168",
+          "name": "원주문화의거리 치맥축제",
+          "country": "KR",
+          "city_id": "KR-51-130",
+          "city_name": "원주시",
+          "month": 9,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-03",
+          "event_end_date": "2025-09-06",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2614760",
+          "name": "경주국가유산야행",
+          "country": "KR",
+          "city_id": "KR-47-130",
+          "city_name": "경주시",
+          "month": 9,
+          "theme": "미식·노포",
+          "theme_tags": [
+            "미식·노포"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-26",
+          "event_end_date": "2025-09-28",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2618014",
+          "name": "인제가을꽃축제",
+          "country": "KR",
+          "city_id": "KR-51-810",
+          "city_name": "인제군",
+          "month": 9,
+          "theme": "자연·트레킹",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-27",
+          "event_end_date": "2025-10-19",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2666150",
+          "name": "예천 금당야행",
+          "country": "KR",
+          "city_id": "KR-47-900",
+          "city_name": "예천군",
+          "month": 9,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-19",
+          "event_end_date": "2025-09-20",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-2996726",
+          "name": "공근 소맥축제",
+          "country": "KR",
+          "city_id": "KR-51-730",
+          "city_name": "횡성군",
+          "month": 9,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-05",
+          "event_end_date": "2025-09-07",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3527675",
+          "name": "춘천 ONE도심 페스타",
+          "country": "KR",
+          "city_id": "KR-51-110",
+          "city_name": "춘천시",
+          "month": 9,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-12",
+          "event_end_date": "2025-09-14",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-3533658",
+          "name": "청도 국가유산 야행",
+          "country": "KR",
+          "city_id": "KR-47-820",
+          "city_name": "청도군",
+          "month": 9,
+          "theme": "미식·노포",
+          "theme_tags": [
+            "미식·노포"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-19",
+          "event_end_date": "2025-09-20",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-506670",
+          "name": "안동국제탈춤페스티벌",
+          "country": "KR",
+          "city_id": "KR-47-170",
+          "city_name": "안동시",
+          "month": 9,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-09-24",
+          "event_end_date": "2026-10-04",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-507635",
+          "name": "평창효석문화제",
+          "country": "KR",
+          "city_id": "KR-51-760",
+          "city_name": "평창군",
+          "month": 9,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-09-04",
+          "event_end_date": "2026-09-13",
+          "source": "tourapi"
+        },
+        {
+          "festival_id": "FEST-734219",
+          "name": "동해 무릉제",
+          "country": "KR",
+          "city_id": "KR-51-170",
+          "city_name": "동해시",
+          "month": 9,
+          "theme": "역사·전통",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2025-09-18",
+          "event_end_date": "2025-09-21",
+          "source": "tourapi"
+        }
+      ],
+      "selected_festival_candidates": [
+        {
+          "festival_id": "FEST-507635",
+          "name": "평창효석문화제",
+          "country": "KR",
+          "city_id": "KR-51-760",
+          "city_name": "평창군",
+          "month": 9,
+          "theme": "예술·감성",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "assigned_theme": null,
+          "event_start_date": "2026-09-04",
+          "event_end_date": "2026-09-13",
+          "source": "tourapi"
+        }
+      ],
+      "festival_seed_audit": {
+        "status": "ok",
+        "candidate_count": 13,
+        "seed_city_ids": [
+          "KR-51-230",
+          "KR-47-290",
+          "KR-51-730",
+          "KR-51-130",
+          "KR-47-130",
+          "KR-51-810",
+          "KR-47-900",
+          "KR-51-110",
+          "KR-47-820",
+          "KR-47-170",
+          "KR-51-760",
+          "KR-51-170"
+        ],
+        "failure_signals": [],
+        "needs_clarification": false
+      },
+      "coverage_audit": {
+        "required_themes": [
+          "자연·트레킹"
+        ],
+        "searchable_place_themes": [
+          "자연·트레킹"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "자연·트레킹": 6
+        },
+        "reserve_theme_counts": {
+          "자연·트레킹": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 3,
+        "theme_max_quota": 3,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 3,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 6,
+        "reserve_budget": 4,
+        "itinerary_required_place_count": 3,
+        "available_place_count": 6,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "festival_seeded_city_discovery",
+        "searchable_place_themes": [
+          "자연·트레킹"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 8,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 25,
+        "city_count": 8,
+        "recommended_places": 6,
+        "reserve_places": 0,
+        "available_places": 6,
+        "required_itinerary_places": 3,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": true,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "place_pool",
+          "text_ko": "평창 육백마지기 코스는 울창한 숲길이 이어져 한적하게 걷기에 좋으며 가을의 단풍 풍경을 감상할 수 있습니다.",
+          "evidence_refs": [
+            "attraction#2637753"
+          ],
+          "required_place_ids": [
+            "attraction#2637753"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "강따라 방림 가는길은 물소리와 함께 조용히 이어지는 트레일로, 여유롭게 자연을 체험할 수 있는 코스입니다.",
+          "evidence_refs": [
+            "attraction#2799025"
+          ],
+          "required_place_ids": [
+            "attraction#2799025"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "festival_anchor",
+          "text_ko": "평창효석문화제는 가을에 열리는 문화 행사로, 지역 예술과 전통을 조용히 즐길 수 있는 분위기를 제공합니다.",
+          "evidence_refs": [
+            "FEST-507635"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": [
+      {
+        "festival_id": "FEST-507635",
+        "name": "평창효석문화제",
+        "date_status": "confirmed",
+        "start_date": "2026-09-04",
+        "end_date": "2026-09-13",
+        "is_applicable_to_trip": true,
+        "planner_policy": "placeable",
+        "source_type": "tourapi",
+        "confidence": 0.8,
+        "evidence_summary": "내부 정규화 detail의 시작일 2026-09-04이 2026년과 일치하고 9월 여행에 해당한다."
+      }
+    ]
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#2637753",
+          "title": "평창 육백마지기",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2637753",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Pyeongchang.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/30/3331630_image2_1.jpg",
+            "latitude": 37.4034182262,
+            "phone": "033-330-2771",
+            "city_name_en": "Pyeongchang",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 평창군 미탄면 청옥산길 583-76",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2637753",
+            "longitude": 128.5151311058,
+            "description": "평창 미탄면에 위치한 청옥산 육백마지기는 ‘볍씨 육백 말을 뿌릴 수 있을 정도로 넓은 평원’이라 하여 붙여진 지명이다. 축구장 여섯 개 정도를 합쳐 놓은 넓은 초원으로 이미 많은 사람들에게는 평창 여행의 명소로 손꼽히고 있다. \n오늘날 육백마지기는 자동차로 쉽게 오를 수 있는 산 정상이자 자연 친화적 관광명소로 떠올랐다. 산길을 따라 올라가다 보면 능선을 따라 풍력발전기가 보이기 시작한다. 탁 트인 하늘 아래 대형 풍력발전기가 돌아가는 모습이 마치 그림 같은 풍경을 연출한다. \n육백마지기의 가장 아름다운 시기는 6월에서 7월이다. 일명 ‘계란프라이꽃’이라 불리는 샤스타데이지가 만개하여 넓은 초원을 뒤덮어 더욱 아름답다. 아담한 성의 모양 조형물, 산 능선을 배경으로 사진을 찍을 수 있는 무지개 의자 등 곳곳에 포토존이 자리한다.",
+            "PK": "CITY#Pyeongchang",
+            "city_id": "KR-Pyeongchang",
+            "title": "평창 육백마지기",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2637753",
+            "overview": "평창 미탄면에 위치한 청옥산 육백마지기는 ‘볍씨 육백 말을 뿌릴 수 있을 정도로 넓은 평원’이라 하여 붙여진 지명이다. 축구장 여섯 개 정도를 합쳐 놓은 넓은 초원으로 이미 많은 사람들에게는 평창 여행의 명소로 손꼽히고 있다. \n오늘날 육백마지기는 자동차로 쉽게 오를 수 있는 산 정상이자 자연 친화적 관광명소로 떠올랐다. 산길을 따라 올라가다 보면 능선을 따라 풍력발전기가 보이기 시작한다. 탁 트인 하늘 아래 대형 풍력발전기가 돌아가는 모습이 마치 그림 같은 풍경을 연출한다. \n육백마지기의 가장 아름다운 시기는 6월에서 7월이다. 일명 ‘계란프라이꽃’이라 불리는 샤스타데이지가 만개하여 넓은 초원을 뒤덮어 더욱 아름답다. 아담한 성의 모양 조형물, 산 능선을 배경으로 사진을 찍을 수 있는 무지개 의자 등 곳곳에 포토존이 자리한다."
+          },
+          "latitude": 37.4068,
+          "longitude": 128.5116,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2637753",
+          "body": "넓은 초원과 풍력발전기가 어우러진 산 정상 트레일",
+          "reason": "한적한 숲길과 가을 단풍 풍경을 감상할 수 있어 사용자의 자연 트레킹 선호와 맞습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon_festival",
+          "item_type": "festival",
+          "festivalId": "FEST-507635",
+          "title": "평창효석문화제",
+          "source": "festival_verifier",
+          "date_status": "confirmed",
+          "start_date": "2026-09-04",
+          "end_date": "2026-09-13",
+          "body": "가을에 열리는 지역 예술과 전통 문화 행사",
+          "reason": "가을에 열리는 문화 행사로 지역 예술과 전통을 조용히 즐길 수 있어 사용자의 문화 체험 선호와 부합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#2799025",
+          "title": "강따라 방림 가는길",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2799025",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Pyeongchang.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/98/2798998_image2_1.JPG",
+            "latitude": 37.4496304246681,
+            "phone": "평창군종합관광안내센터 033-330-2771\n평창군청 관광정책과 033-330-2724",
+            "city_name_en": "Pyeongchang",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 평창군 대화면 가평로 181-8",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2799025",
+            "longitude": 128.458631318266,
+            "description": "굽이치는 대화천과 자연 그대로의 모습을 간직하고 있는 금당계곡이 합류된 평창강을 따라 고봉과 절벽이 조화된 멋진 경관을 연출하고 있는 구간으로 주변경관을 조망하며 강변을 따라 걷는 길이다. 특히, 제3구간은 제방길과 강변길로 이루어져 있어 자전거 투어를 즐기기에 더없이 좋은 곳이다. 주변의 산과 계곡에서 불어오는 시원한 바람을 가르며 자연의 정취와 멋진 풍경을 가슴에 담을 수 있는 길이다.",
+            "PK": "CITY#Pyeongchang",
+            "city_id": "KR-Pyeongchang",
+            "title": "강따라 방림 가는길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2799025",
+            "overview": "굽이치는 대화천과 자연 그대로의 모습을 간직하고 있는 금당계곡이 합류된 평창강을 따라 고봉과 절벽이 조화된 멋진 경관을 연출하고 있는 구간으로 주변경관을 조망하며 강변을 따라 걷는 길이다. 특히, 제3구간은 제방길과 강변길로 이루어져 있어 자전거 투어를 즐기기에 더없이 좋은 곳이다. 주변의 산과 계곡에서 불어오는 시원한 바람을 가르며 자연의 정취와 멋진 풍경을 가슴에 담을 수 있는 길이다."
+          },
+          "latitude": 37.4496304246681,
+          "longitude": 128.458631318266,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2799025",
+          "body": "대화천과 금당계곡을 따라 걷는 조용한 트레일",
+          "reason": "물소리와 함께 조용히 이어지는 트레일이라 여유로운 자연 체험을 원하는 사용자에게 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#2798331",
+          "title": "[효석문학100리길 1코스] 문학의 길",
+          "city_id": "KR-51-760",
+          "city_name_ko": "평창군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "자연·트레킹"
+          ],
+          "details": {
+            "content_id": "2798331",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Pyeongchang.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/68/3535068_image2_1.jpg",
+            "latitude": 37.6063949106,
+            "phone": "평창군 관광안내센터 033-330-2771<br>\n평창군 문화관광과 033-330-2399",
+            "city_name_en": "Pyeongchang",
+            "theme": "자연·트레킹",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 평창군 봉평면 애강나무길 14",
+            "theme_tags": [
+              "자연·트레킹"
+            ],
+            "entity_id": "ATT-2798331",
+            "longitude": 128.3762625265,
+            "description": "평창은 사계절이 뚜렷하고 아름다운 자연을 그대로 간직한 지역으로, ‘아시아의 알프스’라 불릴 만큼 광활한 자연경관이 파노라마처럼 펼쳐진다. 전체 면적의 약 65%가 해발 700m 이상의 고원지대로 이루어져 있어 청정한 환경과 함께 최적의 휴양지로 손꼽힌다. 효석문화 100리 길은 소설 『메밀꽃 필 무렵』 속 인물인 허생원과 동이의 여정을 따라가는 길로, 총 5개 구간으로 구성되어 있다. 그중 1구간 ‘문학의 길’은 작가 이효석의 문학적 발자취를 따라가는 코스로 문학적 의미가 깊다. 평창군에서는 이 구간을 중심으로 걷기 대회를 개최해 문학과 자연을 함께 체험할 수 있는 기회를 제공한다.",
+            "PK": "CITY#Pyeongchang",
+            "city_id": "KR-Pyeongchang",
+            "title": "[효석문학100리길 1코스] 문학의 길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2798331",
+            "overview": "평창은 사계절이 뚜렷하고 아름다운 자연을 그대로 간직한 지역으로, ‘아시아의 알프스’라 불릴 만큼 광활한 자연경관이 파노라마처럼 펼쳐진다. 전체 면적의 약 65%가 해발 700m 이상의 고원지대로 이루어져 있어 청정한 환경과 함께 최적의 휴양지로 손꼽힌다. 효석문화 100리 길은 소설 『메밀꽃 필 무렵』 속 인물인 허생원과 동이의 여정을 따라가는 길로, 총 5개 구간으로 구성되어 있다. 그중 1구간 ‘문학의 길’은 작가 이효석의 문학적 발자취를 따라가는 코스로 문학적 의미가 깊다. 평창군에서는 이 구간을 중심으로 걷기 대회를 개최해 문학과 자연을 함께 체험할 수 있는 기회를 제공한다."
+          },
+          "latitude": 37.6063949106,
+          "longitude": 128.3762625265,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#PYEONGCHANG",
+          "ddb_sk": "ATTRACTION#2798331",
+          "body": "이효석 문학 발자취를 따라 걷는 자연 속 산책로",
+          "reason": "효석문화와 자연을 연결하는 코스로, 문화와 트레킹을 동시에 즐기고자 하는 선호에 맞습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "평창 육백마지기 코스는 한적한 숲길과 가을 단풍을 감상할 수 있어 트레킹에 적합합니다.",
+        "강따라 방림 가는길은 물소리와 함께 조용히 자연을 체험할 수 있는 트레일입니다.",
+        "평창효석문화제는 가을에 열리는 문화 행사로 지역 예술과 전통을 조용히 즐길 수 있습니다."
+      ],
+      "itinerary_flow_reason": "넓은 초원과 풍경을 즐기는 육백마지기에서 시작해 문화제 체험 후 강변 트레일을 걷고, 마지막으로 효석문학길을 따라 자연과 문학을 연결하는 흐름으로 구성했습니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "평창군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%ED%8F%89%EC%B0%BD%EA%B5%B0",
+          "query": "평창군",
+          "city_name_ko": "평창군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "평창군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%ED%8F%89%EC%B0%BD%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "평창군 숙소",
+          "city_name_ko": "평창군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "평창군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%ED%8F%89%EC%B0%BD%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "평창군 맛집",
+          "city_name_ko": "평창군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 4,
+        "planner_status_gate": "ok",
+        "include_festivals": true,
+        "festival_verification_count": 1,
+        "festival_placed_count": 1,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#2637753",
+              "festival:FEST-507635",
+              "place:attraction#2799025",
+              "place:attraction#2798331"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "평창 육백마지기 코스는 한적한 숲길과 가을 단풍을 감상할 수 있어 트레킹에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#2637753",
+              "festival:FEST-507635",
+              "place:attraction#2799025",
+              "place:attraction#2798331"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "강따라 방림 가는길은 물소리와 함께 조용히 자연을 체험할 수 있는 트레일입니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#2637753",
+              "festival:FEST-507635",
+              "place:attraction#2799025",
+              "place:attraction#2798331"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "평창효석문화제는 가을에 열리는 문화 행사로 지역 예술과 전통을 조용히 즐길 수 있습니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#2637753",
+          "festival:FEST-507635",
+          "place:attraction#2799025",
+          "place:attraction#2798331"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 4,
+      "planner_status_gate": "ok",
+      "include_festivals": true,
+      "festival_verification_count": 1,
+      "festival_placed_count": 1,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-16",
+      "expiresAt": "2026-06-27T19:44:04Z",
+      "destination": {
+        "destinationId": "KR-51-760",
+        "name": "평창군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "daytrip",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#2637753",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "평창 육백마지기",
+                "body": "넓은 초원과 풍력발전기가 어우러진 산 정상 트레일",
+                "reason": "한적한 숲길과 가을 단풍 풍경을 감상할 수 있어 사용자의 자연 트레킹 선호와 맞습니다.",
+                "moveMinutes": null,
+                "latitude": 37.4068,
+                "longitude": 128.5116
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "FEST-507635",
+                "timeOfDay": "afternoon_festival",
+                "sortOrder": 2,
+                "title": "평창효석문화제",
+                "body": "가을에 열리는 지역 예술과 전통 문화 행사",
+                "reason": "가을에 열리는 문화 행사로 지역 예술과 전통을 조용히 즐길 수 있어 사용자의 문화 체험 선호와 부합합니다.",
+                "moveMinutes": null,
+                "latitude": null,
+                "longitude": null
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#2799025",
+                "timeOfDay": "afternoon",
+                "sortOrder": 3,
+                "title": "강따라 방림 가는길",
+                "body": "대화천과 금당계곡을 따라 걷는 조용한 트레일",
+                "reason": "물소리와 함께 조용히 이어지는 트레일이라 여유로운 자연 체험을 원하는 사용자에게 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 37.4496304246681,
+                "longitude": 128.458631318266
+              },
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#2798331",
+                "timeOfDay": "evening",
+                "sortOrder": 4,
+                "title": "[효석문학100리길 1코스] 문학의 길",
+                "body": "이효석 문학 발자취를 따라 걷는 자연 속 산책로",
+                "reason": "효석문화와 자연을 연결하는 코스로, 문화와 트레킹을 동시에 즐기고자 하는 선호에 맞습니다.",
+                "moveMinutes": null,
+                "latitude": 37.6063949106,
+                "longitude": 128.3762625265
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "nature_trekking",
+          "travelMonth:9"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "평창 육백마지기 코스는 한적한 숲길과 가을 단풍을 감상할 수 있어 트레킹에 적합합니다.",
+          "강따라 방림 가는길은 물소리와 함께 조용히 자연을 체험할 수 있는 트레일입니다.",
+          "평창효석문화제는 가을에 열리는 문화 행사로 지역 예술과 전통을 조용히 즐길 수 있습니다."
+        ],
+        "itineraryFlowReason": "넓은 초원과 풍경을 즐기는 육백마지기에서 시작해 문화제 체험 후 강변 트레일을 걷고, 마지막으로 효석문학길을 따라 자연과 문학을 연결하는 흐름으로 구성했습니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [
+        {
+          "festivalId": "FEST-507635",
+          "dateStatus": "confirmed",
+          "startDate": "2026-09-04",
+          "endDate": "2026-09-13",
+          "sourceUrl": null,
+          "confidence": 0.8
+        }
+      ],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%ED%8F%89%EC%B0%BD%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%ED%8F%89%EC%B0%BD%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%ED%8F%89%EC%B0%BD%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

@@ -1,0 +1,1411 @@
+{
+  "request": {
+    "request_id": "INV-TC-15",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 9,
+    "trip_type": "2d1n",
+    "destination_id": null,
+    "themes": [
+      "history_tradition",
+      "art_sense"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "전통 유적과 예술 공간을 함께 둘러보고 싶어요. 차분하고 감성적인 분위기면 좋겠어요.",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "INV-TC-15",
+    "agent_run_id": "run-bc6598e8-0a2b-44a2-93b3-dcbbed363281",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 9,
+      "travelYear": 2026,
+      "tripType": "2d1n",
+      "destinationId": null,
+      "themes": [
+        "history_tradition",
+        "art_sense"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "전통 유적과 예술 공간을 함께 둘러보고 싶어요. 차분하고 감성적인 분위기면 좋겠어요.",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "전통 유적과 예술 공간을 함께 둘러보고 싶어요 차분하고 감성적인 분위기면 좋겠어요",
+      "soft_preference_query": "차분하고 감성적인 분위기면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "역사·전통",
+      "예술·감성"
+    ],
+    "searchable_place_themes": [
+      "역사·전통",
+      "예술·감성"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "전통 유적과 예술 공간을 함께 둘러보고 싶다. 차분하고 감성적인 분위기를 원한다.",
+    "soft_preference_query": "차분하고 감성적인, 여유롭고 평온한 분위기의 장소.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 9,
+      "travel_year": 2026,
+      "trip_type": "2d1n",
+      "active_required_themes": [
+        "역사·전통",
+        "예술·감성"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "전통 유적과 예술 공간을 함께 둘러보고 싶다. 차분하고 감성적인 분위기를 원한다.",
+      "soft_preference_query": "차분하고 감성적인, 여유롭고 평온한 분위기의 장소.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-150",
+        "city_name_ko": "강릉시",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-150",
+          "city_score": 2.4674,
+          "score_breakdown": {
+            "semantic_evidence": 0.7245,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3092
+          },
+          "top_place_ids": [
+            "attraction#126898",
+            "attraction#3592123",
+            "attraction#2821072",
+            "attraction#2913890",
+            "attraction#130123",
+            "attraction#127951",
+            "attraction#2804197",
+            "attraction#3100746",
+            "attraction#130057",
+            "attraction#129784"
+          ],
+          "candidate_count": 11,
+          "city_name_ko": "강릉시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 2.3481,
+          "score_breakdown": {
+            "semantic_evidence": 0.6562,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.971,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3312
+          },
+          "top_place_ids": [
+            "attraction#3036159",
+            "attraction#3486762",
+            "attraction#2752134",
+            "attraction#130509",
+            "attraction#3000202",
+            "attraction#2997651",
+            "attraction#128117",
+            "attraction#126229",
+            "attraction#126166",
+            "attraction#2603500"
+          ],
+          "candidate_count": 11,
+          "city_name_ko": "경주시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-750",
+          "city_score": 2.2828,
+          "score_breakdown": {
+            "semantic_evidence": 0.3153,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.971,
+            "scale_correction": 0.0358,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0676
+          },
+          "top_place_ids": [
+            "attraction#2719984",
+            "attraction#2633903",
+            "attraction#2713395",
+            "attraction#1857095",
+            "attraction#798017"
+          ],
+          "candidate_count": 5,
+          "city_name_ko": "영월군",
+          "available_place_count": 5,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-110",
+          "city_score": 2.2059,
+          "score_breakdown": {
+            "semantic_evidence": 0.5302,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9544,
+            "scale_correction": 0.0439,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.3348
+          },
+          "top_place_ids": [
+            "attraction#2648390",
+            "attraction#130661",
+            "attraction#3046002",
+            "attraction#128785",
+            "attraction#2472919",
+            "attraction#914428",
+            "attraction#127933",
+            "attraction#2699754"
+          ],
+          "candidate_count": 8,
+          "city_name_ko": "춘천시",
+          "available_place_count": 8,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-780",
+          "city_score": 2.1527,
+          "score_breakdown": {
+            "semantic_evidence": 0.2784,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0935
+          },
+          "top_place_ids": [
+            "attraction#2353577",
+            "attraction#561034",
+            "attraction#732002",
+            "attraction#731587"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "철원군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-750",
+          "city_score": 2.0877,
+          "score_breakdown": {
+            "semantic_evidence": 0.1337,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0241
+          },
+          "top_place_ids": [
+            "attraction#129057",
+            "attraction#130905"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "청송군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-920",
+          "city_score": 2.0869,
+          "score_breakdown": {
+            "semantic_evidence": 0.1964,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#127154",
+            "attraction#2715643",
+            "attraction#2674968"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "봉화군",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-790",
+          "city_score": 2.0304,
+          "score_breakdown": {
+            "semantic_evidence": 0.2681,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0168
+          },
+          "top_place_ids": [
+            "attraction#1626292",
+            "attraction#2568601",
+            "attraction#2569465",
+            "attraction#2774590"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "화천군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-730",
+          "city_score": 2.0058,
+          "score_breakdown": {
+            "semantic_evidence": 0.1185,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0907
+          },
+          "top_place_ids": [
+            "attraction#4071855",
+            "attraction#346660"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "의성군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-720",
+          "city_score": 1.9248,
+          "score_breakdown": {
+            "semantic_evidence": 0.1259,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1791
+          },
+          "top_place_ids": [
+            "attraction#2791411",
+            "attraction#250290"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "홍천군",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-900",
+          "city_score": 1.9222,
+          "score_breakdown": {
+            "semantic_evidence": 0.2435,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.8113,
+            "scale_correction": 0.0322,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1003
+          },
+          "top_place_ids": [
+            "attraction#128182",
+            "attraction#2912292",
+            "attraction#894158",
+            "attraction#129517"
+          ],
+          "candidate_count": 4,
+          "city_name_ko": "예천군",
+          "available_place_count": 4,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-250",
+          "city_score": 1.8923,
+          "score_breakdown": {
+            "semantic_evidence": 0.1847,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.183
+          },
+          "top_place_ids": [
+            "attraction#2756622",
+            "attraction#128738",
+            "attraction#3056661"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "상주시",
+          "available_place_count": 3,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-210",
+          "city_score": 1.8844,
+          "score_breakdown": {
+            "semantic_evidence": 0.1309,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2246
+          },
+          "top_place_ids": [
+            "attraction#130466",
+            "attraction#250357"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "속초시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-170",
+          "city_score": 1.8708,
+          "score_breakdown": {
+            "semantic_evidence": 0.6063,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.469,
+            "scale_correction": 0.048,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.2566
+          },
+          "top_place_ids": [
+            "attraction#127254",
+            "attraction#1028910",
+            "attraction#3407174",
+            "attraction#130673",
+            "attraction#129035",
+            "attraction#1958104",
+            "attraction#3412256",
+            "attraction#894027",
+            "attraction#130310",
+            "attraction#264450"
+          ],
+          "candidate_count": 12,
+          "city_name_ko": "안동시",
+          "available_place_count": 10,
+          "required_place_count": 5,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-130",
+          "city_score": 1.739,
+          "score_breakdown": {
+            "semantic_evidence": 0.111,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#2555010",
+            "attraction#2633832"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "원주시",
+          "available_place_count": 2,
+          "required_place_count": 5,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#126898",
+          "title": "강릉 통일공원",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 37.720405414010756,
+          "longitude": 128.99838139827875,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#126898",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8238,
+            "score_components": {
+              "raw_similarity": 0.1953,
+              "soft_similarity": 0.2286,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3592123",
+          "title": "디자인씽킹뮤지엄",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 37.728902037084666,
+          "longitude": 128.87433927297414,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#3592123",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.8072,
+            "score_components": {
+              "raw_similarity": 0.2265,
+              "soft_similarity": 0.1807,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#130123",
+          "title": "참소리에디슨손성목영화박물관",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 37.797827,
+          "longitude": 128.897399,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#130123",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.7363,
+            "score_components": {
+              "raw_similarity": 0.1758,
+              "soft_similarity": 0.1605,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2821072",
+          "title": "사근진해중공원 전망대",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 37.814217,
+          "longitude": 128.898362,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#2821072",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.7887,
+            "score_components": {
+              "raw_similarity": 0.2016,
+              "soft_similarity": 0.1871,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127951",
+          "title": "하슬라아트월드",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 37.7064767296551,
+          "longitude": 129.010203568499,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#127951",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.7307,
+            "score_components": {
+              "raw_similarity": 0.2003,
+              "soft_similarity": 0.1304,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2804197",
+          "title": "아르떼뮤지엄 강릉",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 37.79008946,
+          "longitude": 128.9079034181,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#2804197",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.7289,
+            "score_components": {
+              "raw_similarity": 0.1825,
+              "soft_similarity": 0.1464,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#3100746",
+          "title": "강릉시립미술관 솔올",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 37.75887118797412,
+          "longitude": 128.87959895266476,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#3100746",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.718,
+            "score_components": {
+              "raw_similarity": 0.1759,
+              "soft_similarity": 0.1421,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#130057",
+          "title": "대관령박물관",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 37.7166714248096,
+          "longitude": 128.803973138915,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#130057",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5854,
+            "score_components": {
+              "raw_similarity": 0.1854,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#129784",
+          "title": "강릉 오죽헌·시립박물관",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "latitude": 37.779138874844655,
+          "longitude": 128.87966210169768,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#129784",
+          "slot_role": "primary",
+          "assigned_theme": "역사·전통",
+          "score_audit": {
+            "place_score": 0.5802,
+            "score_components": {
+              "raw_similarity": 0.1802,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2706817",
+          "title": "강릉시립미술관 교동",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "latitude": 37.7606064277,
+          "longitude": 128.8908669769,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#2706817",
+          "slot_role": "primary",
+          "assigned_theme": "예술·감성",
+          "score_audit": {
+            "place_score": 0.5352,
+            "score_components": {
+              "raw_similarity": 0.1352,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "역사·전통",
+          "예술·감성"
+        ],
+        "searchable_place_themes": [
+          "역사·전통",
+          "예술·감성"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "역사·전통": 5,
+          "예술·감성": 5
+        },
+        "reserve_theme_counts": {
+          "역사·전통": 0,
+          "예술·감성": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 3,
+        "theme_max_quota": 5,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": false,
+        "relaxed_slots": 0,
+        "deduplicated_title_count": 1,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 10,
+        "reserve_budget": 8,
+        "itinerary_required_place_count": 5,
+        "available_place_count": 10,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "역사·전통",
+          "예술·감성"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 100,
+        "merged_candidate_count": 100,
+        "survived_city_count": 15,
+        "eliminated_cities": [
+          "KR-51-830",
+          "KR-47-770",
+          "KR-47-830",
+          "KR-51-230",
+          "KR-47-230",
+          "KR-47-760",
+          "KR-51-800",
+          "KR-47-210",
+          "KR-51-770",
+          "KR-47-840",
+          "KR-51-810",
+          "KR-47-850",
+          "KR-51-730",
+          "KR-47-190",
+          "KR-51-170",
+          "KR-51-190",
+          "KR-47-820",
+          "KR-47-940"
+        ]
+      },
+      "candidate_counts": {
+        "retrieved": 100,
+        "merged": 100,
+        "scored": 75,
+        "city_count": 15,
+        "recommended_places": 10,
+        "reserve_places": 0,
+        "available_places": 10,
+        "required_itinerary_places": 5,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "city_selection",
+          "text_ko": "강릉시는 풍부한 전통 유적과 현대 예술 공간이 조화를 이루어 차분하고 감성적인 분위기를 즐기기에 적합합니다.",
+          "evidence_refs": [
+            "city_score_rank_1",
+            "candidate_sufficiency"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "강릉 통일공원은 역사적 의미가 깊으며 조용한 산책로가 있어 여유로운 분위기를 제공합니다.",
+          "evidence_refs": [
+            "attraction#126898"
+          ],
+          "required_place_ids": [
+            "attraction#126898"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "디자인씽킹뮤지엄은 전통과 현대 디자인을 연결하는 전시가 있어 감성적인 체험을 할 수 있습니다.",
+          "evidence_refs": [
+            "attraction#3592123"
+          ],
+          "required_place_ids": [
+            "attraction#3592123"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "참소리에디슨손성목영화박물관은 과거 영화 문화와 관련된 전시가 있어 역사적 감성을 느낄 수 있습니다.",
+          "evidence_refs": [
+            "attraction#130123"
+          ],
+          "required_place_ids": [
+            "attraction#130123"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_5",
+          "scope": "place_pool",
+          "text_ko": "사근진해중공원 전망대는 바다와 도시가 어우러진 풍경을 감상하며 차분한 분위기를 만끽할 수 있습니다.",
+          "evidence_refs": [
+            "attraction#2821072"
+          ],
+          "required_place_ids": [
+            "attraction#2821072"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#126898",
+          "title": "강릉 통일공원",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "126898",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/50/3516850_image2_1.jpg",
+            "latitude": 37.720405414010756,
+            "phone": "강릉통일공원 안보전시관 033-640-4469",
+            "city_name_en": "Gangneung",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 율곡로 1715-38 통일안보전시관",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-126898",
+            "longitude": 128.99838139827875,
+            "description": "강원도 해안 중심도시인 강릉 안인진과 정동진에는 민족대립의 현장이며 전쟁의 슬픔이 숨어 있는 곳이다. 1950년 6월 25일 북한군이 최초로 남침하여 상륙한 곳이며 1996.9.18 북한잠수함이 침투하여 온 국민에게 충격을 느끼게 한 곳이다. 6·25 전쟁과 9·18 북한잠수함, 무장공비 침투 등의 아픔을 안고 있는 이곳에 평화통일을 염원하면서 국가안보의 중요성을 강조하고 안보의식을 고취하고자 군사장비를 한곳에서 볼 수 있는 대규모 전시공원인 강릉통일공원을 조성하였다. 그러나 2021년 10월, 함정전시관에 전시된 퇴역함정 ‘전북함’은 시설 노후와 안전사고 우려로 인해 해체식을 진행, 역사 속으로 사라지게 되었다. 또한 2024년 3월 경부턴 북함잠수함 역시 해군 1함대사령부로 이전하는 작업이 추진되었다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "강릉 통일공원",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#126898",
+            "overview": "강원도 해안 중심도시인 강릉 안인진과 정동진에는 민족대립의 현장이며 전쟁의 슬픔이 숨어 있는 곳이다. 1950년 6월 25일 북한군이 최초로 남침하여 상륙한 곳이며 1996.9.18 북한잠수함이 침투하여 온 국민에게 충격을 느끼게 한 곳이다. 6·25 전쟁과 9·18 북한잠수함, 무장공비 침투 등의 아픔을 안고 있는 이곳에 평화통일을 염원하면서 국가안보의 중요성을 강조하고 안보의식을 고취하고자 군사장비를 한곳에서 볼 수 있는 대규모 전시공원인 강릉통일공원을 조성하였다. 그러나 2021년 10월, 함정전시관에 전시된 퇴역함정 ‘전북함’은 시설 노후와 안전사고 우려로 인해 해체식을 진행, 역사 속으로 사라지게 되었다. 또한 2024년 3월 경부턴 북함잠수함 역시 해군 1함대사령부로 이전하는 작업이 추진되었다."
+          },
+          "latitude": 37.720405414010756,
+          "longitude": 128.99838139827875,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#126898",
+          "body": "전쟁과 평화의 역사를 담은 대규모 전시공원",
+          "reason": "강릉 통일공원은 깊은 역사적 의미와 조용한 산책로가 있어 차분한 분위기를 제공합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#3592123",
+          "title": "디자인씽킹뮤지엄",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "3592123",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "14",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/66/3592166_image2_1.jpeg",
+            "latitude": 37.728902037084666,
+            "phone": "",
+            "city_name_en": "Gangneung",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 구정면 정등로 130",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-3592123",
+            "longitude": 128.87433927297414,
+            "description": "디자인씽킹뮤지엄은 실내 전시를 중심으로 구성된 체험형 박물관으로 요즘에는 쉽게 만나기 어려운 수작업 오브제와 컬러풀한 연출이 실내 전시실 곳곳에 살아 있는 문화공간이다. 9개의 실내 전시실은 예술과 디자인, 조선시대와 고려시대 유물, 이야기 콘텐츠가 복합적으로 펼쳐지는 곳이다. 전시실뿐만 아니라 고양이, 토끼 등의 동물들과 마주할 수 있는 공간이 마련되어 있어 아이들도 즐겁게 관람 가능하다. 20여 개 이상의 체험 프로그램은 실내를 중심으로 상시 또는 연계 운영되며, 국가 공인 자격증을 보유한 학예사·교육사·문화예술교육사가 직접 지도한다. 강릉 시내에 위치하여 접근성이 좋아 여행 중에도 부담없이 방문하기 좋다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "디자인씽킹뮤지엄",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#3592123",
+            "overview": "디자인씽킹뮤지엄은 실내 전시를 중심으로 구성된 체험형 박물관으로 요즘에는 쉽게 만나기 어려운 수작업 오브제와 컬러풀한 연출이 실내 전시실 곳곳에 살아 있는 문화공간이다. 9개의 실내 전시실은 예술과 디자인, 조선시대와 고려시대 유물, 이야기 콘텐츠가 복합적으로 펼쳐지는 곳이다. 전시실뿐만 아니라 고양이, 토끼 등의 동물들과 마주할 수 있는 공간이 마련되어 있어 아이들도 즐겁게 관람 가능하다. 20여 개 이상의 체험 프로그램은 실내를 중심으로 상시 또는 연계 운영되며, 국가 공인 자격증을 보유한 학예사·교육사·문화예술교육사가 직접 지도한다. 강릉 시내에 위치하여 접근성이 좋아 여행 중에도 부담없이 방문하기 좋다."
+          },
+          "latitude": 37.728902037084666,
+          "longitude": 128.87433927297414,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#3592123",
+          "body": "수작업 오브제와 컬러풀 전시가 어우러진 체험형 박물관",
+          "reason": "디자인씽킹뮤지엄은 전통과 현대 디자인을 연결하는 전시로 감성적인 체험을 할 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#130123",
+          "title": "참소리에디슨손성목영화박물관",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "역사·전통"
+          ],
+          "details": {
+            "content_id": "130123",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "14",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/65/3496565_image2_1.jpg",
+            "latitude": 37.797827,
+            "phone": "",
+            "city_name_en": "Gangneung",
+            "theme": "역사·전통",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 경포로 393",
+            "theme_tags": [
+              "역사·전통"
+            ],
+            "entity_id": "ATT-130123",
+            "longitude": 128.897399,
+            "description": "1982년 강릉시 송정동에서 손성목관장님이 참소리방으로 설립된 이래 약 40여 년의 역사와 전통을 지니고 있다. 설립자 손성목 관장님이 세계 60여 개국을 돌며 수집한 명품축음기, 뮤직박스, 라디오, TV 등 2500점이 참소리박물관에 전시되어 있다. 참소리축음기박물관은 전시품의 성격에 따라 4개의 독립 전시관과 전용 음악 감상실이 있으며, 3층에는 경포 호수를 감상할 수 있는 전망대가 있다. 에디슨 과학박물관에는 축음기, 전구, 영사기 등 에디슨의 발명품과 유품 등 2,000여 점이 전시되어 있다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "참소리에디슨손성목영화박물관",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#130123",
+            "overview": "1982년 강릉시 송정동에서 손성목관장님이 참소리방으로 설립된 이래 약 40여 년의 역사와 전통을 지니고 있다. 설립자 손성목 관장님이 세계 60여 개국을 돌며 수집한 명품축음기, 뮤직박스, 라디오, TV 등 2500점이 참소리박물관에 전시되어 있다. 참소리축음기박물관은 전시품의 성격에 따라 4개의 독립 전시관과 전용 음악 감상실이 있으며, 3층에는 경포 호수를 감상할 수 있는 전망대가 있다. 에디슨 과학박물관에는 축음기, 전구, 영사기 등 에디슨의 발명품과 유품 등 2,000여 점이 전시되어 있다."
+          },
+          "latitude": 37.797827,
+          "longitude": 128.897399,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#130123",
+          "body": "축음기·라디오·에디슨 발명품 등 2500점 전시",
+          "reason": "이 박물관은 과거 영화 문화와 관련된 전시가 있어 역사적 감성을 느낄 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#2821072",
+          "title": "사근진해중공원 전망대",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "details": {
+            "content_id": "2821072",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3495774_image2_1.jpg",
+            "latitude": 37.814217,
+            "phone": "사근진해변 033-640-4925",
+            "city_name_en": "Gangneung",
+            "theme": "예술·감성",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 해안로604번길 16",
+            "theme_tags": [
+              "예술·감성"
+            ],
+            "entity_id": "ATT-2821072",
+            "longitude": 128.898362,
+            "description": "경포해수욕장 근처에 위치한 사근진해수욕장의 사근진 해중공원 전망대는 언뜻 보면 천사의 날개를 닮은 독특한 형태를 하고 있다. 하늘로 올라가는 듯한 느낌을 주는 계단을 따라 한 걸음씩 오르면, 에메랄드빛 사근진 해변이 한눈에 펼쳐진다. 전망대는 그리 높지 않지만, 시야가 탁 트여 있어 멀리까지 한눈에 들어오며 속이 시원하게 뚫리는 느낌을 준다. 이곳의 포인트는 빨강, 노랑, 파랑의 알록달록한 테트라포드. 푸른 바다와 어우러진 화려한 색상이 인상적이며, 인기 있는 포토존으로 사랑받고 있다. 특히 전망대 끝 모서리에서 사진을 찍기 위해 줄을 서는 모습도 자주 볼 수 있다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "사근진해중공원 전망대",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2821072",
+            "overview": "경포해수욕장 근처에 위치한 사근진해수욕장의 사근진 해중공원 전망대는 언뜻 보면 천사의 날개를 닮은 독특한 형태를 하고 있다. 하늘로 올라가는 듯한 느낌을 주는 계단을 따라 한 걸음씩 오르면, 에메랄드빛 사근진 해변이 한눈에 펼쳐진다. 전망대는 그리 높지 않지만, 시야가 탁 트여 있어 멀리까지 한눈에 들어오며 속이 시원하게 뚫리는 느낌을 준다. 이곳의 포인트는 빨강, 노랑, 파랑의 알록달록한 테트라포드. 푸른 바다와 어우러진 화려한 색상이 인상적이며, 인기 있는 포토존으로 사랑받고 있다. 특히 전망대 끝 모서리에서 사진을 찍기 위해 줄을 서는 모습도 자주 볼 수 있다."
+          },
+          "latitude": 37.814217,
+          "longitude": 128.898362,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#2821072",
+          "body": "에메랄드빛 해변을 한눈에 조망하는 색감 풍부한 전망대",
+          "reason": "사근진해중공원 전망대는 바다와 도시 풍경을 감상하며 차분한 분위기를 만끽할 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 2,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#127951",
+          "title": "하슬라아트월드",
+          "city_id": "KR-51-150",
+          "city_name_ko": "강릉시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "예술·감성"
+          ],
+          "details": {
+            "content_id": "127951",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Gangneung.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/77/3349677_image2_1.jpg",
+            "latitude": 37.7064767296551,
+            "phone": "033-644-9411",
+            "city_name_en": "Gangneung",
+            "theme": "예술·감성",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 강릉시 강동면 율곡로 1441",
+            "theme_tags": [
+              "예술·감성"
+            ],
+            "entity_id": "ATT-127951",
+            "longitude": 129.010203568499,
+            "description": "하슬라아트월드는 자연과 사람, 예술이 조화롭게 공존하는 종합예술공간이다. 3만 3천여 평의 조각공원은 ‘성성활엽길’, ‘소나무 정원’, ‘시간의 광장’, ‘바다정원’, ‘하늘전망대’, ‘돌갤러리와 소똥미술관’의 테마로 자연훼손을 최소화하기 위하여 비탈면과 산의 높이를 그대로 이용하여 손으로 직접 만들었으며 자연을 가장 아름답게 볼 수 있는 각도로 길을 내고 예술정원으로 꾸몄다. 하슬라아트월드는 국내외 작가들과 함께 하는 예술 작업 및 공연 전시 축제가 1년 내내 끊이지 않는 특별한 경험과 행복을 주는 공간이다. 실내미술관에는 현대 미술 200여 점이 전시된 ‘현대 미술관’과 유럽 각국에서 수집한 마리오네트와 피노키오 작품들이 전시된 ‘피노키오 & 마리오네트 미술관’이 있다. 하슬라 미술관은 기획전시, 초대전시, 상설전시가 진행 중이며 전시 스케줄에 따라 관람할 수 있다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마  예리가 전 연인과의 추억을 정리하는 장면의 배경이 된 곳이다. CNN이 선정한 ‘강원의 추천 명소’로, 미술품을 감상하고 자연을 배경으로 인생 사진을 찍을 수 있는 인기 관광지다. 예리가 마음을 추슬렀던 야외 전시관에 서서 바다를 바라보면 탁 트인 풍경에 답답했던 마음이 뻥 뚫리는 기분이다.",
+            "PK": "CITY#Gangneung",
+            "city_id": "KR-Gangneung",
+            "title": "하슬라아트월드",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#127951",
+            "overview": "하슬라아트월드는 자연과 사람, 예술이 조화롭게 공존하는 종합예술공간이다. 3만 3천여 평의 조각공원은 ‘성성활엽길’, ‘소나무 정원’, ‘시간의 광장’, ‘바다정원’, ‘하늘전망대’, ‘돌갤러리와 소똥미술관’의 테마로 자연훼손을 최소화하기 위하여 비탈면과 산의 높이를 그대로 이용하여 손으로 직접 만들었으며 자연을 가장 아름답게 볼 수 있는 각도로 길을 내고 예술정원으로 꾸몄다. 하슬라아트월드는 국내외 작가들과 함께 하는 예술 작업 및 공연 전시 축제가 1년 내내 끊이지 않는 특별한 경험과 행복을 주는 공간이다. 실내미술관에는 현대 미술 200여 점이 전시된 ‘현대 미술관’과 유럽 각국에서 수집한 마리오네트와 피노키오 작품들이 전시된 ‘피노키오 & 마리오네트 미술관’이 있다. 하슬라 미술관은 기획전시, 초대전시, 상설전시가 진행 중이며 전시 스케줄에 따라 관람할 수 있다.\n\n◎ 한류의 매력을 만나는 여행 정보 - 드라마  예리가 전 연인과의 추억을 정리하는 장면의 배경이 된 곳이다. CNN이 선정한 ‘강원의 추천 명소’로, 미술품을 감상하고 자연을 배경으로 인생 사진을 찍을 수 있는 인기 관광지다. 예리가 마음을 추슬렀던 야외 전시관에 서서 바다를 바라보면 탁 트인 풍경에 답답했던 마음이 뻥 뚫리는 기분이다."
+          },
+          "latitude": 37.7064767296551,
+          "longitude": 129.010203568499,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#GANGNEUNG",
+          "ddb_sk": "ATTRACTION#127951",
+          "body": "자연과 예술이 어우러진 3만3천 평 규모의 조각공원",
+          "reason": "하슬라아트월드는 자연 속에서 현대 미술을 감상할 수 있는 종합예술공간입니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "강릉시는 전통 유적과 현대 예술 공간이 조화를 이루어 차분하고 감성적인 분위기를 즐기기에 적합합니다.",
+        "다양한 역사·전통 테마의 전시와 체험 시설이 집중돼 있어 문화 탐방 일정에 잘 맞습니다."
+      ],
+      "itinerary_flow_reason": "도심 중심의 전시·박물관을 먼저 방문하고, 바다 전망대와 자연예술공원을 이어 배치해 이동 동선을 효율적으로 구성했습니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "강릉시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EA%B0%95%EB%A6%89%EC%8B%9C",
+          "query": "강릉시",
+          "city_name_ko": "강릉시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "강릉시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "강릉시 숙소",
+          "city_name_ko": "강릉시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "강릉시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "강릉시 맛집",
+          "city_name_ko": "강릉시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 5,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#126898",
+              "place:attraction#3592123",
+              "place:attraction#130123",
+              "place:attraction#2821072",
+              "place:attraction#127951"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "강릉시는 전통 유적과 현대 예술 공간이 조화를 이루어 차분하고 감성적인 분위기를 즐기기에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#126898",
+              "place:attraction#3592123",
+              "place:attraction#130123",
+              "place:attraction#2821072",
+              "place:attraction#127951"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "다양한 역사·전통 테마의 전시와 체험 시설이 집중돼 있어 문화 탐방 일정에 잘 맞습니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#126898",
+          "place:attraction#3592123",
+          "place:attraction#130123",
+          "place:attraction#2821072",
+          "place:attraction#127951"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 5,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "INV-TC-15",
+      "expiresAt": "2026-06-27T19:43:53Z",
+      "destination": {
+        "destinationId": "KR-51-150",
+        "name": "강릉시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "2d1n",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#126898",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "강릉 통일공원",
+                "body": "전쟁과 평화의 역사를 담은 대규모 전시공원",
+                "reason": "강릉 통일공원은 깊은 역사적 의미와 조용한 산책로가 있어 차분한 분위기를 제공합니다.",
+                "moveMinutes": null,
+                "latitude": 37.720405414010756,
+                "longitude": 128.99838139827875
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#3592123",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "디자인씽킹뮤지엄",
+                "body": "수작업 오브제와 컬러풀 전시가 어우러진 체험형 박물관",
+                "reason": "디자인씽킹뮤지엄은 전통과 현대 디자인을 연결하는 전시로 감성적인 체험을 할 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 37.728902037084666,
+                "longitude": 128.87433927297414
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#130123",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "참소리에디슨손성목영화박물관",
+                "body": "축음기·라디오·에디슨 발명품 등 2500점 전시",
+                "reason": "이 박물관은 과거 영화 문화와 관련된 전시가 있어 역사적 감성을 느낄 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 37.797827,
+                "longitude": 128.897399
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "items": [
+              {
+                "itemId": "item-4",
+                "contentId": "attraction#2821072",
+                "timeOfDay": "morning",
+                "sortOrder": 4,
+                "title": "사근진해중공원 전망대",
+                "body": "에메랄드빛 해변을 한눈에 조망하는 색감 풍부한 전망대",
+                "reason": "사근진해중공원 전망대는 바다와 도시 풍경을 감상하며 차분한 분위기를 만끽할 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 37.814217,
+                "longitude": 128.898362
+              },
+              {
+                "itemId": "item-5",
+                "contentId": "attraction#127951",
+                "timeOfDay": "afternoon",
+                "sortOrder": 5,
+                "title": "하슬라아트월드",
+                "body": "자연과 예술이 어우러진 3만3천 평 규모의 조각공원",
+                "reason": "하슬라아트월드는 자연 속에서 현대 미술을 감상할 수 있는 종합예술공간입니다.",
+                "moveMinutes": null,
+                "latitude": 37.7064767296551,
+                "longitude": 129.010203568499
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "history_tradition",
+          "art_sense",
+          "travelMonth:9"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "강릉시는 전통 유적과 현대 예술 공간이 조화를 이루어 차분하고 감성적인 분위기를 즐기기에 적합합니다.",
+          "다양한 역사·전통 테마의 전시와 체험 시설이 집중돼 있어 문화 탐방 일정에 잘 맞습니다."
+        ],
+        "itineraryFlowReason": "도심 중심의 전시·박물관을 먼저 방문하고, 바다 전망대와 자연예술공원을 이어 배치해 이동 동선을 효율적으로 구성했습니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EA%B0%95%EB%A6%89%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EA%B0%95%EB%A6%89%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

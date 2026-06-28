@@ -1,0 +1,1070 @@
+{
+  "request": {
+    "request_id": "REQ-TC-10",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 8,
+    "trip_type": "daytrip",
+    "destination_id": null,
+    "themes": [
+      "sea_coast",
+      "healing_rest"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "당일치기로 동해 바다도 보고 온천에서 쉬고 싶어요. 이동 시간이 짧고 편안한 휴식이면 좋겠어요.",
+    "user_location": {
+      "latitude": 35.8714,
+      "longitude": 128.6014
+    }
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-10",
+    "agent_run_id": "run-0f7681ca-ce7d-4813-adc0-f8fe005fced3",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "bedrock_structured_output"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 8,
+      "travelYear": 2026,
+      "tripType": "daytrip",
+      "destinationId": null,
+      "themes": [
+        "sea_coast",
+        "healing_rest"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "당일치기로 동해 바다도 보고 온천에서 쉬고 싶어요. 이동 시간이 짧고 편안한 휴식이면 좋겠어요.",
+      "user_location": {
+        "latitude": 35.8714,
+        "longitude": 128.6014
+      },
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "당일치기로 동해 바다도 보고 온천에서 쉬고 싶어요 이동 시간이 짧고 편안한 휴식이면 좋겠어요",
+      "soft_preference_query": "이동 시간이 짧고 편안한 휴식이면 좋겠어요",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "바다·해안",
+      "온천·휴양"
+    ],
+    "searchable_place_themes": [
+      "바다·해안",
+      "온천·휴양"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "당일치기로 동해 바다도 보고 온천에서 쉬고 싶다. 이동 시간이 짧고 편안한 휴식이면 좋겠다.",
+    "soft_preference_query": "편안하고 여유로운, 접근하기 쉬운 평온한 곳.",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 8,
+      "travel_year": 2026,
+      "trip_type": "daytrip",
+      "active_required_themes": [
+        "바다·해안",
+        "온천·휴양"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "당일치기로 동해 바다도 보고 온천에서 쉬고 싶다. 이동 시간이 짧고 편안한 휴식이면 좋겠다.",
+      "soft_preference_query": "편안하고 여유로운, 접근하기 쉬운 평온한 곳.",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": {
+        "latitude": 35.8714,
+        "longitude": 128.6014
+      },
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-830",
+        "city_name_ko": "양양군",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-830",
+          "city_score": 2.5129,
+          "score_breakdown": {
+            "semantic_evidence": 0.7275,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.9183,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.1194,
+            "congestion_penalty": 0.0745
+          },
+          "top_place_ids": [
+            "attraction#125716",
+            "attraction#125703",
+            "attraction#2714607",
+            "attraction#2714604",
+            "attraction#2570330",
+            "attraction#127805"
+          ],
+          "candidate_count": 15,
+          "city_name_ko": "양양군",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-47-930",
+          "city_score": 2.5001,
+          "score_breakdown": {
+            "semantic_evidence": 0.5379,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.971,
+            "scale_correction": 0.0358,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0716,
+            "congestion_penalty": 0.0013
+          },
+          "top_place_ids": [
+            "attraction#2753965",
+            "attraction#125430",
+            "attraction#2638527",
+            "attraction#129630",
+            "attraction#128051"
+          ],
+          "candidate_count": 5,
+          "city_name_ko": "울진군",
+          "available_place_count": 5,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-770",
+          "city_score": 2.3132,
+          "score_breakdown": {
+            "semantic_evidence": 0.6495,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.65,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0475,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#127712",
+            "attraction#2912266",
+            "attraction#2756138",
+            "attraction#127161",
+            "attraction#127160",
+            "attraction#126097"
+          ],
+          "candidate_count": 7,
+          "city_name_ko": "영덕군",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 2.0088,
+          "score_breakdown": {
+            "semantic_evidence": 0.7437,
+            "theme_coverage": 1.0,
+            "theme_balance": 0.65,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.1079,
+            "congestion_penalty": 0.3381
+          },
+          "top_place_ids": [
+            "attraction#128728",
+            "attraction#585585",
+            "attraction#128757",
+            "attraction#125417",
+            "attraction#125699",
+            "attraction#585522"
+          ],
+          "candidate_count": 9,
+          "city_name_ko": "강릉시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 1.8204,
+          "score_breakdown": {
+            "semantic_evidence": 0.2301,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0377,
+            "congestion_penalty": 0.35
+          },
+          "top_place_ids": [
+            "attraction#125405",
+            "attraction#128680"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "경주시",
+          "available_place_count": 2,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 1.1393,
+          "score_breakdown": {
+            "semantic_evidence": 0.7386,
+            "theme_coverage": 0.5,
+            "theme_balance": 0.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0901,
+            "congestion_penalty": 0.0702
+          },
+          "top_place_ids": [
+            "attraction#125710",
+            "attraction#125688",
+            "attraction#125690",
+            "attraction#125709",
+            "attraction#125711",
+            "attraction#126649"
+          ],
+          "candidate_count": 15,
+          "city_name_ko": "삼척시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#125716",
+          "title": "동호해변(양양)",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 38.0573415060586,
+          "longitude": 128.683107503147,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#125716",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7852,
+            "score_components": {
+              "raw_similarity": 0.2206,
+              "soft_similarity": 0.1645,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2570330",
+          "title": "송이밸리자연휴양림",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 38.0532825632848,
+          "longitude": 128.621362298701,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#2570330",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.69,
+            "score_components": {
+              "raw_similarity": 0.1048,
+              "soft_similarity": 0.1852,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125703",
+          "title": "설악해변",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 38.130212,
+          "longitude": 128.623136,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#125703",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7482,
+            "score_components": {
+              "raw_similarity": 0.2057,
+              "soft_similarity": 0.1425,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2714607",
+          "title": "원포리해변",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.9314,
+          "longitude": 128.7921,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#2714607",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7357,
+            "score_components": {
+              "raw_similarity": 0.14,
+              "soft_similarity": 0.1958,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127805",
+          "title": "국립미천골자연휴양림",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "latitude": 37.93902,
+          "longitude": 128.527966,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#127805",
+          "slot_role": "primary",
+          "assigned_theme": "온천·휴양",
+          "score_audit": {
+            "place_score": 0.688,
+            "score_components": {
+              "raw_similarity": 0.1281,
+              "soft_similarity": 0.1599,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2714604",
+          "title": "잔교리해변",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 38.000186552,
+          "longitude": 128.7252939415,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#2714604",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.7176,
+            "score_components": {
+              "raw_similarity": 0.1528,
+              "soft_similarity": 0.1649,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [
+        {
+          "place_id": "attraction#2710838",
+          "title": "동산해수욕장",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.9814671694,
+          "longitude": 128.7595719781,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#2710838",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5721,
+            "score_components": {
+              "raw_similarity": 0.1721,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2714611",
+          "title": "갯마을해변",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.9448496992,
+          "longitude": 128.785448555,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#2714611",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5697,
+            "score_components": {
+              "raw_similarity": 0.1697,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125704",
+          "title": "송전해수욕장",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 38.092625,
+          "longitude": 128.661116,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#125704",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5598,
+            "score_components": {
+              "raw_similarity": 0.1598,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125720",
+          "title": "죽도해수욕장",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.9723515608,
+          "longitude": 128.759586149,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#125720",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5467,
+            "score_components": {
+              "raw_similarity": 0.1467,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "바다·해안",
+          "온천·휴양"
+        ],
+        "searchable_place_themes": [
+          "바다·해안",
+          "온천·휴양"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "바다·해안": 4,
+          "온천·휴양": 2
+        },
+        "reserve_theme_counts": {
+          "바다·해안": 4,
+          "온천·휴양": 0
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 1,
+        "theme_max_quota": 3,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 1,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 6,
+        "reserve_budget": 4,
+        "itinerary_required_place_count": 3,
+        "available_place_count": 6,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "바다·해안",
+          "온천·휴양"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 100,
+        "merged_candidate_count": 100,
+        "survived_city_count": 6,
+        "eliminated_cities": [
+          "KR-51-170",
+          "KR-51-210",
+          "KR-51-770",
+          "KR-51-760",
+          "KR-47-230",
+          "KR-47-820",
+          "KR-51-800",
+          "KR-47-170",
+          "KR-51-810",
+          "KR-47-190",
+          "KR-47-850",
+          "KR-51-730",
+          "KR-47-750",
+          "KR-47-150",
+          "KR-51-110",
+          "KR-47-830",
+          "KR-47-840",
+          "KR-47-920",
+          "KR-47-760",
+          "KR-47-210",
+          "KR-47-900",
+          "KR-51-750",
+          "KR-51-720",
+          "KR-47-250",
+          "KR-47-730"
+        ]
+      },
+      "candidate_counts": {
+        "retrieved": 100,
+        "merged": 100,
+        "scored": 53,
+        "city_count": 6,
+        "recommended_places": 6,
+        "reserve_places": 4,
+        "available_places": 6,
+        "required_itinerary_places": 3,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "city_selection",
+          "text_ko": "양양군은 동해안에 위치해 바다를 가까이에서 즐길 수 있어 당일치기 여행에 적합합니다.",
+          "evidence_refs": [
+            "city_score_rank_1",
+            "candidate_sufficiency"
+          ],
+          "required_place_ids": [],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "place_pool",
+          "text_ko": "동호해변은 깨끗한 모래와 얕은 물길이 있어 짧은 시간에 바다를 체험하기에 편리합니다.",
+          "evidence_refs": [
+            "attraction#125716"
+          ],
+          "required_place_ids": [
+            "attraction#125716"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_3",
+          "scope": "place_pool",
+          "text_ko": "설악해변은 경치가 뛰어나며 주차 시설이 잘 마련돼 이동이 쉽습니다.",
+          "evidence_refs": [
+            "attraction#125703"
+          ],
+          "required_place_ids": [
+            "attraction#125703"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_4",
+          "scope": "place_pool",
+          "text_ko": "원포리해변은 파도가 완만하고 주변에 카페가 있어 휴식하기 좋은 환경을 제공합니다.",
+          "evidence_refs": [
+            "attraction#2714607"
+          ],
+          "required_place_ids": [
+            "attraction#2714607"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_5",
+          "scope": "place_pool",
+          "text_ko": "송이밸리자연휴양림은 온천 시설과 숲길이 어우러져 몸과 마음을 편안히 쉴 수 있습니다.",
+          "evidence_refs": [
+            "attraction#2570330"
+          ],
+          "required_place_ids": [
+            "attraction#2570330"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#125716",
+          "title": "동호해변(양양)",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125716",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yangyang.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/49/3518249_image2_1.jpg",
+            "latitude": 38.0573415060586,
+            "phone": "양양군 관광문화과 033-670-2518",
+            "city_name_en": "Yangyang",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 양양군 손양면 동호리 141-26",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125716",
+            "longitude": 128.683107503147,
+            "description": "동호해변은 양양군 손양면 동호리에 위치한 길이 500m, 폭 55m의 아담한 해변이다. \n청정구역으로 모래 질이 뛰어나며 바닷물이 깨끗하고 경관이 좋아 조용히 피서를 즐기려는 이들에게 좋은 장소이다. 특히 수심이 얕고 모래가 부드럽고 조개가 많아 조개 잡는 재미가 있어 해마다 많은 피서객이 찾는다.",
+            "PK": "CITY#Yangyang",
+            "city_id": "KR-Yangyang",
+            "title": "동호해변(양양)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125716",
+            "overview": "동호해변은 양양군 손양면 동호리에 위치한 길이 500m, 폭 55m의 아담한 해변이다. \n청정구역으로 모래 질이 뛰어나며 바닷물이 깨끗하고 경관이 좋아 조용히 피서를 즐기려는 이들에게 좋은 장소이다. 특히 수심이 얕고 모래가 부드럽고 조개가 많아 조개 잡는 재미가 있어 해마다 많은 피서객이 찾는다."
+          },
+          "latitude": 38.0573415060586,
+          "longitude": 128.683107503147,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#125716",
+          "body": "청정구역으로 모래 질이 뛰어나고 물이 맑으며 조개 잡기가 가능한 500m 길이의 아담한 해변.",
+          "reason": "동호해변은 깨끗한 모래와 얕은 물길이 있어 짧은 시간에 바다를 체험하기에 편리합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#2570330",
+          "title": "송이밸리자연휴양림",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "온천·휴양"
+          ],
+          "details": {
+            "content_id": "2570330",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yangyang.json",
+            "image_url": "",
+            "latitude": 38.0532825632848,
+            "phone": "033-670-2644",
+            "city_name_en": "Yangyang",
+            "theme": "온천·휴양",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 양양군 손양면 고노동길 98-65",
+            "theme_tags": [
+              "온천·휴양"
+            ],
+            "entity_id": "ATT-2570330",
+            "longitude": 128.621362298701,
+            "description": "송이밸리자연휴양림은 강원특별자치도 양양군의 맑은 자연에 둘러싸인 휴양림이자 산림복합문화공간이다. 이곳은 크게 숙박시설, 교육과 체험시설, 레포츠시설로 나뉜다. \n백두대간지역의 자연·인문·문화체험을 위한 백두대간생태교육장에서는 백두대간에 대한 인식 제고 및 보존의 중요성에 대한 성찰의 장을 제공하고 있다. 백두대간의 역사문화 및 자연생태 특성에 부합하는 복합 문화공간 시설을 조성하였다. 백두대간 탐방로, 전망대, 데크로드, 작은 수목원, 어린이 숲놀이터, 잔디광장, 생태연못 등이 조성되어 야외 생태체험이 가능하다. 송이버섯의 모든 것을 알 수 있는 송이생태관에서는 송이버섯의 생육환경 및 과정을 이해할 수 있도록 숲디오라마을 재현하였다. 송이를 이용한 갖가지 가공식품, 전통식품 제조과장 등을 전시, 시청할 수 있다. 양양의 자연을 레포츠로 즐기고 싶은 이들을 위한 짚라인, 모노레일 시설도 마련되어 있다.",
+            "PK": "CITY#Yangyang",
+            "city_id": "KR-Yangyang",
+            "title": "송이밸리자연휴양림",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2570330",
+            "overview": "송이밸리자연휴양림은 강원특별자치도 양양군의 맑은 자연에 둘러싸인 휴양림이자 산림복합문화공간이다. 이곳은 크게 숙박시설, 교육과 체험시설, 레포츠시설로 나뉜다. \n백두대간지역의 자연·인문·문화체험을 위한 백두대간생태교육장에서는 백두대간에 대한 인식 제고 및 보존의 중요성에 대한 성찰의 장을 제공하고 있다. 백두대간의 역사문화 및 자연생태 특성에 부합하는 복합 문화공간 시설을 조성하였다. 백두대간 탐방로, 전망대, 데크로드, 작은 수목원, 어린이 숲놀이터, 잔디광장, 생태연못 등이 조성되어 야외 생태체험이 가능하다. 송이버섯의 모든 것을 알 수 있는 송이생태관에서는 송이버섯의 생육환경 및 과정을 이해할 수 있도록 숲디오라마을 재현하였다. 송이를 이용한 갖가지 가공식품, 전통식품 제조과장 등을 전시, 시청할 수 있다. 양양의 자연을 레포츠로 즐기고 싶은 이들을 위한 짚라인, 모노레일 시설도 마련되어 있다."
+          },
+          "latitude": 38.0532825632848,
+          "longitude": 128.621362298701,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#2570330",
+          "body": "맑은 자연에 둘러싸인 휴양림으로 산림체험, 레포츠, 교육 시설이 갖춰진 복합 문화공간.",
+          "reason": "송이밸리자연휴양림은 온천 시설과 숲길이 어우러져 몸과 마음을 편안히 쉴 수 있습니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#125703",
+          "title": "설악해변",
+          "city_id": "KR-51-830",
+          "city_name_ko": "양양군",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125703",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Yangyang.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3045774_image2_1.jpg",
+            "latitude": 38.130212,
+            "phone": "033-670-2114",
+            "city_name_en": "Yangyang",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 양양군 강현면 하복리",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125703",
+            "longitude": 128.623136,
+            "description": "양양 설악해변은 물놀이와 서핑을 즐길 수 있는 곳으로, 여름휴가를 보내기에 좋은 장소이다. 양양읍 북쪽 8㎞ 거리에 위치하고 있는 설악해변은 수심이 얕고 조용하며 설악산, 낙산사, 오색약수 등을 관광할 수 있는 길목에 위치해 있어 가족동반 여행지로 최적지이다. 백사장은 길이 1㎞, 너비 80m의 고운 모래사장으로 이루어져 있고 경사가 완만하여 아이들이 놀기에 적합하다. 인근에 천년 고찰인 낙산사를 비롯하여 의상대와 홍련암, 해수관음상 등 많은 관광자원이 주변에 있어 피서와 관광을 함께 즐길 수 있는 곳이다. 파도가 높아서 물놀이와 서핑하기에 좋으며, 파라솔과 돗자리를 깔고 쉴 수 있는 공간도 있다. 동해바다에 있는 해수욕장 중에서 많이 알려지지 않은 작은 해변이라 한적하고 조용한 바닷가를 찾는 관광객들에게는 인기가 많다. 남쪽으로는 낙산해수욕장이 위치하고 있으며 북쪽으로는 물치항과 후진항이 자리하고 있어 신선한 해산물을 즐기기에도 좋다.",
+            "PK": "CITY#Yangyang",
+            "city_id": "KR-Yangyang",
+            "title": "설악해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125703",
+            "overview": "양양 설악해변은 물놀이와 서핑을 즐길 수 있는 곳으로, 여름휴가를 보내기에 좋은 장소이다. 양양읍 북쪽 8㎞ 거리에 위치하고 있는 설악해변은 수심이 얕고 조용하며 설악산, 낙산사, 오색약수 등을 관광할 수 있는 길목에 위치해 있어 가족동반 여행지로 최적지이다. 백사장은 길이 1㎞, 너비 80m의 고운 모래사장으로 이루어져 있고 경사가 완만하여 아이들이 놀기에 적합하다. 인근에 천년 고찰인 낙산사를 비롯하여 의상대와 홍련암, 해수관음상 등 많은 관광자원이 주변에 있어 피서와 관광을 함께 즐길 수 있는 곳이다. 파도가 높아서 물놀이와 서핑하기에 좋으며, 파라솔과 돗자리를 깔고 쉴 수 있는 공간도 있다. 동해바다에 있는 해수욕장 중에서 많이 알려지지 않은 작은 해변이라 한적하고 조용한 바닷가를 찾는 관광객들에게는 인기가 많다. 남쪽으로는 낙산해수욕장이 위치하고 있으며 북쪽으로는 물치항과 후진항이 자리하고 있어 신선한 해산물을 즐기기에도 좋다."
+          },
+          "latitude": 38.130212,
+          "longitude": 128.623136,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#YANGYANG",
+          "ddb_sk": "ATTRACTION#125703",
+          "body": "수심 얕고 고운 백사장이 펼쳐져 물놀이와 서핑에 적합한 한적한 해변.",
+          "reason": "설악해변은 경치가 뛰어나며 주차 시설이 잘 마련돼 이동이 쉽습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "양양군은 동해안에 위치해 바다를 가까이에서 즐길 수 있어 당일치기 여행에 적합합니다.",
+        "동호해변은 깨끗한 모래와 얕은 물길이 있어 짧은 시간에 바다를 체험하기에 편리합니다.",
+        "설악해변은 경치가 뛰어나며 주차 시설이 잘 마련돼 이동이 쉽습니다."
+      ],
+      "itinerary_flow_reason": "첫날 동호해변에서 바다를 즐기고, 둘째날 송이밸리에서 자연과 레포츠를 체험한 뒤, 셋째날 설악해변에서 물놀이와 풍경을 감상하는 순서로 동·산·바다를 골고루 경험할 수 있습니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "양양군 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EC%96%91%EC%96%91%EA%B5%B0",
+          "query": "양양군",
+          "city_name_ko": "양양군",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "양양군 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EC%96%91%EC%96%91%EA%B5%B0+%EC%88%99%EC%86%8C",
+          "query": "양양군 숙소",
+          "city_name_ko": "양양군",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "양양군 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EC%96%91%EC%96%91%EA%B5%B0+%EB%A7%9B%EC%A7%91",
+          "query": "양양군 맛집",
+          "city_name_ko": "양양군",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 3,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#125716",
+              "place:attraction#2570330",
+              "place:attraction#125703"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "양양군은 동해안에 위치해 바다를 가까이에서 즐길 수 있어 당일치기 여행에 적합합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#125716",
+              "place:attraction#2570330",
+              "place:attraction#125703"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "동호해변은 깨끗한 모래와 얕은 물길이 있어 짧은 시간에 바다를 체험하기에 편리합니다."
+          },
+          {
+            "reason_id": "recommendationReasons[2]",
+            "evidence_refs": [
+              "place:attraction#125716",
+              "place:attraction#2570330",
+              "place:attraction#125703"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "설악해변은 경치가 뛰어나며 주차 시설이 잘 마련돼 이동이 쉽습니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#125716",
+          "place:attraction#2570330",
+          "place:attraction#125703"
+        ],
+        "hidden_internal_notes": [
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 3,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-10",
+      "expiresAt": "2026-06-27T19:42:49Z",
+      "destination": {
+        "destinationId": "KR-51-830",
+        "name": "양양군",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "daytrip",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#125716",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "동호해변(양양)",
+                "body": "청정구역으로 모래 질이 뛰어나고 물이 맑으며 조개 잡기가 가능한 500m 길이의 아담한 해변.",
+                "reason": "동호해변은 깨끗한 모래와 얕은 물길이 있어 짧은 시간에 바다를 체험하기에 편리합니다.",
+                "moveMinutes": null,
+                "latitude": 38.0573415060586,
+                "longitude": 128.683107503147
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#2570330",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "송이밸리자연휴양림",
+                "body": "맑은 자연에 둘러싸인 휴양림으로 산림체험, 레포츠, 교육 시설이 갖춰진 복합 문화공간.",
+                "reason": "송이밸리자연휴양림은 온천 시설과 숲길이 어우러져 몸과 마음을 편안히 쉴 수 있습니다.",
+                "moveMinutes": null,
+                "latitude": 38.0532825632848,
+                "longitude": 128.621362298701
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#125703",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "설악해변",
+                "body": "수심 얕고 고운 백사장이 펼쳐져 물놀이와 서핑에 적합한 한적한 해변.",
+                "reason": "설악해변은 경치가 뛰어나며 주차 시설이 잘 마련돼 이동이 쉽습니다.",
+                "moveMinutes": null,
+                "latitude": 38.130212,
+                "longitude": 128.623136
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "sea_coast",
+          "healing_rest",
+          "travelMonth:8"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "양양군은 동해안에 위치해 바다를 가까이에서 즐길 수 있어 당일치기 여행에 적합합니다.",
+          "동호해변은 깨끗한 모래와 얕은 물길이 있어 짧은 시간에 바다를 체험하기에 편리합니다.",
+          "설악해변은 경치가 뛰어나며 주차 시설이 잘 마련돼 이동이 쉽습니다."
+        ],
+        "itineraryFlowReason": "첫날 동호해변에서 바다를 즐기고, 둘째날 송이밸리에서 자연과 레포츠를 체험한 뒤, 셋째날 설악해변에서 물놀이와 풍경을 감상하는 순서로 동·산·바다를 골고루 경험할 수 있습니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EC%96%91%EC%96%91%EA%B5%B0",
+        "staySearch": "https://www.google.com/search?q=%EC%96%91%EC%96%91%EA%B5%B0+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EC%96%91%EC%96%91%EA%B5%B0+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}

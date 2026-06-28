@@ -1,0 +1,1026 @@
+{
+  "request": {
+    "request_id": "REQ-TC-19",
+    "entry_type": "chat",
+    "country": "KR",
+    "travel_year": 2026,
+    "travel_month": 6,
+    "trip_type": "daytrip",
+    "destination_id": null,
+    "themes": [
+      "sea_coast"
+    ],
+    "include_festivals": false,
+    "natural_language_query": "바다",
+    "user_location": null
+  },
+  "conversation": {
+    "messages": [],
+    "conversation_summary": null,
+    "turn_index": 0,
+    "session_id": null
+  },
+  "trace": {
+    "recommendation_request_id": "REQ-TC-19",
+    "agent_run_id": "run-b45e375c-7cdd-4447-b195-79d1cd3be898",
+    "node_timings": {
+      "visited_nodes": [
+        "intent_agent",
+        "supervisor_router",
+        "candidate_evidence_agent",
+        "supervisor_router",
+        "planner_agent",
+        "supervisor_router",
+        "response_packager"
+      ],
+      "intent_mode": "deterministic_short_query"
+    }
+  },
+  "intent": {
+    "extracted_inputs": {
+      "entryType": "chat",
+      "country": "KR",
+      "travelMonth": 6,
+      "travelYear": 2026,
+      "tripType": "daytrip",
+      "destinationId": null,
+      "themes": [
+        "sea_coast"
+      ],
+      "includeFestivals": false,
+      "naturalLanguageQuery": "바다",
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "cleaned_raw_query": "",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    },
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "searchable_place_themes": [
+      "바다·해안"
+    ],
+    "external_link_themes": [],
+    "cleaned_raw_query": "",
+    "soft_preference_query": "",
+    "unsupported_conditions": [],
+    "candidate_evidence_input": {
+      "country": "KR",
+      "travel_month": 6,
+      "travel_year": 2026,
+      "trip_type": "daytrip",
+      "active_required_themes": [
+        "바다·해안"
+      ],
+      "include_festivals": false,
+      "cleaned_raw_query": "",
+      "soft_preference_query": "",
+      "unsupported_conditions": [],
+      "destination_id": null,
+      "user_location": null,
+      "execution_mode": "city_discovery",
+      "fixed_city_id": null,
+      "city_anchor": null
+    }
+  },
+  "routing": {
+    "next_node": "response_packager",
+    "fulfilled_matrix": {
+      "evidence": "O",
+      "festival": "N/A",
+      "planning": "O"
+    },
+    "validation_retry_count": 0,
+    "needs_clarification": false,
+    "clarifying_question": null
+  },
+  "evidence": {
+    "candidate_evidence_package": {
+      "status": "ok",
+      "failure_signals": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "mode": "city_discovery",
+      "selected_city": {
+        "city_id": "KR-51-170",
+        "city_name_ko": "동해시",
+        "country": "KR",
+        "selection_reason_code": [
+          "city_score_rank_1",
+          "candidate_sufficiency"
+        ]
+      },
+      "city_anchor": null,
+      "city_rankings": [
+        {
+          "city_id": "KR-51-170",
+          "city_score": 2.6226,
+          "score_breakdown": {
+            "semantic_evidence": 0.6264,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0649
+          },
+          "top_place_ids": [
+            "attraction#2716757",
+            "attraction#125713",
+            "attraction#2710184",
+            "attraction#125718",
+            "attraction#127713",
+            "attraction#2714641"
+          ],
+          "candidate_count": 9,
+          "city_name_ko": "동해시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": true
+        },
+        {
+          "city_id": "KR-51-830",
+          "city_score": 2.6219,
+          "score_breakdown": {
+            "semantic_evidence": 0.6145,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0537
+          },
+          "top_place_ids": [
+            "attraction#125703",
+            "attraction#125716",
+            "attraction#2702823",
+            "attraction#2714611",
+            "attraction#125685",
+            "attraction#2710820"
+          ],
+          "candidate_count": 8,
+          "city_name_ko": "양양군",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-230",
+          "city_score": 2.5874,
+          "score_breakdown": {
+            "semantic_evidence": 0.5831,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0568
+          },
+          "top_place_ids": [
+            "attraction#125690",
+            "attraction#125688",
+            "attraction#125710",
+            "attraction#125709",
+            "attraction#127727",
+            "attraction#129582"
+          ],
+          "candidate_count": 7,
+          "city_name_ko": "삼척시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-130",
+          "city_score": 2.5662,
+          "score_breakdown": {
+            "semantic_evidence": 0.6052,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.1
+          },
+          "top_place_ids": [
+            "attraction#2756648",
+            "attraction#3569951",
+            "attraction#128680",
+            "attraction#129161",
+            "attraction#126095",
+            "attraction#128679"
+          ],
+          "candidate_count": 6,
+          "city_name_ko": "경주시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-150",
+          "city_score": 2.5661,
+          "score_breakdown": {
+            "semantic_evidence": 0.6025,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0389,
+            "candidate_sufficiency": 0.1,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0974
+          },
+          "top_place_ids": [
+            "attraction#125697",
+            "attraction#128757",
+            "attraction#2946241",
+            "attraction#585605",
+            "attraction#585542",
+            "attraction#125696"
+          ],
+          "candidate_count": 13,
+          "city_name_ko": "강릉시",
+          "available_place_count": 6,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-770",
+          "city_score": 2.2383,
+          "score_breakdown": {
+            "semantic_evidence": 0.3096,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0277,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0435
+          },
+          "top_place_ids": [
+            "attraction#2614528",
+            "attraction#126104",
+            "attraction#2773405"
+          ],
+          "candidate_count": 3,
+          "city_name_ko": "영덕군",
+          "available_place_count": 3,
+          "required_place_count": 3,
+          "itinerary_sufficient": true,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-940",
+          "city_score": 2.202,
+          "score_breakdown": {
+            "semantic_evidence": 0.224,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.022,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0
+          },
+          "top_place_ids": [
+            "attraction#2614704",
+            "attraction#264502"
+          ],
+          "candidate_count": 2,
+          "city_name_ko": "울릉군",
+          "available_place_count": 2,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-47-930",
+          "city_score": 2.0375,
+          "score_breakdown": {
+            "semantic_evidence": 0.0974,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.046
+          },
+          "top_place_ids": [
+            "attraction#2753965"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "울진군",
+          "available_place_count": 1,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        },
+        {
+          "city_id": "KR-51-210",
+          "city_score": 2.0066,
+          "score_breakdown": {
+            "semantic_evidence": 0.0957,
+            "theme_coverage": 1.0,
+            "theme_balance": 1.0,
+            "scale_correction": 0.0139,
+            "candidate_sufficiency": 0.0,
+            "distance_penalty": 0.0,
+            "congestion_penalty": 0.0752
+          },
+          "top_place_ids": [
+            "attraction#2714645"
+          ],
+          "candidate_count": 1,
+          "city_name_ko": "속초시",
+          "available_place_count": 1,
+          "required_place_count": 3,
+          "itinerary_sufficient": false,
+          "selected": false
+        }
+      ],
+      "recommended_places": [
+        {
+          "place_id": "attraction#2716757",
+          "title": "하평해변(동해)",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5335842697,
+          "longitude": 129.1164092756,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2716757",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6389,
+            "score_components": {
+              "raw_similarity": 0.2389,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125713",
+          "title": "망상해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5922143704,
+          "longitude": 129.0896411696,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#125713",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6339,
+            "score_components": {
+              "raw_similarity": 0.2339,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2710184",
+          "title": "한섬해변&한섬감성바닷길",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5211569389572,
+          "longitude": 129.121740306786,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2710184",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6303,
+            "score_components": {
+              "raw_similarity": 0.2303,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125718",
+          "title": "노봉해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5881665717,
+          "longitude": 129.1014311557,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#125718",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6259,
+            "score_components": {
+              "raw_similarity": 0.2259,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#127713",
+          "title": "추암해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.4794635856,
+          "longitude": 129.1602375728,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#127713",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6224,
+            "score_components": {
+              "raw_similarity": 0.2224,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2714641",
+          "title": "감추해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5147300379022,
+          "longitude": 129.12675391491,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2714641",
+          "slot_role": "primary",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.6069,
+            "score_components": {
+              "raw_similarity": 0.2069,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "reserve_places": [
+        {
+          "place_id": "attraction#2714642",
+          "title": "고불개해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5277366978172,
+          "longitude": 129.121701216105,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2714642",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5845,
+            "score_components": {
+              "raw_similarity": 0.1845,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#125708",
+          "title": "어달해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5670832421,
+          "longitude": 129.1193024261,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#125708",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5755,
+            "score_components": {
+              "raw_similarity": 0.1755,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        },
+        {
+          "place_id": "attraction#2774430",
+          "title": "대진 해수욕장",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "latitude": 37.5810009497,
+          "longitude": 129.1125692666,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2774430",
+          "slot_role": "reserve",
+          "assigned_theme": "바다·해안",
+          "score_audit": {
+            "place_score": 0.5735,
+            "score_components": {
+              "raw_similarity": 0.1735,
+              "soft_similarity": 0.0,
+              "theme_match_score": 0.2,
+              "source_quality_score": 0.2,
+              "local_distance_penalty": 0.0
+            }
+          }
+        }
+      ],
+      "festival_candidates": [],
+      "selected_festival_candidates": [],
+      "festival_seed_audit": {},
+      "coverage_audit": {
+        "required_themes": [
+          "바다·해안"
+        ],
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "primary_theme_counts": {
+          "바다·해안": 6
+        },
+        "reserve_theme_counts": {
+          "바다·해안": 3
+        },
+        "candidate_sufficiency": "sufficient",
+        "theme_min_quota": 3,
+        "theme_max_quota": 3,
+        "min_quota_shortfalls": {},
+        "max_quota_relaxed": true,
+        "relaxed_slots": 3,
+        "deduplicated_title_count": 0,
+        "unfilled_primary_slots": 0,
+        "primary_budget": 6,
+        "reserve_budget": 4,
+        "itinerary_required_place_count": 3,
+        "available_place_count": 6,
+        "reserve_places_considered": false,
+        "itinerary_sufficiency": "sufficient"
+      },
+      "retrieval_audit": {
+        "mode": "city_discovery",
+        "searchable_place_themes": [
+          "바다·해안"
+        ],
+        "external_link_themes": [],
+        "fixed_city_id": null,
+        "retrieved_candidate_count": 50,
+        "merged_candidate_count": 50,
+        "survived_city_count": 9,
+        "eliminated_cities": []
+      },
+      "candidate_counts": {
+        "retrieved": 50,
+        "merged": 50,
+        "scored": 50,
+        "city_count": 9,
+        "recommended_places": 6,
+        "reserve_places": 3,
+        "available_places": 6,
+        "required_itinerary_places": 3,
+        "reserve_places_considered_for_itinerary": false
+      },
+      "warnings": {},
+      "fallback_audit": {
+        "planner_consumable": true,
+        "status_reason": "ok",
+        "festival_seed_applied": false,
+        "selected_city_rank": 1,
+        "city_reselected_for_itinerary_capacity": false
+      },
+      "candidate_reason_claims": [
+        {
+          "claim_id": "claim_1",
+          "scope": "city_selection",
+          "text_ko": "동해시는 하평해변, 망상해변, 한섬해변 등 다양한 해변이 가까이에 있어 바다·해안 테마를 즐기기에 최적의 도시입니다.",
+          "evidence_refs": [
+            "attraction#2716757",
+            "attraction#125713",
+            "attraction#2710184"
+          ],
+          "required_place_ids": [
+            "attraction#2716757",
+            "attraction#125713",
+            "attraction#2710184"
+          ],
+          "public_eligible": true
+        },
+        {
+          "claim_id": "claim_2",
+          "scope": "city_selection",
+          "text_ko": "노봉해변과 추암해변은 깨끗한 모래와 풍부한 해양 경관을 제공해 동해시를 바다를 선호하는 여행자에게 매력적인 선택지로 만듭니다.",
+          "evidence_refs": [
+            "attraction#125718",
+            "attraction#127713"
+          ],
+          "required_place_ids": [
+            "attraction#125718",
+            "attraction#127713"
+          ],
+          "public_eligible": true
+        }
+      ]
+    },
+    "selected_destination": null
+  },
+  "festival": {
+    "festival_verifications": []
+  },
+  "planning": {
+    "planner_output": {
+      "itinerary": [
+        {
+          "day": 1,
+          "slot": "morning",
+          "item_type": "attraction",
+          "placeId": "attraction#2716757",
+          "title": "하평해변(동해)",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "2716757",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Donghae.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/20/3339020_image2_1.jpg",
+            "latitude": 37.5335842697,
+            "phone": "033-530-2232",
+            "city_name_en": "Donghae",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 동해시 평릉동 40-1",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-2716757",
+            "longitude": 129.1164092756,
+            "description": "동해 고속버스터미널에서 도보로 20분, 차량으로 10분 이내의 위치에 펼쳐져 있는 ‘하평해변’은 수심이 얕고 맑은 바다색으로 뒤에 펼쳐진 해송 숲과 함께 조용하고 고즈넉한 분위기를 자아낸다. 때문에 가족단위의 관광객들이 많이 찾으며 해수욕을 즐기거나 휴식을 취하기도 한다. 동해시 평릉동에 위치해 있으며 길이 200m, 폭 20m의 규모로 하얀 백사장과 함께 푸른 바다가 펼쳐져 있다. ‘하평해변’은 둥근 해변에 갯바위들이 멋진 절경으로 늘어서 있는데, 이 바위들이 방파제 역할을 해 거센 파도를 막아주고 아이들이 편안하게 물놀이를 즐길 수도 있다. 바위에는 종종 홍합이 붙어있거나 게들이 걸어 다니는 모습, 따개비들이 널려있는 모습 등을 볼 수 있어 생태체험을 하기에도 좋다.",
+            "PK": "CITY#Donghae",
+            "city_id": "KR-Donghae",
+            "title": "하평해변(동해)",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2716757",
+            "overview": "동해 고속버스터미널에서 도보로 20분, 차량으로 10분 이내의 위치에 펼쳐져 있는 ‘하평해변’은 수심이 얕고 맑은 바다색으로 뒤에 펼쳐진 해송 숲과 함께 조용하고 고즈넉한 분위기를 자아낸다. 때문에 가족단위의 관광객들이 많이 찾으며 해수욕을 즐기거나 휴식을 취하기도 한다. 동해시 평릉동에 위치해 있으며 길이 200m, 폭 20m의 규모로 하얀 백사장과 함께 푸른 바다가 펼쳐져 있다. ‘하평해변’은 둥근 해변에 갯바위들이 멋진 절경으로 늘어서 있는데, 이 바위들이 방파제 역할을 해 거센 파도를 막아주고 아이들이 편안하게 물놀이를 즐길 수도 있다. 바위에는 종종 홍합이 붙어있거나 게들이 걸어 다니는 모습, 따개비들이 널려있는 모습 등을 볼 수 있어 생태체험을 하기에도 좋다."
+          },
+          "latitude": 37.5335842697,
+          "longitude": 129.1164092756,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2716757",
+          "body": "수심 얕고 맑은 바다와 해송 숲이 어우러진 조용한 해변",
+          "reason": "가족 단위 여행객이 편안히 물놀이와 휴식을 즐기기에 적합합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "afternoon",
+          "item_type": "attraction",
+          "placeId": "attraction#125713",
+          "title": "망상해변",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "125713",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Donghae.json",
+            "image_url": "http://tong.visitkorea.or.kr/cms/resource/40/2671440_image2_1.jpg",
+            "latitude": 37.5922686461,
+            "phone": "033-530-2800",
+            "city_name_en": "Donghae",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 동해시 동해대로 6270-10",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-125713",
+            "longitude": 129.0896709728,
+            "description": "망상해변은 묵호항에서 북쪽으로 3㎞쯤 떨어져 있는 국민관광지로서 부근의 옥계, 경포 등과 함께 동해안의 유명 관광지이다. 넓은 백사장과 울창한 송림(수령 20~30년), 청정한 해수, 얕은 수심(경사도 2~4도, 평균 물 깊이 0.5~1.5m) 등 동해안 해수욕장  중 가장 넓고 쾌적한 환경을 갖추었으며, 주차장, 야영장, 샤워장, 공중화장실 등과 각종 편의시설이 잘 갖춰져 있어 관광객들이 이용하기에 편리하다.\n해수욕장 바로 위에는 오토캠핑장이 있어 가족단위 관광객들에게 인기가 있다. 인근 천곡 자연동굴, 무릉계곡과 추암 촛대바위를 비롯하여 남쪽으로 간이 해수욕장(노봉, 대진, 어달, 한섬, 감추, 추암 해수욕장)이 즐비하다. 인근의 묵호항과 더불어 강릉~삼척을 잇는 해안 관광지 중 하나이며 오징어, 소라, 해삼, 멍게, 광어 등의 풍부한 해산물로 풍요로움과 넉넉함이 묻어난다.",
+            "PK": "CITY#Donghae",
+            "city_id": "KR-Donghae",
+            "title": "망상해변",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#125713",
+            "overview": "망상해변은 묵호항에서 북쪽으로 3㎞쯤 떨어져 있는 국민관광지로서 부근의 옥계, 경포 등과 함께 동해안의 유명 관광지이다. 넓은 백사장과 울창한 송림(수령 20~30년), 청정한 해수, 얕은 수심(경사도 2~4도, 평균 물 깊이 0.5~1.5m) 등 동해안 해수욕장  중 가장 넓고 쾌적한 환경을 갖추었으며, 주차장, 야영장, 샤워장, 공중화장실 등과 각종 편의시설이 잘 갖춰져 있어 관광객들이 이용하기에 편리하다.\n해수욕장 바로 위에는 오토캠핑장이 있어 가족단위 관광객들에게 인기가 있다. 인근 천곡 자연동굴, 무릉계곡과 추암 촛대바위를 비롯하여 남쪽으로 간이 해수욕장(노봉, 대진, 어달, 한섬, 감추, 추암 해수욕장)이 즐비하다. 인근의 묵호항과 더불어 강릉~삼척을 잇는 해안 관광지 중 하나이며 오징어, 소라, 해삼, 멍게, 광어 등의 풍부한 해산물로 풍요로움과 넉넉함이 묻어난다."
+          },
+          "latitude": 37.5922143704,
+          "longitude": 129.0896411696,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#125713",
+          "body": "넓은 백사장과 울창한 송림, 편의시설이 잘 갖춰진 해수욕장",
+          "reason": "주차·샤워장 등 편의시설이 풍부해 편리한 해변 이용이 가능합니다.",
+          "copy_source": "llm_planner_copy"
+        },
+        {
+          "day": 1,
+          "slot": "evening",
+          "item_type": "attraction",
+          "placeId": "attraction#2710184",
+          "title": "한섬해변&한섬감성바닷길",
+          "city_id": "KR-51-170",
+          "city_name_ko": "동해시",
+          "source": "candidate_evidence",
+          "theme_tags": [
+            "바다·해안"
+          ],
+          "details": {
+            "content_id": "2710184",
+            "review_queues": [],
+            "quality_status": "passed",
+            "contenttypeid": "12",
+            "source_key": "raw/KR/details/20260609/Donghae.json",
+            "image_url": "https://tong.visitkorea.or.kr/cms/resource/34/3353534_image2_1.jpg",
+            "latitude": 37.5211569389572,
+            "phone": "033-530-2447",
+            "city_name_en": "Donghae",
+            "theme": "바다·해안",
+            "season_tags": [],
+            "entity_type": "attraction",
+            "address": "강원특별자치도 동해시 한섬해안길 9",
+            "theme_tags": [
+              "바다·해안"
+            ],
+            "entity_id": "ATT-2710184",
+            "longitude": 129.121740306786,
+            "description": "한섬해변은 동해시내와 가까이 인접해 있는 바다이기 때문에 교통이 편리하여 관광객들이 꼭 한 번은 들르는 관광 명소이다. 한섬이라는 팻말을 따라 언덕 아래로 내려가면 해수욕장과 이어지는 다리가 나오며 하얗고 고운 백사장과 함께 파랗고 넓은 바다가 펼쳐진다. 규모가 작기 때문에 한눈에도 해변의 끝과 끝이 보이고 인근 다른 유명 해변과 달리 한적하고 조용하기 때문에 여유 있게 바다를 즐기고 싶은 사람들이 많이 찾아온다. 해변을 둘러싸고 있는 울창한 송림과 바다 위 기암괴석에 부딪혀 하얗게 일렁이는 파도, 고운 모래를 밟으면서 모래사장을 거니는 산책은 함께 맑고 푸른 바다 멀리 보이는 묵호등대는 멋진 장면을 연출한다. \n한섬감성바닷길은 감추사 육교부터 한섬해변, 고불개, 가세마을을 잇는  2.2㎞ 길이의 해변 산책로이다. 전체 구간의 삼분의 일은 해안 절벽에 설치된 데크 산책로로 양옆으로 울창한 솔숲과 쪽빛 바다를 감상할 수 있다.",
+            "PK": "CITY#Donghae",
+            "city_id": "KR-Donghae",
+            "title": "한섬해변&한섬감성바닷길",
+            "season": null,
+            "eventstartdate": "",
+            "eventenddate": "",
+            "geohash": null,
+            "visit_months": [],
+            "month": null,
+            "geohash_prefix": null,
+            "SK": "ATTRACTION#2710184",
+            "overview": "한섬해변은 동해시내와 가까이 인접해 있는 바다이기 때문에 교통이 편리하여 관광객들이 꼭 한 번은 들르는 관광 명소이다. 한섬이라는 팻말을 따라 언덕 아래로 내려가면 해수욕장과 이어지는 다리가 나오며 하얗고 고운 백사장과 함께 파랗고 넓은 바다가 펼쳐진다. 규모가 작기 때문에 한눈에도 해변의 끝과 끝이 보이고 인근 다른 유명 해변과 달리 한적하고 조용하기 때문에 여유 있게 바다를 즐기고 싶은 사람들이 많이 찾아온다. 해변을 둘러싸고 있는 울창한 송림과 바다 위 기암괴석에 부딪혀 하얗게 일렁이는 파도, 고운 모래를 밟으면서 모래사장을 거니는 산책은 함께 맑고 푸른 바다 멀리 보이는 묵호등대는 멋진 장면을 연출한다. \n한섬감성바닷길은 감추사 육교부터 한섬해변, 고불개, 가세마을을 잇는  2.2㎞ 길이의 해변 산책로이다. 전체 구간의 삼분의 일은 해안 절벽에 설치된 데크 산책로로 양옆으로 울창한 솔숲과 쪽빛 바다를 감상할 수 있다."
+          },
+          "latitude": 37.5211569389572,
+          "longitude": 129.121740306786,
+          "moveMinutes": null,
+          "ddb_pk": "CITY#DONGHAE",
+          "ddb_sk": "ATTRACTION#2710184",
+          "body": "작고 한적한 백사장과 2.2km 해안 산책로로 조용히 바다를 즐길 수 있습니다",
+          "reason": "교통이 편리하고 한적한 분위기로 여유로운 해변 산책에 알맞습니다.",
+          "copy_source": "llm_planner_copy"
+        }
+      ],
+      "recommendation_reasons": [
+        "동해시는 하평해변, 망상해변, 한섬해변 등 다양한 해변이 가까이 있어 바다·해안 테마를 즐기기에 최적의 도시입니다.",
+        "여러 해변이 각각 가족 친화, 편의시설 제공, 조용한 분위기를 갖추어 해변 다양한 취향을 만족시킵니다."
+      ],
+      "itinerary_flow_reason": "동해시 내 해변들을 동쪽에서 서쪽 순으로 방문해 이동 거리를 최소화하며 해변 체험을 연속적으로 진행합니다.",
+      "external_links": {
+        "map": {
+          "type": "map",
+          "label": "동해시 지도 보기",
+          "url": "https://www.google.com/maps/search/?api=1&query=%EB%8F%99%ED%95%B4%EC%8B%9C",
+          "query": "동해시",
+          "city_name_ko": "동해시",
+          "country": "KR",
+          "source": "external_map_link"
+        },
+        "staySearch": {
+          "type": "staySearch",
+          "label": "동해시 숙소 검색하기",
+          "url": "https://www.google.com/search?q=%EB%8F%99%ED%95%B4%EC%8B%9C+%EC%88%99%EC%86%8C",
+          "query": "동해시 숙소",
+          "city_name_ko": "동해시",
+          "country": "KR",
+          "source": "external_search_link"
+        },
+        "foodSearch": {
+          "type": "foodSearch",
+          "label": "동해시 음식점 검색하기",
+          "url": "https://www.google.com/search?q=%EB%8F%99%ED%95%B4%EC%8B%9C+%EB%A7%9B%EC%A7%91",
+          "query": "동해시 맛집",
+          "city_name_ko": "동해시",
+          "country": "KR",
+          "source": "external_search_link"
+        }
+      },
+      "confidence": 0.72,
+      "user_notice": [],
+      "validation_result": {
+        "status": "valid",
+        "is_valid": true,
+        "valid": true,
+        "errors": [],
+        "retry_action": "none",
+        "checked_item_count": 3,
+        "planner_status_gate": "ok",
+        "include_festivals": false,
+        "festival_verification_count": 0,
+        "festival_placed_count": 0,
+        "festival_skipped_count": 0,
+        "food_search_link_required": true,
+        "detail_enrichment_warning_count": 0,
+        "planner_copy_generation_used_llm": true
+      },
+      "alternative_itinerary": [],
+      "explanation_audit": {
+        "reason_refs": [
+          {
+            "reason_id": "recommendationReasons[0]",
+            "evidence_refs": [
+              "place:attraction#2716757",
+              "place:attraction#125713",
+              "place:attraction#2710184"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "동해시는 하평해변, 망상해변, 한섬해변 등 다양한 해변이 가까이 있어 바다·해안 테마를 즐기기에 최적의 도시입니다."
+          },
+          {
+            "reason_id": "recommendationReasons[1]",
+            "evidence_refs": [
+              "place:attraction#2716757",
+              "place:attraction#125713",
+              "place:attraction#2710184"
+            ],
+            "reason_codes": [
+              "llm_grounded_copy"
+            ],
+            "reason_text": "여러 해변이 각각 가족 친화, 편의시설 제공, 조용한 분위기를 갖추어 해변 다양한 취향을 만족시킵니다."
+          }
+        ],
+        "itinerary_flow_refs": [
+          "place:attraction#2716757",
+          "place:attraction#125713",
+          "place:attraction#2710184"
+        ],
+        "hidden_internal_notes": [
+          "skipped_missing_place_ids:claim_2",
+          "planner_copy_generation:llm_used:ok"
+        ]
+      }
+    },
+    "validation_result": {
+      "status": "valid",
+      "is_valid": true,
+      "valid": true,
+      "errors": [],
+      "retry_action": "none",
+      "checked_item_count": 3,
+      "planner_status_gate": "ok",
+      "include_festivals": false,
+      "festival_verification_count": 0,
+      "festival_placed_count": 0,
+      "festival_skipped_count": 0,
+      "food_search_link_required": true,
+      "detail_enrichment_warning_count": 0,
+      "planner_copy_generation_used_llm": true
+    }
+  },
+  "serving": {
+    "response_payload": {
+      "recommendationId": "REQ-TC-19",
+      "expiresAt": "2026-06-27T19:44:39Z",
+      "destination": {
+        "destinationId": "KR-51-170",
+        "name": "동해시",
+        "country": "KR",
+        "region": null
+      },
+      "itinerary": {
+        "tripType": "daytrip",
+        "days": [
+          {
+            "day": 1,
+            "items": [
+              {
+                "itemId": "item-1",
+                "contentId": "attraction#2716757",
+                "timeOfDay": "morning",
+                "sortOrder": 1,
+                "title": "하평해변(동해)",
+                "body": "수심 얕고 맑은 바다와 해송 숲이 어우러진 조용한 해변",
+                "reason": "가족 단위 여행객이 편안히 물놀이와 휴식을 즐기기에 적합합니다.",
+                "moveMinutes": null,
+                "latitude": 37.5335842697,
+                "longitude": 129.1164092756
+              },
+              {
+                "itemId": "item-2",
+                "contentId": "attraction#125713",
+                "timeOfDay": "afternoon",
+                "sortOrder": 2,
+                "title": "망상해변",
+                "body": "넓은 백사장과 울창한 송림, 편의시설이 잘 갖춰진 해수욕장",
+                "reason": "주차·샤워장 등 편의시설이 풍부해 편리한 해변 이용이 가능합니다.",
+                "moveMinutes": null,
+                "latitude": 37.5922143704,
+                "longitude": 129.0896411696
+              },
+              {
+                "itemId": "item-3",
+                "contentId": "attraction#2710184",
+                "timeOfDay": "evening",
+                "sortOrder": 3,
+                "title": "한섬해변&한섬감성바닷길",
+                "body": "작고 한적한 백사장과 2.2km 해안 산책로로 조용히 바다를 즐길 수 있습니다",
+                "reason": "교통이 편리하고 한적한 분위기로 여유로운 해변 산책에 알맞습니다.",
+                "moveMinutes": null,
+                "latitude": 37.5211569389572,
+                "longitude": 129.121740306786
+              }
+            ]
+          }
+        ]
+      },
+      "explainability": {
+        "matchedConditions": [
+          "sea_coast",
+          "travelMonth:6"
+        ],
+        "unsupportedConditions": [],
+        "recommendationReasons": [
+          "동해시는 하평해변, 망상해변, 한섬해변 등 다양한 해변이 가까이 있어 바다·해안 테마를 즐기기에 최적의 도시입니다.",
+          "여러 해변이 각각 가족 친화, 편의시설 제공, 조용한 분위기를 갖추어 해변 다양한 취향을 만족시킵니다."
+        ],
+        "itineraryFlowReason": "동해시 내 해변들을 동쪽에서 서쪽 순으로 방문해 이동 거리를 최소화하며 해변 체험을 연속적으로 진행합니다.",
+        "confidence": 0.72,
+        "userNotice": ""
+      },
+      "festivalDateVerifications": [],
+      "links": {
+        "map": "https://www.google.com/maps/search/?api=1&query=%EB%8F%99%ED%95%B4%EC%8B%9C",
+        "staySearch": "https://www.google.com/search?q=%EB%8F%99%ED%95%B4%EC%8B%9C+%EC%88%99%EC%86%8C",
+        "foodSearch": "https://www.google.com/search?q=%EB%8F%99%ED%95%B4%EC%8B%9C+%EB%A7%9B%EC%A7%91"
+      }
+    },
+    "response_status": "completed"
+  }
+}
