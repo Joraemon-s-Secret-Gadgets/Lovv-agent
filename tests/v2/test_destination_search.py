@@ -371,6 +371,19 @@ class AttractionSearchTest(unittest.TestCase):
             },
         )
 
+    def test_filter_does_not_use_non_filterable_ddb_pk(self) -> None:
+        metadata_filter = build_attraction_filter(ddb_pk="CITY#ANDONG", theme="history")
+
+        self.assertEqual(
+            metadata_filter,
+            {
+                "$and": [
+                    {"entity_type": {"$eq": "attraction"}},
+                    {"theme_tags": {"$eq": "history"}},
+                ],
+            },
+        )
+
     def test_food_theme_is_not_sent_to_s3_vector_search(self) -> None:
         client = RecordingS3VectorClient()
         repository = S3VectorRepository(client=client, settings=S3VectorSettings())

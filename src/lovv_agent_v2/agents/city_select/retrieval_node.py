@@ -213,15 +213,7 @@ def build_attraction_filter(
                 "city_id": {"$eq": normalized_city_id},
             },
         )
-    # 앵커(도시 고정)는 destinationId(이름)를 ddb_pk(CITY#대문자)로 변환해 여기로 건다.
-    # 신규 벡터 city_id는 숫자라 destinationId로 city_id 필터가 안 맞기 때문.
-    normalized_ddb_pk = _optional_text(ddb_pk, "ddb_pk")
-    if normalized_ddb_pk is not None:
-        conditions.append(
-            {
-                "ddb_pk": {"$eq": normalized_ddb_pk},
-            },
-        )
+    _optional_text(ddb_pk, "ddb_pk")
 
     normalized_theme = _resolve_place_search_theme(theme, theme_tags)
     if normalized_theme is not None:

@@ -8,8 +8,8 @@ retrieval_smoke.py와 **같은 케이스**(v2_retrieval_inputs의 raw/soft/theme
       테마 OFF로 raw/soft 검색 → Planner가 일정을 짤 후보 풀.
 
 anchor 도시 소스(우선순위): --selected JSON(case_id→ddb_pk, 오프라인 재채점 산출) > 케이스의 destination_id.
-필터: {entity_type=attraction AND ddb_pk=CITY#X} (theme_tags 조건 없음).
-casing split 대응: canonical(대문자)+titlecase 두 variant 조회 후 place_id 병합(도시 절반 누락 방지).
+필터: {entity_type=attraction AND city_id=<resolved>} (theme_tags 조건 없음).
+도시 고정: ddb_pk는 non-filterable metadata라 city_id 해석과 casing 정규화 검증에만 쓴다.
 
 ⚠ AWS(Bedrock·S3 Vectors) 필요 → repo 환경에서 실행. 임베딩 캐시는 retrieval_smoke와 공유.
 
@@ -77,17 +77,64 @@ def embed(bedrock, text, cache):
 
 def pk_variants(pk: str) -> list[str]:
     body = pk.split("#", 1)[1] if "#" in pk else pk
-    return sorted({f"CITY#{body.upper()}", f"CITY#{body.capitalize()}"})
+    return sorted({f"CITY#{body.upper()}", f"CITY#{body.title()}"})
 
 
-def _query_one(s3v, vec, pk, top_k):
+def _normalized_pk(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    return normalized.upper() if normalized else None
+
+
+def _metadata_of(vector: Any) -> dict[str, Any]:
+    if not isinstance(vector, dict):
+        return {}
+    metadata = vector.get("metadata")
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def resolve_city_ids_for_pk(s3v, accepted_pks) -> list[str]:
+    accepted = {_normalized_pk(pk) for pk in accepted_pks}
+    accepted.discard(None)
+    city_ids: list[str] = []
+    token = None
+    while True:
+        request: dict[str, Any] = {
+            "vectorBucketName": VECTOR_BUCKET,
+            "indexName": VECTOR_INDEX,
+            "returnMetadata": True,
+            "maxResults": 500,
+        }
+        if token:
+            request["nextToken"] = token
+        resp = s3v.list_vectors(**request)
+        for vector in resp.get("vectors", []):
+            metadata = _metadata_of(vector)
+            if _normalized_pk(metadata.get("ddb_pk")) not in accepted:
+                continue
+            if metadata.get("entity_type") != ATTRACTION:
+                continue
+            city_id = metadata.get("city_id")
+            if isinstance(city_id, str) and city_id.strip() and city_id not in city_ids:
+                city_ids.append(city_id)
+        token = resp.get("nextToken")
+        if not token:
+            return city_ids
+
+
+def _query_one_city(s3v, vec, accepted_pks, city_id, top_k):
+    accepted = {_normalized_pk(pk) for pk in accepted_pks}
+    accepted.discard(None)
     resp = s3v.query_vectors(
         vectorBucketName=VECTOR_BUCKET, indexName=VECTOR_INDEX,
         queryVector={"float32": vec}, topK=top_k, returnMetadata=True, returnDistance=True,
-        filter={"$and": [{"entity_type": {"$eq": ATTRACTION}}, {"ddb_pk": {"$eq": pk}}]})
+        filter={"$and": [{"entity_type": {"$eq": ATTRACTION}}, {"city_id": {"$eq": city_id}}]})
     out = []
     for v in resp.get("vectors", []):
-        m = v.get("metadata", {}) or {}
+        m = _metadata_of(v)
+        if _normalized_pk(m.get("ddb_pk")) not in accepted:
+            continue
         out.append({"place_id": m.get("place_id") or v.get("key"), "distance": v.get("distance"),
                     "title": m.get("title"), "theme_tags": list(m.get("theme_tags") or []),
                     "subtype": m.get("attraction_subtype_code"),
@@ -96,14 +143,14 @@ def _query_one(s3v, vec, pk, top_k):
 
 
 def query_anchored(s3v, vec, pk, top_k):
-    """canonical+titlecase 모두 조회 후 place_id 병합(최단거리 보존)."""
     by_id: dict[str, dict] = {}
-    for variant in pk_variants(pk):
-        for c in _query_one(s3v, vec, variant, top_k):
+    accepted_pks = pk_variants(pk)
+    for city_id in resolve_city_ids_for_pk(s3v, accepted_pks):
+        for c in _query_one_city(s3v, vec, accepted_pks, city_id, top_k):
             prev = by_id.get(c["place_id"])
             if prev is None or (c["distance"] is not None and c["distance"] < prev["distance"]):
                 by_id[c["place_id"]] = c
-    return list(by_id.values())
+    return sorted(by_id.values(), key=lambda c: (c["distance"] is None, c["distance"]))[:top_k]
 
 
 def summarize(cands: list[dict]) -> dict:
@@ -147,7 +194,7 @@ def main() -> int:
     have = [p for p in planned if p[1]]
     print(f"케이스 {len(cases)}개 · anchor 있음 {len(have)}개 (selected={bool(selected)}) top_k={args.top_k}")
     for cid, pk in planned:
-        print(f"  - {cid}: anchor={pk or '(없음 — skip)'}")
+        print(f"  - {cid}: anchor={pk or '(없음 - skip)'}")
     if not args.live:
         print("\n[dry-run] --live 없이 계획만. anchor 없는 케이스는 재채점 selected_cities.json 필요.")
         return 0
