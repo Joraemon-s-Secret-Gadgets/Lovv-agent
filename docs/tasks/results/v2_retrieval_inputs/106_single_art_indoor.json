@@ -1,0 +1,9 @@
+{
+  "id": "106_single_art_indoor",
+  "source": "v2gen_retrieval",
+  "raw_query": "갤러리와 예술 거리를 걷는 1박2일.",
+  "soft_query": "비 와도 즐길 실내 위주",
+  "themes": [
+    "예술·감성"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "112_triple_nature_healing_art",
+  "source": "v2gen_retrieval",
+  "raw_query": "숲길을 걷고 온천 후 갤러리도 들르는 여행.",
+  "soft_query": "조용한 소도시면 좋겠어",
+  "themes": [
+    "자연·트레킹",
+    "온천·휴양",
+    "예술·감성"
+  ]
+}

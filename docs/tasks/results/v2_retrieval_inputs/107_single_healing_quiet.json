@@ -1,0 +1,9 @@
+{
+  "id": "107_single_healing_quiet",
+  "source": "v2gen_retrieval",
+  "raw_query": "온천에서 푹 쉬고 힐링하는 1박2일.",
+  "soft_query": "조용하고 한적한 곳",
+  "themes": [
+    "온천·휴양"
+  ]
+}
