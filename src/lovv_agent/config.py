@@ -58,6 +58,8 @@ ENV_KEYS: tuple[str, ...] = (
     "LOVV_READ_TIMEOUT_SECONDS",
     "LOVV_MAX_RETRY_ATTEMPTS",
     "LOVV_SCHEMA_RETRY_LIMIT",
+    "LOVV_PROFILE_ENABLED",
+    "LOVV_PROFILE_TABLE",
 )
 
 DEFAULT_AWS_REGION = "us-east-1"
@@ -340,6 +342,23 @@ class RetrySettings:
 
 
 @dataclass(frozen=True, slots=True)
+class ProfileSettings:
+    """Profile Agent runtime settings.
+
+    When ``enabled`` is False (default), Profile Agent is skipped entirely
+    and the recommendation flow uses uniform theme weights.
+    """
+
+    enabled: bool = False
+    table_name: str = "LovvUserProfile"
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.enabled, bool):
+            raise ConfigError("profile.enabled must be a boolean")
+        _required_text(self.table_name, "profile.table_name")
+
+
+@dataclass(frozen=True, slots=True)
 class RuntimeConfig:
     """Complete injectable runtime configuration for Lovv graph execution."""
 
@@ -352,6 +371,7 @@ class RuntimeConfig:
     search_budget: SearchBudgetSettings = field(default_factory=SearchBudgetSettings)
     timeouts: TimeoutSettings = field(default_factory=TimeoutSettings)
     retries: RetrySettings = field(default_factory=RetrySettings)
+    profile: ProfileSettings = field(default_factory=ProfileSettings)
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "RuntimeConfig":
@@ -467,6 +487,10 @@ class RuntimeConfig:
                     "LOVV_SCHEMA_RETRY_LIMIT",
                 ),
             ),
+            profile=ProfileSettings(
+                enabled=source.get("LOVV_PROFILE_ENABLED", "").strip().lower() in ("1", "true", "yes"),
+                table_name=source.get("LOVV_PROFILE_TABLE", "LovvUserProfile"),
+            ),
         )
 
     def to_dict(self) -> dict[str, object]:
@@ -511,6 +535,7 @@ __all__ = [
     "LLM_NODE_SUPERVISOR",
     "LLM_ROUTING_NODES",
     "LlmSettings",
+    "ProfileSettings",
     "RetrySettings",
     "RuntimeConfig",
     "S3VectorSettings",
