@@ -28,7 +28,6 @@ STATE_GROUPS: tuple[str, ...] = (
     "conversation",
     "trace",
     "intent",
-    "profile",
     "routing",
     "evidence",
     "festival",
@@ -199,11 +198,6 @@ class IntentState:
     soft_preference_query: str = ""
     unsupported_conditions: tuple[str, ...] = ()
     candidate_evidence_input: CandidateEvidenceInput | None = None
-    # V2 fields (하위 호환 — 모두 기본값)
-    transport_pref: str = "unknown"
-    congestion_pref: str = "neutral"
-    contradictions: tuple[str, ...] = ()
-    ambiguity_signals: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         self.extracted_inputs = _mapping(self.extracted_inputs, "extracted_inputs")
@@ -228,42 +222,6 @@ class IntentState:
             self.soft_preference_query,
             "soft_preference_query",
         )
-        self.transport_pref = _free_text(self.transport_pref, "transport_pref") or "unknown"
-        self.congestion_pref = _free_text(self.congestion_pref, "congestion_pref") or "neutral"
-        if isinstance(self.contradictions, (list, tuple)):
-            self.contradictions = tuple(
-                s for s in self.contradictions if isinstance(s, str)
-            )
-        if isinstance(self.ambiguity_signals, (list, tuple)):
-            self.ambiguity_signals = tuple(
-                s for s in self.ambiguity_signals if isinstance(s, str)
-            )
-
-
-@dataclass(slots=True)
-class ProfileState:
-    """Profile Agent read-side output for theme weight injection."""
-
-    saved_trip_count: int = 0
-    profile_theme_weights: dict[str, float] = field(default_factory=dict)
-    effective_theme_weights: dict[str, float] | None = None
-    applied_persona_id: str | None = None
-    audit: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.saved_trip_count, int) or self.saved_trip_count < 0:
-            raise SchemaValidationError("profile.saved_trip_count must be non-negative")
-        self.profile_theme_weights = _mapping(
-            self.profile_theme_weights, "profile.profile_theme_weights",
-        ) if self.profile_theme_weights else {}
-        if self.effective_theme_weights is not None:
-            self.effective_theme_weights = _mapping(
-                self.effective_theme_weights, "profile.effective_theme_weights",
-            )
-        self.applied_persona_id = _optional_text(
-            self.applied_persona_id, "profile.applied_persona_id",
-        )
-        self.audit = _mapping(self.audit, "profile.audit") if self.audit else {}
 
 
 @dataclass(slots=True)
@@ -344,7 +302,6 @@ class UnifiedAgentState:
     conversation: ConversationState = field(default_factory=ConversationState)
     trace: TraceState = field(default_factory=TraceState)
     intent: IntentState = field(default_factory=IntentState)
-    profile: ProfileState = field(default_factory=ProfileState)
     routing: RoutingState = field(default_factory=RoutingState)
     evidence: EvidenceState = field(default_factory=EvidenceState)
     festival: FestivalState = field(default_factory=FestivalState)
@@ -407,7 +364,6 @@ __all__ = [
     "FestivalState",
     "IntentState",
     "PlanningState",
-    "ProfileState",
     "RequestState",
     "RoutingState",
     "ServingState",

@@ -245,10 +245,6 @@ class CandidateEvidenceInput:
     execution_mode: str = "city_discovery"
     fixed_city_id: str | None = None
     city_anchor: dict[str, Any] | None = None
-    # V2 fields
-    theme_weights: dict[str, float] | None = None
-    transport_pref: str = "unknown"
-    congestion_pref: str = "neutral"
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "country", _required_text(self.country, "country"))
@@ -305,16 +301,6 @@ class CandidateEvidenceInput:
             "city_anchor",
             _optional_mapping(self.city_anchor, "city_anchor"),
         )
-        # V2 fields validation
-        object.__setattr__(
-            self,
-            "theme_weights",
-            _optional_mapping(self.theme_weights, "theme_weights") if self.theme_weights is not None else None,
-        )
-        if not isinstance(self.transport_pref, str):
-            raise SchemaValidationError("transport_pref must be a string")
-        if not isinstance(self.congestion_pref, str):
-            raise SchemaValidationError("congestion_pref must be a string")
 
     @classmethod
     def from_mapping(cls, payload: Mapping[str, Any]) -> "CandidateEvidenceInput":
@@ -357,9 +343,6 @@ class CandidateEvidenceInput:
             execution_mode=_mapping_get(payload, "execution_mode", default="city_discovery"),
             fixed_city_id=_mapping_get(payload, "fixed_city_id", default=None),
             city_anchor=_mapping_get(payload, "city_anchor", default=None),
-            theme_weights=_mapping_get(payload, "theme_weights", default=None),
-            transport_pref=_mapping_get(payload, "transport_pref", default="unknown"),
-            congestion_pref=_mapping_get(payload, "congestion_pref", default="neutral"),
         )
 
     def to_dict(self) -> dict[str, Any]:
