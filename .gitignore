@@ -58,6 +58,7 @@ response.json
 *.tmp
 tmp/
 temp/
+agentcore/LovvAgentV1
 
 # 에디터 및 OS 메타데이터
 .vscode/
@@ -66,3 +67,10 @@ temp/
 *.swo
 .DS_Store
 Thumbs.db
+
+#기타 개발용 데이터
+docs/tasks/results/agent_input_payloads/
+metadata_audit/
+docs/tasks/results/v2_retrieval_smoke
+docs/tasks/results/v2_name_recall
+docs/tasks/results/v2_anchored_probe

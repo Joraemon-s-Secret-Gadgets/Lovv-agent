@@ -1,0 +1,9 @@
+{
+  "id": "031_v2mock_09_anchored_gyeongju_history_daytrip",
+  "source": "v2mock",
+  "raw_query": "경주에서 역사 명소를 둘러보는 당일치기 코스 추천해줘.",
+  "soft_query": "",
+  "themes": [
+    "역사·전통"
+  ]
+}

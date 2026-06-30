@@ -1,0 +1,9 @@
+{
+  "id": "108_single_healing_family",
+  "source": "v2gen_retrieval",
+  "raw_query": "가족과 온천·스파에서 휴식하는 여행.",
+  "soft_query": "아이와 함께 가기 좋은",
+  "themes": [
+    "온천·휴양"
+  ]
+}

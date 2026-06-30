@@ -1,0 +1,9 @@
+{
+  "id": "115_no_candidate_inland_coast",
+  "source": "v2gen_retrieval",
+  "raw_query": "안동에서 바다와 해변을 즐기는 1박2일.",
+  "soft_query": "조용한 해변",
+  "themes": [
+    "바다·해안"
+  ]
+}

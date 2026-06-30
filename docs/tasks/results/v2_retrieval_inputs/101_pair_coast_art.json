@@ -1,0 +1,10 @@
+{
+  "id": "101_pair_coast_art",
+  "source": "v2gen_retrieval",
+  "raw_query": "해변 근처에서 미술관이나 감성적인 전시 공간을 즐기는 1박2일.",
+  "soft_query": "사진 찍기 좋은 분위기 위주로",
+  "themes": [
+    "바다·해안",
+    "예술·감성"
+  ]
+}

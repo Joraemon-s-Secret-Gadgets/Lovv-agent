@@ -1,0 +1,10 @@
+{
+  "id": "102_pair_nature_art",
+  "source": "v2gen_retrieval",
+  "raw_query": "산이나 숲길을 걷고 근처 갤러리·예술 공간도 보는 여행.",
+  "soft_query": "한적하고 여유로운 곳",
+  "themes": [
+    "자연·트레킹",
+    "예술·감성"
+  ]
+}

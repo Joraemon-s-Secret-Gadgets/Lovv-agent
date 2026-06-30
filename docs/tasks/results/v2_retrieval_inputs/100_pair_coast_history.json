@@ -1,0 +1,10 @@
+{
+  "id": "100_pair_coast_history",
+  "source": "v2gen_retrieval",
+  "raw_query": "바다도 보고 오래된 유적이나 한옥마을도 함께 둘러보는 2박3일 여행 추천해줘.",
+  "soft_query": "사람 적고 조용한 해안 마을이면 좋겠어",
+  "themes": [
+    "바다·해안",
+    "역사·전통"
+  ]
+}

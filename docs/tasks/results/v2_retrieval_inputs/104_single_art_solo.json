@@ -1,0 +1,9 @@
+{
+  "id": "104_single_art_solo",
+  "source": "v2gen_retrieval",
+  "raw_query": "감성적인 미술관과 전시를 천천히 보는 당일치기.",
+  "soft_query": "혼자 조용히 둘러보고 싶어",
+  "themes": [
+    "예술·감성"
+  ]
+}

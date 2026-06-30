@@ -1,0 +1,11 @@
+{
+  "id": "111_triple_coast_nature_history",
+  "source": "v2gen_retrieval",
+  "raw_query": "바다와 산, 옛 유적까지 두루 보는 3박4일.",
+  "soft_query": "느긋하게 도는",
+  "themes": [
+    "바다·해안",
+    "자연·트레킹",
+    "역사·전통"
+  ]
+}

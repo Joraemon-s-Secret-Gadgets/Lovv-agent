@@ -1,0 +1,11 @@
+{
+  "id": "110_triple_history_art_healing",
+  "source": "v2gen_retrieval",
+  "raw_query": "전통 유적도 보고 미술관도 가고 온천에서 마무리하는 3박4일.",
+  "soft_query": "여유로운 일정",
+  "themes": [
+    "역사·전통",
+    "예술·감성",
+    "온천·휴양"
+  ]
+}
