@@ -1,0 +1,9 @@
+{
+  "id": "109_single_healing_forest",
+  "source": "v2gen_retrieval",
+  "raw_query": "따뜻한 온천과 휴양림에서 쉬는 2박3일.",
+  "soft_query": "북적이지 않는 곳",
+  "themes": [
+    "온천·휴양"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "105_single_art_mural",
+  "source": "v2gen_retrieval",
+  "raw_query": "벽화마을과 예쁜 카페에서 사진 찍으며 도는 여행.",
+  "soft_query": "활기차고 볼거리 많은 동네",
+  "themes": [
+    "예술·감성"
+  ]
+}

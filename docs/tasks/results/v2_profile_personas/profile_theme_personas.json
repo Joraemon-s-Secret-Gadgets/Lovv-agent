@@ -1,0 +1,642 @@
+{
+  "schema_version": "v1",
+  "purpose": "Synthetic LovvUserProfile personas for profile theme-weight scoring tuning.",
+  "theme_ids": [
+    "sea_coast",
+    "nature_trekking",
+    "history_tradition",
+    "art_sense",
+    "healing_rest"
+  ],
+  "default_theme_weights": {
+    "sea_coast": 1.0,
+    "nature_trekking": 1.0,
+    "history_tradition": 1.0,
+    "art_sense": 1.0,
+    "healing_rest": 1.0
+  },
+  "reference_tuning_config": {
+    "profile_activation_saved_trip_count": 3,
+    "alpha_candidates": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "weight_range_candidates": [
+      {
+        "id": "narrow",
+        "min": 0.85,
+        "max": 1.2
+      },
+      {
+        "id": "medium",
+        "min": 0.8,
+        "max": 1.3
+      },
+      {
+        "id": "strong",
+        "min": 0.7,
+        "max": 1.45
+      }
+    ],
+    "profile_score_cap_candidates": [
+      0.03,
+      0.05,
+      0.08
+    ],
+    "reference_formula": "if saved_trip_count < profile_activation_saved_trip_count: effective_weight[theme] = 1.0 for every theme and profile is inactive; otherwise observed_ratio = saved_theme_counts[theme] / total_saved_theme_count; raw_weight = 1 + alpha * (observed_ratio - 0.2); learned_weight = clamp(raw_weight, min_weight, max_weight); confidence = min(saved_trip_count / profile_activation_saved_trip_count, 1.0); effective_weight = 1 + confidence * (learned_weight - 1)"
+  },
+  "personas": [
+    {
+      "persona_id": "P00_new_user_uniform",
+      "label_ko": "신규 유저",
+      "saved_trip_count": 0,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [],
+      "expected_use": "default baseline; profile should not affect scoring"
+    },
+    {
+      "persona_id": "P01_one_trip_sea_probe",
+      "label_ko": "바다 1회 저장",
+      "saved_trip_count": 1,
+      "saved_theme_counts": {
+        "sea_coast": 1,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ]
+      ],
+      "expected_use": "cold-start weak signal; should not override explicit non-sea requests"
+    },
+    {
+      "persona_id": "P02_one_trip_healing_probe",
+      "label_ko": "힐링 1회 저장",
+      "saved_trip_count": 1,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 1
+      },
+      "saved_trip_theme_history": [
+        [
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "cold-start weak signal for ambiguous rest-oriented requests"
+    },
+    {
+      "persona_id": "P03_two_trips_repeated_sea",
+      "label_ko": "바다 2회 반복",
+      "saved_trip_count": 2,
+      "saved_theme_counts": {
+        "sea_coast": 2,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ]
+      ],
+      "expected_use": "pre-threshold repeated preference; profile must remain fully inactive"
+    },
+    {
+      "persona_id": "P04_two_trips_split_sea_healing",
+      "label_ko": "바다와 힐링 2회",
+      "saved_trip_count": 2,
+      "saved_theme_counts": {
+        "sea_coast": 1,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 1
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "pre-threshold mixed preference; profile must remain fully inactive"
+    },
+    {
+      "persona_id": "P05_three_trips_sea_threshold",
+      "label_ko": "바다 3회 저장",
+      "saved_trip_count": 3,
+      "saved_theme_counts": {
+        "sea_coast": 3,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ]
+      ],
+      "expected_use": "first fully active single-theme profile"
+    },
+    {
+      "persona_id": "P06_three_trips_nature_threshold",
+      "label_ko": "자연/트레킹 3회 저장",
+      "saved_trip_count": 3,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 3,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "nature_trekking"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "nature_trekking"
+        ]
+      ],
+      "expected_use": "single-theme threshold profile for nature-heavy reranking"
+    },
+    {
+      "persona_id": "P07_three_trips_balanced_three_themes",
+      "label_ko": "3개 테마 균형",
+      "saved_trip_count": 3,
+      "saved_theme_counts": {
+        "sea_coast": 1,
+        "nature_trekking": 1,
+        "history_tradition": 1,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "history_tradition"
+        ]
+      ],
+      "expected_use": "threshold profile that should avoid over-concentrating on one theme"
+    },
+    {
+      "persona_id": "P08_three_trips_multi_theme_even",
+      "label_ko": "멀티테마 고른 취향",
+      "saved_trip_count": 3,
+      "saved_theme_counts": {
+        "sea_coast": 2,
+        "nature_trekking": 1,
+        "history_tradition": 1,
+        "art_sense": 1,
+        "healing_rest": 1
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast",
+          "healing_rest"
+        ],
+        [
+          "nature_trekking",
+          "history_tradition"
+        ],
+        [
+          "sea_coast",
+          "art_sense"
+        ]
+      ],
+      "expected_use": "multi-theme threshold profile; useful for checking weight normalization"
+    },
+    {
+      "persona_id": "P09_five_trips_sea_lover",
+      "label_ko": "바다 선호 강함",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 5,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast"
+        ]
+      ],
+      "expected_use": "mature single-theme profile; should improve ambiguous sea-compatible recommendations"
+    },
+    {
+      "persona_id": "P10_five_trips_history_culture",
+      "label_ko": "역사/전통 선호 강함",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 0,
+        "history_tradition": 5,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "history_tradition"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "history_tradition"
+        ]
+      ],
+      "expected_use": "mature single-theme profile for history/culture reranking"
+    },
+    {
+      "persona_id": "P11_five_trips_art_sense",
+      "label_ko": "예술/감성 선호 강함",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 5,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "art_sense"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "art_sense"
+        ]
+      ],
+      "expected_use": "mature single-theme profile for art/emotional-place reranking"
+    },
+    {
+      "persona_id": "P12_five_trips_healing_rest",
+      "label_ko": "힐링/휴양 선호 강함",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 5
+      },
+      "saved_trip_theme_history": [
+        [
+          "healing_rest"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "mature single-theme profile for ambiguous rest/healing requests"
+    },
+    {
+      "persona_id": "P13_five_trips_sea_healing",
+      "label_ko": "바다+힐링 복합 선호",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 3,
+        "nature_trekking": 0,
+        "history_tradition": 0,
+        "art_sense": 0,
+        "healing_rest": 2
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "sea_coast",
+          "healing_rest"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "sea_coast",
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "two-theme mature profile; useful for soft query and multi-theme coverage tuning"
+    },
+    {
+      "persona_id": "P14_five_trips_nature_history",
+      "label_ko": "자연+역사 복합 선호",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 0,
+        "nature_trekking": 3,
+        "history_tradition": 2,
+        "art_sense": 0,
+        "healing_rest": 0
+      },
+      "saved_trip_theme_history": [
+        [
+          "nature_trekking"
+        ],
+        [
+          "nature_trekking",
+          "history_tradition"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "nature_trekking",
+          "history_tradition"
+        ]
+      ],
+      "expected_use": "two-theme mature profile for inland/cultural-natural candidates"
+    },
+    {
+      "persona_id": "P15_five_trips_uniform",
+      "label_ko": "5회 저장 균등 취향",
+      "saved_trip_count": 5,
+      "saved_theme_counts": {
+        "sea_coast": 1,
+        "nature_trekking": 1,
+        "history_tradition": 1,
+        "art_sense": 1,
+        "healing_rest": 1
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "mature but non-preferential profile; effective weights should stay near default"
+    },
+    {
+      "persona_id": "P16_ten_trips_sea_healing_mature",
+      "label_ko": "장기 바다+힐링 선호",
+      "saved_trip_count": 10,
+      "saved_theme_counts": {
+        "sea_coast": 4,
+        "nature_trekking": 1,
+        "history_tradition": 1,
+        "art_sense": 1,
+        "healing_rest": 3
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "sea_coast",
+          "healing_rest"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "sea_coast",
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "long-history mixed profile with clear but not exclusive preference"
+    },
+    {
+      "persona_id": "P17_ten_trips_nature_history_mature",
+      "label_ko": "장기 자연+역사 선호",
+      "saved_trip_count": 10,
+      "saved_theme_counts": {
+        "sea_coast": 1,
+        "nature_trekking": 4,
+        "history_tradition": 3,
+        "art_sense": 1,
+        "healing_rest": 1
+      },
+      "saved_trip_theme_history": [
+        [
+          "nature_trekking"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "nature_trekking",
+          "history_tradition"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "nature_trekking",
+          "history_tradition"
+        ]
+      ],
+      "expected_use": "long-history inland profile for checking coastal-result resistance"
+    },
+    {
+      "persona_id": "P18_ten_trips_art_history_mature",
+      "label_ko": "장기 예술+역사 선호",
+      "saved_trip_count": 10,
+      "saved_theme_counts": {
+        "sea_coast": 1,
+        "nature_trekking": 1,
+        "history_tradition": 3,
+        "art_sense": 4,
+        "healing_rest": 1
+      },
+      "saved_trip_theme_history": [
+        [
+          "art_sense"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "art_sense",
+          "history_tradition"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "art_sense",
+          "history_tradition"
+        ]
+      ],
+      "expected_use": "long-history culture/aesthetic profile for ambiguous urban-cultural recommendations"
+    },
+    {
+      "persona_id": "P19_ten_trips_uniform_mature",
+      "label_ko": "장기 균등 취향",
+      "saved_trip_count": 10,
+      "saved_theme_counts": {
+        "sea_coast": 2,
+        "nature_trekking": 2,
+        "history_tradition": 2,
+        "art_sense": 2,
+        "healing_rest": 2
+      },
+      "saved_trip_theme_history": [
+        [
+          "sea_coast"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "healing_rest"
+        ],
+        [
+          "sea_coast"
+        ],
+        [
+          "nature_trekking"
+        ],
+        [
+          "history_tradition"
+        ],
+        [
+          "art_sense"
+        ],
+        [
+          "healing_rest"
+        ]
+      ],
+      "expected_use": "long-history control profile; profile-on should be close to profile-off"
+    }
+  ]
+}

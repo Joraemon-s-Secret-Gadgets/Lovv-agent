@@ -1,0 +1,9 @@
+{
+  "id": "113_anchored_gangneung_art",
+  "source": "v2gen_retrieval",
+  "raw_query": "강릉에서 미술관과 감성 카페 위주로 도는 당일치기.",
+  "soft_query": "사진 찍기 좋은 곳",
+  "themes": [
+    "예술·감성"
+  ]
+}
