@@ -123,6 +123,19 @@ def rescore_case(obj: dict, pen_coef: float, floor: float, dest_map: dict[str, s
     return {"case_id": cid, "branch": "discovery", "selected": rows[0], "ranking": rows[:10]}
 
 
+def selected_city_map(cases: list[dict]) -> dict[str, str]:
+    selected: dict[str, str] = {}
+    for case in cases:
+        case_id = case.get("case_id")
+        row = case.get("selected")
+        if not isinstance(case_id, str) or not isinstance(row, dict):
+            continue
+        ddb_pk = row.get("ddb_pk")
+        if isinstance(ddb_pk, str):
+            selected[case_id] = ddb_pk
+    return selected
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="offline city_select rescore/compare")
     ap.add_argument("smoke_dir")
@@ -138,10 +151,12 @@ def main() -> int:
     cases = [rescore_case(json.load(open(f, encoding="utf-8")), args.pen_coef, args.floor, dest_map)
              for f in files]
     tag = f"p{args.pen_coef}_f{args.floor}"
-    json.dump({"params": vars(args), "anchored_n": sum(c["branch"] == "anchored" for c in cases),
-               "cases": cases},
-              open(os.path.join(args.smoke_dir, f"rescore_{tag}.json"), "w", encoding="utf-8"),
-              ensure_ascii=False, indent=2)
+    with open(os.path.join(args.smoke_dir, f"rescore_{tag}.json"), "w", encoding="utf-8") as fh:
+        json.dump({"params": vars(args), "anchored_n": sum(c["branch"] == "anchored" for c in cases),
+                   "cases": cases},
+                  fh, ensure_ascii=False, indent=2)
+    with open(os.path.join(args.smoke_dir, "selected_cities.json"), "w", encoding="utf-8") as fh:
+        json.dump(selected_city_map(cases), fh, ensure_ascii=False, indent=2)
     print(f"재채점 {len(cases)}케이스 (pen={args.pen_coef} floor={args.floor}) · "
           f"anchored {sum(c['branch']=='anchored' for c in cases)} · "
           f"no_candidate {sum(c['branch']=='no_candidate' for c in cases)}")

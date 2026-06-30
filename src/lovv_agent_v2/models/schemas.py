@@ -20,7 +20,7 @@ class SchemaValidationError(ValueError):
 SCHEMA_GROUPS: tuple[str, ...] = (
     # 테스트와 결과 report에서 사용하는 public handoff schema 묶음이다.
     "CitySelectInput",
-    "CandidateEvidencePackage",
+    "CitySelectResult",
     "FestivalVerification",
     "PlannerOutput",
     "BackendResponse",
@@ -37,15 +37,6 @@ EXECUTION_MODES: tuple[str, ...] = (
     "city_discovery",
     "anchored_place_search",
     "festival_seeded_city_discovery",
-)
-
-CANDIDATE_REASON_CLAIM_SCOPES: tuple[str, ...] = (
-    "city_selection",
-    "place_pool",
-    "festival_anchor",
-    "candidate_shortage",
-    "external_link_policy",
-    "fallback_notice",
 )
 
 FESTIVAL_DATE_STATUSES: tuple[str, ...] = (
@@ -246,6 +237,9 @@ class CitySelectInput:
     congestion_pref: str = "neutral"
     transport_pref: str = "unknown"
     theme_weights: Mapping[str, float] | None = None
+    city_key: str | None = None
+    ddb_pk: str | None = None
+    destination_label: str | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "country", _required_text(self.country, "country"))
@@ -308,6 +302,13 @@ class CitySelectInput:
             "theme_weights",
             _optional_mapping(self.theme_weights, "theme_weights"),
         )
+        object.__setattr__(self, "city_key", _optional_text(self.city_key, "city_key"))
+        object.__setattr__(self, "ddb_pk", _optional_text(self.ddb_pk, "ddb_pk"))
+        object.__setattr__(
+            self,
+            "destination_label",
+            _optional_text(self.destination_label, "destination_label"),
+        )
 
     @classmethod
     def from_mapping(cls, payload: Mapping[str, Any]) -> "CitySelectInput":
@@ -352,6 +353,21 @@ class CitySelectInput:
             congestion_pref=_mapping_get(payload, "congestion_pref", "congestionPref", default="neutral"),
             transport_pref=_mapping_get(payload, "transport_pref", "transportPref", default="unknown"),
             theme_weights=_mapping_get(payload, "theme_weights", "themeWeights", "request_theme_weights", "requestThemeWeights", default=None),
+            city_key=_mapping_get(
+                payload,
+                "city_key",
+                "cityKey",
+                "destination_city_key",
+                "destinationCityKey",
+                default=None,
+            ),
+            ddb_pk=_mapping_get(payload, "ddb_pk", "ddbPk", default=None),
+            destination_label=_mapping_get(
+                payload,
+                "destination_label",
+                "destinationLabel",
+                default=None,
+            ),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -406,69 +422,7 @@ class SelectedCity:
 
 
 @dataclass(frozen=True, slots=True)
-class CandidateReasonClaim:
-    """LLM-compressed, evidence-referenced reason claim candidate.
-
-    Candidate Evidence may generate these Korean claim snippets from structured
-    audit fields. Planner must still verify each claim against final placed
-    items and detail enrichment before using it in public copy.
-    """
-
-    claim_id: str
-    scope: str
-    text_ko: str
-    evidence_refs: tuple[str, ...] = ()
-    required_place_ids: tuple[str, ...] = ()
-    public_eligible: bool = True
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "claim_id", _required_text(self.claim_id, "claim_id"))
-        object.__setattr__(
-            self,
-            "scope",
-            _validate_choice(
-                self.scope,
-                CANDIDATE_REASON_CLAIM_SCOPES,
-                "scope",
-            ),
-        )
-        object.__setattr__(self, "text_ko", _required_text(self.text_ko, "text_ko"))
-        object.__setattr__(
-            self,
-            "evidence_refs",
-            _string_tuple(self.evidence_refs, "evidence_refs"),
-        )
-        object.__setattr__(
-            self,
-            "required_place_ids",
-            _string_tuple(self.required_place_ids, "required_place_ids"),
-        )
-        object.__setattr__(
-            self,
-            "public_eligible",
-            _bool(self.public_eligible, "public_eligible"),
-        )
-
-    @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "CandidateReasonClaim":
-        """Build one Candidate Evidence reason claim from a mapping."""
-
-        return cls(
-            claim_id=_mapping_get(payload, "claim_id", "id"),
-            scope=_mapping_get(payload, "scope"),
-            text_ko=_mapping_get(payload, "text_ko", "text"),
-            evidence_refs=_mapping_get(payload, "evidence_refs", default=()),
-            required_place_ids=_mapping_get(
-                payload,
-                "required_place_ids",
-                default=(),
-            ),
-            public_eligible=_mapping_get(payload, "public_eligible", default=True),
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class CandidateEvidencePackage:
+class CitySelectResult:
     """Internal package consumed by Planner Agent."""
 
     status: str
@@ -489,7 +443,6 @@ class CandidateEvidencePackage:
     candidate_counts: dict[str, Any] = field(default_factory=dict)
     warnings: dict[str, Any] = field(default_factory=dict)
     fallback_audit: dict[str, Any] = field(default_factory=dict)
-    candidate_reason_claims: tuple[CandidateReasonClaim, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(
@@ -535,18 +488,8 @@ class CandidateEvidencePackage:
                 "selected_festival_candidates",
             ),
         )
-        reason_claims = tuple(
-            item
-            if isinstance(item, CandidateReasonClaim)
-            else CandidateReasonClaim.from_mapping(item)
-            for item in self.candidate_reason_claims
-        )
-        object.__setattr__(self, "candidate_reason_claims", reason_claims)
-
     @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "CandidateEvidencePackage":
-        """Build from the internal Candidate Evidence package mapping."""
-
+    def from_mapping(cls, payload: Mapping[str, Any]) -> "CitySelectResult":
         selected_city = _mapping_get(payload, "selected_city", default=None)
         return cls(
             status=_mapping_get(payload, "status"),
@@ -583,14 +526,6 @@ class CandidateEvidencePackage:
             candidate_counts=_mapping_get(payload, "candidate_counts", default={}),
             warnings=_mapping_get(payload, "warnings", default={}),
             fallback_audit=_mapping_get(payload, "fallback_audit", default={}),
-            candidate_reason_claims=tuple(
-                CandidateReasonClaim.from_mapping(item)
-                for item in _mapping_get(
-                    payload,
-                    "candidate_reason_claims",
-                    default=(),
-                )
-            ),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -912,9 +847,7 @@ __all__ = [
     "SCHEMA_GROUPS",
     "CitySelectInput",
     "CitySelectionResult",
-    "CandidateEvidencePackage",
-    "CandidateReasonClaim",
-    "CANDIDATE_REASON_CLAIM_SCOPES",
+    "CitySelectResult",
     "ExplanationReasonRef",
     "FestivalVerification",
     "GeoPoint",

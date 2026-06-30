@@ -12,6 +12,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from lovv_agent_v2.models.profile import PROFILE_SCORE_CAP
 from lovv_agent_v2.models.schemas import SchemaValidationError
 from lovv_agent_v2.agents.city_select.retrieval_node import (
     ATTRACTION_ENTITY_TYPE,
@@ -300,6 +301,21 @@ def score_city(
         for theme, best_similarity in best_similarity_by_theme.items()
         if best_similarity <= 0.0
     )
+    weighted_theme_score = weighted_theme_coverage - weighted_missing_theme_penalty
+    equal_theme_score = _theme_score_with_weights(
+        best_similarity_by_theme,
+        _equal_weights(scoreable_themes),
+    )
+    capped_theme_score = (
+        weighted_theme_score
+        if not theme_weights
+        else equal_theme_score
+        + _clamp(
+            weighted_theme_score - equal_theme_score,
+            -PROFILE_SCORE_CAP,
+            PROFILE_SCORE_CAP,
+        )
+    )
 
     distance_penalty = _city_distance_penalty(scored_places, user_location, trip_type)
     congestion_penalty = _numeric(congestion_index, "congestion_index") * _numeric(
@@ -308,8 +324,7 @@ def score_city(
     )
 
     city_score = (
-        weighted_theme_coverage
-        - weighted_missing_theme_penalty
+        capped_theme_score
         - distance_penalty
         - congestion_penalty
     )
@@ -520,6 +535,28 @@ def _scoreable_themes(active_themes: Sequence[str]) -> tuple[str, ...]:
         seen.add(theme)
         filtered.append(theme)
     return tuple(filtered)
+
+
+def _equal_weights(themes: Sequence[str]) -> dict[str, float]:
+    if not themes:
+        return {}
+    return {theme: 1.0 / len(themes) for theme in themes}
+
+
+def _theme_score_with_weights(
+    best_similarity_by_theme: Mapping[str, float],
+    weights: Mapping[str, float],
+) -> float:
+    return sum(
+        weights.get(theme, 0.0) * best_similarity
+        if best_similarity > 0.0
+        else -weights.get(theme, 0.0)
+        for theme, best_similarity in best_similarity_by_theme.items()
+    )
+
+
+def _clamp(value: float, low: float, high: float) -> float:
+    return min(max(value, low), high)
 
 
 def _similarity_from_distance(value: Any) -> float:

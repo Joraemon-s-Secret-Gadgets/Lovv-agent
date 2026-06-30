@@ -8,7 +8,7 @@ Planner final placement.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass, field, replace
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 from lovv_agent_v2.infra.config import SearchBudgetSettings
 from lovv_agent_v2.models.schemas import SchemaValidationError
 from lovv_agent_v2.infra.repositories.dynamodb import DynamoDbRepository
+from lovv_agent_v2.agents.festival_verifier.verifier import build_festival_gate_result
 
 TOOL_NAME = "DynamoLookupTool"
 
@@ -32,6 +33,7 @@ class FestivalCandidate:
     name: str
     country: str
     city_id: str
+    ddb_pk: str | None
     city_name: str | None
     month: int
     theme: str | None
@@ -56,18 +58,26 @@ class FestivalSeedResult:
     candidates: tuple[FestivalCandidate, ...] = ()
     failure_signals: tuple[str, ...] = ()
     needs_clarification: bool = False
+    tier: str = "none"
+    allowed_city_ids: tuple[str, ...] = ()
+    clarification: dict[str, Any] | None = None
+    verified_festival_cities: tuple[dict[str, Any], ...] = ()
+    audit: dict[str, Any] = field(default_factory=dict)
 
     @property
     def seed_city_ids(self) -> tuple[str, ...]:
         """Return unique seed city ids in candidate order."""
 
+        source_city_ids = self.allowed_city_ids or tuple(
+            candidate.city_id for candidate in self.candidates
+        )
         seen: set[str] = set()
         city_ids: list[str] = []
-        for candidate in self.candidates:
-            if candidate.city_id in seen:
+        for city_id in source_city_ids:
+            if city_id in seen:
                 continue
-            seen.add(candidate.city_id)
-            city_ids.append(candidate.city_id)
+            seen.add(city_id)
+            city_ids.append(city_id)
         return tuple(city_ids)
 
     @property
@@ -85,6 +95,11 @@ class FestivalSeedResult:
             "seed_city_ids": list(self.seed_city_ids),
             "failure_signals": list(self.failure_signals),
             "needs_clarification": self.needs_clarification,
+            "tier": self.tier,
+            "allowed_city_ids": list(self.allowed_city_ids),
+            "clarification": self.clarification,
+            "verified_festival_cities": list(self.verified_festival_cities),
+            "audit": self.audit,
         }
 
 
@@ -132,8 +147,10 @@ class DynamoLookupTool:
         *,
         country: str,
         travel_month: int,
+        travel_year: int | None = None,
         theme_pool: Sequence[str],
         city_id: str | None = None,
+        city_key: str | None = None,
         max_candidates: int | None = None,
     ) -> FestivalSeedResult:
         """Find month/theme-matching festival candidates before attraction search."""
@@ -141,8 +158,10 @@ class DynamoLookupTool:
         return search_festival_city_seeds(
             country=country,
             travel_month=travel_month,
+            travel_year=travel_year,
             theme_pool=theme_pool,
             city_id=city_id,
+            city_key=city_key,
             max_candidates=max_candidates,
             dynamodb=self.dynamodb,
             search_budget=self.search_budget,
@@ -176,8 +195,10 @@ def search_festival_city_seeds(
     *,
     country: str,
     travel_month: int,
+    travel_year: int | None = None,
     theme_pool: Sequence[str],
     city_id: str | None = None,
+    city_key: str | None = None,
     max_candidates: int | None = None,
     dynamodb: DynamoDbRepository,
     search_budget: SearchBudgetSettings,
@@ -186,7 +207,9 @@ def search_festival_city_seeds(
 
     normalized_country = _required_text(country, "country")
     normalized_month = _month(travel_month, "travel_month")
+    normalized_year = _optional_positive_int(travel_year, "travel_year")
     normalized_city_id = _optional_text(city_id, "city_id")
+    normalized_city_key = _optional_city_key(city_key)
     # Festival documents do not currently persist travel-theme fields. Keep the
     # argument for caller compatibility, but do not use it as a filter.
     del theme_pool
@@ -195,6 +218,7 @@ def search_festival_city_seeds(
         country=normalized_country,
         travel_month=normalized_month,
         city_id=normalized_city_id,
+        city_key=normalized_city_key,
         limit=limit,
     )
     # detail 문서에는 country 속성이 없거나(지역 단위 배포) 표기가 제각각이라
@@ -210,11 +234,39 @@ def search_festival_city_seeds(
         ).month == normalized_month
         and (normalized_city_id is None or candidate.city_id == normalized_city_id)
     )[:limit]
-    if candidates:
-        return FestivalSeedResult(status="ok", candidates=candidates)
-    if normalized_city_id is not None:
-        return _festival_seed_failure("no_festival_in_anchor_city")
-    return _festival_seed_failure("no_festival_city_seed")
+    gate_result = build_festival_gate_result(
+        include_festivals=True,
+        travel_month=normalized_month,
+        target_year=normalized_year,
+        requested_destination_id=normalized_city_id,
+        candidates=tuple(candidate.to_dict() for candidate in candidates),
+    )
+    candidate_by_id = {candidate.festival_id: candidate for candidate in candidates}
+    gate_candidates = tuple(
+        candidate_by_id[payload["festival_id"]]
+        for payload in gate_result.candidates
+        if payload["festival_id"] in candidate_by_id
+    )
+    failure_signals = (
+        tuple(gate_result.clarification.failure_signals)
+        if gate_result.clarification is not None
+        else ()
+    )
+    return FestivalSeedResult(
+        status=gate_result.status,
+        candidates=gate_candidates,
+        failure_signals=failure_signals,
+        needs_clarification=gate_result.status == "needs_clarification",
+        tier=gate_result.tier,
+        allowed_city_ids=gate_result.allowed_city_ids,
+        clarification=(
+            None
+            if gate_result.clarification is None
+            else gate_result.clarification.to_dict()
+        ),
+        verified_festival_cities=gate_result.verified_festival_cities,
+        audit=gate_result.audit,
+    )
 
 
 def _to_legacy_city_pk(pk: str | None) -> str | None:
@@ -304,6 +356,10 @@ def normalize_festival_candidate(item: Mapping[str, Any]) -> FestivalCandidate:
         name=_required_text(_first_present(normalized, "name", "title"), "name"),
         country=_required_text(normalized.get("country"), "country"),
         city_id=_required_text(normalized.get("city_id"), "city_id"),
+        ddb_pk=_optional_text(
+            _first_optional(normalized, "ddb_pk", "city_key", "PK", "pk"),
+            "ddb_pk",
+        ),
         city_name=_optional_text(
             _first_optional(normalized, "city_name", "city_name_ko"),
             "city_name",
@@ -511,6 +567,21 @@ def _month(value: Any, field_name: str) -> int:
     return value
 
 
+def _optional_positive_int(value: Any, field_name: str) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            value = int(value)
+        except ValueError as exc:
+            raise SchemaValidationError(f"{field_name} must be an integer") from exc
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise SchemaValidationError(f"{field_name} must be an integer")
+    if value < 1:
+        raise SchemaValidationError(f"{field_name} must be positive")
+    return value
+
+
 def _normalize_string_sequence(value: Any, field_name: str) -> tuple[str, ...]:
     """Validate a string sequence."""
 
@@ -540,6 +611,15 @@ def _optional_text(value: Any, field_name: str) -> str | None:
     if value is None:
         return None
     return _required_text(value, field_name)
+
+
+def _optional_city_key(value: Any) -> str | None:
+    if value is None:
+        return None
+    normalized = _required_text(value, "city_key")
+    if normalized.startswith("CITY#"):
+        return normalized
+    return f"CITY#{normalized.upper()}"
 
 
 __all__ = [

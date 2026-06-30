@@ -9,8 +9,8 @@ from typing import Final, TypeVar
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode
 
-from lovv_agent.state import UnifiedAgentState
-from lovv_agent.telemetry_metrics import (
+from lovv_agent_v2.core.state import UnifiedAgentState
+from lovv_agent_v2.common.telemetry_metrics import (
     JsonValue,
     LlmMetricPayload,
     LlmUsageMetric,
@@ -22,7 +22,8 @@ from lovv_agent.telemetry_metrics import (
     reset_llm_usage,
     restore_llm_usage,
 )
-from lovv_agent.telemetry_safety import sanitize_text
+from lovv_agent_v2.common.telemetry_safety import sanitize_text
+from lovv_agent_v2.common.telemetry_state import bool_value, mapping_value, nested_mapping, nested_text, request_mapping, text_value, themes
 
 type LogEntry = dict[str, JsonValue]
 type GraphEnvelope = Mapping[str, UnifiedAgentState | str | None]
@@ -31,7 +32,7 @@ NodeInputT = TypeVar("NodeInputT")
 NodeResultT = TypeVar("NodeResultT")
 
 LOG_TYPE_AGENT_NODE_METRIC: Final = "AGENT_NODE_METRIC"
-DEFAULT_SERVICE_NAME: Final = "LovvAgentV1"
+DEFAULT_SERVICE_NAME: Final = "LovvAgentV2"
 MAX_ERROR_MESSAGE_CHARS: Final = 300
 
 _TRACER = trace.get_tracer("lovv_agent_v2.common.telemetry")
@@ -73,7 +74,7 @@ def trace_invocation(
     request_id = _request_id(state)
     with _TRACER.start_as_current_span("LovvAgentInvocation") as span:
         span.set_attribute("request.id", request_id)
-        span.set_attribute("agent.run_id", state.trace.agent_run_id or "unknown")
+        span.set_attribute("agent.run_id", nested_text(state, "trace", "agent_run_id", default="unknown"))
         try:
             return operation()
         except Exception as exc:  # noqa: BLE001 - top span records and re-raises.
@@ -166,7 +167,7 @@ def _configure_xray_propagator() -> None:
 
 def _state_from_envelope(envelope: GraphEnvelope) -> UnifiedAgentState:
     state = envelope.get("state")
-    if not isinstance(state, UnifiedAgentState):
+    if not isinstance(state, Mapping):
         raise TypeError("LangGraph envelope.state must be UnifiedAgentState")
     return state
 
@@ -179,12 +180,14 @@ def _set_node_span_attributes(
 ) -> None:
     span.set_attribute("node.name", node_name)
     span.set_attribute("node.request_id", request_id)
-    span.set_attribute("request.theme_count", len(state.request.themes))
-    span.set_attribute("request.include_festivals", state.request.include_festivals)
-    span.set_attribute("request.trip_type", state.request.trip_type)
+    request = request_mapping(state)
+    request_themes = themes(request)
+    span.set_attribute("request.theme_count", len(request_themes))
+    span.set_attribute("request.include_festivals", bool_value(request.get("include_festivals", request.get("includeFestivals"))))
+    span.set_attribute("request.trip_type", text_value(request.get("trip_type", request.get("tripType"))))
     span.set_attribute(
         "request.natural_language_query_length",
-        len(state.request.natural_language_query),
+        len(text_value(request.get("natural_language_query", request.get("naturalLanguageQuery")))),
     )
 
 
@@ -223,36 +226,48 @@ def _emit_node_metric(entry: LogEntry) -> None:
 
 
 def _input_summary(state: UnifiedAgentState) -> dict[str, JsonValue]:
+    request = request_mapping(state)
+    request_themes = themes(request)
     return {
-        "themes": list(state.request.themes),
-        "themeCount": len(state.request.themes),
-        "tripType": state.request.trip_type,
-        "includeFestivals": state.request.include_festivals,
-        "queryLength": len(state.request.natural_language_query),
+        "themes": list(request_themes),
+        "themeCount": len(request_themes),
+        "tripType": text_value(request.get("trip_type", request.get("tripType"))),
+        "includeFestivals": bool_value(request.get("include_festivals", request.get("includeFestivals"))),
+        "queryLength": len(text_value(request.get("natural_language_query", request.get("naturalLanguageQuery")))),
     }
 
 
 def _output_summary(state: UnifiedAgentState, result: NodeResultT | None) -> dict[str, JsonValue]:
     summary: dict[str, JsonValue] = {}
     selected_city = getattr(result, "selected_city", None)
-    if selected_city is None and state.evidence.candidate_evidence_package is not None:
-        selected_city = state.evidence.candidate_evidence_package.selected_city
-    if selected_city is not None:
+    city_select_result = nested_mapping(state, "city_select", "city_selection_result")
+    if selected_city is None and city_select_result:
+        selected_city = city_select_result.get("selected_city")
+    if isinstance(selected_city, Mapping):
+        summary["selectedCity"] = text_value(selected_city.get("city_id"))
+    elif selected_city is not None:
         summary["selectedCity"] = getattr(selected_city, "city_id", None)
 
     recommended_places = getattr(result, "recommended_places", None)
     if isinstance(recommended_places, (list, tuple)):
         summary["candidateCount"] = len(recommended_places)
 
-    if state.planning.planner_output is not None:
-        summary["itineraryItemCount"] = len(state.planning.planner_output.itinerary)
-    if state.serving.response_status is not None:
-        summary["responseStatus"] = state.serving.response_status
+    planner_output = nested_mapping(state, "planner", "planner_output")
+    if planner_output:
+        itinerary = planner_output.get("itinerary", ())
+        summary["itineraryItemCount"] = len(itinerary) if isinstance(itinerary, (list, tuple)) else 0
+    response = mapping_value(state.get("response"))
+    if response:
+        summary["responseStatus"] = text_value(response.get("response_status"))
     return summary
 
 
 def _request_id(state: UnifiedAgentState) -> str:
-    return state.trace.recommendation_request_id or state.request.request_id or "unknown"
+    trace_payload = mapping_value(state.get("trace"))
+    request_payload = request_mapping(state)
+    return (
+        text_value(trace_payload.get("recommendation_request_id")) if trace_payload else ""
+    ) or text_value(request_payload.get("request_id", request_payload.get("requestId"))) or "unknown"
 
 
 def _record_span_error(span, exc: Exception) -> None:

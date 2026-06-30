@@ -276,6 +276,7 @@ class DynamoDbRepository:
         country: str,
         travel_month: int,
         city_id: str | None = None,
+        city_key: str | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
         """Read festival rows by month, using the city partition when available.
@@ -288,10 +289,16 @@ class DynamoDbRepository:
         _required_text(country, "country")
         normalized_month = _month(travel_month, "travel_month")
         normalized_city_id = _optional_text(city_id, "city_id")
+        normalized_city_key = _optional_city_key(city_key)
         if limit is not None:
             _positive_int(limit, "limit")
 
-        if normalized_city_id is not None:
+        if normalized_city_id is not None or normalized_city_key is not None:
+            pk = (
+                normalized_city_key
+                if normalized_city_key is not None
+                else _to_legacy_city_pk(_city_partition_key(normalized_city_id or ""))
+            )
             request = {
                 "KeyConditionExpression": "#pk = :pk AND begins_with(#sk, :festival_prefix)",
                 "FilterExpression": "#month = :month",
@@ -301,7 +308,7 @@ class DynamoDbRepository:
                     "#month": "month",
                 },
                 "ExpressionAttributeValues": {
-                    ":pk": {"S": _to_legacy_city_pk(_city_partition_key(normalized_city_id))},
+                    ":pk": {"S": pk},
                     ":festival_prefix": {"S": "FESTIVAL#"},
                     ":month": {"N": str(normalized_month)},
                 },
@@ -341,6 +348,15 @@ def _optional_text(value: Any, field_name: str) -> str | None:
     if value is None:
         return None
     return _required_text(value, field_name)
+
+
+def _optional_city_key(value: Any) -> str | None:
+    if value is None:
+        return None
+    normalized = _required_text(value, "city_key")
+    if normalized.startswith("CITY#"):
+        return normalized
+    return f"CITY#{normalized.upper()}"
 
 
 def _city_partition_key(city_id: str) -> str:

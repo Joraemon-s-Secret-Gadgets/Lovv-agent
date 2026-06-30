@@ -10,7 +10,7 @@
 결과는 JSON으로 저장.
 
 ★ 인덱스/메타데이터 (실측):
-  vector: lovv-vector-dev / kr-tour-domain-v1 (Titan Embed Text v2, 1024-dim)
+  vector: lovv-vector-dev / kr-tour-domain-v2 (Titan Embed Text v2, 1024-dim)
   metadata: city_id·city_name_ko·entity_type·place_id·title·theme_tags·attraction_subtype_code
           · ddb_pk(CITY#영문)·ddb_sk(ATTRACTION#content_id)·latitude·longitude ...
   dynamo: TourKoreaDomainDataV2, GetItem(PK=ddb_pk, SK=ddb_sk) → description·address·season_tags·visit_months
@@ -37,7 +37,7 @@ from decimal import Decimal
 from typing import Any
 
 VECTOR_BUCKET = os.environ.get("LOVV_VECTOR_BUCKET", "lovv-vector-dev")
-VECTOR_INDEX = os.environ.get("LOVV_VECTOR_INDEX", "kr-tour-domain-v1")
+VECTOR_INDEX = os.environ.get("LOVV_VECTOR_INDEX", "kr-tour-domain-v2")
 EMBED_MODEL = os.environ.get("LOVV_EMBED_MODEL", "amazon.titan-embed-text-v2:0")
 DDB_TABLE = os.environ.get("LOVV_DDB_TABLE", "TourKoreaDomainDataV2")
 REGION = os.environ.get("AWS_REGION", "us-east-1")

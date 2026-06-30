@@ -23,7 +23,7 @@ import argparse, glob, hashlib, json, os, random, sys
 from typing import Any
 
 VECTOR_BUCKET = os.environ.get("LOVV_VECTOR_BUCKET", "lovv-vector-dev")
-VECTOR_INDEX = os.environ.get("LOVV_VECTOR_INDEX", "kr-tour-domain-v1")
+VECTOR_INDEX = os.environ.get("LOVV_VECTOR_INDEX", "kr-tour-domain-v2")
 EMBED_MODEL = os.environ.get("LOVV_EMBED_MODEL", "amazon.titan-embed-text-v2:0")
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 EMBED_DIM = 1024

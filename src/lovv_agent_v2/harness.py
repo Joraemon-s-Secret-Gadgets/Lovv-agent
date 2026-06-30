@@ -30,7 +30,7 @@ class LovvLangGraphV2Harness:
         """Invoke the V2 graph and return the output."""
 
         config = dict(graph_config or {})
-        return self.graph.invoke({"state": payload}, config=config)
+        return self.graph.invoke(payload, config=config)
 
 
 def build_v2_harness(

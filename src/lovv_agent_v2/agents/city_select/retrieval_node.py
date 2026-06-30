@@ -12,10 +12,10 @@ from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode
 
 from lovv_agent_v2.infra.config import RuntimeConfig, SearchBudgetSettings
-from lovv_agent_v2.models.schemas import SchemaValidationError, CitySelectInput, CandidateEvidencePackage
+from lovv_agent_v2.models.schemas import SchemaValidationError, CitySelectInput, CitySelectResult
 from lovv_agent_v2.infra.adapters.embeddings import BedrockEmbeddingAdapter
 from lovv_agent_v2.infra.aws_clients import AwsClientFactory, AwsClientProvider, create_boto3_client_factory
-from lovv_agent_v2.infra.dynamo_lookup import DynamoLookupTool, FestivalSeedResult
+from lovv_agent_v2.infra.dynamo_lookup import DynamoLookupTool
 from lovv_agent_v2.infra.repositories.dynamodb import DynamoDbRepository
 from lovv_agent_v2.infra.repositories.s3_vectors import S3VectorRepository, extract_vector_records
 from lovv_agent_v2.common.telemetry import sanitize_text
@@ -26,6 +26,9 @@ TOOL_NAME = "DestinationSearchTool"
 
 RESPONSIBILITY = "Search and normalize S3 Vector attraction evidence."
 
+CITY_DISCOVERY_MODE = "city_discovery"
+ANCHORED_PLACE_SEARCH_MODE = "anchored_place_search"
+FESTIVAL_SEEDED_CITY_DISCOVERY_MODE = "festival_seeded_city_discovery"
 ATTRACTION_ENTITY_TYPE = "attraction"
 DEFAULT_RETURN_DISTANCE = True
 DEFAULT_RETURN_METADATA = True
@@ -50,6 +53,8 @@ FESTIVAL_EXCLUDED_THEME_LABELS = frozenset(
 PLACE_SEARCH_EXCLUDED_THEME_LABELS = (
     GOURMET_EXTERNAL_THEME_LABELS | FESTIVAL_EXCLUDED_THEME_LABELS
 )
+EXTERNAL_LINK_THEME_LABELS = GOURMET_EXTERNAL_THEME_LABELS
+FESTIVAL_THEME_MARKERS = FESTIVAL_EXCLUDED_THEME_LABELS
 # vector row는 chunk로 쪼개질 수 있으므로 deduplication과 city grouping 전에
 # chunk key를 canonical place id로 되돌린다.
 _CHUNK_SUFFIX_PATTERN = re.compile(
@@ -376,7 +381,6 @@ def _candidate_city_key(candidate: AttractionCandidate) -> str | None:
         return candidate.city_name_ko.strip()
     return None
 
-
 def _metadata(record: Mapping[str, Any]) -> dict[str, Any]:
     """Return copied vector metadata."""
 
@@ -539,7 +543,7 @@ class CandidateThemeSplit:
 
 
 @dataclass(frozen=True, slots=True)
-class CandidateEvidenceContext:
+class CitySelectContext:
     """Resolved Candidate Evidence entry context for one graph run."""
 
     candidate_input: CitySelectInput
@@ -549,16 +553,14 @@ class CandidateEvidenceContext:
 
 
 
-def prepare_candidate_evidence_context(
+def prepare_city_select_context(
     candidate_input: CitySelectInput | Mapping[str, Any],
-) -> CandidateEvidenceContext:
-    """Return the deterministic Candidate Evidence entry context."""
-
-    normalized_input = ensure_candidate_evidence_input(candidate_input)
-    mode = resolve_candidate_evidence_mode(normalized_input)
+) -> CitySelectContext:
+    normalized_input = ensure_city_select_input(candidate_input)
+    mode = resolve_city_select_mode(normalized_input)
     theme_split = split_candidate_themes(normalized_input.active_required_themes)
 
-    return CandidateEvidenceContext(
+    return CitySelectContext(
         candidate_input=normalized_input,
         mode=mode,
         theme_split=theme_split,
@@ -567,7 +569,7 @@ def prepare_candidate_evidence_context(
 
 
 
-def ensure_candidate_evidence_input(
+def ensure_city_select_input(
     candidate_input: CitySelectInput | Mapping[str, Any],
 ) -> CitySelectInput:
     """Accept schema instances or mappings at the node boundary."""
@@ -576,11 +578,11 @@ def ensure_candidate_evidence_input(
         return candidate_input
     if isinstance(candidate_input, Mapping):
         return CitySelectInput.from_mapping(candidate_input)
-    raise SchemaValidationError("candidate_evidence_input must be a schema or mapping")
+    raise SchemaValidationError("city_select_input must be a schema or mapping")
 
 
 
-def resolve_candidate_evidence_mode(candidate_input: CitySelectInput) -> str:
+def resolve_city_select_mode(candidate_input: CitySelectInput) -> str:
     """Resolve execution mode from ``destinationId`` and ``includeFestivals``.
 
     A fixed destination always selects anchored search. ``includeFestivals`` is
@@ -642,55 +644,6 @@ def _unique_theme_labels(themes: Sequence[str]) -> tuple[str, ...]:
 
 
 
-def _run_festival_seed_lookup(
-    *,
-    context: CandidateEvidenceContext,
-    dynamo_lookup: Any | None,
-) -> FestivalSeedResult:
-    """Run month festival seed lookup before attraction retrieval."""
-
-    theme_pool = context.theme_split.active_required_themes
-    if dynamo_lookup is None:
-        return FestivalSeedResult(
-            status="error",
-            failure_signals=("festival_lookup_tool_required",),
-            needs_clarification=False,
-        )
-    return dynamo_lookup.search_festival_city_seeds(
-        country=context.candidate_input.country,
-        travel_month=context.candidate_input.travel_month,
-        theme_pool=theme_pool,
-        city_id=context.candidate_input.destination_id,
-    )
-
-
-
-def _festival_seed_failure_package(
-    context: CandidateEvidenceContext,
-    festival_seed_result: FestivalSeedResult,
-) -> CandidateEvidencePackage:
-    """Build the hard-gate failure package for festival seed misses."""
-
-    failure_signals = festival_seed_result.failure_signals or (
-        "festival_seed_lookup_failed",
-    )
-    clarifying_question = (
-        "현재 조건에 맞는 축제 후보가 없습니다. 여행 월이나 테마를 조정해 주세요."
-        if festival_seed_result.needs_clarification
-        else None
-    )
-    return _package_failure(
-        context,
-        status=festival_seed_result.status,
-        failure_signal=failure_signals[0],
-        failure_signals=failure_signals,
-        needs_clarification=festival_seed_result.needs_clarification,
-        clarifying_question=clarifying_question,
-        festival_seed_result=festival_seed_result,
-    )
-
-
-
 def _retrieve_by_theme(
     destination_search: Any,
     *,
@@ -741,7 +694,7 @@ def _merge_duplicate_candidates(
 
 
 def _package_failure(
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     *,
     status: str,
     failure_signal: str,
@@ -749,26 +702,25 @@ def _package_failure(
     needs_clarification: bool,
     clarifying_question: str | None = None,
     retrieval_audit: Mapping[str, Any] | None = None,
-    festival_seed_result: FestivalSeedResult | None = None,
-) -> CandidateEvidencePackage:
+) -> CitySelectResult:
     """Build a valid failure package at the Candidate Evidence boundary."""
 
-    return CandidateEvidencePackage(
+    return CitySelectResult(
         status=status,
         failure_signals=tuple(failure_signals or (failure_signal,)),
         needs_clarification=needs_clarification,
         clarifying_question=clarifying_question,
         mode=context.mode,
         city_anchor=None,
-        festival_candidates=_festival_candidate_payloads(festival_seed_result),
+        festival_candidates=(),
         selected_festival_candidates=(),
-        festival_seed_audit=_festival_seed_audit(festival_seed_result),
+        festival_seed_audit={},
         retrieval_audit=dict(retrieval_audit or {}),
         candidate_counts={},
         fallback_audit={
             "planner_consumable": False,
             "failure_signal": failure_signal,
-            "festival_seed_applied": festival_seed_result is not None,
+            "festival_seed_applied": False,
         },
     )
 
@@ -776,7 +728,7 @@ def _package_failure(
 
 def _allowed_city_ids(
     *,
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     allowed_city_ids: Sequence[str] | None,
 ) -> tuple[str, ...] | None:
     """Return the city pool restriction for prune/scoring."""
@@ -789,44 +741,9 @@ def _allowed_city_ids(
     return None
 
 
-
-def _festival_candidate_payloads(
-    festival_seed_result: FestivalSeedResult | None,
-    *,
-    city_id: str | None = None,
-) -> tuple[dict[str, Any], ...]:
-    """Serialize festival candidates, optionally limited to one selected city."""
-
-    if festival_seed_result is None:
-        return ()
-    return tuple(
-        _festival_candidate_payload(candidate)
-        for candidate in festival_seed_result.candidates
-        if city_id is None or candidate.city_id == city_id
-    )
-
-
-
-def _festival_seed_audit(
-    festival_seed_result: FestivalSeedResult | None,
-) -> dict[str, Any]:
-    """Return compact festival seed audit fields."""
-
-    if festival_seed_result is None:
-        return {}
-    return {
-        "status": festival_seed_result.status,
-        "candidate_count": len(festival_seed_result.candidates),
-        "seed_city_ids": list(festival_seed_result.seed_city_ids),
-        "failure_signals": list(festival_seed_result.failure_signals),
-        "needs_clarification": festival_seed_result.needs_clarification,
-    }
-
-
-
 def _retrieval_audit(
     *,
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     retrieved_count: int,
     merged_count: int,
     survived_city_count: int,
@@ -876,13 +793,26 @@ def _build_city_select_runtime_tools(
     return destination_search, dynamo_lookup, embedding_adapter
 
 
+def _city_select_failure_state(result: CitySelectResult) -> dict[str, Any]:
+    return {
+        "city_selection_result": None,
+        "status": result.status,
+        "clarification": None,
+        "retrieval_audit": dict(result.retrieval_audit),
+        "scoring_audit": {},
+        "failure_signals": tuple(result.failure_signals),
+        "fallback_audit": dict(result.fallback_audit),
+        "clarifying_question": result.clarifying_question,
+    }
+
+
 def _required_embedding_model_id(model_id: str | None) -> str:
     if model_id is None:
         raise SchemaValidationError("LOVV_EMBEDDING_MODEL_ID is required for city_select")
     return model_id
 
 
-def _embedding_query_text(context: CandidateEvidenceContext) -> str:
+def _embedding_query_text(context: CitySelectContext) -> str:
     query = context.candidate_input.cleaned_raw_query.strip()
     if not query:
         raise SchemaValidationError("cleaned_raw_query is required for city_select embedding")
@@ -894,48 +824,40 @@ from lovv_agent_v2.core.state import UnifiedAgentState
 
 def retrieval_node(state: UnifiedAgentState) -> dict:
     """Retrieve tourist spots from S3 Vector DB and prune them."""
-    # 1. 런타임에 설정과 리포지토리 생성
-    config = RuntimeConfig.from_env()
-    client_factory = create_boto3_client_factory(profile_name=config.aws.profile_name)
-
-    # 2. State에서 입력 추출
-    # LangGraph State가 dict 형태 혹은 UnifiedAgentState 객체일 수 있으므로 유연하게 추출
     intent = state.get("intent", {}) if isinstance(state, dict) else getattr(state, "intent", None)
     
     if isinstance(intent, dict):
-        candidate_input = intent.get("candidate_evidence_input")
+        candidate_input = intent.get("city_select_input")
     else:
-        candidate_input = getattr(intent, "candidate_evidence_input", None)
+        candidate_input = getattr(intent, "city_select_input", None)
 
     if not candidate_input:
-        raise ValueError("candidate_evidence_input is required in state['intent']")
+        raise ValueError("city_select_input is required in state['intent']")
 
-    # 3. 오케스트레이션 수행 (V1 run 앞단 이식)
-    context = prepare_candidate_evidence_context(candidate_input)
-    destination_search, dynamo_lookup, embedding_adapter = _build_city_select_runtime_tools(
+    context = prepare_city_select_context(candidate_input)
+    allowed_city_ids = _festival_gate_allowed_city_ids(state)
+    if context.include_festivals and allowed_city_ids is None:
+        fail_pkg = _package_failure(
+            context,
+            status="error",
+            failure_signal="missing_festival_gate_allowed_city_ids",
+            needs_clarification=False,
+            retrieval_audit={
+                "festival_gate_required": True,
+                "reason": "city_select_requires_festival_gate_allowed_city_ids",
+            },
+        )
+        return {"city_select": _city_select_failure_state(fail_pkg)}
+
+    config = RuntimeConfig.from_env()
+    client_factory = create_boto3_client_factory(profile_name=config.aws.profile_name)
+    destination_search, _, embedding_adapter = _build_city_select_runtime_tools(
         config,
         client_factory,
     )
     query_vector = embedding_adapter.embed_query(_embedding_query_text(context))
-    
-    festival_seed_result = None
-    allowed_city_ids = None
-    if context.include_festivals:
-        festival_seed_result = _run_festival_seed_lookup(
-            context=context,
-            dynamo_lookup=dynamo_lookup,
-        )
-        if festival_seed_result.status == "ok":
-            allowed_city_ids = (
-                (context.candidate_input.destination_id,)
-                if context.candidate_input.destination_id is not None
-                else festival_seed_result.seed_city_ids
-            )
-        else:
-            # 축제 시드 검색 실패 시 바로 error package 구성해서 반환
-            fail_pkg = _festival_seed_failure_package(context, festival_seed_result)
-            return {"evidence": {"candidate_evidence_package": fail_pkg, "pruned_groups": None}}
 
+    festival_seed_result = None
     if not context.theme_split.searchable_place_themes:
         fail_pkg = _package_failure(
             context,
@@ -943,9 +865,8 @@ def retrieval_node(state: UnifiedAgentState) -> dict:
             failure_signal="no_searchable_place_theme",
             needs_clarification=True,
             clarifying_question="현재 조건에서는 검색 가능한 관광 테마가 없습니다.",
-            festival_seed_result=festival_seed_result,
         )
-        return {"evidence": {"candidate_evidence_package": fail_pkg, "pruned_groups": None}}
+        return {"city_select": _city_select_failure_state(fail_pkg)}
 
     anchor_ddb_pk = _allowed_city_pk(context.candidate_input.destination_id) if context.candidate_input.destination_id else None
     retrieved = _retrieve_by_theme(
@@ -963,9 +884,8 @@ def retrieval_node(state: UnifiedAgentState) -> dict:
         allowed_city_ids=allowed,
     )
 
-    # 4. 다음 노드로 산출물 전달
     return {
-        "evidence": {
+        "city_select": {
             "pruned_groups": pruned_groups,
             "festival_seed_result": festival_seed_result,
             "context": context,
@@ -975,3 +895,15 @@ def retrieval_node(state: UnifiedAgentState) -> dict:
             "eliminated_cities": tuple(pruned_groups.eliminated_cities) if pruned_groups else (),
         }
     }
+
+
+def _festival_gate_allowed_city_ids(state: UnifiedAgentState) -> tuple[str, ...] | None:
+    festival_gate = state.get("festival_gate", {}) if isinstance(state, dict) else {}
+    if isinstance(festival_gate, Mapping):
+        gate_allowed_city_ids = festival_gate.get("allowed_city_ids")
+        if isinstance(gate_allowed_city_ids, Sequence) and not isinstance(
+            gate_allowed_city_ids,
+            (str, bytes),
+        ):
+            return tuple(str(city_id) for city_id in gate_allowed_city_ids)
+    return None

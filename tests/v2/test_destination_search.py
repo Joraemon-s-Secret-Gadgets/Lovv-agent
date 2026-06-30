@@ -573,6 +573,7 @@ class FestivalSeedTest(unittest.TestCase):
         result = tool.search_festival_city_seeds(
             country="KR",
             travel_month=6,
+            travel_year=2026,
             theme_pool=["festival_event", "축제·이벤트"],
         )
 
@@ -633,6 +634,7 @@ class FestivalSeedTest(unittest.TestCase):
         result = tool.search_festival_city_seeds(
             country="KR",
             travel_month=6,
+            travel_year=2026,
             theme_pool=["sea_coast", "history"],
             max_candidates=10,
         )
@@ -689,6 +691,7 @@ class FestivalSeedTest(unittest.TestCase):
         result = tool.search_festival_city_seeds(
             country="KR",
             travel_month=6,
+            travel_year=2026,
             theme_pool=["history"],
             city_id="city-2",
         )
@@ -708,6 +711,40 @@ class FestivalSeedTest(unittest.TestCase):
         )
         self.assertEqual(request["FilterExpression"], "#month = :month")
 
+    def test_fixed_city_festival_seed_uses_city_key_for_partition_key(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            query_response={
+                "Items": [
+                    {
+                        "festival_id": "festival-1",
+                        "name": "김해 축제",
+                        "country": "KR",
+                        "city_id": "KR-36-4",
+                        "month": 10,
+                        "theme_tags": ["festival"],
+                    },
+                ],
+            },
+        )
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+
+        result = tool.search_festival_city_seeds(
+            country="KR",
+            travel_month=10,
+            travel_year=2026,
+            theme_pool=["festival"],
+            city_id="KR-36-4",
+            city_key="CITY#GIMHAE",
+        )
+
+        self.assertEqual(result.status, "ok")
+        self.assertEqual(result.seed_city_ids, ("KR-36-4",))
+        request = dynamodb_client.query_requests[0]
+        self.assertEqual(
+            request["ExpressionAttributeValues"][":pk"],
+            {"S": "CITY#GIMHAE"},
+        )
+
     def test_festival_seed_empty_city_discovery_reports_failure(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
         tool = make_dynamo_lookup_tool(dynamodb_client)
@@ -715,12 +752,15 @@ class FestivalSeedTest(unittest.TestCase):
         result = tool.search_festival_city_seeds(
             country="KR",
             travel_month=6,
+            travel_year=2026,
             theme_pool=["history"],
         )
 
-        self.assertEqual(result.status, "no_candidate")
+        self.assertEqual(result.status, "needs_clarification")
+        self.assertEqual(result.tier, "none")
         self.assertTrue(result.needs_clarification)
-        self.assertEqual(result.failure_signals, ("no_festival_city_seed",))
+        self.assertEqual(result.failure_signals, ("no_confirmed_festival_city",))
+        self.assertEqual(result.clarification["reason_code"], "festival_none")
 
     def test_fixed_city_empty_lookup_reports_anchor_failure(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
@@ -729,13 +769,16 @@ class FestivalSeedTest(unittest.TestCase):
         result = tool.search_festival_city_seeds(
             country="KR",
             travel_month=6,
+            travel_year=2026,
             theme_pool=["history"],
             city_id="city-1",
         )
 
-        self.assertEqual(result.status, "no_candidate")
+        self.assertEqual(result.status, "needs_clarification")
+        self.assertEqual(result.tier, "none")
         self.assertTrue(result.needs_clarification)
-        self.assertEqual(result.failure_signals, ("no_festival_in_anchor_city",))
+        self.assertEqual(result.failure_signals, ("anchor_city_has_no_confirmed_festival",))
+        self.assertEqual(result.clarification["reason_code"], "anchor_festival_conflict")
 
     def test_festival_seed_normalizes_dynamodb_attribute_values(self) -> None:
         candidate = normalize_festival_candidate(

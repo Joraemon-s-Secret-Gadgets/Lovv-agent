@@ -7,15 +7,15 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.models.schemas import SelectedCity, CandidateEvidencePackage, SchemaValidationError, CitySelectionResult
+from lovv_agent_v2.models.schemas import SelectedCity, SchemaValidationError, CitySelectionResult
 from lovv_agent_v2.agents.city_select.scoring import ScoringTool, PlaceScoreResult
 from lovv_agent_v2.agents.city_select.selection import CandidateSelectionHelper, candidate_budgets_for_trip, itinerary_place_count_for_trip
-from lovv_agent_v2.agents.city_select.retrieval_node import AttractionCandidate, CandidateEvidenceContext, _allowed_city_pk, _package_failure, _retrieval_audit
+from lovv_agent_v2.agents.city_select.retrieval_node import AttractionCandidate, CitySelectContext, _allowed_city_pk, _city_select_failure_state, _package_failure, _retrieval_audit
 
 def _score_groups(
     groups: Mapping[str, Sequence[AttractionCandidate]],
     *,
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     scoring: ScoringTool,
 ) -> dict[str, tuple[PlaceScoreResult, ...]]:
     """Score each survived city's attraction candidates."""
@@ -48,7 +48,7 @@ _QUIET_KEYWORDS = ("quiet", "한적", "조용", "힐링", "고즈넉", "평화",
 def _rank_cities(
     scored_groups: Mapping[str, Sequence[PlaceScoreResult]],
     *,
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     scoring: ScoringTool,
     primary_budget: int,
     dynamo_lookup: Any | None = None,
@@ -253,7 +253,6 @@ def _representative_seed_payload(place: PlaceScoreResult) -> dict[str, Any]:
         "subtype": subtype,
     }
 
-
 def _seed_payload(place: PlaceScoreResult, theme: str) -> dict[str, Any]:
     subtype = _candidate_attr(place.place, "subtype_name") or _candidate_attr(
         place.place,
@@ -347,7 +346,7 @@ def _alternative_city_payload(
     return None
 
 
-def _passthrough_payload(context: CandidateEvidenceContext) -> dict[str, Any]:
+def _passthrough_payload(context: CitySelectContext) -> dict[str, Any]:
     location = context.candidate_input.user_location
     user_location = None
     if location is not None:
@@ -369,7 +368,7 @@ def _passthrough_payload(context: CandidateEvidenceContext) -> dict[str, Any]:
 
 def _selection_reason_codes(
     *,
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     score_breakdown: Mapping[str, float],
     alternative_city: Mapping[str, Any] | None,
 ) -> tuple[str, ...]:
@@ -458,7 +457,7 @@ def _selected_city(
     city_id: str,
     scored_places: Sequence[PlaceScoreResult],
     *,
-    context: CandidateEvidenceContext,
+    context: CitySelectContext,
     status: str,
     selected_rank_index: int,
 ) -> SelectedCity:
@@ -513,16 +512,16 @@ def scoring_and_selection_node(state: UnifiedAgentState) -> dict:
     selection = CandidateSelectionHelper()
 
     # 2. State에서 retrieval 노드의 산출물 로드
-    evidence = state.get("evidence", {}) if isinstance(state, dict) else getattr(state, "evidence", {})
-    if not evidence or "pruned_groups" not in evidence:
+    city_select_state = state.get("city_select", {}) if isinstance(state, dict) else getattr(state, "city_select", {})
+    if not city_select_state or "pruned_groups" not in city_select_state:
         # 이전 노드에서 이미 실패 패키지가 생성되어 바로 반환되었을 경우 회피
         return {}
 
-    pruned_groups = evidence.get("pruned_groups")
-    festival_seed_result = evidence.get("festival_seed_result")
-    context = evidence.get("context")
-    retrieved_count = evidence.get("retrieved_count", 0)
-    merged_count = evidence.get("merged_count", 0)
+    pruned_groups = city_select_state.get("pruned_groups")
+    festival_seed_result = city_select_state.get("festival_seed_result")
+    context = city_select_state.get("context")
+    retrieved_count = city_select_state.get("retrieved_count", 0)
+    merged_count = city_select_state.get("merged_count", 0)
 
     # pruned_groups가 비었거나 실패 시 처리
     if not pruned_groups or not pruned_groups.survived_groups:
@@ -539,9 +538,8 @@ def scoring_and_selection_node(state: UnifiedAgentState) -> dict:
             ),
             needs_clarification=True,
             clarifying_question="현재 조건에 맞는 후보 도시를 찾지 못했습니다.",
-            festival_seed_result=festival_seed_result,
         )
-        return {"evidence": {"candidate_evidence_package": fail_pkg, "selected_destination": None}}
+        return {"city_select": _city_select_failure_state(fail_pkg)}
 
     # 3. 스코어링 및 랭킹 산출 (V1 run 뒷단 이식)
     primary_budget, reserve_budget = candidate_budgets_for_trip(
@@ -574,9 +572,8 @@ def scoring_and_selection_node(state: UnifiedAgentState) -> dict:
             ),
             needs_clarification=True,
             clarifying_question="현재 조건에 맞는 후보 도시를 찾지 못했습니다.",
-            festival_seed_result=festival_seed_result,
         )
-        return {"evidence": {"candidate_evidence_package": fail_pkg, "selected_destination": None}}
+        return {"city_select": _city_select_failure_state(fail_pkg)}
 
     required_place_count = itinerary_place_count_for_trip(
         context.candidate_input.trip_type,
@@ -709,53 +706,55 @@ def scoring_and_selection_node(state: UnifiedAgentState) -> dict:
             if cid is None or cand.city_id == cid
         ]
 
-    package = CandidateEvidencePackage(
-        status=status,
-        mode=context.mode,
-        selected_city=selected_city,
-        city_anchor=None,
-        city_rankings=annotated_rankings,
-        recommended_places=recommended_places,
-        reserve_places=reserve_places,
-        festival_candidates=_festival_payloads(festival_seed_result),
-        selected_festival_candidates=_festival_payloads(
-            festival_seed_result,
-            city_id=None if context.candidate_input.destination_id is not None else selected_city_id,
-        ),
-        festival_seed_audit=_retrieval_audit(
-            context=context,
-            retrieved_count=retrieved_count,
-            merged_count=merged_count,
-            survived_city_count=len(pruned_groups.survived_groups),
-            eliminated_cities=tuple(pruned_groups.eliminated_cities),
-        ) if festival_seed_result else {},
-        coverage_audit=coverage_audit,
-        retrieval_audit=retrieval_audit,
-        candidate_counts={
-            "retrieved": retrieved_count,
-            "merged": merged_count,
-            "scored": sum(len(group) for group in scored_groups.values()),
-            "city_count": len(city_rankings),
-            "recommended_places": len(recommended_places),
-            "reserve_places": len(reserve_places),
-            "available_places": available_place_count,
-            "required_itinerary_places": required_place_count,
-            "reserve_places_considered_for_itinerary": False,
-        },
-        fallback_audit={
-            "planner_consumable": True,
-            "status_reason": status,
-            "festival_seed_applied": festival_seed_result is not None,
-            "selected_city_rank": selected_rank_index + 1,
-            "city_reselected_for_itinerary_capacity": selected_rank_index > 0,
-        },
-    )
+    candidate_counts = {
+        "retrieved": retrieved_count,
+        "merged": merged_count,
+        "scored": sum(len(group) for group in scored_groups.values()),
+        "city_count": len(city_rankings),
+        "recommended_places": len(recommended_places),
+        "reserve_places": len(reserve_places),
+        "available_places": available_place_count,
+        "required_itinerary_places": required_place_count,
+        "reserve_places_considered_for_itinerary": False,
+    }
+    fallback_audit = {
+        "planner_consumable": True,
+        "status_reason": status,
+        "festival_seed_applied": festival_seed_result is not None,
+        "selected_city_rank": selected_rank_index + 1,
+        "city_reselected_for_itinerary_capacity": selected_rank_index > 0,
+    }
 
-    # 5. state['evidence'] 결과물 적재 및 업데이트 반환
     return {
-        "evidence": {
-            "candidate_evidence_package": package,
-            "selected_destination": selected_city.to_dict() if selected_city else None,
+        "city_select": {
             "city_selection_result": city_selection_result.to_dict(),
+            "status": status,
+            "clarification": None,
+            "retrieval_audit": retrieval_audit,
+            "scoring_audit": {
+                "city_rankings": annotated_rankings,
+                "recommended_places": recommended_places,
+                "reserve_places": reserve_places,
+                "festival_candidates": _festival_payloads(festival_seed_result),
+                "selected_festival_candidates": _festival_payloads(
+                    festival_seed_result,
+                    city_id=None if context.candidate_input.destination_id is not None else selected_city_id,
+                ),
+                "festival_seed_audit": (
+                    _retrieval_audit(
+                        context=context,
+                        retrieved_count=retrieved_count,
+                        merged_count=merged_count,
+                        survived_city_count=len(pruned_groups.survived_groups),
+                        eliminated_cities=tuple(pruned_groups.eliminated_cities),
+                    )
+                    if festival_seed_result
+                    else {}
+                ),
+                "coverage_audit": coverage_audit,
+                "candidate_counts": candidate_counts,
+                "fallback_audit": fallback_audit,
+            },
+            "selected_destination": selected_city.to_dict() if selected_city else None,
         }
     }

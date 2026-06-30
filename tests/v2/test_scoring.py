@@ -193,6 +193,26 @@ class CityScoringTest(unittest.TestCase):
         self.assertEqual(result.breakdown.weighted_missing_theme_penalty, 0.5)
         self.assertEqual(result.city_score, -0.1)
 
+    def test_score_city_caps_profile_weight_delta(self) -> None:
+        result = score_city(
+            city_id="city-1",
+            places=[
+                score_place(
+                    attraction("P-1", distance=0.1, themes=["바다·해안"]),
+                    ["바다·해안", "역사·문화"],
+                ),
+                score_place(
+                    attraction("P-2", distance=0.9, themes=["역사·문화"]),
+                    ["바다·해안", "역사·문화"],
+                ),
+            ],
+            active_themes=["바다·해안", "역사·문화"],
+            theme_weights={"바다·해안": 100.0, "역사·문화": 0.0},
+        )
+
+        self.assertEqual(result.breakdown.weighted_theme_coverage, 0.9)
+        self.assertEqual(result.city_score, 0.55)
+
     def test_score_city_scales_distance_penalty_by_trip_duration(self) -> None:
         scored_places = [
             score_place(

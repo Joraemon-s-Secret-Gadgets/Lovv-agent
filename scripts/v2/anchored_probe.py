@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""anchored(도시 고정) · 테마 필터 없는 검색 — intent mock → 일정 풀(Planner Pass2)을 본다.
+"""anchored(도시 고정) · 테마 필터 없는 검색 — intent mock → 일정 풀(Planner In-city Itinerary)을 본다.
 
 retrieval_smoke.py와 **같은 케이스**(v2_retrieval_inputs의 raw/soft/themes)를 그대로 흘려보낸다.
 궁극 목표: 그 intent mock에서 도시가 선택된 뒤, 그 도시 안에서 일정을 채울 풀이 실제로 나오는가.
@@ -9,14 +9,14 @@ retrieval_smoke.py와 **같은 케이스**(v2_retrieval_inputs의 raw/soft/theme
 
 anchor 도시 소스(우선순위): --selected JSON(case_id→ddb_pk, 오프라인 재채점 산출) > 케이스의 destination_id.
 필터: {entity_type=attraction AND city_id=<resolved>} (theme_tags 조건 없음).
-도시 고정: ddb_pk는 non-filterable metadata라 city_id 해석과 casing 정규화 검증에만 쓴다.
+도시 고정: v2 metadata dump로 selected CITY#...를 city_id로 바꾼 뒤 직접 필터한다.
 
 ⚠ AWS(Bedrock·S3 Vectors) 필요 → repo 환경에서 실행. 임베딩 캐시는 retrieval_smoke와 공유.
 
 사용:
   LOVV_ENABLE_AWS_SMOKE=1 python scripts/v2/anchored_probe.py --live \
       --selected docs/tasks/results/v2_retrieval_smoke/<ts>/selected_cities.json --top-k 100
-옵션: --cases-dir · --selected · --top-k(기본 100) · --limit · --out-dir · --live
+옵션: --cases-dir · --selected · --metadata-dump · --top-k(기본 100) · --limit · --out-dir · --live
 환경변수: retrieval_smoke.py와 동일.
 """
 from __future__ import annotations
@@ -24,13 +24,17 @@ import argparse, datetime as _dt, glob, hashlib, json, os, sys
 from typing import Any
 
 VECTOR_BUCKET = os.environ.get("LOVV_VECTOR_BUCKET", "lovv-vector-dev")
-VECTOR_INDEX = os.environ.get("LOVV_VECTOR_INDEX", "kr-tour-domain-v1")
+VECTOR_INDEX = os.environ.get("LOVV_VECTOR_INDEX", "kr-tour-domain-v2")
 EMBED_MODEL = os.environ.get("LOVV_EMBED_MODEL", "amazon.titan-embed-text-v2:0")
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 EMBED_DIM = 1024
 ATTRACTION = "attraction"
 DEFAULT_CASES = "docs/tasks/results/v2_retrieval_inputs"
 DEFAULT_OUT = "docs/tasks/results/v2_anchored_probe"
+DEFAULT_METADATA_DUMP = os.environ.get(
+    "LOVV_V2_METADATA_DUMP",
+    "metadata_audit/kr-tour-domain-v2-all-metadata-20260630T001340Z.json",
+)
 EXCLUDED_THEMES = frozenset({
     "food_local", "미식", "미식·노포", "미식/노포",
     "festival", "festival_event", "event", "축제", "축제·이벤트", "축제/이벤트"})
@@ -75,18 +79,6 @@ def embed(bedrock, text, cache):
     return vec
 
 
-def pk_variants(pk: str) -> list[str]:
-    body = pk.split("#", 1)[1] if "#" in pk else pk
-    return sorted({f"CITY#{body.upper()}", f"CITY#{body.title()}"})
-
-
-def _normalized_pk(value: Any) -> str | None:
-    if not isinstance(value, str):
-        return None
-    normalized = value.strip()
-    return normalized.upper() if normalized else None
-
-
 def _metadata_of(vector: Any) -> dict[str, Any]:
     if not isinstance(vector, dict):
         return {}
@@ -94,38 +86,31 @@ def _metadata_of(vector: Any) -> dict[str, Any]:
     return metadata if isinstance(metadata, dict) else {}
 
 
-def resolve_city_ids_for_pk(s3v, accepted_pks) -> list[str]:
-    accepted = {_normalized_pk(pk) for pk in accepted_pks}
-    accepted.discard(None)
-    city_ids: list[str] = []
-    token = None
-    while True:
-        request: dict[str, Any] = {
-            "vectorBucketName": VECTOR_BUCKET,
-            "indexName": VECTOR_INDEX,
-            "returnMetadata": True,
-            "maxResults": 500,
-        }
-        if token:
-            request["nextToken"] = token
-        resp = s3v.list_vectors(**request)
-        for vector in resp.get("vectors", []):
-            metadata = _metadata_of(vector)
-            if _normalized_pk(metadata.get("ddb_pk")) not in accepted:
-                continue
-            if metadata.get("entity_type") != ATTRACTION:
-                continue
-            city_id = metadata.get("city_id")
-            if isinstance(city_id, str) and city_id.strip() and city_id not in city_ids:
-                city_ids.append(city_id)
-        token = resp.get("nextToken")
-        if not token:
-            return city_ids
+def load_city_id_by_pk(metadata_dump: str) -> dict[str, str]:
+    with open(metadata_dump, encoding="utf-8") as fh:
+        payload = json.load(fh)
+    city_id_by_pk: dict[str, str] = {}
+    for record in payload.get("records", []):
+        metadata = _metadata_of(record)
+        ddb_pk = metadata.get("ddb_pk")
+        city_id = metadata.get("city_id")
+        if isinstance(ddb_pk, str) and isinstance(city_id, str):
+            city_id_by_pk.setdefault(ddb_pk, city_id)
+    return city_id_by_pk
 
 
-def _query_one_city(s3v, vec, accepted_pks, city_id, top_k):
-    accepted = {_normalized_pk(pk) for pk in accepted_pks}
-    accepted.discard(None)
+def city_id_of_anchor(anchor: str | None, city_id_by_pk: dict[str, str]) -> str | None:
+    if anchor is None:
+        return None
+    normalized = anchor.strip()
+    if not normalized:
+        return None
+    if normalized.startswith("KR-"):
+        return normalized
+    return city_id_by_pk.get(normalized)
+
+
+def _query_one_city(s3v, vec, city_id, top_k):
     resp = s3v.query_vectors(
         vectorBucketName=VECTOR_BUCKET, indexName=VECTOR_INDEX,
         queryVector={"float32": vec}, topK=top_k, returnMetadata=True, returnDistance=True,
@@ -133,7 +118,7 @@ def _query_one_city(s3v, vec, accepted_pks, city_id, top_k):
     out = []
     for v in resp.get("vectors", []):
         m = _metadata_of(v)
-        if _normalized_pk(m.get("ddb_pk")) not in accepted:
+        if m.get("city_id") != city_id:
             continue
         out.append({"place_id": m.get("place_id") or v.get("key"), "distance": v.get("distance"),
                     "title": m.get("title"), "theme_tags": list(m.get("theme_tags") or []),
@@ -142,14 +127,12 @@ def _query_one_city(s3v, vec, accepted_pks, city_id, top_k):
     return out
 
 
-def query_anchored(s3v, vec, pk, top_k):
+def query_anchored(s3v, vec, city_id, top_k):
     by_id: dict[str, dict] = {}
-    accepted_pks = pk_variants(pk)
-    for city_id in resolve_city_ids_for_pk(s3v, accepted_pks):
-        for c in _query_one_city(s3v, vec, accepted_pks, city_id, top_k):
-            prev = by_id.get(c["place_id"])
-            if prev is None or (c["distance"] is not None and c["distance"] < prev["distance"]):
-                by_id[c["place_id"]] = c
+    for c in _query_one_city(s3v, vec, city_id, top_k):
+        prev = by_id.get(c["place_id"])
+        if prev is None or (c["distance"] is not None and c["distance"] < prev["distance"]):
+            by_id[c["place_id"]] = c
     return sorted(by_id.values(), key=lambda c: (c["distance"] is None, c["distance"]))[:top_k]
 
 
@@ -181,11 +164,13 @@ def main() -> int:
     ap.add_argument("--top-k", type=int, default=100)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out-dir", default=DEFAULT_OUT)
+    ap.add_argument("--metadata-dump", default=DEFAULT_METADATA_DUMP)
     ap.add_argument("--live", action="store_true")
     args = ap.parse_args()
 
     cases = load_cases(args.cases_dir, args.limit)
     selected = json.load(open(args.selected, encoding="utf-8")) if args.selected else {}
+    city_id_by_pk = load_city_id_by_pk(args.metadata_dump)
 
     def anchor_of(case):
         return selected.get(case["case_id"]) or case.get("destination_id")
@@ -214,21 +199,24 @@ def main() -> int:
     summary = []
     for case in cases:
         pk = anchor_of(case)
-        if not pk:
+        city_id = city_id_of_anchor(pk, city_id_by_pk)
+        if not city_id:
+            if pk:
+                print(f"[skip] {case['case_id']} @ {pk}: city_id 해석 실패")
             continue
         raw_vec = embed(bedrock, case["raw_query"], cache)
         out: dict[str, Any] = {
-            "case_id": case["case_id"], "anchor_city": pk, "top_k": args.top_k,
+            "case_id": case["case_id"], "anchor_city": pk, "anchor_city_id": city_id, "top_k": args.top_k,
             "query": {k: case[k] for k in ("raw_query", "soft_query", "themes")},
-            "raw": summarize(query_anchored(s3v, raw_vec, pk, args.top_k))}
+            "raw": summarize(query_anchored(s3v, raw_vec, city_id, args.top_k))}
         if case["soft_query"] and case["soft_query"] != case["raw_query"]:
             soft_vec = embed(bedrock, case["soft_query"], cache)
-            out["soft"] = summarize(query_anchored(s3v, soft_vec, pk, args.top_k))
+            out["soft"] = summarize(query_anchored(s3v, soft_vec, city_id, args.top_k))
         json.dump(out, open(os.path.join(run_dir, case["case_id"] + ".json"), "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
         n = out["raw"]["candidate_count"]
-        summary.append({"case_id": case["case_id"], "anchor_city": pk, "raw_pool": n})
-        print(f"[ok] {case['case_id']} @ {pk}: theme-off raw 풀 {n}개 · best={out['raw']['best_distance']}")
+        summary.append({"case_id": case["case_id"], "anchor_city": pk, "anchor_city_id": city_id, "raw_pool": n})
+        print(f"[ok] {case['case_id']} @ {pk}/{city_id}: theme-off raw 풀 {n}개 · best={out['raw']['best_distance']}")
     json.dump({"top_k": args.top_k, "cases": summary},
               open(os.path.join(run_dir, "_summary.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
