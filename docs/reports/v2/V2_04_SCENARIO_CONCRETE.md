@@ -3,7 +3,7 @@
 > 작성일 2026-06-28 · 입력: `V2_SCENARIO_INSCOPE.md` + `..._ARCH_IMPACT_MAP.md` · 형식 캘리브레이션: `..._CONCRETE_SAMPLES.md`(흡수).
 > 각 시나리오 = **실제 입력값 + 턴별 노드 동작 + 기대 출력 + (V1·고도화 표 / V2 검증결정)**.
 > 유형: `[V1·고도화]` 기존 지원 → 품질↑ · `[V2·신규]` V1에 없던 것.
-> 노드: Profile · Intent · Supervisor(S) · city_select(retrieval+scoring&selection) · FestivalVerifier · Planner(+Pass2) · Packager · Memory.
+> 노드: Profile · Intent · Supervisor(S) · city_select(retrieval+scoring&selection) · FestivalVerifier · Planner(+In-city Itinerary) · Packager · Memory.
 > 입력 필드: `themes·tripType·travelMonth·destinationId·includeFestivals·country·userLocation·NL`. 테마: sea_coast·nature_mountain·history_tradition·art_sense·healing_rest.
 
 ---
@@ -17,7 +17,7 @@
 themes=[sea_coast], tripType=2d1n, travelMonth=9, NL="조용한 동해안에서 2박 쉬고 싶어요"(soft="조용")
 Profile: 있음/없음
 ```
-**흐름**: Intent(soft="조용") → city_select(해안 검색 · **congestion 한산 가중** · profile 가중) → 도시 확정(예: 삼척) + seed → Planner(Pass2·배치) → Packager(정상 일정).
+**흐름**: Intent(soft="조용") → city_select(해안 검색 · **congestion 한산 가중** · profile 가중) → 도시 확정(예: 삼척) + seed → Planner(In-city Itinerary·배치) → Packager(정상 일정).
 
 | 측면 | V1 | V2 고도화 |
 |---|---|---|
@@ -77,10 +77,10 @@ NL="가을 전통 축제랑 유적 같이"
 ## 1-R. [V1·고도화] 결과(5종) — 유지 + 일부 완화
 ## SC-R1 · 후보 부족 → 축소  `[V1·고도화]`
 **Given**: `themes=[healing_rest], tripType=3d2n` 인데 선택 도시 장소가 슬롯보다 적음.
-**흐름**: city_select→도시 확정 → **Planner Pass2 재인출(theme off·top_k 확대)** → 그래도 부족 → 축소 일정 + userNotice.
+**흐름**: city_select→도시 확정 → **Planner In-city Itinerary 재인출(theme off·top_k 확대)** → 그래도 부족 → 축소 일정 + userNotice.
 | V1 | V2 고도화 |
 |---|---|
-| insufficient 강등만(재인출 없음) | **Pass2 재인출로 먼저 채움** → 축소 빈도↓ |
+| insufficient 강등만(재인출 없음) | **In-city Itinerary 재인출로 먼저 채움** → 축소 빈도↓ |
 
 **출력**: 축소 일정, status=`completed`, userNotice("후보가 적어 축소").
 

@@ -23,6 +23,11 @@
 | 14 | `V2_14_RETRIEVAL_ANALYSIS_BRIEF.md` | retrieval_smoke 결과 분석 지시서(분석 에이전트용) |
 | 16 | `V2_16_CITY_MONTHLY_WEATHER_RISK.md` | 월별 평년 기후 기반 city weather risk table 산출 근거 |
 | 17 | `V2_17_PROFILE_THEME_PERSONAS.md` | profile theme_weights 튜닝용 synthetic persona fixture |
+| 18 | `V2_18_FESTIVAL_HANDLING.md` | 축제 처리 설계 초안(일부 결정은 21이 supersede) |
+| 20 | `V2_20_MASTER_HANDOFF.md` | V2 현상태 master handoff + 다음 작업 큐 |
+| 21 | `V2_21_FESTIVAL_DIRECTIVE.md` | **Festival 중앙 결정 + city_select/festival/planner/packager 세션별 지시서** |
+| 22 | `V2_22_RESPONSE_CLARIFICATION_DIRECTIVE.md` | **기존 recommendation response 유지 + optional clarification block 확장 지시서** |
+| 23 | `V2_23_STATE_CONTRACT_DIRECTIVE.md` | **V2 Canonical UnifiedAgentState 계약 + legacy CandidateEvidence 제거 지시서** |
 | — | `V2_DECISIONS_LOG.md` | Step 4 결정 로그(왜 그렇게 정했나) |
 | — | `../../tasks/results/v2_intent_mocks/` | V2 입력 mock(생성14·수정4) + 핸드오프 |
 

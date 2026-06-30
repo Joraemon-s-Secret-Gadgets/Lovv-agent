@@ -40,8 +40,8 @@
 축제 포함 요청(SC-G3)일 때만 켜진다. 축제 날짜를 검증해 **실제 날짜에 분산 배치**(V1은 전부 day-1 오후 고정이었음). 시즌 불일치(SC-R2)면 축제만 빼고 안내. 테마 정합 필터는 축제 테마 태깅 데이터가 적재된 경우 작동.
 
 ### Planner (초회 2-pass + on-demand Plan B)
-Pass1(도시·테마 게이트) → Pass2(도시 고정·테마 off로 PlacePool 확보) → **seed 라운드로빈 배치 + 거리 페널티(haversine)**.
-- **후보 부족**(SC-R1): Pass2 재인출로 먼저 채워 축소 빈도를 낮춘다.
+Pass1(도시·테마 게이트) → In-city Itinerary(도시 고정·테마 off로 PlacePool 확보) → **seed 라운드로빈 배치 + 거리 페널티(haversine)**.
+- **후보 부족**(SC-R1): In-city Itinerary 재인출로 먼저 채워 축소 빈도를 낮춘다.
 - **동선**(SC-00): seed anchor + geo로 순서를 잡는다. 장소 간 이동시간 표시는 front 담당.
 - **이동수단**(SC-N1): walk면 거리 페널티 강화(도보 집약), car면 완화.
 - **날씨**(SC-02): 기상 임계 초과 시 일정은 그대로 주되 `weatherNotice`로 "비 잦아요, 실내로 바꿔드릴까요?"를 띄운다. 실내 대안은 **요청하면 그때** 만든다(on-demand) — 미리 두 벌 만들지 않는다.
@@ -81,7 +81,7 @@ resume(thread_id) → 수정 Intent(**edit_ops 분해**) → 교체 전용(seed 
 | SC-G1 멀티테마 | V1·고도화 | city_select **soft 게이트** | soft(확정) | **V2.0 ★약점 해소** |
 | SC-G2 도시 지정(anchored) | V1·고도화 | Intent anchored + city_select 고정 | — | V2.0 |
 | SC-G3 축제 포함 | V1·고도화 | Festival seeded + Verifier + Planner 날짜배치 | 테마정합(데이터) | V2.0 |
-| SC-R1 후보부족→축소 | V1·고도화 | Planner Pass2 재인출 | capacity 제거 | V2.0 |
+| SC-R1 후보부족→축소 | V1·고도화 | Planner In-city Itinerary 재인출 | capacity 제거 | V2.0 |
 | SC-R2 축제 시즌 불일치 | V1·고도화 | Verifier not_placeable | — | V2.0 |
 | SC-R3 후보 없음→재질의 | V1·고도화 | city_select 0생존 → Packager | soft로 빈도↓ | V2.0 |
 | SC-R4 안전 거부 | V1·고도화 | Intent 검증 | — | V2.0 |

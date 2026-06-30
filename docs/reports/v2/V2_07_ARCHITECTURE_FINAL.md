@@ -28,7 +28,7 @@
 - **[신규]** 수정 시 **슬롯 단위 재인출** 진입점(raw/soft query + 슬롯 조건).
 
 **scoring_and_selection_node**
-- **[변경] capacity 결합 제거**: `score_city`에서 `candidate_sufficiency` 삭제 → 항상 rank 0, insufficient는 Planner Pass2가 흡수. (기확정)
+- **[변경] capacity 결합 제거**: `score_city`에서 `candidate_sufficiency` 삭제 → 항상 rank 0, insufficient는 Planner In-city Itinerary가 흡수. (기확정)
 - **[변경] 테마 = soft gate**: `theme_match` → **`theme_weights`** 가중. 부분 충족 허용, 미충족 강한 감점, 누락 테마는 audit/`userNotice` 후보. (기확정)
 - **[신규] 다테마 seed 보장**: 다테마 선택 시 seed가 모든 테마를 **soft**로 충족(라운드로빈 유지). (기확정)
 - **[유지/명시] seed 추출**: 도시 선택 이유가 된 대표 장소 = day anchor. (reserve 폐기, seed-only)
@@ -39,7 +39,7 @@
 - **[신규/데이터 전제] 축제 테마 정합 필터**: 축제별 테마 태깅이 적재된 경우에만 정합 검사. (데이터 전제)
 
 ### Planner (2-pass + 수정 모드)
-- **[유지] 초회**: Pass1(도시 선택·테마 게이트) → Pass2(도시 고정·테마 off·PlacePool ~30–50) → **seed 라운드로빈 배치 + geo_penalty(haversine)**.
+- **[유지] 초회**: Pass1(도시 선택·테마 게이트) → In-city Itinerary(도시 고정·테마 off·PlacePool ~30–50) → **seed 라운드로빈 배치 + geo_penalty(haversine)**.
 - **[신규] 수정 모드**: **비-seed 슬롯 교체**. 교체 슬롯에 자연어 조건(무드·타입·위치 = 추가 query)을 걸어 S3 Vector 재인출. **seed 고정, 배치 개수 ≤3 불변**. (D-B)
 - **[신규] 배치 일괄 적용**: 다건 op는 **각자 재인출 후 한꺼번에 적용 → 단일 재배치/재스코어**(geo·타입 균형 재평가). 순차 적용 안 함(순서 의존·중복 회피). seed·≤3 불변. (§1.5)
 - **[신규] on-demand Plan B**: `weatherNotice` 후 사용자 동의 시 실내 위주 대안을 **수정 루프로** 생성 → `alternativeItinerary` 채움. 자동 사전 생성 없음. (D-A)

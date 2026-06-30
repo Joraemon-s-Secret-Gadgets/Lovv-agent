@@ -16,7 +16,7 @@
 ### P2. 데이터 도구 구축
 - `retrieval_smoke.py` 수정 — ranked에 **lat/lon 추가**(distance용).
 - `fetch_city_stats.py` — DynamoDB STAT(방문객) + GOSEONG alias + casing 병합. → `city_stats.json`.
-- `anchored_probe.py` — 도시 고정·theme-off 검색(Pass2 풀). raw+soft 채널.
+- `anchored_probe.py` — 도시 고정·theme-off 검색(In-city Itinerary 풀). raw+soft 채널.
 - `verify_attraction_data.py` — 설명 채움률·정서성 검증(soft HyDE 게이트).
 - `name_recall_probe.py` — 이름 recall(+오타/부분명 변형).
 - `gen_retrieval_cases.py` — 테마 커버리지 갭 채우는 입력 16건 생성.
@@ -54,7 +54,7 @@
 - retrieval_node 961줄 비대(festival/모델/헬퍼/prune 중복) → 슬림화.
 - 산출: V2_15 정합화 체크리스트 + Legacy 정리 + 슬림화 지시.
 
-### P9. Planner Pass2로 전환 (진행중)
+### P9. Planner In-city Itinerary로 전환 (진행중)
 - 락 로직으로 `selected_cities.json` 생성(52건) → `anchored_probe --selected`로 각 1위 도시 풀 조회(soft 포함).
 - 다음: 풀 충분성·얇은도시·seed 가능성 분석.
 

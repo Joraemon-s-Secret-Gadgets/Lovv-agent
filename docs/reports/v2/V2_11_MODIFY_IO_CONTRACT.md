@@ -1,7 +1,7 @@
 # V2 수정(Modify) I/O 계약
 
 > 작성일 2026-06-28 · 근거: `V2_09_INTENT_PARSING_SPEC.md §2`(ModifyResult) · `V2_DECISIONS_LOG.md`(배치 편집·응답상태·기피) · `memory_checkpointer_spec`(resume) · 사용자 결정(2026-06-28).
-> 목적: 생성 쪽 입력 계약(`CandidateEvidenceInput`)은 잡혔으나 **수정 쪽 출력 스키마가 미정**이라, 이를 확정한다.
+> 목적: 생성 쪽 입력 계약(`CitySelectInput`, 과거 `CandidateEvidenceInput` legacy 제거 대상)은 잡혔으나 **수정 쪽 출력 스키마가 미정**이라, 이를 확정한다.
 > 표기: ✅ 확정 · ◐ 1차 단순화(의도적 비효율) · ⚠ 경계.
 
 ---

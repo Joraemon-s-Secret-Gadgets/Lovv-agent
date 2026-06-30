@@ -5,7 +5,7 @@
 
 ## 이미 확정(이전 세션)
 - ✅ **테마 게이트 = soft**(부분 충족 허용, 미충족 강한 감점; 누락 테마 audit/userNotice 후보).
-- ✅ **capacity 결합 제거**(candidate_sufficiency 삭제, 항상 rank 0, insufficient는 Planner Pass2로).
+- ✅ **capacity 결합 제거**(candidate_sufficiency 삭제, 항상 rank 0, insufficient는 Planner In-city Itinerary로).
 - ✅ **수정 재인출 = S3 Vectors**(캐시 vector + top_k, 좌표·메타는 vector metadata).
 - ✅ **데이터 4종 적재**(세부타입·indoor/outdoor·도시월 기상·visitor stats).
 - ✅ **이동수단 거친 구분 채택**(자동차/뚜벅이, 거친 soft 신호).
@@ -32,7 +32,7 @@
 **파급**: **"일정 저장" 이벤트**가 profile write 트리거 → front에서 저장 신호 필요(신규 의존). `LovvUserProfile`에 `saved_trip_count`(=trip_count 명확화)·집계 theme_weights.
 
 ### ✅ D-E · 이동수단 신호 (transport_pref)  (2026-06-28)
-**결정**: `transport_pref = walk / car / unknown` 3값(거친 soft 신호). **walk → 슬롯 간 거리 페널티 강화(도보 집약)**, **car → 완화**, **unknown → 기본**. 역·터미널 라우팅은 아님.
+**결정**: `transport_pref = walk / car / unknown` 3값(거친 soft 신호). **walk → 슬롯 간 거리 페널티 강화(도보 집약)**, **car → 완화**, **unknown → 기본**. 역·터미널 라우팅은 아님. 이 값은 request field가 아니라 Intent LLM이 `raw_query`에서 파싱해 `CitySelectInput`/`PlannerIntent`에 기록한다.
 
 ### ✅ D-J · weatherNotice 발동 임계  (2026-06-28)
 **결정 (방식 확정 · 수치 추후)**: 기온은 **기상청 특보 기준 차용**(폭염 일최고 33℃ / 한파 일최저 -12℃), 강수는 **월 강수량 → 일평균(mm/day) 환산** 절대 구간 + **연평균 대비 2배** 상대 보정. 임계 초과 시 `weatherNotice` 발동(D-A의 on-demand Plan B 트리거).
@@ -63,6 +63,21 @@
 
 ### ✅ front 드래그앤드롭 / itinerary 배열 소유  (2026-06-28)
 **결정**: front가 드래그앤드롭으로 순서·위치를 바꾸므로 — **순서·위치 재배열(REORDER/MOVE) = front 담당**(에이전트 modify 범위 영구 제외, move=front 연장). 수정 시 **itinerary 배열 출처 = front가 현재 일정 동봉(우선), 미동봉 시 checkpoint fallback**. 즉 배열=front, 내용 생성=에이전트.
+
+### ✅ Festival gate / tentative 처리 / clarification 계약  (2026-06-30)
+**결정**: Festival은 city_select 앞단 게이트이며 도시 랭킹 보너스가 아니다. `include_festivals=true`면 Festival Verifier가 월·도시·날짜 상태를 먼저 검증하고, confirmed 축제 도시만 `allowed_city_ids`로 city_select에 넘긴다. `tentative`는 자동 진행하지 않고 반드시 `festival_tentative` clarification으로 사용자 확인을 받는다. `outdated`·`unknown`·`skipped`는 제외한다.
+**응답 규칙**: Festival Verifier status는 `ok | needs_clarification`만 사용한다. 후보 없음/충돌/미확정은 `status=no_candidate`가 아니라 `needs_clarification + reason_code`로 표현한다. clarification option은 stable `option_id`, resume patch인 `apply`, 재진입 경로인 `then(anchor|rerun_discovery|abort)`를 포함한다.
+**정본**: `V2_21_FESTIVAL_DIRECTIVE.md`.
+
+### ✅ Response clarification additive 확장  (2026-06-30)
+**결정**: public response는 기존 recommendation response 1종을 유지한다. `completed`/`END_WAIT_USER` 구분은 기존처럼 `ServingState.response_status`가 맡고, V2 clarification은 top-level optional `clarification` block으로만 추가한다. 기존 `explainability.userNotice`는 유지하며, `END_WAIT_USER`에서는 `clarification.prompt`와 같은 문구를 넣어 기존 소비자와 호환한다.
+**응답 규칙**: public response는 camelCase를 쓴다. 내부 node 계약이 snake_case를 쓰더라도 Packager가 `reason_code→reasonCode`, `option_id→optionId`, `include_festivals→includeFestivals`로 변환한다. Resume은 1차로 `selectedOptionId`를 받아 checkpoint의 원본 option에서 `apply`와 `then`을 복원한다.
+**정본**: `V2_22_RESPONSE_CLARIFICATION_DIRECTIVE.md`.
+
+### ✅ V2 Canonical State / legacy CandidateEvidence 제거  (2026-06-30)
+**결정**: V2 중앙 계약은 `core/state.py::UnifiedAgentState`이며 top-level group은 `request`, `intent`, `profile`, `festival_gate`, `city_select`, `planner`, `response`, `routing`, `memory`, `trace`로 고정한다. `CandidateEvidenceInput`, `CandidateEvidencePackage`, `CandidateReasonClaim`, `candidate_evidence_input`, `candidate_evidence_package`는 V2 state/API 정본으로 사용하지 않는다.
+**응답 규칙**: City Select 입력은 `state.intent.city_select_input`, 출력은 `state.city_select.city_selection_result`에 둔다. Festival은 `state.festival_gate`, Packager는 `state.response`를 소유한다. 과거 포팅 문서의 `CandidateEvidence*` 표현은 legacy 제거 대상 또는 baseline 설명으로만 해석한다.
+**정본**: `V2_23_STATE_CONTRACT_DIRECTIVE.md`.
 
 ---
 

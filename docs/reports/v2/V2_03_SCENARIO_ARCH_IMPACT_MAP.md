@@ -2,7 +2,7 @@
 
 > 작성일 2026-06-28 · 입력: `V2_SCENARIO_INSCOPE.md`(스코프 내 시나리오) + 기존 아키텍처 결정.
 > 방법: in-scope 시나리오를 **아키텍처 영향이 같은 묶음**으로 클러스터링 → 각 묶음이 건드리는 [노드 / 데이터계약 / 출력 / 새 결정]을 적는다. **충돌·파급은 이 표의 산출물**(§2).
-> 노드: Intent · Supervisor(S) · Profile · city_select(retrieval+scoring&selection) · FestivalVerifier · Planner(+Pass2) · Packager · Memory(checkpoint/resume).
+> 노드: Intent · Supervisor(S) · Profile · city_select(retrieval+scoring&selection) · FestivalVerifier · Planner(+In-city Itinerary) · Packager · Memory(checkpoint/resume).
 > 영향 강도: ○ 기존으로 충분 · ◐ 일부 변경 · ● 신규/구조 변경 · ⚠️ 충돌.
 
 ---

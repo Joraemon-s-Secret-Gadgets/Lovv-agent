@@ -44,7 +44,7 @@ LOVV_ENABLE_AWS_SMOKE=1 python scripts/v2/retrieval_smoke.py --live --top-k 100 
 
 **C. 도시별 관광지 수 분포 (후보 충분성)**
 - top-30(또는 권장 N) 기준 `cities[].count` 분포: 1~2개 도시가 독식하나, 고르게 퍼지나.
-- 일정 슬롯(2d1n≈3, 3d2n≈?) 채우려면 도시당 충분한 관광지가 있는지 → Planner Pass2 부담·축소 위험 가늠.
+- 일정 슬롯(2d1n≈3, 3d2n≈?) 채우려면 도시당 충분한 관광지가 있는지 → Planner In-city Itinerary 부담·축소 위험 가늠.
 
 **D. raw vs soft (soft 채널 가치)**
 - `raw_vs_soft.place_jaccard`·`city_overlap` 집계. jaccard가 높고(≈1) 도시도 같으면 **soft 채널은 중복 → 2번째 임베딩 비용 대비 가치 낮음**. 낮으면 soft가 실제로 다른 후보를 데려오는 것.

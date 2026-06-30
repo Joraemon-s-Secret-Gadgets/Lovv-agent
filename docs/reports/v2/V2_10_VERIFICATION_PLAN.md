@@ -67,7 +67,7 @@
 | D-E transport | walk→거리 페널티↑ / car→완화 (방향성) | M |
 | D-J weatherNotice | 임계 룰대로 발동(수치는 데이터 후 튜닝 → 룰 구조만 고정 검증) | U |
 | soft 게이트 | 부분 충족 생존 · 미충족 강감점 · 완전 0매칭만 no_candidate | M+G |
-| capacity 제거 | candidate_sufficiency 미사용(항상 rank 0), 부족은 Pass2로 | U |
+| capacity 제거 | candidate_sufficiency 미사용(항상 rank 0), 부족은 In-city Itinerary로 | U |
 | 기피 | 세션 avoid 유지(TTL), 영구 profile 미반영 | I |
 | 응답상태 | modification_pending 1개만 추가 | U |
 | 되묻기 | 모순 → 무조건 needs_clarification(절충 생성 0) | G |
@@ -82,7 +82,7 @@
 | SC-00/G2 | move 채움(front 계약)·seed=anchor·status=completed | E+U |
 | **SC-G1 멀티테마** | soft 게이트로 소도시 생존(AND 기준선 대비 생존율↑) | E+M |
 | SC-G3 축제 | confirmed만 배치·실제 날짜 분산·미확정 userNotice | E |
-| SC-R1/R3 | Pass2로 축소 빈도↓ / 완전 0매칭만 END_WAIT | E+M |
+| SC-R1/R3 | In-city Itinerary로 축소 빈도↓ / 완전 0매칭만 END_WAIT | E+M |
 | SC-02 날씨 | 임계 초과 → weatherNotice 발동, primary는 유지, 자동 Plan B 0 | E+U |
 | **SC-03 슬롯 교체** | 해당 슬롯만 변경·seed/나머지 불변·status=modification_pending | E+U |
 | 다건 동시 | op 분해·일괄 재배치·일부 실패 시 부분 적용+안내 | E |

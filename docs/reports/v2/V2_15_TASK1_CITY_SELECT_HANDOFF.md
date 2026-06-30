@@ -111,7 +111,7 @@ city_score = Σ_{covered t}  w[t] · best_sim[t]    # 가중 테마 coverage (ev
 ### 변경 4-a — seed must-include + 출력 계약 `CitySelectionResult` 정제 ⚠ 현재 코드 갭
 **seed 정책 — day-must → seed-must 전환:**
 - seed = **테마별 best 장소(= theme_evidence의 best_place)**. 멀티테마면 **테마당 1개씩**. (단일 테마면 1개.)
-- **seed는 Planner의 hard 제약** — Pass2 일정에 **반드시 포함**. 기존 "모든 날 채움"이 아니라 **"전 seed 포함"이 일정 유효성 기준** → 테마 누락 자동 방지.
+- **seed는 Planner의 hard 제약** — In-city Itinerary 일정에 **반드시 포함**. 기존 "모든 날 채움"이 아니라 **"전 seed 포함"이 일정 유효성 기준** → 테마 누락 자동 방지.
 - 출력 일정 아이템에 **`is_seed: true` + `seed_for_theme`** 플래그(must-include 강제 + 설명 + UI 앵커 구분).
 
 **설명 생성 정책 — V1 실패 교정(프로즈를 city_select가 만들지 않음):**
@@ -135,7 +135,7 @@ CitySelectionResult {
   score_breakdown / retrieval_audit                                                                   # 진단(로직 비소비, user-facing ❌)
 }
 ```
-- 프로즈 필드 **없음**(evidence만). Pass2가 도시-scoped 재검색하므로 후보 place 전체는 안 넘김 — anchor+seeds+evidence만. soft_query는 안 쓰고 통과.
+- 프로즈 필드 **없음**(evidence만). In-city Itinerary가 도시-scoped 재검색하므로 후보 place 전체는 안 넘김 — anchor+seeds+evidence만. soft_query는 안 쓰고 통과.
 
 ## 검색 흐름 (retrieval_node)
 - 기본: `for theme in active_themes: raw_query × theme ON × top_k=50`.
@@ -145,7 +145,7 @@ CitySelectionResult {
 
 ## 설계 근거 — 왜 city_select는 raw만, Planner는 soft까지 쓰나
 > 원칙: **soft_query는 *장소 granularity*의 분위기 신호다. 장소 결정이 일어나는 Planner에 속하지, 도시 결정(city_select)이 아니다.**
-- **raw_query** = 정제된 *구체 요청*. city 전용이 아니라 **검색 내용 앵커** → city_select(전국 테마검색) + **Planner Pass2(도시-scoped 검색)** **양쪽에서 사용**.
+- **raw_query** = 정제된 *구체 요청*. city 전용이 아니라 **검색 내용 앵커** → city_select(전국 테마검색) + **Planner In-city Itinerary(도시-scoped 검색)** **양쪽에서 사용**.
 - **theme** = 하드 필터(양 단계). **congestion_pref** = *도시* 레벨 혼잡(방문객·구조화) → 무드 중 **crowd 축을 직접·신뢰성 있게** 처리(그래서 도시 단계에 있음).
 - **soft_query** = HyDE 분위기 묘사문 → *장소* 분위기 매칭. **도시 선정엔 부적합(4중 확인)**: ① coverage 평평으로 신뢰불가(quiet 5/9·vibrant 0/6), ② crowd는 congestion 상위호환, ③ HyDE는 정의상 *장소* 매칭(도시는 분위기 불균질 = category 불일치), ④ 설명 텍스트 사실형 → 자연·경관 편향(place 레벨도 약함, 데이터 보강 대기).
 - → soft는 **Planner의 도시-내 *장소* 선택/배치**에서 분위기 가산. **요지: raw=구체 앵커(양 레이어), congestion=도시 혼잡(city_select), soft=장소 분위기(Planner only).**
@@ -175,6 +175,6 @@ CitySelectionResult {
 | soft | city_score에서 제외(0) |
 
 ## 범위 밖 (이 작업에서 하지 말 것)
-Planner Pass2 · Planner place_score(0.35/0.25/… 분리식) · profile_theme_weights 결합계산 · 수정 루프 · soft-only city admission(확장안) · soft judge.
+Planner In-city Itinerary · Planner place_score(0.35/0.25/… 분리식) · profile_theme_weights 결합계산 · 수정 루프 · soft-only city admission(확장안) · soft judge.
 
-> 완료 정의: 위 변경 + 검증 green. 그 뒤에야 다음 사이클(Planner Pass2)로 간다.
+> 완료 정의: 위 변경 + 검증 green. 그 뒤에야 다음 사이클(Planner In-city Itinerary)로 간다.

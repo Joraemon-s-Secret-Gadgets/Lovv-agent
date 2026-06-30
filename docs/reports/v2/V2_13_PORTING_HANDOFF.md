@@ -2,6 +2,7 @@
 
 > 작성일 2026-06-28 · 대상: Claude Code(repo 실행·pytest). 근거: `V2_12_DIRECTORY_STRUCTURE.md` §3.3.
 > 목적: 검증된 V1 모듈을 `src/lovv_agent_v2/`로 **복사→import 재작성**해 baseline green을 만든다. C1/C2/C3 V2 델타는 그 위에 별도로 얹는다.
+> 주의: 이 문서는 포팅 baseline 설명이다. V2 최종 state/API 정본은 `V2_23_STATE_CONTRACT_DIRECTIVE.md`이며, `CandidateEvidence*` 이름은 legacy 제거 대상이다.
 
 ## 0. 대원칙
 1. **포팅 = 로직 변경 없음.** V1 동작 그대로 옮겨 import 되고 pytest green까지. **V2 델타(C1 capacity 제거·C2 soft 게이트·C3 seed·congestion_pref 직접사용)는 포팅에 섞지 않는다** — 포팅 후 슬라이스별로 각각 + 테스트.
@@ -12,7 +13,7 @@
 ## 1. 포팅 순서
 ```
 1) infra/        config · aws_clients · adapters(bedrock_converse·embeddings) · repositories(s3_vectors·dynamodb)  [+ dynamo_lookup 배치 결정]
-2) models/schemas.py   ← V1 그대로 baseline (SchemaValidationError·GeoPoint·CandidateEvidenceInput·EXECUTION_MODES·DTO 전부)
+2) models/schemas.py   ← V1 baseline import 후 V2 정본으로 정리 (SchemaValidationError·GeoPoint·CitySelectInput·EXECUTION_MODES·DTO, `CandidateEvidence*`는 legacy 제거 대상)
 3) agents/city_select/  scoring · retrieval_node · selection · scoring_and_selection_node  (candidate_evidence 분해)
 4) (이후) festival_verifier · planner · intent · supervisor · packager · profile
 ```

@@ -39,6 +39,14 @@ include_festivals=true
   - **안 들면 → city↔festival 충돌**(둘 다 사용자 지정, 그 달 양립 불가) → **되묻기**("경주엔 그 달 축제가 없어요. 축제 빼고 경주로? 아니면 축제 있는 다른 도시?").
 - → 축제 불가 상황이 전부 **city_select 이전, Verifier 단에서** 통일 처리. city_select는 깨끗한 F만 받음.
 
+### 4-a. 되묻기 해소 = anchored 진입 (통일 규칙)
+되묻기는 **구체 도시를 제시**하고, 사용자가 "그대로 간다(이 도시로)"고 하면 → **그 도시로 anchored 모드 진입.** 어느 해소 경로든 결국 *확정 = anchored*:
+- "축제 빼고 경주로" → **anchored 경주**, `include_festivals=false`.
+- "축제 있는 다른 도시로" → **anchored 그 축제 도시**, festival on(이제 도시 고정).
+- discovery F=0도 "축제 빼면 OO 추천, 거기로?"로 **구체 제시** → 확인 → **anchored OO**.
+- 메커니즘: 되묻기 = **interrupt**, 사용자 응답 = **resume**(memory checkpointer). resume 시 state가 `destination_id=확정도시` + `include_festivals` 갱신 → 이후 **anchored 경로**(Planner In-city Itinerary city-fixed).
+- 효과: 확정된 도시는 **재선택 안 함** — city_select 점수 우회, 바로 그 도시로 In-city Itinerary.
+
 ## 5. 검증 비용 — 전수 검증이 성립하는 이유
 - Verifier는 F의 **모든 후보를 검증**하지만, F는 이미 **월 필터로 좁혀진 집합**(그 달 축제 있는 도시만)이라 작음 → 전수 검증 감당 가능.
 - (만약 검증이 *극도로* 무겁고 F도 크면 그때만 2단계로: 싼 date_status 필터로 게이트 + 선택 도시 1개만 깊은 검증.)
@@ -58,7 +66,33 @@ include_festivals=true
 | fallback | Verifier 단에서 통일 — discovery F=0 / anchored 충돌 → 되묻기 |
 | Planner | 검증 축제를 must-include seed로 월/날짜 배치 |
 
-## 8. 열린 항목
-- 축제의 **테마 적합도 가산**(F 내 랭킹 시 축제가 요청 테마와 맞으면 우대) — 축제 metadata 필요, 향후 refinement.
-- 검증의 실제 내용·비용(date_status 필드 체크 vs 외부 확인) 확정 → §5 분기 결정.
-- 되묻기 후 사용자 응답(축제 빼기/도시 바꾸기)의 **modification 루프** 연결.
+## 8. 확정 — Verifier 출력 계약 + date_status 정책 (2026-06-29)
+
+### 8-a. Festival Verifier → city_select 출력 (검증된 도시 집합 F)
+기존 데이터·스키마 대부분 준비됨: festival에 `visit_months`·`event_start/end_date`·`season`; intent에 `include_festivals`·`travel_month`·`execution_mode`(`festival_seeded_city_discovery`/`festival_anchor`); 코드에 `FestivalVerification`·`FESTIVAL_DATE_STATUSES`. **신규는 도시-묶음 wrapper 하나:**
+```
+FestivalGateResult {
+  status:  ok | no_candidate | needs_clarification
+  tier:    confirmed | tentative | none
+  verified_festival_cities: [
+    { ddb_pk(canon upper), city_id, festivals: [ FestivalVerification, ... ] }   # 월-매칭·검증 축제 ≥1
+  ]
+  clarification: {...} | null
+}
+```
+- city_select: `allowed_city_ids = verified_festival_cities[].ddb_pk`. 도시 랭킹은 평소대로(관광 coverage+congestion) — 축제는 **게이트지 랭커 아님**.
+- Planner: 선택 도시 `festivals[]` → **must-include seed**(FestivalVerification의 날짜·`planner_policy`로 배치).
+
+### 8-b. date_status 자격 + 2단 tier
+1. **월 게이트(1차)**: `travel_month ∈ festival.visit_months`(주 매칭).
+2. **status tier(2차)**:
+   - **Tier 1 `confirmed`** — confirmed 도시 ≥1이면 **F=confirmed만**.
+   - **Tier 2 `tentative`** — confirmed 전무할 때만 fallback. F=tentative + "날짜 미확정" 플래그(planner_policy note, 되묻기 안 함).
+   - **제외(항상)**: `unknown`·`outdated`·`skipped`·`no_candidate`.
+3. **F=0**(confirmed·tentative 둘 다 없음) → 되묻기. anchored 고정도시가 tier1/2 아니면 충돌 → 되묻기(§4-a).
+- `is_applicable_to_trip` = (월 매칭 ∧ status∈{confirmed,tentative}). "검증된 우선"은 confirmed-우선 tiering으로 구현.
+
+## 9. 남은 refinement (구현 차단 아님)
+- 축제의 **테마 적합도 가산**(F 내 랭킹 우대) — 축제 theme_tags 활용, 향후.
+- 되묻기 응답(축제 빼기/도시 바꾸기)의 **modification 루프** 연결.
+- 검증의 외부 확인(웹) 필요 여부 — 현재는 DynamoDB date_status로 충분 가정.

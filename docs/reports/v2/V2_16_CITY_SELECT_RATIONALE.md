@@ -63,7 +63,7 @@ city_score = Σ_{covered t} w[t]·best_sim[t]      # 가중 테마 coverage
 
 ## 9. theme_balance 제외 → Planner
 - coverage(합)는 balance에 눈멈((0.3,0.1)=(0.2,0.2)). theme_balance는 별개 신호 *맞음* → 무의미 아님.
-- 그러나 ① coverage가 테마별 강도는 이미 반영, ② 극단(부재)은 penalty, ③ 미묘 불균형은 평평 노이즈 속 또 하나의 작은 레버, ④ "실제 채울 수 있나"는 **풀 깊이 = Planner Pass2** 문제. → city_select에서 빼고 Planner로.
+- 그러나 ① coverage가 테마별 강도는 이미 반영, ② 극단(부재)은 penalty, ③ 미묘 불균형은 평평 노이즈 속 또 하나의 작은 레버, ④ "실제 채울 수 있나"는 **풀 깊이 = Planner In-city Itinerary** 문제. → city_select에서 빼고 Planner로.
 
 ## 10. 도시 키 정규화 (임시)
 - 인덱스가 같은 도시를 두 casing(`CITY#ANDONG`↔`CITY#Andong`, place_id 교집합 0)으로 적재. 40개 도시 split. **그룹핑 키 = `ddb_pk.upper()`** + alias(`CITY#GOSEONG→-GANGWON`). 재적재로 해소될 임시 처리.
@@ -104,5 +104,5 @@ city_score = Σ_{covered t} w[t]·best_sim[t]      # 가중 테마 coverage
 - 예술·감성 **테마 태깅 정리** / **구(區) 단위 demote·제외**.
 - **선호 subtype 추출**(intent, theme-scoped, 추출+결정론 매핑, soft boost) → place-type. soft HyDE 대체.
 - **atmosphere 데이터 보강** → HyDE를 Planner place 랭킹에 1급.
-- **Planner Pass2**: 테마별 풀 깊이 체크 → 얇은 도시면 alternative_city 폴백(theme_balance도 여기).
+- **Planner In-city Itinerary**: 테마별 풀 깊이 체크 → 얇은 도시면 alternative_city 폴백(theme_balance도 여기).
 - **seed 설계**(별도 논의).

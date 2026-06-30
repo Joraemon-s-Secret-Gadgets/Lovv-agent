@@ -31,7 +31,7 @@ src/lovv_agent_v2/
 │   └── graph.py                # Main Graph 컴파일 + **checkpointer 배선** + 결정론 라우터 조립
 │
 ├── models/                     # 데이터 계약 DTO (연산 없음)
-│   ├── schemas.py              # CitySelectionResult · PlacePool · PlannerInput · CandidateEvidenceInput · ModifyResult · 응답 스키마
+│   ├── schemas.py              # CitySelectionResult · PlacePool · PlannerInput · CitySelectInput · ModifyResult · 응답 스키마
 │   └── profile.py              # LovvUserProfile
 │
 ├── agents/                     # Vertical slice (구현 영역)
@@ -62,7 +62,7 @@ src/lovv_agent_v2/
 │   ├── planner/                # [포팅 일부] + 신규
 │   │   ├── node.py
 │   │   ├── pass1.py            # 도시 선택 + 테마 게이트
-│   │   ├── pass2.py            # 도시 고정 · ★seed 라운드로빈 배치 · geo_penalty(haversine)
+│   │   ├── in_city_itinerary.py            # 도시 고정 · ★seed 라운드로빈 배치 · geo_penalty(haversine)
 │   │   ├── edit_mode.py        # ★신규: 비-seed 슬롯 교체 · 일괄 재배치 (수정, V2_11)
 │   │   ├── plan_b.py           # ★신규(V2.1): on-demand 실내 대안
 │   │   ├── validation.py       # [포팅] 결정론 출력 검증(필드·국가·축제 confirmed)
@@ -109,7 +109,7 @@ agents/*  →  agents/* (다른 에이전트 내부)                  (X, 절대
 infra/*   →  { common }                                   (O, 단 비즈니스 규칙 금지)
 common/*  →  (외부 의존 없음, 순수)                         (O)
 ```
-- 에이전트 간 데이터·제어는 **`core/state.py`의 State 객체 + `core/graph.py` 오케스트레이터로만**.
+- 에이전트 간 데이터·제어는 **`core/state.py`의 State 객체 + `core/graph.py` 오케스트레이터로만**. State 정본은 `V2_23_STATE_CONTRACT_DIRECTIVE.md`를 따른다.
 - 각 에이전트 외부 노출은 `node.py`의 `def {agent}_node(state) -> dict` 하나뿐.
 
 ### 3.2 계층 책임 (3-tier, business rule는 agents에만)
