@@ -31,11 +31,13 @@ from lovv_agent.agents.intent import (
     resolve_execution_mode,
 )
 from lovv_agent.agents.planner import PlannerAgent
+from lovv_agent.agents.profile import ProfileRecord, ProfileResult, compute_theme_weights
 from lovv_agent.config import RuntimeConfig
 from lovv_agent.graph import GraphNodeSet, build_langgraph, invoke_langgraph
 from lovv_agent.models.schemas import CandidateEvidenceInput, GeoPoint, SchemaValidationError
 from lovv_agent.prompts.registry import INTENT_NORMALIZATION_PROMPT_ID, prompt_text
-from lovv_agent.state import IntentState, RequestState, UnifiedAgentState
+from lovv_agent.repositories.profile_dynamodb import ProfileRepository
+from lovv_agent.state import IntentState, ProfileState, RequestState, UnifiedAgentState
 from lovv_agent.telemetry import trace_invocation, trace_node
 
 HARNESS_NAME = "LovvLangGraphHarness"
@@ -128,59 +130,137 @@ def build_harness(
         schema_retry_limit=config.retries.schema_retry_limit,
     )
 
+    # Profile repository — optional, graceful degradation if not configured.
+    profile_repository: ProfileRepository | None = None
+    profile_table = getattr(
+        getattr(config, "profile", None), "table_name", None,
+    )
+    profile_enabled = getattr(
+        getattr(config, "profile", None), "enabled", False,
+    )
+    if profile_enabled and profile_table and adapters.clients.dynamodb:
+        profile_repository = ProfileRepository(
+            client=adapters.clients.dynamodb,
+            table_name=profile_table,
+        )
+
     def intent_node(state: UnifiedAgentState) -> IntentState:
-        # API가 소유한 field는 결정적 정규화 결과를 최종 기준으로 삼는다.
-        api_payload = request_state_to_api(state.request)
-        deterministic = normalize_recommendation_request(api_payload)
-        if deterministic.needs_clarification:
-            _apply_intent_clarification(state, deterministic)
-            return _intent_state_from_result(deterministic)
+        from concurrent.futures import ThreadPoolExecutor
 
-        query = state.request.natural_language_query.strip()
-        if len(query) < config.intent.min_natural_language_query_chars:
-            state.trace.node_timings["intent_mode"] = "deterministic_short_query"
-            return _intent_state_from_result(deterministic)
+        # --- Intent parsing (runs in parallel with Profile) ---
+        def _run_intent() -> IntentState:
+            api_payload = request_state_to_api(state.request)
+            deterministic = normalize_recommendation_request(api_payload)
+            if deterministic.needs_clarification:
+                _apply_intent_clarification(state, deterministic)
+                return _intent_state_from_result(deterministic)
 
-        llm_result = invoke_intent_structured_output(
-            runtime=intent_runtime,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "text": json.dumps(
-                                {
-                                    "task": "API 입력을 Intent Agent 출력 계약으로 정규화하세요.",
-                                    "api_structured_input": api_payload,
-                                    "conversation_summary": (
-                                        state.conversation.conversation_summary
-                                    ),
-                                    "messages": list(state.conversation.messages),
-                                },
-                                ensure_ascii=False,
-                            ),
-                        },
-                    ],
-                },
-            ],
-            structured_request=api_payload,
-            retry_limit=config.retries.schema_retry_limit,
-            system=[{"text": prompt_text(INTENT_NORMALIZATION_PROMPT_ID)}],
-        )
-        if _intent_llm_result_is_safe(llm_result, deterministic):
-            state.trace.node_timings["intent_mode"] = "bedrock_structured_output"
-            return _intent_state_from_result(
-                _merge_llm_intent_enrichment(llm_result, deterministic),
-                deterministic=deterministic,
+            query = state.request.natural_language_query.strip()
+            if len(query) < config.intent.min_natural_language_query_chars:
+                state.trace.node_timings["intent_mode"] = "deterministic_short_query"
+                return _intent_state_from_result(deterministic)
+
+            llm_result = invoke_intent_structured_output(
+                runtime=intent_runtime,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "text": json.dumps(
+                                    {
+                                        "task": "API 입력을 Intent Agent 출력 계약으로 정규화하세요.",
+                                        "api_structured_input": api_payload,
+                                        "conversation_summary": (
+                                            state.conversation.conversation_summary
+                                        ),
+                                        "messages": list(state.conversation.messages),
+                                    },
+                                    ensure_ascii=False,
+                                ),
+                            },
+                        ],
+                    },
+                ],
+                structured_request=api_payload,
+                retry_limit=config.retries.schema_retry_limit,
+                system=[{"text": prompt_text(INTENT_NORMALIZATION_PROMPT_ID)}],
             )
+            if _intent_llm_result_is_safe(llm_result, deterministic):
+                state.trace.node_timings["intent_mode"] = "bedrock_structured_output"
+                return _intent_state_from_result(
+                    _merge_llm_intent_enrichment(llm_result, deterministic),
+                    deterministic=deterministic,
+                )
 
-        # 자연어 보강은 선택 사항이다. 모델 계약이 실패하면 검증된 API core field를
-        # 유지하고 결정적 경로로 계속 진행한다.
-        state.trace.node_timings["intent_mode"] = "deterministic_llm_fallback"
-        state.trace.node_timings["intent_llm_handoff_notes"] = list(
-            llm_result.handoff_notes,
-        )
-        return _intent_state_from_result(deterministic)
+            state.trace.node_timings["intent_mode"] = "deterministic_llm_fallback"
+            state.trace.node_timings["intent_llm_handoff_notes"] = list(
+                llm_result.handoff_notes,
+            )
+            return _intent_state_from_result(deterministic)
+
+        # --- Profile read (runs in parallel with Intent) ---
+        def _run_profile() -> ProfileResult | None:
+            if profile_repository is None:
+                return None
+            user_id = getattr(state.request, "user_id", None)
+            if not user_id:
+                # V1 RequestState doesn't have user_id yet — use request_id as fallback hint
+                return None
+            record = profile_repository.get_profile(user_id)
+            if record is None:
+                return None
+            # active_required_themes will be determined after intent runs,
+            # but we can pre-compute with request.themes mapped to labels.
+            from lovv_agent.agents.intent import THEME_LABELS
+            active_labels = tuple(
+                THEME_LABELS.get(tid, tid) for tid in state.request.themes
+            )
+            return compute_theme_weights(record, active_labels)
+
+        # --- Parallel execution ---
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            intent_future = pool.submit(_run_intent)
+            profile_future = pool.submit(_run_profile)
+
+            intent_result = intent_future.result(timeout=15)
+            try:
+                profile_result = profile_future.result(timeout=5)
+            except Exception:
+                profile_result = None
+
+        # --- Profile injection ---
+        if profile_result is not None and profile_result.profile_active:
+            state.profile = ProfileState(
+                saved_trip_count=profile_result.audit.get("saved_trip_count", 0),
+                effective_theme_weights=profile_result.effective_theme_weights,
+                audit=profile_result.audit,
+            )
+            # Inject theme_weights into CandidateEvidenceInput
+            if (
+                profile_result.effective_theme_weights
+                and intent_result.candidate_evidence_input is not None
+            ):
+                intent_result = IntentState(
+                    extracted_inputs=intent_result.extracted_inputs,
+                    active_required_themes=intent_result.active_required_themes,
+                    searchable_place_themes=intent_result.searchable_place_themes,
+                    external_link_themes=intent_result.external_link_themes,
+                    cleaned_raw_query=intent_result.cleaned_raw_query,
+                    soft_preference_query=intent_result.soft_preference_query,
+                    unsupported_conditions=intent_result.unsupported_conditions,
+                    candidate_evidence_input=replace(
+                        intent_result.candidate_evidence_input,
+                        theme_weights=profile_result.effective_theme_weights,
+                    ),
+                    transport_pref=intent_result.transport_pref,
+                    congestion_pref=intent_result.congestion_pref,
+                )
+                state.trace.node_timings["profile_injected"] = True
+        else:
+            state.trace.node_timings["profile_injected"] = False
+
+        return intent_result
 
     def candidate_node(state: UnifiedAgentState):
         candidate_input = state.intent.candidate_evidence_input
