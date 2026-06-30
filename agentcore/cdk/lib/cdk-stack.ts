@@ -8,7 +8,8 @@ import {
   type CustomJWTAuthorizerConfig,
   type HarnessDeploymentConfig,
 } from '@aws/agentcore-cdk';
-import { CfnOutput, Stack, type StackProps } from 'aws-cdk-lib';
+import { CfnOutput, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
@@ -131,6 +132,33 @@ export class AgentCoreStack extends Stack {
         })
       );
     }
+
+    // LovvUserProfile table — Profile Agent read / Profile Writer write.
+    // Separated from TourKoreaDomainData for IAM least-privilege, TTL isolation,
+    // and clean user-deletion (delete Table 2 only).
+    const profileTable = new dynamodb.Table(this, 'LovvUserProfile', {
+      tableName: `${spec.name}-LovvUserProfile`,
+      partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecovery: true,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
+    // Grant Profile Agent read + Profile Writer write on profile table.
+    for (const env of this.application.environments.values()) {
+      profileTable.grantReadWriteData(env.runtime.role);
+    }
+
+    new CfnOutput(this, 'ProfileTableName', {
+      description: 'LovvUserProfile DynamoDB table name',
+      value: profileTable.tableName,
+    });
+
+    new CfnOutput(this, 'ProfileTableArn', {
+      description: 'LovvUserProfile DynamoDB table ARN',
+      value: profileTable.tableArn,
+    });
 
     // Create AgentCoreMcp if there are gateways configured
     if (mcpSpec?.agentCoreGateways && mcpSpec.agentCoreGateways.length > 0) {

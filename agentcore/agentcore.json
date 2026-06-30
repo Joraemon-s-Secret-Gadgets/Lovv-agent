@@ -74,6 +74,14 @@
           "value": "60"
         },
         {
+          "name": "LOVV_PROFILE_ENABLED",
+          "value": "false"
+        },
+        {
+          "name": "LOVV_PROFILE_TABLE",
+          "value": "LovvAgentCore-LovvUserProfile"
+        },
+        {
           "name": "OTEL_PYTHON_EXCLUDED_URLS",
           "value": "ping"
         },

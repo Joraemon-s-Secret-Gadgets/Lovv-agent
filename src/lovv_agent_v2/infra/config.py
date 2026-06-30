@@ -28,6 +28,7 @@ CONFIG_SECTIONS: tuple[str, ...] = (
     "timeouts",
     "retries",
     "memory",
+    "profile",
 )
 
 ENV_KEYS: tuple[str, ...] = (
@@ -63,6 +64,8 @@ ENV_KEYS: tuple[str, ...] = (
     "LOVV_MEMORY_ID",
     "LOVV_MEMORY_EVENT_EXPIRY_DAYS",
     "LOVV_MEMORY_KMS_KEY_ARN",
+    "LOVV_PROFILE_ENABLED",
+    "LOVV_PROFILE_TABLE",
 )
 
 DEFAULT_AWS_REGION = "us-east-1"
@@ -359,6 +362,24 @@ class MemorySettings:
 
 
 @dataclass(frozen=True, slots=True)
+class ProfileSettings:
+    """Profile Agent runtime settings.
+
+    When ``enabled`` is False (default), Profile Agent reads from state mock
+    only — no DynamoDB call. When True, ProfileRepository fetches from the
+    LovvUserProfile table using the configured table_name.
+    """
+
+    enabled: bool = False
+    table_name: str = "LovvUserProfile"
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.enabled, bool):
+            raise ConfigError("profile.enabled must be a boolean")
+        _required_text(self.table_name, "profile.table_name")
+
+
+@dataclass(frozen=True, slots=True)
 class RuntimeConfig:
     """Complete injectable runtime configuration for Lovv graph execution."""
 
@@ -372,6 +393,7 @@ class RuntimeConfig:
     timeouts: TimeoutSettings = field(default_factory=TimeoutSettings)
     retries: RetrySettings = field(default_factory=RetrySettings)
     memory: MemorySettings = field(default_factory=MemorySettings)
+    profile: ProfileSettings = field(default_factory=ProfileSettings)
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "RuntimeConfig":
@@ -496,6 +518,10 @@ class RuntimeConfig:
                 ),
                 kms_key_arn=_optional_text(source.get("LOVV_MEMORY_KMS_KEY_ARN")),
             ),
+            profile=ProfileSettings(
+                enabled=source.get("LOVV_PROFILE_ENABLED", "").strip().lower() in ("1", "true", "yes"),
+                table_name=source.get("LOVV_PROFILE_TABLE", "LovvUserProfile"),
+            ),
         )
 
     def to_dict(self) -> dict[str, object]:
@@ -541,6 +567,7 @@ __all__ = [
     "LLM_ROUTING_NODES",
     "LlmSettings",
     "MemorySettings",
+    "ProfileSettings",
     "RetrySettings",
     "RuntimeConfig",
     "S3VectorSettings",
