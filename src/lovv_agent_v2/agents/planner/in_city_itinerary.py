@@ -3,18 +3,17 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from lovv_agent_v2.agents.planner.place_selection import (
+from lovv_agent_v2.agents.planner.steps.route_days.day_profile import (
+    slot_label_for_order,
+    trip_min_place_target,
+    trip_place_target,
+)
+from lovv_agent_v2.agents.planner.steps.route_days.place_selection import (
     PlannerSelectionInput,
     build_working_set,
 )
-from lovv_agent_v2.agents.planner.routing import RoutingResult, route_days
+from lovv_agent_v2.agents.planner.steps.route_days.routing import RoutingResult, route_days
 from lovv_agent_v2.models.schemas import PlannerOutput, SchemaValidationError
-
-TRIP_PLACE_TARGETS: Mapping[str, int] = {
-    "daytrip": 4,
-    "2d1n": 8,
-    "3d2n": 12,
-}
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,7 +31,8 @@ class InCityPlannerInput:
 def build_in_city_itinerary(planner_input: InCityPlannerInput) -> PlannerOutput:
     selected_city = _mapping(planner_input.city_selection_result.get("selected_city"))
     seeds = _sequence_of_mappings(planner_input.city_selection_result.get("seeds"))
-    target_count = TRIP_PLACE_TARGETS.get(planner_input.trip_type, 12)
+    target_count = trip_place_target(planner_input.trip_type)
+    min_count = trip_min_place_target(planner_input.trip_type)
     selection = build_working_set(
         PlannerSelectionInput(
             raw_places=planner_input.recommended_places,
@@ -42,6 +42,7 @@ def build_in_city_itinerary(planner_input: InCityPlannerInput) -> PlannerOutput:
             theme_weights=planner_input.theme_weights,
             trip_type=planner_input.trip_type,
             target_count=target_count,
+            min_count=min_count,
         ),
     )
     routed = route_days(
@@ -50,7 +51,7 @@ def build_in_city_itinerary(planner_input: InCityPlannerInput) -> PlannerOutput:
         transport_pref=planner_input.transport_pref,
     )
     itinerary = _itinerary_items(routed)
-    status = "ok" if itinerary else "insufficient_candidates"
+    status = "ok" if len(itinerary) >= min_count else "insufficient_candidates"
     notices = _notices(routed, selected_city, status)
     validation = {
         "planner_status_gate": status,
@@ -71,13 +72,14 @@ def build_in_city_itinerary(planner_input: InCityPlannerInput) -> PlannerOutput:
 
 def _itinerary_items(routed: RoutingResult) -> tuple[dict[str, object], ...]:
     items: list[dict[str, object]] = []
+    day_count = len(routed.days)
     for day in routed.days:
         for order, routed_place in enumerate(day.places, start=1):
             place = routed_place.place
             items.append(
                 {
                     "day": day.day,
-                    "slot": _slot_for_order(order, len(day.places)),
+                    "slot": slot_label_for_order(day.day, day_count, order, len(day.places)),
                     "placeId": place.place_id,
                     "title": place.title,
                     "body": _body(place),
@@ -94,15 +96,6 @@ def _itinerary_items(routed: RoutingResult) -> tuple[dict[str, object], ...]:
                 },
             )
     return tuple(items)
-
-
-def _slot_for_order(order: int, count: int) -> str:
-    if order == 1:
-        return "morning"
-    if order == count:
-        return "evening"
-    return "afternoon"
-
 
 def _body(place) -> str:
     theme = place.assigned_theme or (place.theme_tags[0] if place.theme_tags else "조건")

@@ -24,14 +24,19 @@ from lovv_agent_v2.infra.dynamo_lookup import (
     DynamoLookupTool,
     normalize_festival_candidate,
 )
-from lovv_agent_v2.agents.city_select.retrieval_node import (
+from lovv_agent_v2.agents.city_select.retrieval.policy import (
     ATTRACTION_ENTITY_TYPE,
+    normalize_attraction_candidate,
+    prune_cities,
+)
+from lovv_agent_v2.agents.city_select.retrieval.flow import (
+    retrieve_allowed_city_pool_by_theme,
+)
+from lovv_agent_v2.agents.city_select.tools import (
     DestinationSearchTool,
     build_attraction_filter,
     build_attraction_search_request,
-    normalize_attraction_candidate,
-    prune_cities,
-    _build_city_select_runtime_tools,
+    build_city_select_tools,
 )
 
 
@@ -130,6 +135,43 @@ class RecordingBedrockRuntimeClient:
         self.requests.append(dict(request))
         body = json.loads(request["body"].decode("utf-8"))
         return {"body": json.dumps({"embedding": [0.1] * body["dimensions"]})}
+
+
+class RecordingDestinationSearch:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def search_candidates(
+        self,
+        query_vector: list[float],
+        *,
+        city_id: str | None = None,
+        ddb_pk: str | None = None,
+        theme: str | None = None,
+    ) -> tuple[Any, ...]:
+        self.calls.append(
+            {
+                "query_vector": query_vector,
+                "city_id": city_id,
+                "ddb_pk": ddb_pk,
+                "theme": theme,
+            },
+        )
+        return (
+            normalize_attraction_candidate(
+                {
+                    "key": f"{city_id}-{theme}",
+                    "distance": 0.1,
+                    "metadata": {
+                        "entity_type": "attraction",
+                        "city_id": city_id or "KR-NONE",
+                        "title": f"{city_id} {theme}",
+                        "theme_tags": [theme or "history"],
+                        "ddb_pk": f"CITY#{city_id}",
+                    },
+                },
+            ),
+        )
 
 
 def make_dynamo_lookup_tool(
@@ -276,18 +318,18 @@ class CitySelectRuntimeToolTest(unittest.TestCase):
             embeddings=EmbeddingSettings(model_id="embed-model"),
         )
 
-        destination_search, dynamo_lookup, embedding_adapter = _build_city_select_runtime_tools(
+        tools = build_city_select_tools(
             config,
             factory,
         )
 
-        vector = embedding_adapter.embed_query("조용한 바다 여행")
-        destination_search.search_candidates(vector, theme="sea_coast")
+        vector = tools.embedding.embed_query("조용한 바다 여행")
+        tools.destination_search.search_candidates(vector, theme="sea_coast")
 
         self.assertEqual(factory.calls[0][0], "s3vectors")
         self.assertEqual(factory.calls[1][0], "dynamodb")
         self.assertEqual(factory.calls[2][0], "bedrock-runtime")
-        self.assertIs(dynamo_lookup.dynamodb.client, dynamodb_client)
+        self.assertIs(tools.dynamo_lookup.dynamodb.client, dynamodb_client)
         self.assertEqual(s3_client.requests[0]["vectorBucketName"], "bucket")
         self.assertEqual(s3_client.requests[0]["indexName"], "index")
         self.assertEqual(bedrock_client.requests[0]["modelId"], "embed-model")
@@ -383,6 +425,27 @@ class AttractionSearchTest(unittest.TestCase):
                 ],
             },
         )
+
+    def test_festival_allowed_pool_retrieves_each_city_directly(self) -> None:
+        search = RecordingDestinationSearch()
+
+        candidates = retrieve_allowed_city_pool_by_theme(
+            search,
+            query_vector=[0.1, 0.2],
+            themes=("역사·전통",),
+            allowed_city_ids=("KR-47-130", "KR-51-730", "KR-36-8"),
+        )
+
+        self.assertEqual(len(candidates), 3)
+        self.assertEqual(
+            [(call["city_id"], call["theme"]) for call in search.calls],
+            [
+                ("KR-47-130", "역사·전통"),
+                ("KR-51-730", "역사·전통"),
+                ("KR-36-8", "역사·전통"),
+            ],
+        )
+        self.assertNotIn(None, [call["city_id"] for call in search.calls])
 
     def test_food_theme_is_not_sent_to_s3_vector_search(self) -> None:
         client = RecordingS3VectorClient()
@@ -671,6 +734,8 @@ class FestivalSeedTest(unittest.TestCase):
                         "country": "KR",
                         "city_id": "city-1",
                         "month": 6,
+                        "PK": "CITY#CITY-1",
+                        "SK": "FESTIVAL#festival-1",
                         "assigned_theme": "history",
                         "theme_tags": ["history"],
                     },
@@ -680,6 +745,10 @@ class FestivalSeedTest(unittest.TestCase):
                         "country": "KR",
                         "city_id": "city-2",
                         "month": 6,
+                        "PK": "CITY#CITY-2",
+                        "SK": "FESTIVAL#festival-2",
+                        "city_key": "CITY#CITY-2",
+                        "ddb_pk": "CITY#CITY-2",
                         "assigned_theme": "history",
                         "theme_tags": ["history"],
                     },
@@ -699,19 +768,23 @@ class FestivalSeedTest(unittest.TestCase):
         self.assertEqual(result.status, "ok")
         self.assertEqual(result.seed_city_ids, ("city-2",))
         self.assertEqual(result.candidates[0].festival_id, "festival-2")
+        self.assertEqual(result.candidates[0].ddb_pk, "CITY#CITY-2")
+        self.assertEqual(result.candidates[0].ddb_sk, "FESTIVAL#festival-2")
+        self.assertEqual(result.candidates[0].city_key, "CITY#CITY-2")
+        self.assertEqual(
+            result.verified_festival_cities[0]["festivals"][0]["SK"],
+            "FESTIVAL#festival-2",
+        )
         request = dynamodb_client.query_requests[0]
         self.assertEqual(dynamodb_client.scan_requests, [])
+        self.assertEqual(request["IndexName"], "FestivalMonthIndex")
         self.assertEqual(
             request["KeyConditionExpression"],
-            "#pk = :pk AND begins_with(#sk, :festival_prefix)",
+            "#entity_type = :entity_type AND begins_with(#gsi_sk, :month_prefix)",
         )
-        self.assertEqual(
-            request["ExpressionAttributeValues"][":pk"],
-            {"S": "CITY#City-2"},
-        )
-        self.assertEqual(request["FilterExpression"], "#month = :month")
+        self.assertNotIn(":pk", request["ExpressionAttributeValues"])
 
-    def test_fixed_city_festival_seed_uses_city_key_for_partition_key(self) -> None:
+    def test_fixed_city_festival_seed_ignores_city_key_for_month_query(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
             query_response={
                 "Items": [
@@ -721,6 +794,8 @@ class FestivalSeedTest(unittest.TestCase):
                         "country": "KR",
                         "city_id": "KR-36-4",
                         "month": 10,
+                        "PK": "CITY#GIMHAE",
+                        "SK": "FESTIVAL#festival-1",
                         "theme_tags": ["festival"],
                     },
                 ],
@@ -740,10 +815,12 @@ class FestivalSeedTest(unittest.TestCase):
         self.assertEqual(result.status, "ok")
         self.assertEqual(result.seed_city_ids, ("KR-36-4",))
         request = dynamodb_client.query_requests[0]
+        self.assertEqual(request["IndexName"], "FestivalMonthIndex")
         self.assertEqual(
-            request["ExpressionAttributeValues"][":pk"],
-            {"S": "CITY#GIMHAE"},
+            request["ExpressionAttributeValues"][":month_prefix"],
+            {"S": "FESTIVAL#10"},
         )
+        self.assertNotIn(":pk", request["ExpressionAttributeValues"])
 
     def test_festival_seed_empty_city_discovery_reports_failure(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(query_response={"Items": []})
@@ -786,7 +863,10 @@ class FestivalSeedTest(unittest.TestCase):
                 "festival_id": {"S": "festival-1"},
                 "name": {"S": "바다 축제"},
                 "country": {"S": "KR"},
+                "PK": {"S": "CITY#SEA"},
+                "SK": {"S": "FESTIVAL#festival-1"},
                 "city_id": {"S": "city-1"},
+                "city_key": {"S": "CITY#SEA"},
                 "city_name": {"S": "해변시"},
                 "month": {"N": "6"},
                 "theme": {"S": "sea_coast"},
@@ -801,6 +881,9 @@ class FestivalSeedTest(unittest.TestCase):
         self.assertEqual(candidate.theme, "sea_coast")
         self.assertEqual(candidate.theme_tags, ("sea_coast", "walk"))
         self.assertEqual(candidate.event_start_date, "2026-06-01")
+        self.assertEqual(candidate.ddb_pk, "CITY#SEA")
+        self.assertEqual(candidate.ddb_sk, "FESTIVAL#festival-1")
+        self.assertEqual(candidate.city_key, "CITY#SEA")
 
 
 class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
@@ -853,6 +936,44 @@ class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
             },
         )
         self.assertEqual(dynamodb_client.get_item_requests[0]["TableName"], "lovv-table")
+
+    def test_enrich_final_places_uses_v2_city_pk_before_legacy_fallback(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            get_item_response={
+                "Item": {
+                    "PK": {"S": "CITY#DONGHAE"},
+                    "SK": {"S": "ATTRACTION#125713"},
+                    "overview": {"S": "망상해변 공개 개요"},
+                },
+            },
+        )
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "attraction#125713#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "KR-51-170",
+                    "title": "망상해변",
+                    "theme_tags": ["바다·해안"],
+                    "ddb_pk": "CITY#DONGHAE",
+                    "ddb_sk": "ATTRACTION#125713",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((candidate,))
+
+        self.assertEqual(result.warnings, ())
+        self.assertEqual(result.places[0].details["overview"], "망상해변 공개 개요")
+        self.assertEqual(
+            dynamodb_client.get_item_requests[0]["Key"],
+            {
+                "PK": {"S": "CITY#DONGHAE"},
+                "SK": {"S": "ATTRACTION#125713"},
+            },
+        )
 
     def test_enrich_final_places_only_calls_for_passed_final_items(self) -> None:
         dynamodb_client = RecordingDynamoDbClient()

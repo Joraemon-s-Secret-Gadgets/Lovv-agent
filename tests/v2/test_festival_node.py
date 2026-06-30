@@ -4,6 +4,7 @@ from typing import Any
 
 from lovv_agent_v2.agents.festival_verifier import node as festival_node_module
 from lovv_agent_v2.agents.festival_verifier.node import festival_verifier_node
+from lovv_agent_v2.agents.festival_verifier.tools import FestivalVerifierTools
 from lovv_agent_v2.core.graph import compile_v2_graph
 from lovv_agent_v2.infra.dynamo_lookup import FestivalSeedResult
 
@@ -62,11 +63,18 @@ def test_festival_verifier_node_writes_festival_gate_state() -> None:
     result = festival_verifier_node(state)
 
     # Then: the gate state exposes the allowed city ids for city_select.
+    assert list(result) == ["festival_gate"]
     festival_gate = result["festival_gate"]
     assert festival_gate["allowed_city_ids"] == ["KR-A"]
+    assert festival_gate["verified_festival_cities"] == festival_gate["result"]["verified_festival_cities"]
+    assert festival_gate["allowed_city_ids"] == festival_gate["result"]["allowed_city_ids"]
+    assert festival_gate["audit"] == festival_gate["result"]["audit"]
+    assert festival_gate["audit"]["ddb_pk_usage"] == {
+        "preserve_for_diagnostics": True,
+        "use_as_s3_vector_filter": False,
+    }
     assert festival_gate["result"]["status"] == "ok"
     assert festival_gate["clarification"] is None
-    assert result["routing"]["needs_clarification"] is False
 
 
 def test_festival_verifier_node_queries_dynamo_lookup_by_city_when_anchored(
@@ -76,8 +84,8 @@ def test_festival_verifier_node_queries_dynamo_lookup_by_city_when_anchored(
     lookup = RecordingFestivalLookup()
     monkeypatch.setattr(
         festival_node_module,
-        "_build_festival_lookup_tool",
-        lambda: lookup,
+        "build_festival_verifier_tools",
+        lambda: FestivalVerifierTools(festival_lookup=lookup),
     )
     city_input = _city_input()
     city_input["destination_id"] = "KR-36-4"
@@ -100,7 +108,29 @@ def test_festival_verifier_node_queries_dynamo_lookup_by_city_when_anchored(
         },
     ]
     assert result["festival_gate"]["allowed_city_ids"] == ["KR-36-4"]
+    assert (
+        result["festival_gate"]["verified_festival_cities"]
+        == result["festival_gate"]["result"]["verified_festival_cities"]
+    )
+    assert result["festival_gate"]["audit"] == result["festival_gate"]["result"]["audit"]
     assert result["festival_gate"]["result"]["execution_mode"] == "anchored"
+
+
+def test_festival_verifier_node_writes_public_shape_when_skipped() -> None:
+    # Given: festivals are disabled for this request.
+    city_input = _city_input()
+    city_input["include_festivals"] = False
+
+    # When: the festival verifier node runs.
+    result = festival_verifier_node({"intent": {"city_select_input": city_input}})
+
+    # Then: festival_gate still exposes the V2_29 public group fields.
+    festival_gate = result["festival_gate"]
+    assert festival_gate["result"] is None
+    assert festival_gate["allowed_city_ids"] == []
+    assert festival_gate["verified_festival_cities"] == []
+    assert festival_gate["clarification"] is None
+    assert festival_gate["audit"]["skipped"] is True
 
 
 def test_graph_stops_before_city_select_when_festival_needs_clarification() -> None:
@@ -118,7 +148,7 @@ def test_graph_stops_before_city_select_when_festival_needs_clarification() -> N
     assert "city_select" not in result
     assert result["festival_gate"]["result"]["status"] == "needs_clarification"
     assert result["festival_gate"]["clarification"]["reason_code"] == "festival_tentative"
-    assert result["routing"]["next_node"] == "response_packager"
+    assert result["routing"]["next_node"] == "end"
     assert result["response"]["response_status"] == "END_WAIT_USER"
     assert result["response"]["response_payload"]["clarification"]["reasonCode"] == "festival_tentative"
 

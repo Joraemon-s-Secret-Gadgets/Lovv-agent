@@ -1,43 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
-from typing import Protocol, cast
 
-from lovv_agent_v2.agents.planner.ors_provider import (
-    OrsProviderUnavailableError,
-    ors_provider_from_env,
+from lovv_agent_v2.agents.planner.scratch import planner_scratch
+from lovv_agent_v2.agents.planner.steps.retrieve_places.festival_seed import festival_seed_refs
+from lovv_agent_v2.agents.planner.steps.route_days.day_profile import trip_min_place_target, trip_place_target
+from lovv_agent_v2.agents.planner.tools import (
+    PlannerRuntimeTools,
+    runtime_tools_from_value,
+    travel_time_provider_from_value,
 )
-from lovv_agent_v2.agents.planner.travel_time import HaversineTravelTimeProvider, TravelTimeProvider
+from lovv_agent_v2.agents.planner.travel_time import TravelTimeProvider
 from lovv_agent_v2.models.schemas import SchemaValidationError
-
-TRIP_PLACE_TARGETS: Mapping[str, int] = {
-    "daytrip": 4,
-    "2d1n": 8,
-    "3d2n": 12,
-}
-
-
-class EmbeddingTool(Protocol):
-    def embed_query(self, query: str) -> Sequence[float]: ...
-
-
-class DestinationSearchTool(Protocol):
-    def search_candidates(
-        self,
-        query_vector: Sequence[float],
-        *,
-        top_k: int,
-        city_id: str | None = None,
-        ddb_pk: str | None = None,
-        theme: str | None = None,
-    ) -> Sequence[object]: ...
-
-
-@dataclass(frozen=True, slots=True)
-class PlannerRuntimeTools:
-    destination_search: DestinationSearchTool
-    embedding: EmbeddingTool
 
 
 def planner_input(state: Mapping[str, object]) -> dict[str, object]:
@@ -54,7 +28,10 @@ def planner_input(state: Mapping[str, object]) -> dict[str, object]:
         "selected_city": selected_city_payload,
         "city_id": selected_city_payload.get("city_id", selected_city_payload.get("destination_id", "")),
         "ddb_pk": selected_city_payload.get("ddb_pk", city_input.get("ddb_pk", "")),
-        "seeds": city_selection.get("seeds", ()),
+        "seeds": (
+            *mapping_sequence(city_selection.get("seeds")),
+            *festival_seed_refs(state, selected_city_payload),
+        ),
         "raw_query": city_input.get("cleaned_raw_query", city_input.get("raw_query", "")),
         "soft_query": city_input.get("soft_preference_query", ""),
         "active_themes": string_tuple(
@@ -66,35 +43,17 @@ def planner_input(state: Mapping[str, object]) -> dict[str, object]:
             first_present(passthrough, "transport_pref", city_input.get("transport_pref", "unknown")),
             "transport_pref",
         ),
-        "target_count": TRIP_PLACE_TARGETS.get(trip_type, 12),
+        "min_count": trip_min_place_target(trip_type),
+        "target_count": trip_place_target(trip_type),
     }
 
 
 def runtime_tools(state: Mapping[str, object]) -> PlannerRuntimeTools | None:
-    runtime = state.get("planner_runtime")
-    if runtime is None:
-        return None
-    destination_search = getattr(runtime, "destination_search", None)
-    embedding = getattr(runtime, "embedding", None)
-    if destination_search is None or embedding is None:
-        raise SchemaValidationError("planner_runtime must include destination_search and embedding")
-    return PlannerRuntimeTools(
-        destination_search=cast(DestinationSearchTool, destination_search),
-        embedding=cast(EmbeddingTool, embedding),
-    )
+    return runtime_tools_from_value(planner_scratch(state).get("runtime"))
 
 
 def travel_time_provider(state: Mapping[str, object]) -> TravelTimeProvider:
-    provider = state.get("planner_travel_time_provider")
-    if provider is not None:
-        return cast(TravelTimeProvider, provider)
-    try:
-        ors_provider = ors_provider_from_env()
-    except OrsProviderUnavailableError:
-        ors_provider = None
-    if ors_provider is not None:
-        return ors_provider
-    return HaversineTravelTimeProvider()
+    return travel_time_provider_from_value(planner_scratch(state).get("travel_time_provider"))
 
 
 def fallback_places(

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from lovv_agent_v2.agents.city_select.scoring import (
+from lovv_agent_v2.agents.city_select.scoring.service import (
     CANDIDATE_SUFFICIENCY_THRESHOLD,
     ScoringTool,
     haversine_distance,

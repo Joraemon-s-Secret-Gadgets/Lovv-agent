@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from lovv_agent_v2.agents.city_select.selection import (
+from lovv_agent_v2.agents.city_select.scoring.selection import (
     CandidateSelectionHelper,
     candidate_budgets_for_trip,
     select_primary_with_theme_quotas,

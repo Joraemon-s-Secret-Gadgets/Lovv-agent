@@ -12,7 +12,7 @@ from dataclasses import asdict, dataclass, field, replace
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lovv_agent_v2.agents.city_select.retrieval_node import AttractionCandidate
+    from lovv_agent_v2.agents.city_select.domain.contracts import AttractionCandidate
 
 from lovv_agent_v2.infra.config import SearchBudgetSettings
 from lovv_agent_v2.models.schemas import SchemaValidationError
@@ -34,6 +34,8 @@ class FestivalCandidate:
     country: str
     city_id: str
     ddb_pk: str | None
+    ddb_sk: str | None
+    city_key: str | None
     city_name: str | None
     month: int
     theme: str | None
@@ -47,7 +49,12 @@ class FestivalCandidate:
     def to_dict(self) -> dict[str, Any]:
         """Return a serializable festival candidate payload."""
 
-        return asdict(self)
+        payload = asdict(self)
+        for key in ("PK", "SK", "pk", "sk"):
+            value = self.raw.get(key)
+            if value is not None:
+                payload[key] = value
+        return payload
 
 
 @dataclass(frozen=True, slots=True)
@@ -209,7 +216,7 @@ def search_festival_city_seeds(
     normalized_month = _month(travel_month, "travel_month")
     normalized_year = _optional_positive_int(travel_year, "travel_year")
     normalized_city_id = _optional_text(city_id, "city_id")
-    normalized_city_key = _optional_city_key(city_key)
+    _optional_city_key(city_key)
     # Festival documents do not currently persist travel-theme fields. Keep the
     # argument for caller compatibility, but do not use it as a filter.
     del theme_pool
@@ -217,8 +224,8 @@ def search_festival_city_seeds(
     response = dynamodb.query_festival_candidates(
         country=normalized_country,
         travel_month=normalized_month,
-        city_id=normalized_city_id,
-        city_key=normalized_city_key,
+        city_id=None,
+        city_key=None,
         limit=limit,
     )
     # detail 문서에는 country 속성이 없거나(지역 단위 배포) 표기가 제각각이라
@@ -296,8 +303,7 @@ def enrich_final_places(
     places: list[AttractionCandidate] = []
     warnings: list[DetailEnrichmentWarning] = []
     for candidate in final_places:
-        # 전이기: 신규 vector ddb_pk(CITY#대문자)를 현 Dynamo 타이틀케이스로 정규화.
-        pk = _to_legacy_city_pk(candidate.ddb_pk)
+        pk = candidate.ddb_pk
         sk = candidate.ddb_sk
         if pk is None or sk is None:
             places.append(replace(candidate, details=None))
@@ -311,7 +317,7 @@ def enrich_final_places(
             continue
 
         try:
-            response = dynamodb.get_detail_item(pk=pk, sk=sk)
+            response = _get_detail_with_legacy_fallback(dynamodb, pk=pk, sk=sk)
             details = _extract_detail_item(response)
         except Exception as exc:
             places.append(replace(candidate, details=None))
@@ -344,6 +350,22 @@ def enrich_final_places(
     )
 
 
+def _get_detail_with_legacy_fallback(
+    dynamodb: DynamoDbRepository,
+    *,
+    pk: str,
+    sk: str,
+) -> dict[str, Any]:
+    response = dynamodb.get_detail_item(pk=pk, sk=sk)
+    if _extract_detail_item(response) is not None:
+        return response
+    legacy_pk = _to_legacy_city_pk(pk)
+    if legacy_pk is None or legacy_pk == pk:
+        return response
+    legacy_response = dynamodb.get_detail_item(pk=legacy_pk, sk=sk)
+    return legacy_response if _extract_detail_item(legacy_response) is not None else response
+
+
 def normalize_festival_candidate(item: Mapping[str, Any]) -> FestivalCandidate:
     """Normalize one DynamoDB festival seed item."""
 
@@ -359,6 +381,14 @@ def normalize_festival_candidate(item: Mapping[str, Any]) -> FestivalCandidate:
         ddb_pk=_optional_text(
             _first_optional(normalized, "ddb_pk", "city_key", "PK", "pk"),
             "ddb_pk",
+        ),
+        ddb_sk=_optional_text(
+            _first_optional(normalized, "ddb_sk", "SK", "sk"),
+            "ddb_sk",
+        ),
+        city_key=_optional_text(
+            _first_optional(normalized, "city_key", "ddb_pk", "PK", "pk"),
+            "city_key",
         ),
         city_name=_optional_text(
             _first_optional(normalized, "city_name", "city_name_ko"),

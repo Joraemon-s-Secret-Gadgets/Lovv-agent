@@ -145,6 +145,22 @@ class FestivalGateResultTest(unittest.TestCase):
         assert result.clarification is not None
         self.assertEqual(result.clarification.reason_code, "festival_none")
 
+    def test_matching_month_with_stale_year_is_excluded(self) -> None:
+        candidates = (
+            festival_candidate("F-STALE", event_start_date="2025-10-01"),
+        )
+
+        result = build_festival_gate_result(
+            include_festivals=True,
+            travel_month=10,
+            target_year=2026,
+            candidates=candidates,
+        )
+
+        self.assertEqual(result.status, "needs_clarification")
+        self.assertEqual(result.audit["candidate_counts"]["excluded"], 1)
+        self.assertEqual(result.candidates, ())
+
     def test_invalid_date_status_is_rejected(self) -> None:
         with self.assertRaises(SchemaValidationError):
             build_festival_gate_result(

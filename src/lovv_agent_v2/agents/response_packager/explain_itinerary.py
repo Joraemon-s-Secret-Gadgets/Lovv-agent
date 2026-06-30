@@ -4,26 +4,20 @@ from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from lovv_agent_v2.agents.response_packager.planner_copy_composer import (
-    RuntimeInvoker,
-    compose_planner_copy_explanation,
-)
 from lovv_agent_v2.agents.response_packager.itinerary_explanation_mapping import (
     CandidatePackageInput,
     build_safe_summary,
     enrich_itinerary,
     fallback_audit,
 )
+from lovv_agent_v2.agents.response_packager.planner_copy_composer import (
+    compose_planner_copy_explanation,
+)
+from lovv_agent_v2.agents.response_packager.tools import (
+    ItineraryExplanationRuntime,
+    itinerary_explanation_runtime_from_state,
+)
 from lovv_agent_v2.models.schemas import PlannerExplanationAudit, PlannerOutput
-
-DEFAULT_SCHEMA_RETRY_LIMIT = 2
-
-
-@dataclass(frozen=True, slots=True)
-class ItineraryExplanationRuntime:
-    explanation_runtime: RuntimeInvoker | None = None
-    dynamo_lookup: Any | None = None
-    schema_retry_limit: int = DEFAULT_SCHEMA_RETRY_LIMIT
 
 
 @dataclass(frozen=True, slots=True)
@@ -146,16 +140,7 @@ def _replace_planner_output(
 
 
 def _runtime(state: Mapping[str, object]) -> ItineraryExplanationRuntime:
-    runtime = state.get("itinerary_explanation_runtime")
-    if isinstance(runtime, ItineraryExplanationRuntime):
-        return runtime
-    if isinstance(runtime, Mapping):
-        return ItineraryExplanationRuntime(
-            explanation_runtime=runtime.get("explanation_runtime"),
-            dynamo_lookup=runtime.get("dynamo_lookup"),
-            schema_retry_limit=_int(runtime.get("schema_retry_limit"), DEFAULT_SCHEMA_RETRY_LIMIT),
-        )
-    return ItineraryExplanationRuntime()
+    return itinerary_explanation_runtime_from_state(state)
 
 
 def _planner_output(state: Mapping[str, object]) -> PlannerOutput | None:
@@ -185,7 +170,6 @@ def _selected_city(state: Mapping[str, object]) -> Mapping[str, object]:
                 return city
     return {}
 
-
 def _query(state: Mapping[str, object]) -> Mapping[str, object]:
     intent = state.get("intent")
     if isinstance(intent, Mapping):
@@ -196,7 +180,3 @@ def _query(state: Mapping[str, object]) -> Mapping[str, object]:
                 "soft_preference_query": city_input.get("soft_preference_query"),
             }
     return {}
-
-
-def _int(value: object, fallback: int) -> int:
-    return value if isinstance(value, int) and not isinstance(value, bool) else fallback

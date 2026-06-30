@@ -52,7 +52,7 @@ class OrsTravelTimeProvider:
         if not candidates or not self._has_api_key():
             snap = fallback.snap_places(places, transport_pref)
             self._snap_payloads = {place_id: payload for place_id, payload in payload_by_id.items()}
-            self._snapped_places = {place_id: candidate for place_id, candidate in candidates}
+            self._snapped_places = {place_id: candidate for place_id, candidate in candidates.items()}
             return _snap_with_audit(snap, "ors_external_haversine_presnap", missing_ids)
         module = self._ors_module()
         client = self._client(module)
@@ -65,7 +65,7 @@ class OrsTravelTimeProvider:
         except (ImportError, OSError, RuntimeError, ValueError):
             snap = fallback.snap_places(places, transport_pref)
             self._snap_payloads = {place_id: payload for place_id, payload in payload_by_id.items()}
-            self._snapped_places = {place_id: candidate for place_id, candidate in candidates}
+            self._snapped_places = {place_id: candidate for place_id, candidate in candidates.items()}
             return _snap_with_audit(snap, "ors_external_snap_failure_fallback", missing_ids)
         snapped_payloads = _snapped_payloads(payload_by_id, result)
         self._snap_payloads = snapped_payloads

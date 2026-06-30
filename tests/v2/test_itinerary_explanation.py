@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from typing import Any
 
@@ -7,6 +8,10 @@ from lovv_agent_v2.agents.response_packager.explain_itinerary import (
     ItineraryExplanationRuntime,
     explain_itinerary_node,
 )
+from lovv_agent_v2.agents.response_packager.planner_copy_composer import (
+    validate_planner_copy_explanation_output,
+)
+from lovv_agent_v2.models.schemas import SchemaValidationError
 from lovv_agent_v2.models.schemas import PlannerOutput
 
 
@@ -135,6 +140,9 @@ def test_explain_itinerary_node_uses_v1_composer_with_enriched_v2_items() -> Non
     assert output["recommendation_reasons"] == ("속초의 해안 산책 요청에 맞춰 구성했습니다.",)
     assert output["validation_result"]["planner_copy_generation_used_llm"] is True
     assert "해변 공개 개요입니다." in runtime.requests[0]["messages"][0]["content"][0]["text"]
+    system_prompt = json.loads(runtime.requests[0]["system"][0]["text"])
+    assert system_prompt["artifact"] == "planner_copy_explanation"
+    assert system_prompt["grounding_policy"]["itinerary_scope"] == "final_itinerary_only"
     assert dynamo_lookup.calls[0][0].ddb_pk == "CITY#SOKCHO"
 
 
@@ -166,3 +174,24 @@ def test_explain_itinerary_node_falls_back_when_v1_composer_rejects_copy() -> No
     assert output["recommendation_reasons"] == ("속초 안에서 바다·해안 균형을 우선했습니다.",)
     assert output["validation_result"]["planner_copy_generation_used_llm"] is False
     assert "schema_failure" in output["explanation_audit"]["hidden_internal_notes"][-1]
+
+
+def test_planner_copy_rejects_internal_seed_cluster_and_relevance_terms() -> None:
+    payload = {
+        "item_copies": [
+            {
+                "item_ref": "item:0",
+                "title": "해변",
+                "body": "seed 장소라 추천합니다.",
+                "reason": "cluster와 relevance 기준입니다.",
+            },
+        ],
+        "recommendation_reasons": ["seed 보존을 우선했습니다."],
+        "itinerary_flow_reason": "cluster 기준으로 묶었습니다.",
+    }
+
+    try:
+        validate_planner_copy_explanation_output(payload, allowed_item_refs=("item:0",))
+    except SchemaValidationError:
+        return
+    raise AssertionError("internal planner terms must be rejected")

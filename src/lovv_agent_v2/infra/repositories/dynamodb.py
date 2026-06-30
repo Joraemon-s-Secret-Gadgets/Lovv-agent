@@ -131,9 +131,7 @@ class DynamoDbRepository:
                 if partition_key_by_city is not None
                 else None
             )
-            # 전이기: 신규 vector ddb_pk(CITY#대문자)를 현 Dynamo 타이틀케이스로 정규화.
-            # ddb_pk가 없으면(legacy 이름 기반 city_id) 기존 유도식으로 폴백.
-            pk = _to_legacy_city_pk(raw_pk) if raw_pk else _city_partition_key(cid)
+            pk = raw_pk if raw_pk else _city_partition_key(cid)
             pk_to_city[pk] = cid
             keys.append({"PK": {"S": pk}, "SK": {"S": sk}})
         table = self.settings.table_name
@@ -279,41 +277,12 @@ class DynamoDbRepository:
         city_key: str | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
-        """Read festival rows by month, using the city partition when available.
-
-        Fixed-city requests query ``PK=CITY#{city}`` and festival-prefixed sort
-        keys. City discovery requests use the festival month GSI because the
-        city partition is not known yet.
-        """
-
         _required_text(country, "country")
         normalized_month = _month(travel_month, "travel_month")
-        normalized_city_id = _optional_text(city_id, "city_id")
-        normalized_city_key = _optional_city_key(city_key)
+        _optional_text(city_id, "city_id")
+        _optional_city_key(city_key)
         if limit is not None:
             _positive_int(limit, "limit")
-
-        if normalized_city_id is not None or normalized_city_key is not None:
-            pk = (
-                normalized_city_key
-                if normalized_city_key is not None
-                else _to_legacy_city_pk(_city_partition_key(normalized_city_id or ""))
-            )
-            request = {
-                "KeyConditionExpression": "#pk = :pk AND begins_with(#sk, :festival_prefix)",
-                "FilterExpression": "#month = :month",
-                "ExpressionAttributeNames": {
-                    "#pk": "PK",
-                    "#sk": "SK",
-                    "#month": "month",
-                },
-                "ExpressionAttributeValues": {
-                    ":pk": {"S": pk},
-                    ":festival_prefix": {"S": "FESTIVAL#"},
-                    ":month": {"N": str(normalized_month)},
-                },
-            }
-            return self.query_all_items(request)
 
         request = {
             "IndexName": FESTIVAL_MONTH_INDEX_NAME,
@@ -367,22 +336,6 @@ def _city_partition_key(city_id: str) -> str:
     city_name = suffix if separator and len(prefix) == 2 and prefix.isupper() else normalized
     return f"CITY#{city_name}"
 
-
-def _to_legacy_city_pk(pk: str | None) -> str | None:
-    """전이기(pre-V2) 키 정규화 shim.
-
-    신규 vector metadata는 city PK를 ``CITY#<대문자>``(예: ``CITY#GUNSAN``)로 기록하지만,
-    V2 이행 전 현재 DynamoDB는 ``CITY#Andong``처럼 도시명 첫 글자만 대문자(타이틀케이스)다.
-    도시명 세그먼트만 타이틀케이스로 맞춰 PK 불일치를 해소한다.
-    Dynamo가 대문자 키로 이행하면(V2) 이 함수와 호출부를 제거하면 된다.
-    """
-
-    if not pk:
-        return pk
-    prefix, separator, city = pk.partition("#")
-    if not separator or prefix != "CITY" or not city:
-        return pk
-    return f"{prefix}#{city.capitalize()}"
 
 def _month(value: Any, field_name: str) -> int:
     """Validate a 1-12 month number."""
