@@ -43,11 +43,15 @@ def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, An
             "actor_id": actor_id,
         }
     }
-    return _cached_live_harness().invoke(
+    result = _cached_live_harness().invoke(
         payload,
         request_id=session_id,
         graph_config=graph_config,
     )
+    response = result.get("response") if isinstance(result, Mapping) else None
+    if not isinstance(response, Mapping) or not isinstance(response.get("response_payload"), Mapping):
+        raise ValueError("V2 graph did not produce response payload")
+    return dict(response["response_payload"])
 
 
 def extract_graph_payload(event: Any, *, request_id: str | None = None) -> dict[str, Any]:

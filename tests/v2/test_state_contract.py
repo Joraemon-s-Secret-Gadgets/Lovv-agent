@@ -52,6 +52,8 @@ def test_unified_agent_state_exposes_v2_23_top_level_groups() -> None:
         "routing",
         "memory",
         "trace",
+        "runtime",
+        "itinerary_explanation_runtime",
     }
 
 
@@ -72,8 +74,8 @@ def test_planner_agent_keeps_state_adapter_out_of_core_orchestration() -> None:
     tools_source = (root / "src/lovv_agent_v2/agents/planner/tools.py").read_text(encoding="utf-8")
 
     for forbidden in (
-        "planner.context",
-        "planner.scratch",
+        "planner.state.context",
+        "planner.state.scratch",
         "planner_state_update",
         "planner_scratch",
         "assemble_itinerary_node",
@@ -94,9 +96,24 @@ def test_planner_node_implementation_files_are_grouped_by_subgraph_step() -> Non
         "steps/route_days/subtype_diversity.py",
         "steps/assemble_itinerary/node.py",
         "steps/retry_alternative_city/node.py",
+        "domain/place_model.py",
+        "state/context.py",
+        "state/scratch.py",
+        "external/travel_time.py",
+        "external/ors_provider.py",
+        "external/agentcore_credentials.py",
     )
     legacy_root_files = (
         "nodes.py",
+        "context.py",
+        "scratch.py",
+        "place_model.py",
+        "travel_time.py",
+        "ors_provider.py",
+        "ors_results.py",
+        "agentcore_credentials.py",
+        "in_city_itinerary.py",
+        "compat/in_city_itinerary.py",
         "assemble.py",
         "fallback.py",
         "festival_seed.py",
@@ -225,7 +242,14 @@ class RecordingEmbedding:
 
 
 class RecordingDynamoLookup:
-    pass
+    def city_visitor_stats(
+        self,
+        city_ids: Sequence[str],
+        travel_month: int,
+        *,
+        partition_key_by_city: dict[str, str] | None = None,
+    ) -> dict[str, float | None]:
+        return {city_id: None for city_id in city_ids}
 
 
 class RecordingSearch:

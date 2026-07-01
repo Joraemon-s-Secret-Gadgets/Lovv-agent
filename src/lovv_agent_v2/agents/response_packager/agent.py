@@ -17,7 +17,9 @@ from lovv_agent_v2.agents.response_packager.packager import (
 class ResponsePackagerAgent:
     def run(self, request: ResponsePackagerInput) -> ResponsePackagerOutput:
         response_status = (
-            "END_WAIT_USER" if request.clarification is not None else "completed"
+            "END_WAIT_USER"
+            if request.clarification is not None
+            else "modification_pending"
         )
         payload = package_recommendation_response(
             planner_output=request.planner_output,

@@ -25,7 +25,7 @@ def package_recommendation_response(
     recommendation_id: str | None = None,
     expires_at: str | None = None,
     notice: str | None = None,
-    response_status: str = "completed",
+    response_status: str = "modification_pending",
     clarification: Clarification | Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     request_payload = _request_payload(request)

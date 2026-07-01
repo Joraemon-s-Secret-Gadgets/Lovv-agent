@@ -64,7 +64,7 @@ def test_response_packager_agent_packages_without_unified_state() -> None:
         ),
     )
 
-    assert output.response["response_status"] == "completed"
+    assert output.response["response_status"] == "modification_pending"
     assert output.response["response_payload"]["recommendationId"] == "REQ-AGENT"
 
 

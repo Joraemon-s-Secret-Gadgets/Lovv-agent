@@ -21,8 +21,9 @@ runs at the end or when clarification is needed. It adapts graph state into
 `agent.py`
 decides final response status:
 
-- `completed` when there is no clarification
+- `modification_pending` when an initial itinerary draft is ready for user edits
 - `END_WAIT_USER` when clarification is present
+- `completed` after the user confirms the itinerary
 
 It delegates API response shape construction to `packager.py`.
 

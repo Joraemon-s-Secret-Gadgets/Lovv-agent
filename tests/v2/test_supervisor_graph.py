@@ -22,6 +22,38 @@ def test_supervisor_routes_profile_to_festival_gate() -> None:
     assert result["routing"]["completed_groups"] == ["profile"]
 
 
+def test_supervisor_routes_itinerary_confirmation_to_profile_before_end() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "intent_type": "itinerary_confirmed",
+                "recommendation_id": "REC-1",
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "profile"
+    assert result["routing"]["completed_groups"] == []
+
+
+def test_supervisor_ends_after_itinerary_confirmation_profile_update() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "intent_type": "itinerary_confirmed",
+                "recommendation_id": "REC-1",
+            },
+            "profile": {
+                "profile_update": {"reason": "itinerary_confirmed"},
+                "audit": {"profile_update_requested": True},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "end"
+    assert result["routing"]["completed_groups"] == ["profile"]
+
+
 def test_supervisor_skips_festival_gate_when_festivals_excluded() -> None:
     result = supervisor_node(
         {
@@ -32,6 +64,49 @@ def test_supervisor_skips_festival_gate_when_festivals_excluded() -> None:
     )
 
     assert result["routing"]["next_node"] == "city_select"
+    assert result["routing"]["completed_groups"] == ["profile", "festival_gate"]
+
+
+def test_supervisor_routes_single_anchor_without_festival_to_planner() -> None:
+    result = supervisor_node(
+        {
+            "request": {"include_festivals": False},
+            "intent": {
+                "city_select_input": {
+                    "country": "KR",
+                    "include_festivals": False,
+                    "destination_id": "KR-47-130",
+                },
+            },
+            "profile": {"audit": {"profile_active": False}},
+        },
+    )
+
+    assert result["routing"]["next_node"] == "planner"
+    assert result["routing"]["completed_groups"] == ["profile", "festival_gate"]
+
+
+def test_supervisor_routes_confirmed_festival_anchor_to_planner() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "city_select_input": {
+                    "country": "KR",
+                    "include_festivals": True,
+                    "destination_id": "KR-47-130",
+                },
+            },
+            "profile": {"audit": {"profile_active": False}},
+            "festival_gate": {
+                "result": {
+                    "status": "ok",
+                    "allowed_city_ids": ["KR-47-130"],
+                },
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "planner"
     assert result["routing"]["completed_groups"] == ["profile", "festival_gate"]
 
 
@@ -72,7 +147,7 @@ def test_supervisor_finishes_after_response_payload() -> None:
     result = supervisor_node(
         {
             "response": {
-                "response_status": "completed",
+                "response_status": "modification_pending",
                 "response_payload": {"recommendationId": "REQ-1"},
             },
         },

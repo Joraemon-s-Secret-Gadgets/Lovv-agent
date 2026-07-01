@@ -36,6 +36,10 @@ def test_extract_request_id() -> None:
 def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
     """Verify that handle_v2_invocation correctly maps session and actor ids into graph config."""
     mock_harness_instance = MagicMock()
+    mock_harness_instance.invoke.return_value = {
+        "trace": {"debug": "hidden"},
+        "response": {"response_payload": {"recommendationId": "REC-1"}},
+    }
     mock_cached_harness.return_value = mock_harness_instance
 
     event = {
@@ -49,7 +53,7 @@ def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
         "actorId": "actor-abc",
     }
 
-    handle_v2_invocation(event)
+    result = handle_v2_invocation(event)
 
     # harness.invoke가 호출되었는지 검증하고, 전달된 인자 체크
     mock_harness_instance.invoke.assert_called_once()
@@ -67,6 +71,7 @@ def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
     graph_config = kwargs["graph_config"]
     assert graph_config["configurable"]["thread_id"] == "session-xyz"
     assert graph_config["configurable"]["actor_id"] == "actor-abc"
+    assert result == {"recommendationId": "REC-1"}
 
 
 def test_extract_graph_payload_wraps_generation_intent_mock() -> None:

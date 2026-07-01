@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Final
 
 from lovv_agent_v2.agents.response_packager.planner_copy_composer import RuntimeInvoker
+from lovv_agent_v2.core.runtime_state import runtime_value
 
 DEFAULT_SCHEMA_RETRY_LIMIT: Final = 2
 
@@ -28,6 +29,9 @@ def itinerary_explanation_runtime_from_state(
             dynamo_lookup=runtime.get("dynamo_lookup"),
             schema_retry_limit=_int(runtime.get("schema_retry_limit")),
         )
+    runtime_bucket_value = runtime_value(state, "itinerary_explanation_runtime")
+    if isinstance(runtime_bucket_value, ItineraryExplanationRuntime):
+        return runtime_bucket_value
     return ItineraryExplanationRuntime()
 
 

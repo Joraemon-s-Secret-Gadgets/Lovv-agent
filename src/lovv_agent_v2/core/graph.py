@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from langgraph.graph import END, StateGraph
 
+from lovv_agent_v2.agents.intent.node import intent_node
 from lovv_agent_v2.agents.profile.node import profile_node
 from lovv_agent_v2.agents.city_select.subgraph import compile_city_select_subgraph
 from lovv_agent_v2.agents.festival_verifier.node import festival_verifier_node
@@ -15,6 +16,7 @@ from lovv_agent_v2.core.state import UnifiedAgentState
 def compile_v2_graph(checkpointer: object | None = None) -> object:
     workflow = StateGraph(UnifiedAgentState)
 
+    workflow.add_node("intent", intent_node)
     workflow.add_node("supervisor", supervisor_node)
     workflow.add_node("profile", profile_node)
     workflow.add_node("festival_verifier", festival_verifier_node)
@@ -25,7 +27,8 @@ def compile_v2_graph(checkpointer: object | None = None) -> object:
     workflow.add_node("city_select", city_select_subgraph)
     workflow.add_node("planner", planner_subgraph)
 
-    workflow.set_entry_point("supervisor")
+    workflow.set_entry_point("intent")
+    workflow.add_edge("intent", "supervisor")
     workflow.add_conditional_edges(
         "supervisor",
         _route_from_supervisor,
