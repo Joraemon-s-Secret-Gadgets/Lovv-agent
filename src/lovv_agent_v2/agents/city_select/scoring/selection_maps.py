@@ -18,7 +18,6 @@ class CitySelectionMapRequest:
     city_rankings: Sequence[Mapping[str, Any]]
     context: CitySelectContext
     primary_budget: int
-    reserve_budget: int
     selection: CandidateSelectionHelper
 
 
@@ -26,7 +25,6 @@ class CitySelectionMapRequest:
 class CitySelectionMaps:
     selection_by_city: dict[str, CandidateSelectionResult]
     recommended_places_by_city: dict[str, tuple[dict[str, Any], ...]]
-    reserve_places_by_city: dict[str, tuple[dict[str, Any], ...]]
 
 
 def build_city_selection_maps(request: CitySelectionMapRequest) -> CitySelectionMaps:
@@ -35,9 +33,8 @@ def build_city_selection_maps(request: CitySelectionMapRequest) -> CitySelection
             request.scored_groups[city_id],
             request.context.theme_split.searchable_place_themes,
             primary_budget=request.primary_budget,
-            reserve_budget=request.reserve_budget,
             required_themes=request.context.theme_split.active_required_themes,
-            external_link_themes=request.context.theme_split.external_link_themes,
+            no_support_themes=request.context.theme_split.no_support_themes,
         )
         for city_id in _ranked_city_ids(request.city_rankings)
     }
@@ -46,12 +43,6 @@ def build_city_selection_maps(request: CitySelectionMapRequest) -> CitySelection
         recommended_places_by_city=_places_by_city(
             selection_by_city,
             request.scored_groups,
-            slot_role="primary",
-        ),
-        reserve_places_by_city=_places_by_city(
-            selection_by_city,
-            request.scored_groups,
-            slot_role="reserve",
         ),
     )
 
@@ -63,16 +54,10 @@ def _ranked_city_ids(city_rankings: Sequence[Mapping[str, Any]]) -> tuple[str, .
 def _places_by_city(
     selection_by_city: Mapping[str, CandidateSelectionResult],
     scored_groups: Mapping[str, Sequence[Any]],
-    *,
-    slot_role: str,
 ) -> dict[str, tuple[dict[str, Any], ...]]:
     return {
         city_id: _lightweight_selected_places(
-            (
-                selection_by_city[city_id].primary
-                if slot_role == "primary"
-                else selection_by_city[city_id].reserve
-            ),
+            selection_by_city[city_id].primary,
             scored_groups[city_id],
         )
         for city_id in selection_by_city

@@ -1,10 +1,3 @@
-"""Candidate selection helper for primary and reserve attraction evidence.
-
-This module owns deterministic title deduplication, theme quota filling, soft
-max relaxation, and reserve construction. It does not score places, call AWS, or
-write itinerary text.
-"""
-
 from __future__ import annotations
 
 import math
@@ -17,7 +10,6 @@ from lovv_agent_v2.agents.city_select.scoring.selection_normalization import (
     coerce_candidate,
     deduplicate_by_title,
     first_theme,
-    non_negative_int,
     positive_int,
     required_text,
     string_tuple,
@@ -35,13 +27,12 @@ TOOL_NAME = "CandidateSelectionHelper"
 
 RESPONSIBILITY = "Select primary and reserve candidates from scored evidence."
 
-# budget은 Planner가 후보를 slot으로 바꾸기 전 내부 evidence 양을 제한한다.
-TRIP_CANDIDATE_BUDGETS: dict[str, tuple[int, int]] = {
-    "daytrip": (6, 4),
-    "2d1n": (10, 8),
-    "3d2n": (14, 10),
-    "4d3n": (18, 12),
-    "5d4n": (18, 12),
+TRIP_CANDIDATE_BUDGETS: dict[str, int] = {
+    "daytrip": 6,
+    "2d1n": 10,
+    "3d2n": 14,
+    "4d3n": 18,
+    "5d4n": 18,
 }
 
 TRIP_ITINERARY_PLACE_COUNTS: dict[str, int] = {
@@ -55,33 +46,25 @@ TRIP_ITINERARY_PLACE_COUNTS: dict[str, int] = {
 
 
 class CandidateSelectionHelper:
-    """Facade for deterministic primary/reserve candidate selection."""
-
     def select_primary_with_theme_quotas(
         self,
         candidates: Sequence[Any],
         searchable_place_themes: Sequence[str],
         *,
         primary_budget: int,
-        reserve_budget: int,
         required_themes: Sequence[str] | None = None,
-        external_link_themes: Sequence[str] | None = None,
+        no_support_themes: Sequence[str] | None = None,
     ) -> CandidateSelectionResult:
-        """Select primary and reserve candidates with quota audit."""
-
         return select_primary_with_theme_quotas(
             candidates,
             searchable_place_themes,
             primary_budget=primary_budget,
-            reserve_budget=reserve_budget,
             required_themes=required_themes,
-            external_link_themes=external_link_themes,
+            no_support_themes=no_support_themes,
         )
 
 
-def candidate_budgets_for_trip(trip_type: str) -> tuple[int, int]:
-    """Return primary and reserve budgets for a supported trip type."""
-
+def candidate_budgets_for_trip(trip_type: str) -> int:
     normalized = required_text(trip_type, "trip_type")
     if normalized not in TRIP_CANDIDATE_BUDGETS:
         raise SchemaValidationError(f"unsupported trip_type: {normalized}")
@@ -102,14 +85,10 @@ def select_primary_with_theme_quotas(
     searchable_place_themes: Sequence[str],
     *,
     primary_budget: int,
-    reserve_budget: int,
     required_themes: Sequence[str] | None = None,
-    external_link_themes: Sequence[str] | None = None,
+    no_support_themes: Sequence[str] | None = None,
 ) -> CandidateSelectionResult:
-    """Build primary and reserve lists from scored candidates."""
-
     primary_limit = positive_int(primary_budget, "primary_budget")
-    reserve_limit = non_negative_int(reserve_budget, "reserve_budget")
     searchable_themes = string_tuple(
         searchable_place_themes,
         "searchable_place_themes",
@@ -118,9 +97,9 @@ def select_primary_with_theme_quotas(
         required_themes if required_themes is not None else searchable_themes,
         "required_themes",
     )
-    external_theme_list = string_tuple(
-        external_link_themes if external_link_themes is not None else (),
-        "external_link_themes",
+    no_support_theme_list = string_tuple(
+        no_support_themes if no_support_themes is not None else (),
+        "no_support_themes",
     )
     normalized = sorted(
         (coerce_candidate(candidate) for candidate in candidates),
@@ -134,20 +113,13 @@ def select_primary_with_theme_quotas(
             candidate.place_id: first_theme(candidate, ())
             for candidate in primary_candidates
         }
-        reserve_candidates = deduplicated[primary_limit:primary_limit + reserve_limit]
-        reserve_assignments = {
-            candidate.place_id: first_theme(candidate, ())
-            for candidate in reserve_candidates
-        }
         return selection_result(
             primary_candidates=tuple(primary_candidates),
-            reserve_candidates=tuple(reserve_candidates),
             primary_assignments=primary_assignments,
-            reserve_assignments=reserve_assignments,
             deduplicated_candidates=tuple(deduplicated),
             required_themes=required_theme_list,
             searchable_themes=searchable_themes,
-            external_link_themes=external_theme_list,
+            no_support_themes=no_support_theme_list,
             theme_min_quota=0,
             theme_max_quota=0,
             min_quota_shortfalls={},
@@ -155,7 +127,6 @@ def select_primary_with_theme_quotas(
             relaxed_slots=0,
             deduplicated_title_count=deduped_title_count,
             primary_budget=primary_limit,
-            reserve_budget=reserve_limit,
         )
 
     theme_min_quota = math.floor(primary_limit / len(searchable_themes) * 0.6)
@@ -226,24 +197,13 @@ def select_primary_with_theme_quotas(
             theme_counts[assigned_theme] += 1
             relaxed_slots += 1
 
-    reserve_candidates = [
-        candidate
-        for candidate in deduplicated
-        if candidate.place_id not in selected_ids
-    ][:reserve_limit]
-    reserve_assignments = {
-        candidate.place_id: first_theme(candidate, searchable_themes)
-        for candidate in reserve_candidates
-    }
     return selection_result(
         primary_candidates=tuple(selected),
-        reserve_candidates=tuple(reserve_candidates),
         primary_assignments=primary_assignments,
-        reserve_assignments=reserve_assignments,
         deduplicated_candidates=tuple(deduplicated),
         required_themes=required_theme_list,
         searchable_themes=searchable_themes,
-        external_link_themes=external_theme_list,
+        no_support_themes=no_support_theme_list,
         theme_min_quota=theme_min_quota,
         theme_max_quota=theme_max_quota,
         min_quota_shortfalls=min_quota_shortfalls,
@@ -251,7 +211,6 @@ def select_primary_with_theme_quotas(
         relaxed_slots=relaxed_slots,
         deduplicated_title_count=deduped_title_count,
         primary_budget=primary_limit,
-        reserve_budget=reserve_limit,
     )
 
 

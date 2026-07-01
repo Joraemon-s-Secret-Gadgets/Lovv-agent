@@ -31,7 +31,7 @@ FESTIVAL_EXCLUDED_THEME_LABELS = frozenset(
 PLACE_SEARCH_EXCLUDED_THEME_LABELS = (
     GOURMET_EXTERNAL_THEME_LABELS | FESTIVAL_EXCLUDED_THEME_LABELS
 )
-EXTERNAL_LINK_THEME_LABELS = GOURMET_EXTERNAL_THEME_LABELS
+NO_SUPPORT_THEME_LABELS = GOURMET_EXTERNAL_THEME_LABELS
 FESTIVAL_THEME_MARKERS = FESTIVAL_EXCLUDED_THEME_LABELS
 
 
@@ -79,7 +79,7 @@ class PrunedCityGroups:
 class CandidateThemeSplit:
     active_required_themes: tuple[str, ...]
     searchable_place_themes: tuple[str, ...]
-    external_link_themes: tuple[str, ...]
+    no_support_themes: tuple[str, ...]
     ignored_theme_markers: tuple[str, ...] = ()
 
 
@@ -124,7 +124,7 @@ def resolve_city_select_mode(candidate_input: CitySelectInput) -> str:
 def split_candidate_themes(themes: Sequence[str]) -> CandidateThemeSplit:
     active_required_themes: list[str] = []
     searchable_place_themes: list[str] = []
-    external_link_themes: list[str] = []
+    no_support_themes: list[str] = []
     ignored_theme_markers: list[str] = []
 
     for theme in unique_theme_labels(themes):
@@ -132,15 +132,15 @@ def split_candidate_themes(themes: Sequence[str]) -> CandidateThemeSplit:
             ignored_theme_markers.append(theme)
             continue
         active_required_themes.append(theme)
-        if theme in EXTERNAL_LINK_THEME_LABELS:
-            external_link_themes.append(theme)
+        if theme in NO_SUPPORT_THEME_LABELS:
+            no_support_themes.append(theme)
         else:
             searchable_place_themes.append(theme)
 
     return CandidateThemeSplit(
         active_required_themes=tuple(active_required_themes),
         searchable_place_themes=tuple(searchable_place_themes),
-        external_link_themes=tuple(external_link_themes),
+        no_support_themes=tuple(no_support_themes),
         ignored_theme_markers=tuple(ignored_theme_markers),
     )
 
@@ -164,11 +164,11 @@ def unique_theme_labels(themes: Sequence[str]) -> tuple[str, ...]:
 __all__ = [
     "ANCHORED_PLACE_SEARCH_MODE",
     "CITY_DISCOVERY_MODE",
-    "EXTERNAL_LINK_THEME_LABELS",
     "FESTIVAL_EXCLUDED_THEME_LABELS",
     "FESTIVAL_SEEDED_CITY_DISCOVERY_MODE",
     "FESTIVAL_THEME_MARKERS",
     "GOURMET_EXTERNAL_THEME_LABELS",
+    "NO_SUPPORT_THEME_LABELS",
     "PLACE_SEARCH_EXCLUDED_THEME_LABELS",
     "AttractionCandidate",
     "CandidateThemeSplit",

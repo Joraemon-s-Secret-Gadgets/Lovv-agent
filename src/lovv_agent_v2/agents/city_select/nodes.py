@@ -12,16 +12,20 @@ from lovv_agent_v2.agents.city_select.scoring.agent import (
     CitySelectScoringRequest,
 )
 from lovv_agent_v2.agents.city_select.tools import (
+    CitySelectScoringTools,
+    CitySelectTools,
     build_default_city_select_scoring_tools,
     build_default_city_select_tools,
 )
 from lovv_agent_v2.core.state import UnifiedAgentState
+from lovv_agent_v2.core.runtime_state import runtime_value
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
 
 def retrieval_node(state: UnifiedAgentState) -> dict[str, dict[str, Any]]:
     candidate_input = _city_select_input_from_state(state)
     output = CitySelectRetrievalAgent(
+        tools=_city_select_tools(state),
         tools_provider=build_default_city_select_tools,
     ).run(
         CitySelectRetrievalRequest(
@@ -41,6 +45,7 @@ def scoring_and_selection_node(state: UnifiedAgentState) -> dict[str, dict[str, 
     if not isinstance(city_select_state, Mapping):
         return {}
     return CitySelectScoringAgent(
+        tools=_city_select_scoring_tools(state),
         tools_provider=build_default_city_select_scoring_tools,
     ).run(
         CitySelectScoringRequest(city_select_state=city_select_state),
@@ -67,6 +72,16 @@ def _festival_gate_allowed_city_ids(state: UnifiedAgentState) -> tuple[str, ...]
         ):
             return tuple(str(city_id) for city_id in gate_allowed_city_ids)
     return None
+
+
+def _city_select_tools(state: UnifiedAgentState) -> CitySelectTools | None:
+    tools = runtime_value(state, "city_select_tools")
+    return tools if isinstance(tools, CitySelectTools) else None
+
+
+def _city_select_scoring_tools(state: UnifiedAgentState) -> CitySelectScoringTools | None:
+    tools = runtime_value(state, "city_select_scoring_tools")
+    return tools if isinstance(tools, CitySelectScoringTools) else None
 
 
 __all__ = ["retrieval_node", "scoring_and_selection_node"]

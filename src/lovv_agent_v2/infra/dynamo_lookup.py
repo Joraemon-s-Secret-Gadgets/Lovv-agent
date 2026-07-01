@@ -276,23 +276,6 @@ def search_festival_city_seeds(
     )
 
 
-def _to_legacy_city_pk(pk: str | None) -> str | None:
-    """전이기(pre-V2) 키 정규화 shim.
-
-    신규 vector metadata는 ddb_pk를 ``CITY#<대문자>``(예: ``CITY#GUNSAN``)로 기록하지만,
-    V2 이행 전 현재 DynamoDB는 ``CITY#Andong``처럼 도시명 첫 글자만 대문자(타이틀케이스)다.
-    도시명 세그먼트만 타이틀케이스로 맞춰 상세 조회 PK 불일치를 해소한다.
-    Dynamo가 대문자 키로 이행하면(V2) 이 함수와 호출부를 제거하면 된다.
-    """
-
-    if not pk:
-        return pk
-    prefix, separator, city = pk.partition("#")
-    if not separator or prefix != "CITY" or not city:
-        return pk
-    return f"{prefix}#{city.capitalize()}"
-
-
 def enrich_final_places(
     final_places: Sequence[AttractionCandidate],
     *,
@@ -302,6 +285,43 @@ def enrich_final_places(
 
     places: list[AttractionCandidate] = []
     warnings: list[DetailEnrichmentWarning] = []
+    keyed_candidates: list[tuple[AttractionCandidate, str, str]] = []
+    for candidate in final_places:
+        pk = candidate.ddb_pk
+        sk = candidate.ddb_sk
+        if pk is not None and sk is not None:
+            keyed_candidates.append((candidate, pk, sk))
+
+    try:
+        detail_items = dynamodb.batch_get_detail_items(
+            (pk, sk) for _, pk, sk in keyed_candidates
+        )
+    except Exception as exc:
+        for candidate in final_places:
+            if candidate.ddb_pk is None or candidate.ddb_sk is None:
+                places.append(replace(candidate, details=None))
+                warnings.append(
+                    _detail_enrichment_warning(
+                        "missing_detail_key",
+                        candidate,
+                        "Missing ddb_pk or ddb_sk; details remain null.",
+                    ),
+                )
+                continue
+            places.append(replace(candidate, details=None))
+            warnings.append(
+                _detail_enrichment_warning(
+                    "dynamodb_detail_failure",
+                    candidate,
+                    "DynamoDB detail lookup failed; details remain null.",
+                    error_type=type(exc).__name__,
+                ),
+            )
+        return DetailEnrichmentResult(
+            places=tuple(places),
+            warnings=tuple(warnings),
+        )
+
     for candidate in final_places:
         pk = candidate.ddb_pk
         sk = candidate.ddb_sk
@@ -316,21 +336,7 @@ def enrich_final_places(
             )
             continue
 
-        try:
-            response = _get_detail_with_legacy_fallback(dynamodb, pk=pk, sk=sk)
-            details = _extract_detail_item(response)
-        except Exception as exc:
-            places.append(replace(candidate, details=None))
-            warnings.append(
-                _detail_enrichment_warning(
-                    "dynamodb_detail_failure",
-                    candidate,
-                    "DynamoDB detail lookup failed; details remain null.",
-                    error_type=type(exc).__name__,
-                ),
-            )
-            continue
-
+        details = _extract_detail_item_from_batch(detail_items.get((pk, sk)))
         if details is None:
             places.append(replace(candidate, details=None))
             warnings.append(
@@ -348,22 +354,6 @@ def enrich_final_places(
         places=tuple(places),
         warnings=tuple(warnings),
     )
-
-
-def _get_detail_with_legacy_fallback(
-    dynamodb: DynamoDbRepository,
-    *,
-    pk: str,
-    sk: str,
-) -> dict[str, Any]:
-    response = dynamodb.get_detail_item(pk=pk, sk=sk)
-    if _extract_detail_item(response) is not None:
-        return response
-    legacy_pk = _to_legacy_city_pk(pk)
-    if legacy_pk is None or legacy_pk == pk:
-        return response
-    legacy_response = dynamodb.get_detail_item(pk=legacy_pk, sk=sk)
-    return legacy_response if _extract_detail_item(legacy_response) is not None else response
 
 
 def normalize_festival_candidate(item: Mapping[str, Any]) -> FestivalCandidate:
@@ -483,6 +473,14 @@ def _extract_detail_item(response: Mapping[str, Any]) -> dict[str, Any] | None:
         return None
     if not isinstance(item, Mapping):
         raise SchemaValidationError("dynamodb detail response.Item must be a mapping")
+    return _normalize_detail_overview(_plain_dynamodb_item(item))
+
+
+def _extract_detail_item_from_batch(item: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    if item is None:
+        return None
+    if not isinstance(item, Mapping):
+        raise SchemaValidationError("dynamodb batch detail item must be a mapping")
     return _normalize_detail_overview(_plain_dynamodb_item(item))
 
 

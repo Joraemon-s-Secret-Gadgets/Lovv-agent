@@ -61,6 +61,7 @@ def _preloaded_result_payload(
         include_festivals=True,
         travel_month=city_input.travel_month,
         target_year=city_input.travel_year,
+        theme_pool=city_input.active_required_themes,
         requested_destination_id=city_input.destination_id,
         candidates=candidates,
     )

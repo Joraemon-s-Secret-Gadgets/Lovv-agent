@@ -82,6 +82,26 @@ def test_festival_agent_outputs_single_public_festival_gate_group() -> None:
     }
 
 
+def test_festival_node_uses_injected_runtime_tools(monkeypatch) -> None:
+    def fail_default_tools() -> FestivalVerifierTools:
+        raise AssertionError("default festival verifier tools should not be used")
+
+    monkeypatch.setattr(festival_node_module, "build_festival_verifier_tools", fail_default_tools)
+
+    result = festival_node_module.festival_verifier_node(
+        {
+            "intent": {"city_select_input": _city_input().to_dict()},
+            "runtime": {
+                "festival_verifier_tools": FestivalVerifierTools(
+                    festival_lookup=RecordingFestivalLookup(),
+                ),
+            },
+        },
+    )
+
+    assert result["festival_gate"]["allowed_city_ids"] == ["KR-36-4"]
+
+
 class RecordingFestivalLookup:
     def __init__(self) -> None:
         self.calls: list[dict[str, object]] = []

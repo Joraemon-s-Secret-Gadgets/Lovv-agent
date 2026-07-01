@@ -90,8 +90,14 @@ def test_scoring_node_packages_no_festival_path_without_seed_result(
 
     city_select = result["city_select"]
     city_result = city_select["city_selection_result"]
+    coverage = city_select["scoring_audit"]["coverage_audit"]
     assert city_result["selected_city"]["city_id"] == "KR-TEST"
     assert city_select["scoring_audit"]["selected_festival_candidates"] == []
+    assert "reserve_places" not in city_select["scoring_audit"]
+    assert "reserve_places_by_city" not in city_select["scoring_audit"]
+    assert "reserve_theme_counts" not in coverage
+    assert "reserve_budget" not in coverage
+    assert "reserve_places_considered" not in coverage
     assert "scratch" not in city_select
     assert "pruned_groups" not in city_select
     assert "context" not in city_select

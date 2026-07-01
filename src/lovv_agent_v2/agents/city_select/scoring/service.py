@@ -15,7 +15,7 @@ from lovv_agent_v2.agents.city_select.scoring.service_candidates import (
 from lovv_agent_v2.agents.city_select.scoring.service_geo import (
     city_distance_penalty,
     haversine_distance,
-    local_distance_penalty,
+    place_reference_distance_penalty,
 )
 from lovv_agent_v2.agents.city_select.scoring.service_theme import (
     clamp,
@@ -46,7 +46,6 @@ TOOL_NAME = "ScoringTool"
 
 RESPONSIBILITY = "Compute deterministic place and city score breakdowns."
 
-THEME_MATCH_BONUS = 0.2
 CANDIDATE_SUFFICIENCY_THRESHOLD = 5
 
 
@@ -125,11 +124,6 @@ def score_place(
 
     raw_similarity = similarity_from_distance(candidate_value(candidate, "distance"))
     base_similarity = raw_similarity if candidate_value(candidate, "distance") is not None else 0.0
-    theme_match_score = (
-        THEME_MATCH_BONUS
-        if set(theme_tags).intersection(scoreable_themes(active_themes))
-        else 0.0
-    )
     source_quality = source_quality_score(
         title=title,
         theme_tags=theme_tags,
@@ -138,13 +132,13 @@ def score_place(
         latitude=latitude,
         longitude=longitude,
     )
-    distance_penalty = local_distance_penalty(
+    reference_distance_penalty = place_reference_distance_penalty(
         latitude=latitude,
         longitude=longitude,
         reference_location=reference_location,
     )
     place_score = max(
-        base_similarity + theme_match_score + source_quality - distance_penalty,
+        base_similarity + source_quality - reference_distance_penalty,
         0.0,
     )
     return PlaceScoreResult(
@@ -159,9 +153,8 @@ def score_place(
         score_components={
             "raw_similarity": round4(raw_similarity),
             "base_similarity": round4(base_similarity),
-            "theme_match_score": round4(theme_match_score),
             "source_quality_score": round4(source_quality),
-            "local_distance_penalty": round4(distance_penalty),
+            "place_reference_distance_penalty": round4(reference_distance_penalty),
         },
     )
 

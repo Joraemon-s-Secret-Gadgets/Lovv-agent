@@ -78,9 +78,7 @@ class CitySelectScoringAgent:
         if not pruned_groups or not pruned_groups.survived_groups:
             return no_city_after_theme_gate(failure_context)
 
-        primary_budget, reserve_budget = candidate_budgets_for_trip(
-            context.candidate_input.trip_type,
-        )
+        primary_budget = candidate_budgets_for_trip(context.candidate_input.trip_type)
         scored_groups = _score_groups(
             pruned_groups.survived_groups,
             context=context,
@@ -97,6 +95,7 @@ class CitySelectScoringAgent:
         if not city_rankings:
             return no_scored_city(failure_context)
 
+        raw_query_vector = scratch.get("raw_query_vector")
         required_place_count = itinerary_place_count_for_trip(
             context.candidate_input.trip_type,
         )
@@ -106,13 +105,11 @@ class CitySelectScoringAgent:
                 city_rankings=city_rankings,
                 context=context,
                 primary_budget=primary_budget,
-                reserve_budget=reserve_budget,
                 selection=self.selection,
             ),
         )
         selection_by_city = selection_maps.selection_by_city
         recommended_places_by_city = selection_maps.recommended_places_by_city
-        reserve_places_by_city = selection_maps.reserve_places_by_city
         selected_rank_index = _select_city_rank_index(
             city_rankings,
             selection_by_city=selection_by_city,
@@ -123,7 +120,6 @@ class CitySelectScoringAgent:
         selected_group = scored_groups[selected_city_id]
         selected_places = selection_by_city[selected_city_id]
         recommended_places = recommended_places_by_city[selected_city_id]
-        reserve_places = reserve_places_by_city[selected_city_id]
         available_place_count = len(recommended_places)
 
         coverage_audit = _itinerary_coverage_audit(
@@ -181,6 +177,16 @@ class CitySelectScoringAgent:
             survived_city_count=len(pruned_groups.survived_groups),
             eliminated_cities=tuple(pruned_groups.eliminated_cities),
         )
+        planner_hints = {
+            "primary_budget": primary_budget,
+            "required_place_count": required_place_count,
+            "itinerary_sufficiency": coverage_audit.get(
+                "itinerary_sufficiency",
+                "sufficient",
+            ),
+        }
+        if isinstance(raw_query_vector, list):
+            planner_hints["raw_query_vector"] = raw_query_vector
         city_selection_result = CitySelectionResult(
             selected_city=selected_city,
             alternative_city=alternative_city,
@@ -201,15 +207,7 @@ class CitySelectScoringAgent:
             passthrough=_passthrough_payload(context),
             score_breakdown=score_breakdown,
             retrieval_audit=audit,
-            planner_hints={
-                "primary_budget": primary_budget,
-                "reserve_budget": reserve_budget,
-                "required_place_count": required_place_count,
-                "itinerary_sufficiency": coverage_audit.get(
-                    "itinerary_sufficiency",
-                    "sufficient",
-                ),
-            },
+            planner_hints=planner_hints,
         )
         return {
             "city_select": {
@@ -221,9 +219,7 @@ class CitySelectScoringAgent:
                     context=context,
                     annotated_rankings=annotated_rankings,
                     recommended_places=recommended_places,
-                    reserve_places=reserve_places,
                     recommended_places_by_city=recommended_places_by_city,
-                    reserve_places_by_city=reserve_places_by_city,
                     festival_seed_result=festival_seed_result,
                     selected_city_id=selected_city_id,
                     selected_rank_index=selected_rank_index,
@@ -234,10 +230,8 @@ class CitySelectScoringAgent:
                         "scored": sum(len(group) for group in scored_groups.values()),
                         "city_count": len(city_rankings),
                         "recommended_places": len(recommended_places),
-                        "reserve_places": len(reserve_places),
                         "available_places": available_place_count,
                         "required_itinerary_places": required_place_count,
-                        "reserve_places_considered_for_itinerary": False,
                     },
                     status=status,
                     retrieval_audit=audit,

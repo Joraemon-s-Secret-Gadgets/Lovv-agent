@@ -92,9 +92,12 @@ class RecordingDynamoDbClient:
         self,
         query_response: dict[str, Any] | None = None,
         get_item_response: dict[str, Any] | None = None,
+        batch_get_response: dict[str, Any] | None = None,
         get_item_exception: Exception | None = None,
+        batch_get_exception: Exception | None = None,
     ) -> None:
         self.get_item_requests: list[dict[str, Any]] = []
+        self.batch_get_item_requests: list[dict[str, Any]] = []
         self.query_requests: list[dict[str, Any]] = []
         self.scan_requests: list[dict[str, Any]] = []
         self.query_response = (
@@ -107,7 +110,13 @@ class RecordingDynamoDbClient:
             if get_item_response is None
             else get_item_response
         )
+        self.batch_get_response = (
+            {"Responses": {}}
+            if batch_get_response is None
+            else batch_get_response
+        )
         self.get_item_exception = get_item_exception
+        self.batch_get_exception = batch_get_exception
 
     def get_item(self, **request: Any) -> dict[str, Any]:
         self.get_item_requests.append(dict(request))
@@ -124,7 +133,10 @@ class RecordingDynamoDbClient:
         return self.query_response
 
     def batch_get_item(self, **request: Any) -> dict[str, Any]:
-        return {"Responses": {}}
+        self.batch_get_item_requests.append(dict(request))
+        if self.batch_get_exception is not None:
+            raise self.batch_get_exception
+        return self.batch_get_response
 
 
 class RecordingBedrockRuntimeClient:
@@ -891,12 +903,16 @@ class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
 
     def test_enrich_final_places_reads_placed_item_details(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
-            get_item_response={
-                "Item": {
-                    "PK": {"S": "PLACE#1"},
-                    "SK": {"S": "DETAIL#1"},
-                    "overview": {"S": "조용한 바다 산책지"},
-                    "visitor_count": {"N": "12"},
+            batch_get_response={
+                "Responses": {
+                    "lovv-table": [
+                        {
+                            "PK": {"S": "PLACE#1"},
+                            "SK": {"S": "DETAIL#1"},
+                            "overview": {"S": "조용한 바다 산책지"},
+                            "visitor_count": {"N": "12"},
+                        },
+                    ],
                 },
             },
         )
@@ -929,21 +945,71 @@ class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
             },
         )
         self.assertEqual(
-            dynamodb_client.get_item_requests[0]["Key"],
+            dynamodb_client.batch_get_item_requests[0]["RequestItems"]["lovv-table"]["Keys"][0],
             {
                 "PK": {"S": "PLACE#1"},
                 "SK": {"S": "DETAIL#1"},
             },
         )
-        self.assertEqual(dynamodb_client.get_item_requests[0]["TableName"], "lovv-table")
+        self.assertEqual(dynamodb_client.get_item_requests, [])
 
-    def test_enrich_final_places_uses_v2_city_pk_before_legacy_fallback(self) -> None:
+    def test_enrich_final_places_batches_placed_item_details(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
-            get_item_response={
-                "Item": {
-                    "PK": {"S": "CITY#DONGHAE"},
-                    "SK": {"S": "ATTRACTION#125713"},
-                    "overview": {"S": "망상해변 공개 개요"},
+            batch_get_response={
+                "Responses": {
+                    "lovv-table": [
+                        {
+                            "PK": {"S": "PLACE#1"},
+                            "SK": {"S": "DETAIL#1"},
+                            "description": {"S": "첫 번째 공개 개요"},
+                        },
+                        {
+                            "PK": {"S": "PLACE#2"},
+                            "SK": {"S": "DETAIL#2"},
+                            "overview": {"S": "두 번째 공개 개요"},
+                        },
+                    ],
+                },
+            },
+        )
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidates = tuple(
+            normalize_attraction_candidate(
+                {
+                    "key": f"attraction#place-{index}#1",
+                    "distance": 0.1,
+                    "metadata": {
+                        "entity_type": "attraction",
+                        "city_id": "city-1",
+                        "title": f"장소 {index}",
+                        "theme_tags": ["바다·해안"],
+                        "ddb_pk": f"PLACE#{index}",
+                        "ddb_sk": f"DETAIL#{index}",
+                    },
+                },
+            )
+            for index in (1, 2)
+        )
+
+        result = tool.enrich_final_places(candidates)
+
+        self.assertEqual(result.warnings, ())
+        self.assertEqual(result.places[0].details["overview"], "첫 번째 공개 개요")
+        self.assertEqual(result.places[1].details["overview"], "두 번째 공개 개요")
+        self.assertEqual(len(dynamodb_client.batch_get_item_requests), 1)
+        self.assertEqual(dynamodb_client.get_item_requests, [])
+
+    def test_enrich_final_places_uses_exact_v2_city_pk(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(
+            batch_get_response={
+                "Responses": {
+                    "lovv-table": [
+                        {
+                            "PK": {"S": "CITY#DONGHAE"},
+                            "SK": {"S": "ATTRACTION#125713"},
+                            "overview": {"S": "망상해변 공개 개요"},
+                        },
+                    ],
                 },
             },
         )
@@ -968,7 +1034,39 @@ class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
         self.assertEqual(result.warnings, ())
         self.assertEqual(result.places[0].details["overview"], "망상해변 공개 개요")
         self.assertEqual(
-            dynamodb_client.get_item_requests[0]["Key"],
+            dynamodb_client.batch_get_item_requests[0]["RequestItems"]["lovv-table"]["Keys"][0],
+            {
+                "PK": {"S": "CITY#DONGHAE"},
+                "SK": {"S": "ATTRACTION#125713"},
+            },
+        )
+
+    def test_enrich_final_places_does_not_retry_legacy_city_pk(self) -> None:
+        dynamodb_client = RecordingDynamoDbClient(get_item_response={})
+        tool = make_dynamo_lookup_tool(dynamodb_client)
+        candidate = normalize_attraction_candidate(
+            {
+                "key": "attraction#125713#1",
+                "distance": 0.1,
+                "metadata": {
+                    "entity_type": "attraction",
+                    "city_id": "KR-51-170",
+                    "title": "망상해변",
+                    "theme_tags": ["바다·해안"],
+                    "ddb_pk": "CITY#DONGHAE",
+                    "ddb_sk": "ATTRACTION#125713",
+                },
+            },
+        )
+
+        result = tool.enrich_final_places((candidate,))
+
+        self.assertIsNone(result.places[0].details)
+        self.assertEqual(result.warnings[0].code, "missing_detail_item")
+        self.assertEqual(len(dynamodb_client.batch_get_item_requests), 1)
+        self.assertEqual(dynamodb_client.get_item_requests, [])
+        self.assertEqual(
+            dynamodb_client.batch_get_item_requests[0]["RequestItems"]["lovv-table"]["Keys"][0],
             {
                 "PK": {"S": "CITY#DONGHAE"},
                 "SK": {"S": "ATTRACTION#125713"},
@@ -1012,7 +1110,8 @@ class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
         self.assertEqual(len(result.places), 1)
         self.assertEqual(result.places[0].place_id, placed.place_id)
         self.assertNotEqual(result.places[0].place_id, not_placed.place_id)
-        self.assertEqual(len(dynamodb_client.get_item_requests), 1)
+        self.assertEqual(len(dynamodb_client.batch_get_item_requests), 1)
+        self.assertEqual(dynamodb_client.get_item_requests, [])
 
     def test_enrich_final_places_missing_keys_warns_and_keeps_null_details(self) -> None:
         dynamodb_client = RecordingDynamoDbClient()
@@ -1040,7 +1139,7 @@ class FinalPlaceDetailEnrichmentTest(unittest.TestCase):
 
     def test_enrich_final_places_dynamodb_failure_creates_warning(self) -> None:
         dynamodb_client = RecordingDynamoDbClient(
-            get_item_exception=RuntimeError("network failed"),
+            batch_get_exception=RuntimeError("network failed"),
         )
         tool = make_dynamo_lookup_tool(dynamodb_client)
         candidate = normalize_attraction_candidate(

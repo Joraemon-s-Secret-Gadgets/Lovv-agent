@@ -7,7 +7,11 @@ from typing import Any
 
 from lovv_agent_v2.agents.festival_verifier.agent import FestivalVerifierAgent
 from lovv_agent_v2.agents.festival_verifier.contracts import FestivalVerifierInput
-from lovv_agent_v2.agents.festival_verifier.tools import build_festival_verifier_tools
+from lovv_agent_v2.agents.festival_verifier.tools import (
+    FestivalVerifierTools,
+    build_festival_verifier_tools,
+)
+from lovv_agent_v2.core.runtime_state import runtime_value
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
@@ -15,7 +19,8 @@ from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 def festival_verifier_node(state: UnifiedAgentState) -> dict[str, Any]:
     """Optional node to verify theme matching of current local festivals."""
     request = _festival_verifier_input(state)
-    return FestivalVerifierAgent(build_festival_verifier_tools()).run(request).to_state()
+    tools = _festival_verifier_tools(state) or build_festival_verifier_tools()
+    return FestivalVerifierAgent(tools).run(request).to_state()
 
 
 def _festival_verifier_input(state: UnifiedAgentState) -> FestivalVerifierInput:
@@ -78,3 +83,8 @@ def _mapping_sequence(value: Any, field_name: str) -> tuple[Mapping[str, Any], .
     for item in value:
         candidates.append(_mapping_payload(item, field_name))
     return tuple(candidates)
+
+
+def _festival_verifier_tools(state: UnifiedAgentState) -> FestivalVerifierTools | None:
+    tools = runtime_value(state, "festival_verifier_tools")
+    return tools if isinstance(tools, FestivalVerifierTools) else None

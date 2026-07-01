@@ -9,8 +9,6 @@ from lovv_agent_v2.agents.city_select.scoring.service import PlaceScoreResult
 
 @dataclass(frozen=True, slots=True)
 class SelectionCandidate:
-    """Normalized scored candidate used by primary/reserve selection."""
-
     payload: Any
     place_id: str
     title: str | None
@@ -41,10 +39,7 @@ class SelectionCandidate:
 
 @dataclass(frozen=True, slots=True)
 class CandidateSelectionResult:
-    """Primary/reserve selection output and internal quota audit."""
-
     primary: tuple[dict[str, Any], ...]
-    reserve: tuple[dict[str, Any], ...]
     coverage_audit: dict[str, Any]
     deduplicated_candidates: tuple[SelectionCandidate, ...]
 
@@ -53,7 +48,6 @@ class CandidateSelectionResult:
 
         return {
             "recommended_places": list(self.primary),
-            "reserve_places": list(self.reserve),
             "coverage_audit": dict(self.coverage_audit),
             "deduplicated_candidates": [
                 asdict(candidate) for candidate in self.deduplicated_candidates

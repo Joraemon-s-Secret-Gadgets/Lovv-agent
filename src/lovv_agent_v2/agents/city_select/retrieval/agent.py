@@ -100,6 +100,7 @@ class CitySelectRetrievalAgent:
                     "pruned_groups": pruned_groups,
                     "festival_seed_result": None,
                     "context": context,
+                    "raw_query_vector": list(query_vector),
                     "retrieved_count": len(retrieved),
                     "merged_count": len(merged_candidates),
                 },

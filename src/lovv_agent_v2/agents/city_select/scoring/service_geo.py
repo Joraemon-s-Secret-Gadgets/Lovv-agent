@@ -11,7 +11,7 @@ from lovv_agent_v2.agents.city_select.scoring.service_validation import (
 )
 
 EARTH_RADIUS_KM = 6371.0088
-LOCAL_DISTANCE_PENALTY_PER_KM = 0.005
+PLACE_REFERENCE_DISTANCE_PENALTY_PER_KM = 0.005
 USER_DISTANCE_PENALTY_MAX = 0.05
 USER_DISTANCE_PENALTY_DAYTRIP = 0.08
 USER_DISTANCE_PENALTY_2D1N = 0.04
@@ -39,7 +39,7 @@ def haversine_distance(
     return EARTH_RADIUS_KM * 2 * math.asin(math.sqrt(haversine))
 
 
-def local_distance_penalty(
+def place_reference_distance_penalty(
     *,
     latitude: float | None,
     longitude: float | None,
@@ -51,7 +51,7 @@ def local_distance_penalty(
     if reference is None:
         return 0.0
     distance_km = haversine_distance(latitude, longitude, reference[0], reference[1])
-    return distance_km * LOCAL_DISTANCE_PENALTY_PER_KM
+    return distance_km * PLACE_REFERENCE_DISTANCE_PENALTY_PER_KM
 
 
 def city_distance_penalty(

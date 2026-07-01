@@ -99,9 +99,8 @@ def similarity_from_distance(value: Any) -> float:
 def zero_place_components() -> dict[str, float]:
     return {
         "raw_similarity": 0.0,
-        "theme_match_score": 0.0,
         "source_quality_score": 0.0,
-        "local_distance_penalty": 0.0,
+        "place_reference_distance_penalty": 0.0,
     }
 
 

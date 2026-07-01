@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from pytest import MonkeyPatch
+
+import lovv_agent_v2.agents.city_select.nodes as city_select_nodes
 from lovv_agent_v2.agents.city_select.retrieval.agent import (
     CitySelectRetrievalAgent,
     CitySelectRetrievalRequest,
@@ -10,7 +13,8 @@ from lovv_agent_v2.agents.city_select.domain.contracts import (
     AttractionCandidate,
     PrunedCityGroups,
 )
-from lovv_agent_v2.agents.city_select.tools import CitySelectTools
+from lovv_agent_v2.agents.city_select.subgraph import compile_city_select_subgraph
+from lovv_agent_v2.agents.city_select.tools import CitySelectScoringTools, CitySelectTools
 
 
 def _city_input() -> dict[str, object]:
@@ -58,6 +62,32 @@ def test_retrieval_agent_searches_each_allowed_festival_city_directly() -> None:
     assert "pruned_groups" not in output.city_select
 
 
+def test_city_select_subgraph_promotes_raw_query_vector_for_planner(monkeypatch: MonkeyPatch) -> None:
+    def build_tools() -> CitySelectTools:
+        return CitySelectTools(
+            destination_search=RecordingSearch(),
+            dynamo_lookup=RecordingDynamoLookup(),
+            embedding=RecordingEmbedding(),
+        )
+
+    def build_scoring_tools() -> CitySelectScoringTools:
+        return CitySelectScoringTools(dynamo_lookup=RecordingDynamoLookup())
+
+    monkeypatch.setattr(city_select_nodes, "build_default_city_select_tools", build_tools)
+    monkeypatch.setattr(city_select_nodes, "build_default_city_select_scoring_tools", build_scoring_tools)
+
+    result = compile_city_select_subgraph().invoke(
+        {
+            "intent": {"city_select_input": _city_input()},
+            "festival_gate": {"allowed_city_ids": ("KR-47-130",)},
+        },
+    )
+
+    city_select = result["city_select"]
+    hints = city_select["city_selection_result"]["planner_hints"]
+    assert hints["raw_query_vector"] == [0.1, 0.2]
+
+
 class RecordingEmbedding:
     def embed_query(self, query: str) -> list[float]:
         assert query == "가을 전통 축제와 유적"
@@ -65,7 +95,15 @@ class RecordingEmbedding:
 
 
 class RecordingDynamoLookup:
-    pass
+    def city_visitor_stats(
+        self,
+        city_ids: Sequence[str],
+        travel_month: int,
+        *,
+        partition_key_by_city: dict[str, str] | None = None,
+    ) -> dict[str, float | None]:
+        del travel_month, partition_key_by_city
+        return {city_id: None for city_id in city_ids}
 
 
 class RecordingSearch:
@@ -109,7 +147,10 @@ class RecordingSearch:
         allowed_city_ids: Sequence[str] | None = None,
     ) -> PrunedCityGroups:
         assert tuple(searchable_place_themes) == ("역사·전통",)
-        assert tuple(allowed_city_ids or ()) == ("KR-47-130", "KR-51-730", "KR-36-8")
+        assert tuple(allowed_city_ids or ()) in (
+            ("KR-47-130",),
+            ("KR-47-130", "KR-51-730", "KR-36-8"),
+        )
         return PrunedCityGroups(
             survived_groups={candidate.city_id: (candidate,) for candidate in candidates},
             eliminated_cities=(),

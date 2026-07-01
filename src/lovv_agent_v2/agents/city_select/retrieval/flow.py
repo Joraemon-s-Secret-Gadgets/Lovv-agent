@@ -126,7 +126,7 @@ def retrieval_audit(
     return {
         "mode": context.mode,
         "searchable_place_themes": list(context.theme_split.searchable_place_themes),
-        "external_link_themes": list(context.theme_split.external_link_themes),
+        "no_support_themes": list(context.theme_split.no_support_themes),
         "fixed_city_id": context.candidate_input.destination_id,
         "retrieved_candidate_count": retrieved_count,
         "merged_candidate_count": merged_count,

@@ -43,10 +43,8 @@ def test_build_initial_state_wraps_generation_intent_output() -> None:
     assert state["intent"]["intent_output"]["cleaned_raw_query"] == "조용한 바다"
 
 
-def test_build_initial_state_attaches_itinerary_explanation_runtime() -> None:
+def test_build_initial_state_accepts_mock_profile_record() -> None:
     runner = _load_runner_module()
-    runtime = object()
-
     state = runner.build_initial_state(
         {
             "id": "case-1",
@@ -62,7 +60,35 @@ def test_build_initial_state_attaches_itinerary_explanation_runtime() -> None:
                 "user_location": None,
             },
         },
-        itinerary_explanation_runtime=runtime,
+        profile_record={"profile_id": "P05_three_trips_sea_threshold"},
     )
 
-    assert state["itinerary_explanation_runtime"] is runtime
+    assert state["profile"]["profile_record"]["profile_id"] == "P05_three_trips_sea_threshold"
+
+
+def test_invoke_harness_uses_smoke_thread_id() -> None:
+    runner = _load_runner_module()
+    harness = RecordingHarness()
+    state = {"request": {"request_id": "case-1"}}
+
+    result = runner.invoke_harness(harness, state, case_id="case-1")
+
+    assert result == {"ok": True}
+    assert harness.payloads == [state]
+    assert harness.configs == [{"configurable": {"thread_id": "v2-smoke:case-1"}}]
+
+
+class RecordingHarness:
+    def __init__(self) -> None:
+        self.payloads: list[dict[str, object]] = []
+        self.configs: list[dict[str, object]] = []
+
+    def invoke(
+        self,
+        payload: dict[str, object],
+        *,
+        graph_config: dict[str, object],
+    ) -> dict[str, object]:
+        self.payloads.append(payload)
+        self.configs.append(graph_config)
+        return {"ok": True}

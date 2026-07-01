@@ -254,7 +254,6 @@ def _itinerary_coverage_audit(
         {
             "itinerary_required_place_count": required_place_count,
             "available_place_count": available_place_count,
-            "reserve_places_considered": False,
             "itinerary_sufficiency": (
                 "sufficient"
                 if available_place_count >= required_place_count

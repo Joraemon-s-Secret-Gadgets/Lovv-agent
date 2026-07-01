@@ -14,6 +14,7 @@ def festival_candidate(
     ddb_pk: str | None = None,
     event_start_date: str | None = None,
     date_status: str | None = None,
+    theme_tags: tuple[str, ...] = ("festival",),
 ) -> dict[str, object]:
     payload: dict[str, object] = {
         "festival_id": festival_id,
@@ -22,7 +23,7 @@ def festival_candidate(
         "city_id": city_id,
         "city_name": city_name,
         "month": 10,
-        "theme_tags": ("festival",),
+        "theme_tags": theme_tags,
         "event_end_date": "2026-10-05",
         "source": "dynamodb",
     }
@@ -160,6 +161,24 @@ class FestivalGateResultTest(unittest.TestCase):
         self.assertEqual(result.status, "needs_clarification")
         self.assertEqual(result.audit["candidate_counts"]["excluded"], 1)
         self.assertEqual(result.candidates, ())
+
+    def test_discovery_prefers_confirmed_festival_with_requested_theme(self) -> None:
+        candidates = (
+            festival_candidate("F-MUSIC", city_id="KR-MUSIC", theme_tags=("music",)),
+            festival_candidate("F-FOOD", city_id="KR-FOOD", theme_tags=("food",)),
+        )
+
+        result = build_festival_gate_result(
+            include_festivals=True,
+            travel_month=10,
+            target_year=2026,
+            theme_pool=("food",),
+            candidates=candidates,
+        )
+
+        self.assertEqual(result.status, "ok")
+        self.assertEqual(result.allowed_city_ids, ("KR-FOOD",))
+        self.assertEqual(result.candidates[0]["festival_id"], "F-FOOD")
 
     def test_invalid_date_status_is_rejected(self) -> None:
         with self.assertRaises(SchemaValidationError):

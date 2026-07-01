@@ -103,6 +103,69 @@ class DynamoDbRepository:
             consistent_read=consistent_read,
         )
 
+    def batch_get_detail_items(
+        self,
+        keys: Iterable[tuple[str, str]],
+        *,
+        consistent_read: bool = False,
+    ) -> dict[tuple[str, str], dict[str, Any]]:
+        """Read detail items by canonical `PK`/`SK` pairs in one batch."""
+
+        unique_keys = list(
+            dict.fromkeys(
+                (
+                    _required_text(pk, "pk"),
+                    _required_text(sk, "sk"),
+                )
+                for pk, sk in keys
+            ),
+        )
+        result: dict[tuple[str, str], dict[str, Any]] = {}
+        if not unique_keys:
+            return result
+        table = self.settings.table_name
+        pending: dict[str, Any] = {
+            table: {
+                "Keys": [
+                    {"PK": {"S": pk}, "SK": {"S": sk}}
+                    for pk, sk in unique_keys
+                ],
+                "ConsistentRead": consistent_read,
+            },
+        }
+        with _TRACER.start_as_current_span("dynamodb.BatchGetItem") as span:
+            span.set_attribute("aws.service", "dynamodb")
+            span.set_attribute("dynamodb.table", table)
+            span.set_attribute("dynamodb.operation", "BatchGetItem")
+            span.set_attribute("dynamodb.request_key_count", len(unique_keys))
+            try:
+                for _ in range(2):
+                    response = self.client.batch_get_item(RequestItems=pending)
+                    if not isinstance(response, Mapping):
+                        raise SchemaValidationError(
+                            "dynamodb batch_get_item response must be a mapping",
+                        )
+                    rows = response.get("Responses", {})
+                    for item in rows.get(table, ()) if isinstance(rows, Mapping) else ():
+                        if not isinstance(item, Mapping):
+                            continue
+                        pk = _attribute_text(item.get("PK"))
+                        sk = _attribute_text(item.get("SK"))
+                        if pk is not None and sk is not None:
+                            result[(pk, sk)] = dict(item)
+                    unprocessed = response.get("UnprocessedKeys") or {}
+                    if not unprocessed:
+                        break
+                    pending = dict(unprocessed)
+                span.set_attribute("dynamodb.resolved_count", len(result))
+                return result
+            except Exception as exc:  # noqa: BLE001 - provider span records and re-raises.
+                span.record_exception(exc)
+                span.set_status(
+                    Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
+                )
+                raise
+
     def batch_get_city_visitor_stats(
         self,
         *,
