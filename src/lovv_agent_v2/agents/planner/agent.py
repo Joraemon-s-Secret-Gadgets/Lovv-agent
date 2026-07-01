@@ -10,8 +10,10 @@ from lovv_agent_v2.agents.planner.steps.route_days.place_selection import (
 )
 from lovv_agent_v2.agents.planner.steps.route_days.routing import route_days
 from lovv_agent_v2.agents.planner.tools import PlannerRuntimeTools
-from lovv_agent_v2.agents.planner.travel_time import TravelTimeProvider
+from lovv_agent_v2.agents.planner.external.travel_time import TravelTimeProvider
 from lovv_agent_v2.models.schemas import SchemaValidationError
+
+PLANNER_RETRIEVAL_TOP_K = 50
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +30,7 @@ class PlannerAgentRequest:
     transport_pref: str
     min_count: int
     target_count: int
+    raw_query_vector: tuple[float, ...] = ()
     fallback_raw_places: tuple[Mapping[str, object], ...] = ()
     fallback_soft_places: tuple[Mapping[str, object], ...] = ()
     festival_places: tuple[Mapping[str, object], ...] = ()
@@ -74,10 +77,10 @@ class PlannerAgent:
 
         raw_places = _candidate_payloads(
             runtime.destination_search.search_candidates(
-                runtime.embedding.embed_query(_required_text(request.raw_query, "cleaned_raw_query")),
-                top_k=_top_k(request.target_count),
+                _raw_query_vector(request, runtime),
+                top_k=_top_k(),
                 city_id=request.city_id,
-                ddb_pk=request.ddb_pk,
+                ddb_pk=None,
                 theme=None,
             ),
             similarity_key="raw_similarity",
@@ -157,12 +160,23 @@ def _soft_channel(
     return _candidate_payloads(
         runtime.destination_search.search_candidates(
             runtime.embedding.embed_query(soft_query),
-            top_k=_top_k(request.target_count),
+            top_k=_top_k(),
             city_id=request.city_id,
-            ddb_pk=request.ddb_pk,
+            ddb_pk=None,
             theme=None,
         ),
         similarity_key="soft_similarity",
+    )
+
+
+def _raw_query_vector(
+    request: PlannerAgentRequest,
+    runtime: PlannerRuntimeTools,
+) -> Sequence[float]:
+    if request.raw_query_vector:
+        return request.raw_query_vector
+    return runtime.embedding.embed_query(
+        _required_text(request.raw_query, "cleaned_raw_query"),
     )
 
 
@@ -244,5 +258,5 @@ def _place_id(place: Mapping[str, object]) -> str:
     return _required_text(value, "place_id")
 
 
-def _top_k(target_count: int) -> int:
-    return max(target_count * 3, 12)
+def _top_k() -> int:
+    return PLANNER_RETRIEVAL_TOP_K

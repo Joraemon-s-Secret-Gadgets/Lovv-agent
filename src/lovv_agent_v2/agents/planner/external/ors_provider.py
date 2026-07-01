@@ -3,19 +3,18 @@ from __future__ import annotations
 import importlib.util
 import os
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
 
-from lovv_agent_v2.agents.planner.travel_time import (
+from lovv_agent_v2.agents.planner.external.agentcore_credentials import resolve_agentcore_api_key
+from lovv_agent_v2.agents.planner.external.ors_results import durations_minutes, snapped_payloads
+from lovv_agent_v2.agents.planner.external.travel_time import (
     HaversineTravelTimeProvider,
     MatrixResponse,
     SnapResponse,
 )
-
-DEFAULT_ORS_DIR_NAME = "ORS_api_code_with_snap_20260630"
-
 
 class OrsProviderUnavailableError(RuntimeError):
     pass
@@ -34,6 +33,7 @@ class OrsProviderConfig:
 @dataclass(slots=True)
 class OrsTravelTimeProvider:
     config: OrsProviderConfig
+    api_key_resolver: Callable[[], str | None] | None = None
     _module: ModuleType | None = None
     _snapped_places: dict[str, object] | None = None
     _snap_payloads: dict[str, Mapping[str, object]] | None = None
@@ -67,21 +67,21 @@ class OrsTravelTimeProvider:
             self._snap_payloads = {place_id: payload for place_id, payload in payload_by_id.items()}
             self._snapped_places = {place_id: candidate for place_id, candidate in candidates.items()}
             return _snap_with_audit(snap, "ors_external_snap_failure_fallback", missing_ids)
-        snapped_payloads = _snapped_payloads(payload_by_id, result)
-        self._snap_payloads = snapped_payloads
+        snapped = snapped_payloads(payload_by_id, result)
+        self._snap_payloads = snapped
         self._snapped_places = {
             place_id: place
             for place_id, place in zip(candidates, result.snapped_places, strict=True)
         }
         return SnapResponse(
-            places=tuple(snapped_payloads.values()),
+            places=tuple(snapped.values()),
             excluded_place_ids=tuple(missing_ids),
             audit={
                 "snap_provider": "ors_external",
                 "snap_profile": result.profile,
                 "snap_fallback_used": bool(result.fallback_used),
                 "snap_radius_m": self.config.snap_radius_m,
-                "snapped_place_ids": tuple(snapped_payloads),
+                "snapped_place_ids": tuple(snapped),
                 "unroutable_place_ids": tuple(missing_ids),
             },
         )
@@ -104,7 +104,7 @@ class OrsTravelTimeProvider:
             allow_fallback=self.config.allow_fallback,
         )
         return MatrixResponse(
-            durations=_durations_minutes(result),
+            durations=durations_minutes(result),
             audit={
                 "matrix_provider": "ors_external",
                 "duration_profile": result.profile,
@@ -157,17 +157,26 @@ class OrsTravelTimeProvider:
     def _has_api_key(self) -> bool:
         if self.config.load_env_local:
             self._ors_module()
-        return bool(os.getenv("ORS_API_KEY"))
+        if os.getenv("ORS_API_KEY"):
+            return True
+        resolver = self.api_key_resolver or resolve_agentcore_api_key
+        agentcore_key = resolver()
+        if agentcore_key is None:
+            return False
+        os.environ["ORS_API_KEY"] = agentcore_key
+        return True
 
 
 def default_ors_module_file() -> Path:
     env_dir = os.getenv("LOVV_ORS_CODE_DIR")
     if env_dir:
         return Path(env_dir) / "ors_matrix.py"
-    return Path(__file__).resolve().parents[5] / DEFAULT_ORS_DIR_NAME / "ors_matrix.py"
+    return Path(__file__).resolve().parent / "ors_helper" / "ors_matrix.py"
 
 
-def ors_provider_from_env() -> OrsTravelTimeProvider | None:
+def ors_provider_from_env(
+    api_key_resolver: Callable[[], str | None] = resolve_agentcore_api_key,
+) -> OrsTravelTimeProvider | None:
     enabled = os.getenv("LOVV_PLANNER_TRAVEL_TIME_PROVIDER") == "ors" or os.getenv("LOVV_ENABLE_ORS") == "1"
     if not enabled:
         return None
@@ -180,6 +189,7 @@ def ors_provider_from_env() -> OrsTravelTimeProvider | None:
             cache_dir=_cache_dir(),
             load_env_local=os.getenv("LOVV_ORS_LOAD_ENV_LOCAL") == "1",
         ),
+        api_key_resolver=api_key_resolver,
     )
 
 
@@ -204,15 +214,6 @@ def _profile(transport_pref: str) -> str:
     return "foot-walking" if transport_pref == "walk" else "driving-car"
 
 
-def _durations_minutes(result) -> dict[tuple[str, str], float]:
-    durations: dict[tuple[str, str], float] = {}
-    for row_index, source_id in enumerate(result.place_ids):
-        for column_index, destination_id in enumerate(result.place_ids):
-            duration_sec = result.durations_sec[row_index][column_index]
-            durations[(source_id, destination_id)] = 0.0 if duration_sec is None else float(duration_sec) / 60.0
-    return durations
-
-
 def _snap_with_audit(
     snap: SnapResponse,
     provider: str,
@@ -223,29 +224,6 @@ def _snap_with_audit(
         excluded_place_ids=tuple((*snap.excluded_place_ids, *missing_ids)),
         audit={**dict(snap.audit), "snap_provider": provider, "unroutable_place_ids": tuple(missing_ids)},
     )
-
-
-def _snapped_payloads(
-    payload_by_id: Mapping[str, Mapping[str, object]],
-    result,
-) -> dict[str, Mapping[str, object]]:
-    payloads: dict[str, Mapping[str, object]] = {}
-    for original, snapped, distance_m, road_name in zip(
-        result.original_places,
-        result.snapped_places,
-        result.snapped_distances_m,
-        result.road_names,
-        strict=True,
-    ):
-        payloads[original.place_id] = {
-            **payload_by_id[original.place_id],
-            "latitude": snapped.lat,
-            "longitude": snapped.lon,
-            "ors_snapped_distance_m": distance_m,
-            "ors_road_name": road_name,
-        }
-    return payloads
-
 
 def _place_id(place: Mapping[str, object]) -> str:
     value = place.get("place_id", place.get("placeId"))

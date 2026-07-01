@@ -5,7 +5,8 @@ from typing import cast
 
 from lovv_agent_v2.agents.planner.node import planner_node
 from lovv_agent_v2.agents.planner.subgraph import compile_planner_subgraph
-from lovv_agent_v2.agents.planner.travel_time import MatrixResponse, SnapResponse, TravelTimeProvider
+from lovv_agent_v2.agents.planner.external.travel_time import MatrixResponse, SnapResponse, TravelTimeProvider
+from lovv_agent_v2.agents.planner.steps.retry_alternative_city.node import should_retry_alternative_city
 
 
 def _place(place_id: str, title: str, sim: float, theme: str, subtype: str) -> dict[str, object]:
@@ -118,6 +119,21 @@ def test_planner_subgraph_reuses_second_city_scoring_audit_without_runtime() -> 
     assert selected_city["province"] == "강원특별자치도"
 
 
+def test_direct_anchor_without_city_select_does_not_retry_alternative_city() -> None:
+    state = {
+        "intent": {
+            "city_select_input": {
+                "destination_id": "KR-DONGHAE",
+                "include_festivals": False,
+            },
+        },
+        "request": {"include_festivals": False},
+        "planner": {"validation_result": {"planner_status_gate": "insufficient_candidates"}},
+    }
+
+    assert should_retry_alternative_city(state) is False
+
+
 def _state(
     search: ThinThenAlternativeDestinationSearch,
     *,
@@ -216,14 +232,9 @@ def _state_without_planner_runtime() -> dict[str, object]:
                     {"city_id": "CITY#DONGHAE", "city_name_ko": "동해시", "city_score": 0.8},
                 ),
                 "recommended_places": (primary_place,),
-                "reserve_places": (),
                 "recommended_places_by_city": {
                     "CITY#GANGJIN": (primary_place,),
                     "CITY#DONGHAE": alt_places,
-                },
-                "reserve_places_by_city": {
-                    "CITY#GANGJIN": (),
-                    "CITY#DONGHAE": (),
                 },
             },
         },

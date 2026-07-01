@@ -14,7 +14,7 @@ class SubtypedPlace(Protocol):
 
 
 TPlace = TypeVar("TPlace", bound=SubtypedPlace)
-SortKey = Callable[[TPlace], tuple[bool, float, float]]
+SortKey = Callable[[TPlace], tuple[bool, float, float, float]]
 ThemeKey = Callable[[TPlace], str | None]
 
 SUBTYPE_FIELDS = (

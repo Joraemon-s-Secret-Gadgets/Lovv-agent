@@ -17,9 +17,9 @@ from lovv_agent_v2.agents.planner.state_adapter import (
     route_days_step,
 )
 from lovv_agent_v2.agents.planner.subgraph import compile_planner_subgraph
-from lovv_agent_v2.agents.planner.ors_provider import OrsProviderConfig, OrsTravelTimeProvider
-from lovv_agent_v2.agents.planner.context import travel_time_provider
-from lovv_agent_v2.agents.planner.travel_time import (
+from lovv_agent_v2.agents.planner.external.ors_provider import OrsProviderConfig, OrsTravelTimeProvider
+from lovv_agent_v2.agents.planner.state.context import travel_time_provider
+from lovv_agent_v2.agents.planner.external.travel_time import (
     MatrixResponse,
     SnapResponse,
     TravelTimeProvider,
@@ -152,6 +152,7 @@ def test_planner_agent_core_uses_injected_tools_without_state_scratch() -> None:
     result = PlannerAgent(tools).run(request)
 
     assert embedding.queries == ["속초 바다 역사", "조용한 역사 산책"]
+    assert [call["top_k"] for call in search.calls] == [50, 50]
     assert [call["city_id"] for call in search.calls] == ["KR-SOKCHO", "KR-SOKCHO"]
     assert result.place_pool["raw_places"]
     assert result.selection["places"]
@@ -204,9 +205,10 @@ def test_retrieve_places_node_runs_city_anchored_raw_and_soft_channels() -> None
     scratch = cast(dict[str, object], planner["scratch"])
     pool = cast(dict[str, object], scratch["place_pool"])
     assert embedding.queries == ["속초 바다 역사", "조용한 역사 산책"]
+    assert [call["top_k"] for call in search.calls] == [50, 50]
     assert [call["theme"] for call in search.calls] == [None, None]
     assert [call["city_id"] for call in search.calls] == ["KR-SOKCHO", "KR-SOKCHO"]
-    assert [call["ddb_pk"] for call in search.calls] == ["CITY#SOKCHO", "CITY#SOKCHO"]
+    assert [call["ddb_pk"] for call in search.calls] == [None, None]
     assert [place["place_id"] for place in cast(tuple[dict[str, object], ...], pool["raw_places"])] == [
         "raw-1",
         "raw-2",

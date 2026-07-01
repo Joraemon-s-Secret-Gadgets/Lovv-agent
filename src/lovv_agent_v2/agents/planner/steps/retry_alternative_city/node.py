@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from lovv_agent_v2.agents.planner.context import (
+from lovv_agent_v2.agents.planner.state.context import (
     mapping,
     mapping_sequence,
     optional_mapping,
     optional_text,
     text,
 )
-from lovv_agent_v2.agents.planner.scratch import planner_state_update
+from lovv_agent_v2.agents.planner.state.scratch import planner_state_update
 from lovv_agent_v2.models.city_identity import load_default_city_identity_map
 
 
@@ -22,7 +22,10 @@ def should_retry_alternative_city(state: Mapping[str, object]) -> bool:
         return False
     if optional_mapping(planner.get("fallback")) is not None:
         return False
-    city_selection = _city_selection(state)
+    city_select = optional_mapping(state.get("city_select"))
+    if city_select is None:
+        return False
+    city_selection = mapping(city_select.get("city_selection_result"), "city_select.city_selection_result")
     selected = optional_mapping(city_selection.get("selected_city"))
     return _fallback_city_payload(state, city_selection, selected) is not None
 
@@ -86,12 +89,9 @@ def _fallback_scoring_audit(
         return None
     next_audit = dict(scoring_audit)
     recommended_by_city = optional_mapping(scoring_audit.get("recommended_places_by_city"))
-    reserve_by_city = optional_mapping(scoring_audit.get("reserve_places_by_city"))
     recommended = mapping_sequence(recommended_by_city.get(city_id)) if recommended_by_city else ()
-    reserve = mapping_sequence(reserve_by_city.get(city_id)) if reserve_by_city else ()
     if recommended:
         next_audit["recommended_places"] = recommended
-        next_audit["reserve_places"] = reserve
     return next_audit
 
 
@@ -234,21 +234,17 @@ def _city_metadata(state: Mapping[str, object], city_id: str) -> dict[str, objec
     scoring_audit = optional_mapping(city_select.get("scoring_audit"))
     if scoring_audit is None:
         return metadata
-    for collection_name in ("recommended_places_by_city", "reserve_places_by_city"):
-        places_by_city = optional_mapping(scoring_audit.get(collection_name))
-        if places_by_city is None:
-            continue
-        places = mapping_sequence(places_by_city.get(city_id))
-        if places:
-            first_place = places[0]
-            for key, value in {
-                "city_name_ko": first_place.get("city_name_ko"),
-                "ddb_pk": first_place.get("ddb_pk"),
-                "province": first_place.get("province"),
-            }.items():
-                if metadata.get(key) is None and value is not None:
-                    metadata[key] = value
-            break
+    places_by_city = optional_mapping(scoring_audit.get("recommended_places_by_city"))
+    places = mapping_sequence(places_by_city.get(city_id)) if places_by_city else ()
+    if places:
+        first_place = places[0]
+        for key, value in {
+            "city_name_ko": first_place.get("city_name_ko"),
+            "ddb_pk": first_place.get("ddb_pk"),
+            "province": first_place.get("province"),
+        }.items():
+            if metadata.get(key) is None and value is not None:
+                metadata[key] = value
     identity = load_default_city_identity_map().get(
         metadata.get("city_id") or metadata.get("ddb_pk") or city_id,
     )

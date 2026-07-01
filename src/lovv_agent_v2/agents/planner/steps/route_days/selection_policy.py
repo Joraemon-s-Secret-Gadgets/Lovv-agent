@@ -4,22 +4,7 @@ import math
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Final, Generic, Protocol, TypeVar
-
-COASTAL_FACET_SUBTYPE_CODES: Final[frozenset[str]] = frozenset(
-    {
-        "NA020700",
-        "NA020800",
-        "NA020900",
-        "NA030300",
-        "VE010800",
-        "VE030100",
-        "VE040300",
-    },
-)
-FACET_SUBTYPE_CODES: Final[Mapping[str, frozenset[str]]] = {
-    "바다·해안": COASTAL_FACET_SUBTYPE_CODES,
-}
+from typing import Generic, Protocol, TypeVar
 
 
 class ThemePlace(Protocol):
@@ -29,7 +14,7 @@ class ThemePlace(Protocol):
 
 
 TPlace = TypeVar("TPlace", bound=ThemePlace)
-SortKey = Callable[[TPlace], tuple[bool, float, float]]
+SortKey = Callable[[TPlace], tuple[bool, float, float, float]]
 ThemeKey = Callable[[TPlace], str | None]
 
 
@@ -74,10 +59,6 @@ def select_by_theme_quota(selection_input: ThemeSelectionInput[TPlace]) -> tuple
     return tuple(selected)
 
 
-def matches_any_theme(place: ThemePlace, themes: tuple[str, ...]) -> bool:
-    return bool(set(place.theme_tags).intersection(themes))
-
-
 def primary_theme(place: ThemePlace, themes: tuple[str, ...]) -> str | None:
     for theme in themes:
         if theme in place.theme_tags:
@@ -96,18 +77,6 @@ def selected_theme_counts(
         if theme in counts:
             counts[theme] += 1
     return counts
-
-
-def facet_theme_for_subtype(payload: Mapping[str, object], themes: tuple[str, ...]) -> str | None:
-    if len(themes) != 1:
-        return None
-    theme = themes[0]
-    subtype_code = payload.get("attraction_subtype_code")
-    if not isinstance(subtype_code, str):
-        return None
-    if subtype_code.strip() in FACET_SUBTYPE_CODES.get(theme, frozenset()):
-        return theme
-    return None
 
 
 def theme_quota(

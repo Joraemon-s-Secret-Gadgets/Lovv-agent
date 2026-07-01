@@ -3,7 +3,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from lovv_agent_v2.agents.planner.agent import PlannerAgent, PlannerAgentRequest, PlannerAgentTools
-from lovv_agent_v2.agents.planner.context import (
+from lovv_agent_v2.agents.planner.state.context import (
+    direct_anchor_city_selection_result,
     fallback_places,
     int_value,
     mapping,
@@ -16,7 +17,7 @@ from lovv_agent_v2.agents.planner.context import (
     theme_weights,
     travel_time_provider,
 )
-from lovv_agent_v2.agents.planner.scratch import planner_scratch_mapping, planner_state_update
+from lovv_agent_v2.agents.planner.state.scratch import planner_scratch_mapping, planner_state_update
 from lovv_agent_v2.agents.planner.steps.assemble_itinerary.node import assemble_itinerary_node
 from lovv_agent_v2.agents.planner.steps.retrieve_places.festival_seed import festival_seed_places
 from lovv_agent_v2.agents.planner.steps.retry_alternative_city.node import (
@@ -26,7 +27,10 @@ from lovv_agent_v2.agents.planner.steps.retry_alternative_city.node import (
 
 
 def run_planner_agent(agent_input: Mapping[str, object]) -> dict[str, object]:
-    if not isinstance(agent_input.get("city_select"), Mapping):
+    if (
+        not isinstance(agent_input.get("city_select"), Mapping)
+        and direct_anchor_city_selection_result(agent_input) is None
+    ):
         return {
             "planner": {
                 "planner_output": None,
@@ -99,6 +103,9 @@ def _planner_agent_request(agent_input: Mapping[str, object]) -> PlannerAgentReq
         transport_pref=text(current_input["transport_pref"], "transport_pref"),
         min_count=int_value(current_input["min_count"], "min_count"),
         target_count=int_value(current_input["target_count"], "target_count"),
+        raw_query_vector=current_input["raw_query_vector"]
+        if isinstance(current_input["raw_query_vector"], tuple)
+        else (),
         fallback_raw_places=raw_places,
         fallback_soft_places=soft_places,
         festival_places=festival_seed_places(agent_input, selected_city),

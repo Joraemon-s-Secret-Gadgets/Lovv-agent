@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from lovv_agent_v2.agents.planner.place_model import PlannerPlace
+from lovv_agent_v2.agents.planner.domain.place_model import PlannerPlace
 from lovv_agent_v2.agents.planner.steps.route_days.place_selection import PlannerSelectionResult
 from lovv_agent_v2.agents.planner.steps.route_days.routing import RouteDay, RoutedPlace, RoutingResult
 

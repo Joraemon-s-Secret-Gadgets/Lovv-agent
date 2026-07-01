@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-from lovv_agent_v2.agents.planner.scratch import planner_scratch
+from lovv_agent_v2.agents.planner.state.scratch import planner_scratch
 from lovv_agent_v2.agents.planner.steps.retrieve_places.festival_seed import festival_seed_refs
 from lovv_agent_v2.agents.planner.steps.route_days.day_profile import trip_min_place_target, trip_place_target
 from lovv_agent_v2.agents.planner.tools import (
@@ -10,7 +10,8 @@ from lovv_agent_v2.agents.planner.tools import (
     runtime_tools_from_value,
     travel_time_provider_from_value,
 )
-from lovv_agent_v2.agents.planner.travel_time import TravelTimeProvider
+from lovv_agent_v2.agents.planner.external.travel_time import TravelTimeProvider
+from lovv_agent_v2.core.runtime_state import runtime_value
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
 
@@ -19,6 +20,7 @@ def planner_input(state: Mapping[str, object]) -> dict[str, object]:
     selected_city_payload = mapping(city_selection.get("selected_city"), "selected_city")
     city_input = planner_city_input(state)
     passthrough = optional_mapping(city_selection.get("passthrough"))
+    planner_hints = optional_mapping(city_selection.get("planner_hints"))
     trip_type = text(
         first_present(passthrough, "trip_duration", city_input.get("trip_type", "3d2n")),
         "trip_type",
@@ -45,15 +47,22 @@ def planner_input(state: Mapping[str, object]) -> dict[str, object]:
         ),
         "min_count": trip_min_place_target(trip_type),
         "target_count": trip_place_target(trip_type),
+        "raw_query_vector": float_tuple(planner_hints.get("raw_query_vector") if planner_hints else ()),
     }
 
 
 def runtime_tools(state: Mapping[str, object]) -> PlannerRuntimeTools | None:
-    return runtime_tools_from_value(planner_scratch(state).get("runtime"))
+    scratch_runtime = runtime_tools_from_value(planner_scratch(state).get("runtime"))
+    if scratch_runtime is not None:
+        return scratch_runtime
+    return runtime_tools_from_value(runtime_value(state, "planner_runtime"))
 
 
 def travel_time_provider(state: Mapping[str, object]) -> TravelTimeProvider:
-    return travel_time_provider_from_value(planner_scratch(state).get("travel_time_provider"))
+    scratch_provider = planner_scratch(state).get("travel_time_provider")
+    if scratch_provider is not None:
+        return travel_time_provider_from_value(scratch_provider)
+    return travel_time_provider_from_value(runtime_value(state, "travel_time_provider"))
 
 
 def fallback_places(
@@ -65,7 +74,7 @@ def fallback_places(
         return (), ()
     return (
         mapping_sequence(scoring_audit.get("recommended_places")),
-        mapping_sequence(scoring_audit.get("reserve_places")),
+        (),
     )
 
 
@@ -76,8 +85,83 @@ def selected_city(state: Mapping[str, object]) -> Mapping[str, object]:
 def city_selection_result(state: Mapping[str, object]) -> Mapping[str, object]:
     city_select = optional_mapping(state.get("city_select"))
     if city_select is None:
+        direct_anchor = direct_anchor_city_selection_result(state)
+        if direct_anchor is not None:
+            return direct_anchor
         raise SchemaValidationError("city_select must be present before planner")
     return mapping(city_select.get("city_selection_result"), "city_select.city_selection_result")
+
+
+def direct_anchor_city_selection_result(state: Mapping[str, object]) -> Mapping[str, object] | None:
+    city_input = planner_city_input(state)
+    destination_id = optional_text(city_input.get("destination_id"))
+    if destination_id is None:
+        return None
+    selection_source = _direct_anchor_selection_source(state, city_input, destination_id)
+    if selection_source is None:
+        return None
+    selected_city: dict[str, object] = {
+        "city_id": destination_id,
+        "destination_id": destination_id,
+        "selection_source": selection_source,
+    }
+    ddb_pk = optional_text(city_input.get("city_key")) or optional_text(city_input.get("ddb_pk"))
+    if ddb_pk is not None:
+        selected_city["ddb_pk"] = ddb_pk
+    destination_label = optional_text(city_input.get("destination_label"))
+    if destination_label is not None:
+        selected_city["city_name_ko"] = destination_label
+    return {
+        "selected_city": selected_city,
+        "alternative_city": None,
+        "seeds": (),
+        "passthrough": {
+            "active_themes": city_input.get("active_required_themes", ()),
+            "theme_weights": city_input.get("theme_weights"),
+            "trip_duration": city_input.get("trip_type", "3d2n"),
+            "transport_pref": city_input.get("transport_pref", "unknown"),
+        },
+        "selection_reason_code": (selection_source,),
+        "planner_hints": {selection_source: True},
+    }
+
+
+def _festivals_excluded(
+    state: Mapping[str, object],
+    city_input: Mapping[str, object],
+) -> bool:
+    request = optional_mapping(state.get("request"))
+    if request is not None and request.get("include_festivals") is False:
+        return True
+    return city_input.get("include_festivals") is False
+
+
+def _direct_anchor_selection_source(
+    state: Mapping[str, object],
+    city_input: Mapping[str, object],
+    destination_id: str,
+) -> str | None:
+    if _festivals_excluded(state, city_input):
+        return "direct_anchor_without_city_select"
+    if _festival_gate_confirms_anchor(state, destination_id):
+        return "festival_gated_anchor_without_city_select"
+    return None
+
+
+def _festival_gate_confirms_anchor(
+    state: Mapping[str, object],
+    destination_id: str,
+) -> bool:
+    festival_gate = optional_mapping(state.get("festival_gate"))
+    if festival_gate is None:
+        return False
+    result = optional_mapping(festival_gate.get("result"))
+    if result is None or result.get("status") != "ok":
+        return False
+    allowed_city_ids = result.get("allowed_city_ids")
+    if not isinstance(allowed_city_ids, (list, tuple)):
+        return False
+    return destination_id in allowed_city_ids
 
 
 def planner_city_input(state: Mapping[str, object]) -> Mapping[str, object]:
@@ -151,14 +235,21 @@ def theme_weights(value: object) -> Mapping[str, float] | None:
     }
 
 
+def float_tuple(value: object) -> tuple[float, ...]:
+    if not isinstance(value, (list, tuple)):
+        return ()
+    vector: list[float] = []
+    for item in value:
+        if isinstance(item, bool) or not isinstance(item, (int, float)):
+            return ()
+        vector.append(float(item))
+    return tuple(vector)
+
+
 def first_present(mapping_value: Mapping[str, object] | None, key: str, default: object) -> object:
     if mapping_value is not None and key in mapping_value:
         return mapping_value[key]
     return default
-
-
-def top_k(target_count: object) -> int:
-    return max(int_value(target_count, "target_count") * 3, 12)
 
 
 def text(value: object, field_name: str) -> str:

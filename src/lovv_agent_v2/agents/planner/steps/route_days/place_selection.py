@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from lovv_agent_v2.agents.planner.place_model import (
+from lovv_agent_v2.agents.planner.domain.place_model import (
     PlannerPlace,
     coerce_place,
     merge_by_place_id,
@@ -12,12 +12,12 @@ from lovv_agent_v2.agents.planner.place_model import (
     selection_sort_key,
     theme_tuple,
     with_seed_flag,
+    with_semantic_seed_source,
+    with_soft_channel,
 )
 from lovv_agent_v2.agents.planner.steps.route_days.day_profile import bounded_min_place_target
 from lovv_agent_v2.agents.planner.steps.route_days.selection_policy import (
     ThemeSelectionInput,
-    facet_theme_for_subtype,
-    matches_any_theme,
     primary_theme,
     select_by_theme_quota,
     selected_theme_counts,
@@ -28,12 +28,7 @@ from lovv_agent_v2.agents.planner.steps.route_days.subtype_diversity import (
     apply_theme_subtype_cap,
     subtype_counts,
 )
-DEFAULT_RELEVANCE_RATIO = 0.6
-TRIP_RELEVANCE_RATIOS: Mapping[str, float] = {
-    "daytrip": 0.7,
-    "2d1n": 0.6,
-    "3d2n": 0.5,
-}
+SOFT_RELEVANCE_RATIO = 0.6
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,28 +66,26 @@ def build_working_set(selection_input: PlannerSelectionInput) -> PlannerSelectio
         target_count,
         min_count_override,
     )
-    ratio = TRIP_RELEVANCE_RATIOS.get(selection_input.trip_type, DEFAULT_RELEVANCE_RATIO)
-
-    best_raw = max((place.similarity for place in raw_places), default=0.0)
-    raw_threshold = round(best_raw * ratio, 4)
     raw_relevant = tuple(
         with_seed_flag(place, selected_seed_ids)
         for place in raw_places
-        if place.similarity >= raw_threshold or place.place_id in selected_seed_ids
     )
     raw_kept = tuple(place for place in raw_relevant if _scope_theme(place, themes) is not None or place.is_seed)
-    raw_ids = {place.place_id for place in raw_kept}
 
     best_soft = max((place.soft_similarity for place in soft_places), default=0.0)
-    soft_threshold = round(best_soft * DEFAULT_RELEVANCE_RATIO, 4)
+    soft_threshold = round(best_soft * SOFT_RELEVANCE_RATIO, 4)
     soft_candidates = tuple(
         with_seed_flag(place, selected_seed_ids)
         for place in soft_places
-        if place.place_id not in raw_ids and place.soft_similarity >= soft_threshold
+        if place.soft_similarity >= soft_threshold
     )
     soft_on_theme = tuple(place for place in soft_candidates if _scope_theme(place, themes) is not None)
     soft_off_theme = tuple(place for place in soft_candidates if _scope_theme(place, themes) is None)
-    merged = merge_by_place_id((*raw_kept, *soft_on_theme))
+    raw_kept = _merge_raw_soft_overlap(raw_kept, soft_on_theme)
+    raw_ids = {place.place_id for place in raw_kept}
+    unique_soft_on_theme = tuple(place for place in soft_on_theme if place.place_id not in raw_ids)
+    raw_soft_overlap_count = len(soft_on_theme) - len(unique_soft_on_theme)
+    merged = merge_by_place_id((*raw_kept, *unique_soft_on_theme))
     quotas = theme_quota(themes, selection_input.theme_weights, target_count)
     selected = select_by_theme_quota(
         ThemeSelectionInput(
@@ -103,9 +96,6 @@ def build_working_set(selection_input: PlannerSelectionInput) -> PlannerSelectio
             sort_key=selection_sort_key,
             theme_key=lambda place: _scope_theme(place, themes),
         ),
-    )
-    facet_expansion = tuple(
-        place for place in merged if not matches_any_theme(place, themes) and _scope_theme(place, themes) is not None
     )
     off_theme_excluded_count = sum(1 for place in raw_relevant if _scope_theme(place, themes) is None)
     subtype_cap = apply_theme_subtype_cap(
@@ -121,23 +111,27 @@ def build_working_set(selection_input: PlannerSelectionInput) -> PlannerSelectio
         ),
     )
     selected = subtype_cap.places
+    selected, semantic_anchor_seed_ids = _promote_semantic_anchor_seeds(selected, themes)
     selected_ids = {place.place_id for place in selected}
     reserve = tuple(place for place in merged if place.place_id not in selected_ids)
     audit: dict[str, object] = {
-        "relevance_ratio": ratio,
-        "relative_threshold": raw_threshold,
+        "relevance_ratio": None,
+        "relative_threshold": None,
+        "raw_relevance_policy": "disabled_use_active_theme_gate",
         "raw_kept_count": len(raw_kept),
-        "seed_preserved_count": sum(
-            1 for place in selected if place.is_seed and place.similarity < raw_threshold
-        ),
+        "seed_preserved_count": sum(1 for place in selected if place.is_seed),
+        "semantic_anchor_seed_count": len(semantic_anchor_seed_ids),
+        "semantic_anchor_seed_ids": semantic_anchor_seed_ids,
+        "semantic_anchor_seed_policy": "theme_top1_after_planner_gate",
         "soft_threshold": soft_threshold,
-        "soft_on_theme_added_count": len(soft_on_theme),
+        "soft_on_theme_added_count": len(unique_soft_on_theme),
         "soft_off_theme_excluded_count": len(soft_off_theme),
+        "raw_soft_overlap_count": raw_soft_overlap_count,
         "no_theme_gate_added_count": 0,
         "no_theme_gate_policy": "disabled_by_v2_26_theme_scope",
-        "facet_expansion_added_count": len(facet_expansion),
+        "facet_expansion_added_count": 0,
         "off_theme_excluded_count": off_theme_excluded_count + len(soft_off_theme),
-        "theme_scope_policy": "single_theme_facet_or_active_theme_only",
+        "theme_scope_policy": "active_theme_only_no_facet_expansion",
         "theme_quota": quotas,
         "theme_counts": selected_theme_counts(
             selected,
@@ -155,10 +149,59 @@ def build_working_set(selection_input: PlannerSelectionInput) -> PlannerSelectio
     return PlannerSelectionResult(places=selected, reserve=reserve, audit=audit)
 
 
+def _promote_semantic_anchor_seeds(
+    places: tuple[PlannerPlace, ...],
+    themes: tuple[str, ...],
+) -> tuple[tuple[PlannerPlace, ...], tuple[str, ...]]:
+    if not places or any(place.is_seed for place in places):
+        return places, ()
+    anchor_ids = _semantic_anchor_seed_ids(places, themes)
+    if not anchor_ids:
+        return places, ()
+    return (
+        tuple(
+            with_semantic_seed_source(place, "theme_top1")
+            if place.place_id in anchor_ids
+            else place
+            for place in places
+        ),
+        anchor_ids,
+    )
+
+
+def _semantic_anchor_seed_ids(
+    places: tuple[PlannerPlace, ...],
+    themes: tuple[str, ...],
+) -> tuple[str, ...]:
+    if not themes:
+        return ()
+    anchor_ids: list[str] = []
+    for theme in themes:
+        candidates = tuple(place for place in places if _scope_theme(place, themes) == theme)
+        if candidates:
+            anchor_ids.append(max(candidates, key=selection_sort_key).place_id)
+    return tuple(dict.fromkeys(anchor_ids))
+
+
 def _scope_theme(place: PlannerPlace, themes: tuple[str, ...]) -> str | None:
     if not themes:
         return primary_theme(place, themes)
     active_theme = next((theme for theme in themes if theme in place.theme_tags), None)
     if active_theme is not None:
         return active_theme
-    return facet_theme_for_subtype(place.payload, themes)
+    return None
+
+
+def _merge_raw_soft_overlap(
+    raw_places: tuple[PlannerPlace, ...],
+    soft_places: tuple[PlannerPlace, ...],
+) -> tuple[PlannerPlace, ...]:
+    soft_by_id: dict[str, PlannerPlace] = {}
+    for place in sorted(soft_places, key=selection_sort_key, reverse=True):
+        soft_by_id.setdefault(place.place_id, place)
+    return tuple(
+        with_soft_channel(place, soft_by_id[place.place_id])
+        if place.place_id in soft_by_id
+        else place
+        for place in raw_places
+    )

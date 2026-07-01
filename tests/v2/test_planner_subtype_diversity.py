@@ -168,10 +168,11 @@ def test_multi_theme_subtype_cap_refills_each_theme_quota_from_pool() -> None:
     assert result.audit["theme_counts"] == {"바다·해안": 3, "역사·문화": 3}
 
 
-def test_single_theme_facet_expansion_admits_only_allowed_subtypes() -> None:
+def test_single_theme_keeps_active_theme_gate_without_facet_expansion() -> None:
     raw_places = (
         _place("sea-1", "Sea 1", 0.92, "바다·해안", subtype="해변", subtype_code="NA020700"),
         _place("coastal-rock", "Coastal Rock", 0.90, "자연", subtype="해안절경", subtype_code="NA020800"),
+        _place("sunset-tower", "Sunset Tower", 0.88, "예술·감성", subtype="전망대", subtype_code="VE010200"),
         _place("inland-park", "Inland Park", 0.89, "자연", subtype="공원", subtype_code="NA040300"),
     )
 
@@ -183,12 +184,13 @@ def test_single_theme_facet_expansion_admits_only_allowed_subtypes() -> None:
             active_themes=("바다·해안",),
             theme_weights=None,
             trip_type="daytrip",
-            target_count=3,
-            min_count=2,
+            target_count=4,
+            min_count=3,
         ),
     )
 
     selected_ids = {place.place_id for place in result.places}
-    assert selected_ids == {"sea-1", "coastal-rock"}
-    assert result.audit["facet_expansion_added_count"] == 1
-    assert result.audit["off_theme_excluded_count"] == 1
+    assert selected_ids == {"sea-1"}
+    assert result.audit["facet_expansion_added_count"] == 0
+    assert result.audit["off_theme_excluded_count"] == 3
+    assert result.audit["theme_scope_policy"] == "active_theme_only_no_facet_expansion"

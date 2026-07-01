@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
+from typing import Final
 
 from lovv_agent_v2.models.schemas import SchemaValidationError
+
+RAW_SIMILARITY_BLEND_WEIGHT: Final = 0.7
+SOFT_SIMILARITY_BLEND_WEIGHT: Final = 0.3
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +44,32 @@ def with_seed_flag(place: PlannerPlace, selected_seed_ids: set[str]) -> PlannerP
     return replace(place, is_seed=place.place_id in selected_seed_ids)
 
 
+def with_semantic_seed_source(place: PlannerPlace, seed_source: str) -> PlannerPlace:
+    payload = dict(place.payload)
+    payload["seed_source"] = seed_source
+    return replace(place, is_seed=True, payload=payload)
+
+
+def with_soft_channel(place: PlannerPlace, soft_place: PlannerPlace) -> PlannerPlace:
+    blended_similarity = round(
+        (place.similarity * RAW_SIMILARITY_BLEND_WEIGHT)
+        + (soft_place.soft_similarity * SOFT_SIMILARITY_BLEND_WEIGHT),
+        4,
+    )
+    payload = dict(place.payload)
+    score_audit = dict(_mapping(payload.get("score_audit")))
+    score_components = dict(_mapping(score_audit.get("score_components")))
+    score_components["raw_similarity"] = place.similarity
+    score_components["soft_similarity"] = soft_place.soft_similarity
+    score_components["raw_soft_blended_similarity"] = blended_similarity
+    score_audit["score_components"] = score_components
+    payload["score_audit"] = score_audit
+    payload["soft_similarity"] = soft_place.soft_similarity
+    payload["raw_soft_blended_similarity"] = blended_similarity
+    payload["retrieval_channels"] = ("raw", "soft")
+    return replace(place, soft_similarity=soft_place.soft_similarity, payload=payload)
+
+
 def merge_by_place_id(places: Sequence[PlannerPlace]) -> tuple[PlannerPlace, ...]:
     merged: dict[str, PlannerPlace] = {}
     for place in sorted(places, key=selection_sort_key, reverse=True):
@@ -47,8 +77,8 @@ def merge_by_place_id(places: Sequence[PlannerPlace]) -> tuple[PlannerPlace, ...
     return tuple(merged.values())
 
 
-def selection_sort_key(place: PlannerPlace) -> tuple[bool, float, float]:
-    return (place.is_seed, place.soft_similarity, place.similarity)
+def selection_sort_key(place: PlannerPlace) -> tuple[bool, float, float, float]:
+    return (place.is_seed, _ranking_similarity(place), place.soft_similarity, place.similarity)
 
 
 def seed_ids(seeds: Sequence[Mapping[str, object]]) -> set[str]:
@@ -77,6 +107,13 @@ def text(value: object, field_name: str) -> str:
 
 def _mapping(value: object) -> Mapping[str, object]:
     return value if isinstance(value, Mapping) else {}
+
+
+def _ranking_similarity(place: PlannerPlace) -> float:
+    ranking_similarity = _float(place.payload.get("raw_soft_blended_similarity"))
+    if ranking_similarity > 0:
+        return ranking_similarity
+    return place.soft_similarity
 
 
 def _optional_text(value: object) -> str | None:

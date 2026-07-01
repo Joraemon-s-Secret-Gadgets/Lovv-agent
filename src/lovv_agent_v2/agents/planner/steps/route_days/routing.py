@@ -3,15 +3,14 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from lovv_agent_v2.agents.planner.place_model import PlannerPlace
+from lovv_agent_v2.agents.planner.domain.place_model import PlannerPlace, selection_sort_key
 from lovv_agent_v2.agents.planner.steps.route_days.day_profile import day_place_targets, trip_day_count
 from lovv_agent_v2.agents.planner.steps.route_days.route_metrics import (
     DurationLookup,
     day_travel_min,
-    distance_from_group,
     max_leg_min,
+    travel_time_from_group,
 )
-from lovv_agent_v2.agents.planner.steps.route_days.slot_preference import order_by_slot_preference
 
 MAX_DRIVE_LEG_MIN = 60.0
 MAX_DRIVE_DAY_MIN = 150.0
@@ -132,7 +131,7 @@ def _nearest_neighbor_order(
         next_place = min(remaining, key=lambda place: lookup.minutes(previous, place))
         ordered.append(next_place)
         remaining.remove(next_place)
-    return order_by_slot_preference(ordered)
+    return tuple(ordered)
 
 
 def _trim_over_limit(
@@ -149,7 +148,7 @@ def _trim_over_limit(
         if candidate is None:
             candidate = max(
                 (place for place in kept if not place.is_seed),
-                key=lambda place: distance_from_group(place, tuple(kept), lookup),
+                key=lambda place: travel_time_from_group(place, tuple(kept), lookup),
                 default=None,
             )
         if candidate is None:
@@ -236,5 +235,5 @@ def _audit(
     return audit
 
 
-def _sort_key(place: PlannerPlace) -> tuple[bool, float, float]:
-    return (place.is_seed, place.soft_similarity, place.similarity)
+def _sort_key(place: PlannerPlace) -> tuple[bool, float, float, float]:
+    return selection_sort_key(place)

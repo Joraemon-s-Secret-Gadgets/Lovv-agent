@@ -4,8 +4,8 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from lovv_agent_v2.agents.planner.place_model import PlannerPlace
-from lovv_agent_v2.agents.planner.travel_time import DRIVING_KMH
+from lovv_agent_v2.agents.planner.domain.place_model import PlannerPlace
+from lovv_agent_v2.agents.planner.external.travel_time import DRIVING_KMH
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,7 +28,7 @@ def max_leg_min(places: tuple[PlannerPlace, ...], lookup: DurationLookup) -> flo
     return max((lookup.minutes(first, second) for first, second in zip(places, places[1:])), default=0.0)
 
 
-def distance_from_group(
+def travel_time_from_group(
     place: PlannerPlace,
     places: tuple[PlannerPlace, ...],
     lookup: DurationLookup,

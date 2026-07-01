@@ -4,11 +4,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol, cast
 
-from lovv_agent_v2.agents.planner.ors_provider import (
+from lovv_agent_v2.agents.planner.external.ors_provider import (
     OrsProviderUnavailableError,
     ors_provider_from_env,
 )
-from lovv_agent_v2.agents.planner.travel_time import HaversineTravelTimeProvider, TravelTimeProvider
+from lovv_agent_v2.agents.planner.external.travel_time import HaversineTravelTimeProvider, TravelTimeProvider
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
 

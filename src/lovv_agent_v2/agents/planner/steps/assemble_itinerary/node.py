@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from lovv_agent_v2.agents.planner.context import (
+from lovv_agent_v2.agents.planner.state.context import (
     city_selection_result,
     float_value,
     int_value,
@@ -16,7 +16,7 @@ from lovv_agent_v2.agents.planner.context import (
     string_tuple,
     text,
 )
-from lovv_agent_v2.agents.planner.scratch import planner_scratch_mapping, planner_state_update
+from lovv_agent_v2.agents.planner.state.scratch import planner_scratch_mapping, planner_state_update
 from lovv_agent_v2.agents.planner.steps.route_days.day_profile import slot_label_for_order
 from lovv_agent_v2.models.schemas import PlannerOutput
 
