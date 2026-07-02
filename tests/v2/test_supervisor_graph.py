@@ -36,6 +36,25 @@ def test_supervisor_routes_itinerary_confirmation_to_profile_before_end() -> Non
     assert result["routing"]["completed_groups"] == []
 
 
+def test_supervisor_routes_confirmation_to_profile_after_pending_response() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "intent_type": "itinerary_confirmed",
+                "recommendation_id": "REC-1",
+            },
+            "profile": {"audit": {"profile_active": False}},
+            "response": {
+                "response_status": "modification_pending",
+                "response_payload": {"recommendationId": "REC-1"},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "profile"
+    assert result["routing"]["completed_groups"] == ["profile", "response"]
+
+
 def test_supervisor_ends_after_itinerary_confirmation_profile_update() -> None:
     result = supervisor_node(
         {

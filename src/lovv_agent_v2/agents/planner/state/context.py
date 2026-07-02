@@ -69,14 +69,8 @@ def travel_time_provider(state: Mapping[str, object]) -> TravelTimeProvider:
 def fallback_places(
     state: Mapping[str, object],
 ) -> tuple[tuple[Mapping[str, object], ...], tuple[Mapping[str, object], ...]]:
-    city_select = optional_mapping(state.get("city_select"))
-    scoring_audit = optional_mapping(city_select.get("scoring_audit")) if city_select else None
-    if scoring_audit is None:
-        return (), ()
-    return (
-        mapping_sequence(scoring_audit.get("recommended_places")),
-        (),
-    )
+    del state
+    return (), ()
 
 
 def selected_city(state: Mapping[str, object]) -> Mapping[str, object]:

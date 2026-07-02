@@ -79,6 +79,11 @@
 **응답 규칙**: City Select 입력은 `state.intent.city_select_input`, 출력은 `state.city_select.city_selection_result`에 둔다. Festival은 `state.festival_gate`, Packager는 `state.response`를 소유한다. 과거 포팅 문서의 `CandidateEvidence*` 표현은 legacy 제거 대상 또는 baseline 설명으로만 해석한다.
 **정본**: `V2_23_STATE_CONTRACT_DIRECTIVE.md`.
 
+### ✅ Weather 기반 alternative itinerary  (2026-07-01)
+**결정**: `city_monthly_weather_risks.json`은 primary itinerary를 바꾸는 city_select ranking 요소가 아니라, planner 후단의 weather notice 및 optional `alternative_itinerary` 생성 trigger로 사용한다. Lookup key는 `(selected_city_id, travel_month)`이며, risk row가 없으면 실패하지 않고 notice/alternative 없이 진행한다.
+**응답 규칙**: `alternative_itinerary`는 기본 일정의 자동 대체가 아니라 weather-sensitive outdoor/mixed non-seed slot에 대한 backup proposal이다. 사용자는 primary itinerary를 그대로 받고, weather risk가 높을 때만 평년 기준 weather notice와 대체 후보를 함께 본다. live forecast처럼 표현하지 않는다.
+**정본**: `V2_32_ALTERNATIVE_ITINERARY_WEATHER_DIRECTIVE.md`.
+
 ---
 
 ## 전체 확정 요약 (Step 4 완료 · 2026-06-28)

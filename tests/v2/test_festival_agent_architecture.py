@@ -9,6 +9,7 @@ from lovv_agent_v2.agents.festival_verifier import tools as festival_tools_modul
 from lovv_agent_v2.agents.festival_verifier.agent import FestivalVerifierAgent
 from lovv_agent_v2.agents.festival_verifier.contracts import FestivalVerifierInput
 from lovv_agent_v2.agents.festival_verifier.tools import FestivalVerifierTools
+from lovv_agent_v2.core.runtime_state import invocation_runtime
 from lovv_agent_v2.infra.dynamo_lookup import FestivalSeedResult
 from lovv_agent_v2.models.schemas import CitySelectInput
 
@@ -98,6 +99,26 @@ def test_festival_node_uses_injected_runtime_tools(monkeypatch) -> None:
             },
         },
     )
+
+    assert result["festival_gate"]["allowed_city_ids"] == ["KR-36-4"]
+
+
+def test_festival_node_uses_invocation_runtime_tools(monkeypatch) -> None:
+    def fail_default_tools() -> FestivalVerifierTools:
+        raise AssertionError("default festival verifier tools should not be used")
+
+    monkeypatch.setattr(festival_node_module, "build_festival_verifier_tools", fail_default_tools)
+
+    with invocation_runtime(
+        {
+            "festival_verifier_tools": FestivalVerifierTools(
+                festival_lookup=RecordingFestivalLookup(),
+            ),
+        },
+    ):
+        result = festival_node_module.festival_verifier_node(
+            {"intent": {"city_select_input": _city_input().to_dict()}},
+        )
 
     assert result["festival_gate"]["allowed_city_ids"] == ["KR-36-4"]
 

@@ -46,14 +46,14 @@ def route_next_action(state: UnifiedAgentState) -> str:
 
 
 def _next_node(state: Mapping[str, Any], *, reason_code: str | None) -> str:
+    if _is_itinerary_confirmation_state(state):
+        return END_ROUTE if _has_profile_update(state) else "profile"
     if _has_response_payload(state):
         return END_ROUTE
     if reason_code is not None:
         return "response_packager"
     if not _has_profile_result(state):
         return "profile"
-    if _is_itinerary_confirmation_state(state):
-        return END_ROUTE
     if not _has_festival_gate_result(state) and not _festivals_excluded(state):
         return "festival_verifier"
     if _city_select_needs_response(state):
@@ -101,6 +101,11 @@ def _clarification_reason_code(state: Mapping[str, Any]) -> str | None:
 def _has_profile_result(state: Mapping[str, Any]) -> bool:
     profile = state.get("profile")
     return isinstance(profile, Mapping) and "audit" in profile
+
+
+def _has_profile_update(state: Mapping[str, Any]) -> bool:
+    profile = state.get("profile")
+    return isinstance(profile, Mapping) and isinstance(profile.get("profile_update"), Mapping)
 
 
 def _is_itinerary_confirmation_state(state: Mapping[str, Any]) -> bool:

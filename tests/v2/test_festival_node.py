@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import Command
+
 from lovv_agent_v2.agents.festival_verifier import node as festival_node_module
 from lovv_agent_v2.agents.festival_verifier.node import festival_verifier_node
 from lovv_agent_v2.agents.festival_verifier.tools import FestivalVerifierTools
-from lovv_agent_v2.core.graph import compile_v2_graph
+from lovv_agent_v2.core.graph import compile_v2_graph_with_nodes
 from lovv_agent_v2.infra.dynamo_lookup import FestivalSeedResult
 
 
@@ -135,22 +138,35 @@ def test_festival_verifier_node_writes_public_shape_when_skipped() -> None:
 
 def test_graph_stops_before_city_select_when_festival_needs_clarification() -> None:
     # Given: tentative festival data requires a user choice.
-    graph = compile_v2_graph()
+    graph = compile_v2_graph_with_nodes(
+        intent_handler=lambda state: {},
+        profile_handler=lambda state: {"profile": {"audit": {}}},
+        checkpointer=MemorySaver(),
+    )
+    config = {"configurable": {"thread_id": "festival-clarification"}}
     state = {
         "intent": {"city_select_input": _city_input()},
         "festival_gate": {"candidates": (_festival_candidate("F-T"),)},
     }
 
     # When: the graph is invoked.
-    result = graph.invoke(state)
+    result = graph.invoke(state, config=config)
 
-    # Then: city_select is not called; the graph ends with a pending clarification.
-    assert "city_select" not in result
-    assert result["festival_gate"]["result"]["status"] == "needs_clarification"
-    assert result["festival_gate"]["clarification"]["reason_code"] == "festival_tentative"
-    assert result["routing"]["next_node"] == "end"
-    assert result["response"]["response_status"] == "END_WAIT_USER"
-    assert result["response"]["response_payload"]["clarification"]["reasonCode"] == "festival_tentative"
+    # Then: city_select is not called; the graph pauses with a pending clarification.
+    assert "__interrupt__" in result
+    assert "city_select" not in graph.get_state(config).values
+    interrupt_payload = result["__interrupt__"][0].value
+    assert interrupt_payload["clarification"]["reasonCode"] == "festival_tentative"
+
+    resumed = graph.invoke(
+        Command(resume={"optionId": "continue_without_festival"}),
+        config=config,
+    )
+
+    assert resumed["response"]["response_status"] == "END_WAIT_USER"
+    assert resumed["response"]["clarification_resume"] == {
+        "optionId": "continue_without_festival",
+    }
 
 
 class RecordingFestivalLookup:

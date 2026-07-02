@@ -59,9 +59,10 @@ class PlannerAgent:
         return PlannerAgentResult(place_pool=place_pool, selection=selection, route=route)
 
     def retrieve_places(self, request: PlannerAgentRequest) -> dict[str, object]:
+        seed_places = _seed_places(request.seeds)
         runtime = self.tools.runtime
         if runtime is None:
-            raw_places = (*request.fallback_raw_places, *request.festival_places)
+            raw_places = (*seed_places, *request.fallback_raw_places, *request.festival_places)
             soft_places = request.fallback_soft_places
             return {
                 "raw_places": raw_places,
@@ -78,14 +79,14 @@ class PlannerAgent:
         raw_places = _candidate_payloads(
             runtime.destination_search.search_candidates(
                 _raw_query_vector(request, runtime),
-                top_k=_top_k(),
+                top_k=PLANNER_RETRIEVAL_TOP_K,
                 city_id=request.city_id,
                 ddb_pk=None,
                 theme=None,
             ),
             similarity_key="raw_similarity",
         )
-        raw_places = (*raw_places, *request.festival_places)
+        raw_places = (*seed_places, *raw_places, *request.festival_places)
         soft_places = _soft_channel(request, runtime)
         return {
             "raw_places": raw_places,
@@ -119,7 +120,7 @@ class PlannerAgent:
         provider = self.tools.travel_time_provider
         snapped = provider.snap_places(tuple(place.payload for place in selection.places), request.transport_pref)
         excluded_ids = set(snapped.excluded_place_ids)
-        snapped_ids = {_place_id(place) for place in snapped.places}
+        snapped_ids = {_required_text(place.get("place_id", place.get("placeId")), "place_id") for place in snapped.places}
         routable = tuple(
             place for place in selection.places if place.place_id in snapped_ids and place.place_id not in excluded_ids
         )
@@ -158,12 +159,12 @@ def _soft_channel(
     if not soft_query:
         return ()
     return _candidate_payloads(
-        runtime.destination_search.search_candidates(
-            runtime.embedding.embed_query(soft_query),
-            top_k=_top_k(),
-            city_id=request.city_id,
-            ddb_pk=None,
-            theme=None,
+            runtime.destination_search.search_candidates(
+                runtime.embedding.embed_query(soft_query),
+                top_k=PLANNER_RETRIEVAL_TOP_K,
+                city_id=request.city_id,
+                ddb_pk=None,
+                theme=None,
         ),
         similarity_key="soft_similarity",
     )
@@ -204,11 +205,42 @@ def _candidate_payload(candidate: object) -> Mapping[str, object]:
     if isinstance(candidate, Mapping):
         return candidate
     to_dict = getattr(candidate, "to_dict", None)
-    if callable(to_dict):
-        payload = to_dict()
-        if isinstance(payload, Mapping):
-            return payload
+    if callable(to_dict) and isinstance(payload := to_dict(), Mapping):
+        return payload
     raise SchemaValidationError("candidate must be a mapping or expose to_dict")
+
+
+def _seed_places(seeds: Sequence[Mapping[str, object]]) -> tuple[Mapping[str, object], ...]:
+    return tuple(payload for seed in seeds if (payload := _seed_place(seed)) is not None)
+
+
+def _seed_place(seed: Mapping[str, object]) -> Mapping[str, object] | None:
+    if (place_id := _optional_text(seed.get("place_id", seed.get("placeId")))) is None:
+        return None
+    if (title := _optional_text(seed.get("title"))) is None:
+        return None
+    theme = _optional_text(seed.get("theme"))
+    if not (theme_tags := _theme_tags(seed, theme)):
+        return None
+    raw_similarity = _optional_number(seed.get("sim", seed.get("raw_similarity"))) or 1.0
+    return {
+        **dict(seed),
+        "place_id": place_id,
+        "title": title,
+        "theme_tags": theme_tags,
+        "assigned_theme": _optional_text(seed.get("assigned_theme")) or theme_tags[0],
+        "score_audit": {"score_components": {"raw_similarity": raw_similarity}},
+        "soft_similarity": _optional_number(seed.get("soft_similarity")) or raw_similarity,
+    }
+
+
+def _theme_tags(seed: Mapping[str, object], theme: str | None) -> tuple[str, ...]:
+    value = seed.get("theme_tags", seed.get("themeTags"))
+    if isinstance(value, str):
+        return (value.strip(),) if value.strip() else ()
+    if isinstance(value, (list, tuple)):
+        return tuple(item.strip() for item in value if isinstance(item, str) and item.strip())
+    return (theme,) if theme is not None else ()
 
 
 def _retrieve_audit(
@@ -232,9 +264,9 @@ def _retrieve_audit(
 
 
 def _mapping_sequence(value: object) -> tuple[Mapping[str, object], ...]:
-    if not isinstance(value, (list, tuple)):
-        return ()
-    return tuple(_mapping(item, "mapping sequence item") for item in value)
+    return () if not isinstance(value, (list, tuple)) else tuple(
+        _mapping(item, "mapping sequence item") for item in value
+    )
 
 
 def _mapping(value: object, field_name: str) -> Mapping[str, object]:
@@ -253,10 +285,5 @@ def _optional_text(value: object) -> str | None:
     return value.strip() if isinstance(value, str) and value.strip() else None
 
 
-def _place_id(place: Mapping[str, object]) -> str:
-    value = place.get("place_id", place.get("placeId"))
-    return _required_text(value, "place_id")
-
-
-def _top_k() -> int:
-    return PLANNER_RETRIEVAL_TOP_K
+def _optional_number(value: object) -> float | None:
+    return None if isinstance(value, bool) or not isinstance(value, (int, float)) else float(value)

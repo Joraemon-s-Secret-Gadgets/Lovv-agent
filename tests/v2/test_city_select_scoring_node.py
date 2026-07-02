@@ -94,6 +94,8 @@ def test_scoring_node_packages_no_festival_path_without_seed_result(
     fallback_audit = city_select["scoring_audit"]["fallback_audit"]
     assert city_result["selected_city"]["city_id"] == "KR-TEST"
     assert city_select["scoring_audit"]["selected_festival_candidates"] == []
+    assert "recommended_places" not in city_select["scoring_audit"]
+    assert "recommended_places_by_city" not in city_select["scoring_audit"]
     assert "selected_city_rank" not in fallback_audit
     assert "city_reselected_for_itinerary_capacity" not in fallback_audit
     assert "reserve_places" not in city_select["scoring_audit"]
@@ -161,7 +163,7 @@ def test_scoring_node_preserves_subtype_metadata_for_planner_handoff(
 
     result = scoring_and_selection_node(state)
 
-    recommended = result["city_select"]["scoring_audit"]["recommended_places"]
-    assert recommended[0]["attraction_subtype_code"] == "NA020900"
-    assert "attraction_subtype_name" not in recommended[0]
-    assert "lcls_systm3" not in recommended[0]
+    seeds = result["city_select"]["city_selection_result"]["seeds"]
+    assert seeds[0]["attraction_subtype_code"] == "NA020900"
+    assert "attraction_subtype_name" not in seeds[0]
+    assert "lcls_systm3" not in seeds[0]

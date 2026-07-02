@@ -14,21 +14,48 @@ from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
 INTENT_PROMPT_SCHEMA_NAME: Final = "lovv_v2_intent_output"
 _REQUIRED_FIELDS: Final = (
-    "country", "travel_month", "travel_year", "trip_type",
-    "active_required_themes", "include_festivals", "cleaned_raw_query",
-    "soft_preference_query", "unsupported_conditions", "destination_id",
-    "user_location", "execution_mode", "congestion_pref", "transport_pref",
-    "preferred_theme_ids", "disliked_theme_ids", "preferred_region_ids",
-    "disliked_region_ids", "preferred_region_names", "disliked_region_names",
-    "needs_clarification", "clarifying_question", "contradiction_reasons",
+    "country",
+    "travel_month",
+    "travel_year",
+    "trip_type",
+    "active_required_themes",
+    "include_festivals",
+    "cleaned_raw_query",
+    "soft_preference_query",
+    "unsupported_conditions",
+    "destination_id",
+    "user_location",
+    "execution_mode",
+    "congestion_pref",
+    "transport_pref",
+    "preferred_theme_ids",
+    "disliked_theme_ids",
+    "preferred_region_ids",
+    "disliked_region_ids",
+    "preferred_region_names",
+    "disliked_region_names",
+    "needs_clarification",
+    "clarifying_question",
+    "contradiction_reasons",
 )
 _THEME_ID_ENUM: Final = (
-    "sea_coast", "nature_trekking", "history_tradition",
-    "art_sense", "healing_rest", "food_local",
+    "sea_coast",
+    "nature_trekking",
+    "history_tradition",
+    "art_sense",
+    "healing_rest",
+    "food_local",
 )
 _REGION_ID_ENUM: Final = (
-    "gangwon", "gyeongbuk", "sokcho", "andong", "gyeongju",
-    "gangneung", "samcheok", "yeongju", "uljin",
+    "gangwon",
+    "gyeongbuk",
+    "sokcho",
+    "andong",
+    "gyeongju",
+    "gangneung",
+    "samcheok",
+    "yeongju",
+    "uljin",
 )
 INTENT_PROMPT_TEXT: Final = """You are Lovv V2 Intent Agent.
 Extract the user's travel intent from the API request and natural-language query.
@@ -89,31 +116,19 @@ INTENT_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
         "transport_pref": {"type": "string", "enum": ["walk", "car", "unknown"]},
         "preferred_theme_ids": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "enum": list(_THEME_ID_ENUM),
-            },
+            "items": {"type": "string", "enum": list(_THEME_ID_ENUM)},
         },
         "disliked_theme_ids": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "enum": list(_THEME_ID_ENUM),
-            },
+            "items": {"type": "string", "enum": list(_THEME_ID_ENUM)},
         },
         "preferred_region_ids": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "enum": list(_REGION_ID_ENUM),
-            },
+            "items": {"type": "string", "enum": list(_REGION_ID_ENUM)},
         },
         "disliked_region_ids": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "enum": list(_REGION_ID_ENUM),
-            },
+            "items": {"type": "string", "enum": list(_REGION_ID_ENUM)},
         },
         "preferred_region_names": {"type": "array", "items": {"type": "string"}},
         "disliked_region_names": {"type": "array", "items": {"type": "string"}},
@@ -196,16 +211,7 @@ def validate_intent_prompt_output(payload: Mapping[str, Any]) -> PromptIntentRes
         value = normalized_payload.get(field_name)
         if isinstance(value, str) and not value.strip():
             normalized_payload[field_name] = None
-    raw_query = normalized_payload.get("cleaned_raw_query")
-    soft_query = normalized_payload.get("soft_preference_query")
-    raw_text = raw_query if isinstance(raw_query, str) else ""
-    soft_text = soft_query if isinstance(soft_query, str) else ""
-    if (
-        normalized_payload.get("congestion_pref") != "neutral"
-        and not any(keyword in raw_text for keyword in _CONGESTION_SIGNAL_KEYWORDS)
-        and any(keyword in soft_text for keyword in _CONGESTION_SIGNAL_KEYWORDS)
-    ):
-        normalized_payload["congestion_pref"] = "neutral"
+    _normalize_soft_congestion(normalized_payload)
     city_input = CitySelectInput.from_mapping(normalized_payload).to_dict()
     city_input["active_required_themes"] = list(city_input["active_required_themes"])
     updates: dict[str, Any] = {
@@ -222,6 +228,19 @@ def validate_intent_prompt_output(payload: Mapping[str, Any]) -> PromptIntentRes
         normalized_payload.get("clarifying_question"),
     )
     return PromptIntentResult(city_select_input=city_input, intent_updates=updates)
+
+
+def _normalize_soft_congestion(payload: dict[str, Any]) -> None:
+    raw_query = payload.get("cleaned_raw_query")
+    soft_query = payload.get("soft_preference_query")
+    raw_text = raw_query if isinstance(raw_query, str) else ""
+    soft_text = soft_query if isinstance(soft_query, str) else ""
+    if (
+        payload.get("congestion_pref") != "neutral"
+        and not any(keyword in raw_text for keyword in _CONGESTION_SIGNAL_KEYWORDS)
+        and any(keyword in soft_text for keyword in _CONGESTION_SIGNAL_KEYWORDS)
+    ):
+        payload["congestion_pref"] = "neutral"
 
 
 def _string_tuple(value: Any, field_name: str) -> tuple[str, ...]:
@@ -246,14 +265,3 @@ def _bool(value: Any) -> bool:
     if not isinstance(value, bool):
         raise SchemaValidationError("needs_clarification must be a boolean")
     return value
-
-
-__all__ = [
-    "INTENT_PROMPT_OUTPUT_SCHEMA",
-    "INTENT_PROMPT_SCHEMA_NAME",
-    "INTENT_PROMPT_TEXT",
-    "PromptIntentResult",
-    "build_intent_prompt_request",
-    "prompt_intent_from_request",
-    "validate_intent_prompt_output",
-]

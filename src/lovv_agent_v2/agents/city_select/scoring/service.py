@@ -8,14 +8,12 @@ from lovv_agent_v2.agents.city_select.retrieval.policy import ATTRACTION_ENTITY_
 from lovv_agent_v2.agents.city_select.scoring.service_candidates import (
     coerce_scored_place,
     similarity_from_distance,
-    source_quality_score,
     zero_city_breakdown,
     zero_place_components,
 )
 from lovv_agent_v2.agents.city_select.scoring.service_geo import (
     city_distance_penalty,
     haversine_distance,
-    place_reference_distance_penalty,
 )
 from lovv_agent_v2.agents.city_select.scoring.service_theme import (
     clamp,
@@ -96,6 +94,7 @@ def score_place(
     *,
     reference_location: Any | None = None,
 ) -> PlaceScoreResult:
+    del active_themes, reference_location
     entity_type = optional_text(candidate_value(candidate, "entity_type", "entityType"))
     normalized_place_id = place_id(candidate)
     title = optional_text(candidate_value(candidate, "title", "name"))
@@ -116,31 +115,12 @@ def score_place(
             theme_tags=theme_tags,
             latitude=latitude,
             longitude=longitude,
-            place_score=0.0,
             score_components=zero_place_components(),
             scored=False,
             exclusion_reason=f"unsupported_entity_type:{entity_type or 'missing'}",
         )
 
     raw_similarity = similarity_from_distance(candidate_value(candidate, "distance"))
-    base_similarity = raw_similarity if candidate_value(candidate, "distance") is not None else 0.0
-    source_quality = source_quality_score(
-        title=title,
-        theme_tags=theme_tags,
-        city_id=city_id,
-        city_name=optional_text(candidate_value(candidate, "city_name_ko", "cityName")),
-        latitude=latitude,
-        longitude=longitude,
-    )
-    reference_distance_penalty = place_reference_distance_penalty(
-        latitude=latitude,
-        longitude=longitude,
-        reference_location=reference_location,
-    )
-    place_score = max(
-        base_similarity + source_quality - reference_distance_penalty,
-        0.0,
-    )
     return PlaceScoreResult(
         place=candidate,
         place_id=normalized_place_id,
@@ -149,12 +129,8 @@ def score_place(
         theme_tags=theme_tags,
         latitude=latitude,
         longitude=longitude,
-        place_score=round4(place_score),
         score_components={
             "raw_similarity": round4(raw_similarity),
-            "base_similarity": round4(base_similarity),
-            "source_quality_score": round4(source_quality),
-            "place_reference_distance_penalty": round4(reference_distance_penalty),
         },
     )
 
@@ -186,7 +162,11 @@ def score_city(
         )
 
     top_places = tuple(
-        sorted(scored_places, key=lambda place: place.place_score, reverse=True)[:budget],
+        sorted(
+            scored_places,
+            key=lambda place: place.score_components.get("raw_similarity", 0.0),
+            reverse=True,
+        )[:budget],
     )
     active_scoreable_themes = scoreable_themes(active_themes)
     weights = normalized_theme_weights(active_scoreable_themes, theme_weights)

@@ -2,20 +2,16 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-from lovv_agent_v2.agents.city_select.retrieval.policy import (
-    FESTIVAL_EXCLUDED_THEME_LABELS,
-    GOURMET_EXTERNAL_THEME_LABELS,
-)
+from lovv_agent_v2.agents.city_select.retrieval.policy import GOURMET_EXTERNAL_THEME_LABELS
 from lovv_agent_v2.agents.city_select.scoring.service_validation import string_tuple
 
 
 def scoreable_themes(active_themes: Sequence[str]) -> tuple[str, ...]:
     themes = string_tuple(active_themes, "active_themes")
-    excluded = GOURMET_EXTERNAL_THEME_LABELS | FESTIVAL_EXCLUDED_THEME_LABELS
     filtered: list[str] = []
     seen: set[str] = set()
     for theme in themes:
-        if theme in excluded or theme in seen:
+        if theme in GOURMET_EXTERNAL_THEME_LABELS or theme in seen:
             continue
         seen.add(theme)
         filtered.append(theme)

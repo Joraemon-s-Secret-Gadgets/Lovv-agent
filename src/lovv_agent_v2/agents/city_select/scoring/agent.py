@@ -4,11 +4,9 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.scoring.service import ScoringTool
-from lovv_agent_v2.agents.city_select.scoring.selection import (
-    CandidateSelectionHelper,
-    candidate_budgets_for_trip,
-    itinerary_place_count_for_trip,
+from lovv_agent_v2.agents.city_select.scoring.service import (
+    CANDIDATE_SUFFICIENCY_THRESHOLD,
+    ScoringTool,
 )
 from lovv_agent_v2.agents.city_select.scoring.audit import (
     scoring_audit,
@@ -19,12 +17,10 @@ from lovv_agent_v2.agents.city_select.scoring.payloads import (
     _alternative_city_payload,
     _annotate_city_rankings,
     _headline_seed,
-    _itinerary_coverage_audit,
     _passthrough_payload,
     _representative_seed_payload,
     _seed_payloads,
     _selection_reason_codes,
-    _status_from_selection,
     _theme_evidence_payload,
 )
 from lovv_agent_v2.agents.city_select.scoring.ranking import (
@@ -35,10 +31,6 @@ from lovv_agent_v2.agents.city_select.scoring.failures import (
     ScoringFailureContext,
     no_city_after_theme_gate,
     no_scored_city,
-)
-from lovv_agent_v2.agents.city_select.scoring.selection_maps import (
-    CitySelectionMapRequest,
-    build_city_selection_maps,
 )
 from lovv_agent_v2.agents.city_select.tools import CitySelectScoringTools
 from lovv_agent_v2.agents.city_select.retrieval.flow import retrieval_audit
@@ -55,7 +47,6 @@ class CitySelectScoringAgent:
     tools: CitySelectScoringTools | None = None
     tools_provider: Callable[[], CitySelectScoringTools] | None = None
     scoring: ScoringTool = ScoringTool()
-    selection: CandidateSelectionHelper = CandidateSelectionHelper()
 
     def run(self, request: CitySelectScoringRequest) -> dict[str, dict[str, Any]]:
         scratch = request.city_select_state.get("scratch")
@@ -77,7 +68,7 @@ class CitySelectScoringAgent:
         if not pruned_groups or not pruned_groups.survived_groups:
             return no_city_after_theme_gate(failure_context)
 
-        primary_budget = candidate_budgets_for_trip(context.candidate_input.trip_type)
+        primary_budget = CANDIDATE_SUFFICIENCY_THRESHOLD
         scored_groups = _score_groups(
             pruned_groups.survived_groups,
             context=context,
@@ -94,37 +85,11 @@ class CitySelectScoringAgent:
         if not city_rankings:
             return no_scored_city(failure_context)
 
-        raw_query_vector = scratch.get("raw_query_vector")
-        required_place_count = itinerary_place_count_for_trip(
-            context.candidate_input.trip_type,
-        )
-        selection_maps = build_city_selection_maps(
-            CitySelectionMapRequest(
-                scored_groups=scored_groups,
-                city_rankings=city_rankings,
-                context=context,
-                primary_budget=primary_budget,
-                selection=self.selection,
-            ),
-        )
-        selection_by_city = selection_maps.selection_by_city
-        recommended_places_by_city = selection_maps.recommended_places_by_city
         selected_rank_index = 0
         selected_city_id = city_rankings[selected_rank_index]["city_id"]
         selected_group = scored_groups[selected_city_id]
-        selected_places = selection_by_city[selected_city_id]
-        recommended_places = recommended_places_by_city[selected_city_id]
-        available_place_count = len(recommended_places)
-
-        coverage_audit = _itinerary_coverage_audit(
-            selected_places.coverage_audit,
-            required_place_count=required_place_count,
-            available_place_count=available_place_count,
-        )
-        status = _status_from_selection(
-            required_place_count=required_place_count,
-            available_place_count=available_place_count,
-        )
+        raw_query_vector = scratch.get("raw_query_vector")
+        status = "ok"
         selected_city = _selected_city(
             selected_city_id,
             selected_group,
@@ -134,11 +99,12 @@ class CitySelectScoringAgent:
         )
         annotated_rankings = _annotate_city_rankings(
             city_rankings,
-            selection_by_city=selection_by_city,
-            required_place_count=required_place_count,
             selected_city_id=selected_city_id,
         )
-        representative_seed_result = max(selected_group, key=lambda place: place.place_score)
+        representative_seed_result = max(
+            selected_group,
+            key=lambda place: place.score_components.get("raw_similarity", 0.0),
+        )
         representative_seed = _representative_seed_payload(
             representative_seed_result,
         )
@@ -159,6 +125,7 @@ class CitySelectScoringAgent:
             city_rankings,
             scored_groups,
             selected_city_id=selected_city_id,
+            themes=context.theme_split.searchable_place_themes,
         )
         seeds = _seed_payloads(
             selected_group,
@@ -171,14 +138,7 @@ class CitySelectScoringAgent:
             survived_city_count=len(pruned_groups.survived_groups),
             eliminated_cities=tuple(pruned_groups.eliminated_cities),
         )
-        planner_hints = {
-            "primary_budget": primary_budget,
-            "required_place_count": required_place_count,
-            "itinerary_sufficiency": coverage_audit.get(
-                "itinerary_sufficiency",
-                "sufficient",
-            ),
-        }
+        planner_hints = {}
         if isinstance(raw_query_vector, list):
             planner_hints["raw_query_vector"] = raw_query_vector
         city_selection_result = CitySelectionResult(
@@ -212,19 +172,14 @@ class CitySelectScoringAgent:
                 "scoring_audit": scoring_audit(
                     context=context,
                     annotated_rankings=annotated_rankings,
-                    recommended_places=recommended_places,
-                    recommended_places_by_city=recommended_places_by_city,
                     festival_seed_result=festival_seed_result,
                     selected_city_id=selected_city_id,
-                    coverage_audit=coverage_audit,
+                    coverage_audit={},
                     candidate_counts={
                         "retrieved": retrieved_count,
                         "merged": merged_count,
                         "scored": sum(len(group) for group in scored_groups.values()),
                         "city_count": len(city_rankings),
-                        "recommended_places": len(recommended_places),
-                        "available_places": available_place_count,
-                        "required_itinerary_places": required_place_count,
                     },
                     status=status,
                     retrieval_audit=audit,

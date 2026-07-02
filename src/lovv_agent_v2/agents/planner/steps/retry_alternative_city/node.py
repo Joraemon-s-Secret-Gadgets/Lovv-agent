@@ -39,12 +39,7 @@ def fallback_to_alternative_city_node(state: Mapping[str, object]) -> dict[str, 
         "alternative_city",
     )
     alternative_city_id = text(alternative.get("city_id"), "alternative_city.city_id")
-    fallback_scoring_audit = _fallback_scoring_audit(
-        city_select,
-        alternative_city_id,
-    )
-    canonical_city_id = _canonical_city_id(alternative_city_id, fallback_scoring_audit)
-    selected_city = _alternative_selected_city(selected, alternative, canonical_city_id)
+    selected_city = _alternative_selected_city(selected, alternative, alternative_city_id)
     city_selection["selected_city"] = selected_city
     city_selection["alternative_city"] = {
         "city_id": selected.get("city_id"),
@@ -52,12 +47,11 @@ def fallback_to_alternative_city_node(state: Mapping[str, object]) -> dict[str, 
         "ddb_pk": selected.get("ddb_pk"),
         "score_delta": alternative.get("score_delta"),
     }
-    city_selection["seeds"] = []
-    city_selection["headline_seed"] = None
+    seeds = mapping_sequence(alternative.get("seeds"))
+    city_selection["seeds"] = seeds
+    city_selection["headline_seed"] = _headline_seed(seeds)
     next_city_select = dict(city_select)
     next_city_select["city_selection_result"] = city_selection
-    if fallback_scoring_audit is not None:
-        next_city_select["scoring_audit"] = fallback_scoring_audit
     next_city_select["status"] = "retry_alternative_city"
     fallback = {
             "used": True,
@@ -80,34 +74,6 @@ def _city_selection(state: Mapping[str, object]) -> Mapping[str, object]:
     return mapping(city_select.get("city_selection_result"), "city_select.city_selection_result")
 
 
-def _fallback_scoring_audit(
-    city_select: Mapping[str, object],
-    city_id: str,
-) -> Mapping[str, object] | None:
-    scoring_audit = optional_mapping(city_select.get("scoring_audit"))
-    if scoring_audit is None:
-        return None
-    next_audit = dict(scoring_audit)
-    recommended_by_city = optional_mapping(scoring_audit.get("recommended_places_by_city"))
-    recommended = mapping_sequence(recommended_by_city.get(city_id)) if recommended_by_city else ()
-    if recommended:
-        next_audit["recommended_places"] = recommended
-    return next_audit
-
-
-def _canonical_city_id(
-    fallback_city_id: str,
-    scoring_audit: Mapping[str, object] | None,
-) -> str:
-    if scoring_audit is None:
-        return fallback_city_id
-    for place in mapping_sequence(scoring_audit.get("recommended_places")):
-        city_id = optional_text(place.get("city_id"))
-        if city_id is not None and not city_id.startswith("CITY#"):
-            return city_id
-    return fallback_city_id
-
-
 def _fallback_city_payload(
     state: Mapping[str, object],
     city_selection: Mapping[str, object],
@@ -116,15 +82,17 @@ def _fallback_city_payload(
     selected_city_id = optional_text(selected.get("city_id")) if selected is not None else None
     explicit = optional_mapping(city_selection.get("alternative_city"))
     if explicit is not None:
+        if not mapping_sequence(explicit.get("seeds")):
+            return None
         city_id = _alternative_city_id(state, explicit, selected_city_id=selected_city_id)
         if city_id is not None:
             payload = dict(explicit)
             payload["city_id"] = city_id
             for key, value in _city_metadata(state, city_id).items():
-                if key not in payload and value is not None:
+                if value is not None and (key == "city_id" or key not in payload):
                     payload[key] = value
             return payload
-    return _ranked_alternative_city(state, selected_city_id=selected_city_id)
+    return None
 
 
 def _alternative_selected_city(
@@ -176,39 +144,6 @@ def _alternative_city_id(
     return None
 
 
-def _ranked_alternative_city(
-    state: Mapping[str, object],
-    *,
-    selected_city_id: str | None,
-) -> dict[str, object] | None:
-    rankings = _city_rankings(state)
-    if not rankings:
-        return None
-    selected_score = None
-    for ranking in rankings:
-        if optional_text(ranking.get("city_id")) == selected_city_id:
-            selected_score = _optional_float(ranking.get("city_score"))
-            break
-    for ranking in rankings:
-        city_id = optional_text(ranking.get("city_id"))
-        if city_id is None or city_id == selected_city_id:
-            continue
-        payload: dict[str, object] = {
-            "city_id": city_id,
-            "city_name_ko": ranking.get("city_name_ko"),
-            "ddb_pk": ranking.get("ddb_pk"),
-            "province": ranking.get("province"),
-        }
-        for key, value in _city_metadata(state, city_id).items():
-            if payload.get(key) is None and value is not None:
-                payload[key] = value
-        ranking_score = _optional_float(ranking.get("city_score"))
-        if selected_score is not None and ranking_score is not None:
-            payload["score_delta"] = round(selected_score - ranking_score, 4)
-        return payload
-    return None
-
-
 def _city_rankings(state: Mapping[str, object]) -> tuple[Mapping[str, object], ...]:
     city_select = mapping(state.get("city_select"), "city_select")
     scoring_audit = optional_mapping(city_select.get("scoring_audit"))
@@ -234,17 +169,6 @@ def _city_metadata(state: Mapping[str, object], city_id: str) -> dict[str, objec
     scoring_audit = optional_mapping(city_select.get("scoring_audit"))
     if scoring_audit is None:
         return metadata
-    places_by_city = optional_mapping(scoring_audit.get("recommended_places_by_city"))
-    places = mapping_sequence(places_by_city.get(city_id)) if places_by_city else ()
-    if places:
-        first_place = places[0]
-        for key, value in {
-            "city_name_ko": first_place.get("city_name_ko"),
-            "ddb_pk": first_place.get("ddb_pk"),
-            "province": first_place.get("province"),
-        }.items():
-            if metadata.get(key) is None and value is not None:
-                metadata[key] = value
     identity = load_default_city_identity_map().get(
         metadata.get("city_id") or metadata.get("ddb_pk") or city_id,
     )
@@ -253,6 +177,14 @@ def _city_metadata(state: Mapping[str, object], city_id: str) -> dict[str, objec
             if metadata.get(key) is None and value is not None:
                 metadata[key] = value
     return metadata
+
+
+def _headline_seed(seeds: tuple[Mapping[str, object], ...]) -> str | None:
+    if not seeds:
+        return None
+    seed = max(seeds, key=lambda item: _optional_float(item.get("sim")) or 0.0)
+    place_id = seed.get("place_id")
+    return place_id if isinstance(place_id, str) else None
 
 
 def _optional_float(value: object) -> float | None:

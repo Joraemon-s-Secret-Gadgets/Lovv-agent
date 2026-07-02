@@ -3,50 +3,9 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from lovv_agent_v2.models.schemas import SchemaValidationError, SelectedCity
 from lovv_agent_v2.agents.city_select.scoring.service import PlaceScoreResult
 from lovv_agent_v2.agents.city_select.domain.contracts import CitySelectContext
 from lovv_agent_v2.agents.city_select.scoring.ranking import _candidate_attr, _city_name_from_group
-def _lightweight_selected_places(
-    selected_payloads: Sequence[Mapping[str, Any]],
-    scored_places: Sequence[PlaceScoreResult],
-) -> tuple[dict[str, Any], ...]:
-    """Return selected candidates without raw retrieval payloads or details."""
-
-    scored_by_id = {place.place_id: place for place in scored_places}
-    result: list[dict[str, Any]] = []
-    for payload in selected_payloads:
-        place_id = _mapping_text(payload, "place_id")
-        scored = scored_by_id[place_id]
-        result.append(
-            {
-                "place_id": scored.place_id,
-                "title": scored.title,
-                "city_id": scored.city_id,
-                "city_name_ko": _candidate_attr(scored.place, "city_name_ko"),
-                "theme_tags": list(scored.theme_tags),
-                "latitude": scored.latitude,
-                "longitude": scored.longitude,
-                "ddb_pk": _candidate_attr(scored.place, "ddb_pk"),
-                "ddb_sk": _candidate_attr(scored.place, "ddb_sk"),
-                "attraction_subtype_code": _candidate_attr(scored.place, "attraction_subtype_code"),
-                "slot_role": payload.get("slot_role"),
-                "assigned_theme": payload.get("assigned_theme"),
-                "score_audit": {
-                    "place_score": scored.place_score,
-                    "score_components": dict(scored.score_components),
-                },
-            },
-        )
-    return tuple(result)
-
-
-
-def _mapping_text(payload: Mapping[str, Any], field_name: str) -> str:
-    value = payload.get(field_name)
-    if not isinstance(value, str) or not value.strip():
-        raise SchemaValidationError(f"{field_name} must be a non-empty string")
-    return value.strip()
 
 
 def _ddb_pk_from_group(city_id: str, scored_places: Sequence[PlaceScoreResult]) -> str:
@@ -70,15 +29,22 @@ def _representative_seed_payload(place: PlaceScoreResult) -> dict[str, Any]:
         "attraction_subtype_code": _candidate_attr(place.place, "attraction_subtype_code"),
     }
 
+
 def _seed_payload(place: PlaceScoreResult, theme: str) -> dict[str, Any]:
+    raw_similarity = place.score_components.get("raw_similarity", 0.0)
     return {
         "theme": theme,
+        "theme_tags": (theme,),
+        "assigned_theme": theme,
         "place_id": place.place_id,
         "ddb_sk": _candidate_attr(place.place, "ddb_sk"),
         "title": place.title,
-        "sim": place.score_components.get("raw_similarity", 0.0),
-        "lat": place.latitude,
-        "lon": place.longitude,
+        "sim": raw_similarity,
+        "soft_similarity": raw_similarity,
+        "latitude": place.latitude,
+        "longitude": place.longitude,
+        "city_id": place.city_id,
+        "score_audit": {"score_components": {"raw_similarity": raw_similarity}},
         "attraction_subtype_code": _candidate_attr(place.place, "attraction_subtype_code"),
         "must_include": True,
     }
@@ -142,6 +108,7 @@ def _alternative_city_payload(
     scored_groups: Mapping[str, Sequence[PlaceScoreResult]],
     *,
     selected_city_id: str,
+    themes: Sequence[str],
 ) -> dict[str, Any] | None:
     if len(city_rankings) < 2:
         return None
@@ -156,6 +123,7 @@ def _alternative_city_payload(
             "ddb_pk": _ddb_pk_from_group(city_id, scored_places),
             "city_name_ko": ranking.get("city_name_ko"),
             "score_delta": round(selected_score - float(ranking["city_score"]), 4),
+            "seeds": list(_seed_payloads(scored_places, themes)),
         }
     return None
 
@@ -200,66 +168,15 @@ def _selection_reason_codes(
     return tuple(dict.fromkeys(codes))
 
 
-
 def _annotate_city_rankings(
     city_rankings: Sequence[Mapping[str, Any]],
     *,
-    selection_by_city: Mapping[str, Any],
-    required_place_count: int,
     selected_city_id: str,
 ) -> tuple[dict[str, Any], ...]:
-    """Attach itinerary-capacity audit fields to each city ranking."""
-
     annotated: list[dict[str, Any]] = []
     for ranking in city_rankings:
         city_id = str(ranking["city_id"])
-        selected = selection_by_city[city_id]
-        available_place_count = len(selected.primary)
         payload = dict(ranking)
-        payload.update(
-            {
-                "available_place_count": available_place_count,
-                "required_place_count": required_place_count,
-                "itinerary_sufficient": available_place_count >= required_place_count,
-                "selected": city_id == selected_city_id,
-            },
-        )
+        payload["selected"] = city_id == selected_city_id
         annotated.append(payload)
     return tuple(annotated)
-
-
-
-def _itinerary_coverage_audit(
-    coverage_audit: Mapping[str, Any],
-    *,
-    required_place_count: int,
-    available_place_count: int,
-) -> dict[str, Any]:
-    """Extend quota audit with primary-only Planner capacity."""
-
-    result = dict(coverage_audit)
-    result.update(
-        {
-            "itinerary_required_place_count": required_place_count,
-            "available_place_count": available_place_count,
-            "itinerary_sufficiency": (
-                "sufficient"
-                if available_place_count >= required_place_count
-                else "insufficient"
-            ),
-        },
-    )
-    return result
-
-
-
-def _status_from_selection(
-    *,
-    required_place_count: int,
-    available_place_count: int,
-) -> str:
-    """Return package status from Planner-facing itinerary capacity."""
-
-    if available_place_count < required_place_count:
-        return "insufficient_candidates"
-    return "ok"

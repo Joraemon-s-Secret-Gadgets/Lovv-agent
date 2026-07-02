@@ -89,16 +89,29 @@ def _state() -> dict[str, object]:
                     "country": "KR",
                     "ddb_pk": "CITY#FEST",
                 },
-                "seeds": [],
-            },
-            "scoring_audit": {
-                "recommended_places": (
-                    _place("p-1", "역사 산책로", 0.93),
-                    _place("p-2", "문화 거리", 0.89),
-                    _place("p-3", "전통 시장", 0.84),
-                    _place("p-4", "고택 마을", 0.80),
+                "seeds": (
+                    {
+                        **_place("p-1", "역사 산책로", 0.93),
+                        "theme": "역사·문화",
+                        "must_include": True,
+                    },
+                    {
+                        **_place("p-2", "문화 거리", 0.89),
+                        "theme": "역사·문화",
+                        "must_include": True,
+                    },
+                    {
+                        **_place("p-3", "전통 시장", 0.84),
+                        "theme": "역사·문화",
+                        "must_include": True,
+                    },
+                    {
+                        **_place("p-4", "고택 마을", 0.80),
+                        "theme": "역사·문화",
+                        "must_include": True,
+                    },
                 ),
-                "reserve_places": (),
             },
+            "scoring_audit": {},
         },
     }

@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from langgraph.types import interrupt
+
 from lovv_agent_v2.agents.response_packager.agent import ResponsePackagerAgent
 from lovv_agent_v2.agents.response_packager.contracts import ResponsePackagerInput
 from lovv_agent_v2.core.state import UnifiedAgentState
@@ -14,6 +16,11 @@ from lovv_agent_v2.models.schemas import SchemaValidationError
 def response_packager_node(state: UnifiedAgentState) -> dict[str, Any]:
     """Format and pack output response. Triggers checkpointer interrupt."""
     output = ResponsePackagerAgent().run(_response_packager_input(state))
+    if output.response.get("response_status") == "END_WAIT_USER":
+        resume_value = interrupt(output.response["response_payload"])
+        next_response = dict(output.response)
+        next_response["clarification_resume"] = resume_value
+        return {"response": next_response}
     return {"response": output.response}
 
 

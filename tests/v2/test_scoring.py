@@ -40,7 +40,7 @@ def attraction(
 class PlaceScoringTest(unittest.TestCase):
     """Validate per-attraction score components."""
 
-    def test_score_place_combines_similarity_quality_and_reference_distance(self) -> None:
+    def test_score_place_uses_raw_similarity_without_quality_or_reference_penalty(self) -> None:
         result = score_place(
             attraction(
                 "P-1",
@@ -52,21 +52,17 @@ class PlaceScoringTest(unittest.TestCase):
         )
 
         self.assertTrue(result.scored)
-        self.assertEqual(result.place_score, 1.0)
         self.assertEqual(
             result.score_components,
             {
                 "raw_similarity": 0.8,
-                "base_similarity": 0.8,
-                "source_quality_score": 0.2,
-                "place_reference_distance_penalty": 0.0,
             },
         )
 
     def test_score_place_does_not_add_theme_match_bonus(self) -> None:
         result = score_place(
             attraction("P-1", themes=["바다·해안"]),
-            ["미식·노포", "festival_event", "바다·해안"],
+            ["미식·노포", "바다·해안"],
         )
 
         self.assertNotIn("theme_match_score", result.score_components)
@@ -86,7 +82,6 @@ class PlaceScoringTest(unittest.TestCase):
                 )
 
                 self.assertFalse(result.scored)
-                self.assertEqual(result.place_score, 0.0)
                 self.assertEqual(
                     result.exclusion_reason,
                     f"unsupported_entity_type:{entity_type}",
@@ -96,15 +91,6 @@ class PlaceScoringTest(unittest.TestCase):
         result = score_place(
             attraction("food-like", themes=["미식·노포"]),
             ["미식·노포"],
-        )
-
-        self.assertTrue(result.scored)
-        self.assertNotIn("theme_match_score", result.score_components)
-
-    def test_festival_theme_label_does_not_receive_theme_bonus(self) -> None:
-        result = score_place(
-            attraction("festival-like", themes=["festival_event"]),
-            ["festival_event"],
         )
 
         self.assertTrue(result.scored)
@@ -272,13 +258,15 @@ class CityScoringTest(unittest.TestCase):
             },
         )
 
-    def test_score_city_rejects_unscored_inputs(self) -> None:
-        with self.assertRaisesRegex(Exception, "place_score is required"):
-            score_city(
-                city_id="city-1",
-                places=[attraction("P-1")],
-                active_themes=["바다·해안"],
-            )
+    def test_score_city_accepts_unscored_raw_candidates_by_similarity(self) -> None:
+        result = score_city(
+            city_id="city-1",
+            places=[attraction("P-1", distance=0.2)],
+            active_themes=["바다·해안"],
+        )
+
+        self.assertEqual(result.breakdown.weighted_theme_coverage, 0.8)
+        self.assertEqual(result.city_score, 0.8)
 
 
 if __name__ == "__main__":

@@ -18,21 +18,7 @@ GOURMET_EXTERNAL_THEME_LABELS = frozenset(
         "미식/노포",
     },
 )
-FESTIVAL_EXCLUDED_THEME_LABELS = frozenset(
-    {
-        "festival",
-        "festival_event",
-        "event",
-        "축제",
-        "축제·이벤트",
-        "축제/이벤트",
-    },
-)
-PLACE_SEARCH_EXCLUDED_THEME_LABELS = (
-    GOURMET_EXTERNAL_THEME_LABELS | FESTIVAL_EXCLUDED_THEME_LABELS
-)
 NO_SUPPORT_THEME_LABELS = GOURMET_EXTERNAL_THEME_LABELS
-FESTIVAL_THEME_MARKERS = FESTIVAL_EXCLUDED_THEME_LABELS
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,7 +66,6 @@ class CandidateThemeSplit:
     active_required_themes: tuple[str, ...]
     searchable_place_themes: tuple[str, ...]
     no_support_themes: tuple[str, ...]
-    ignored_theme_markers: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,12 +110,8 @@ def split_candidate_themes(themes: Sequence[str]) -> CandidateThemeSplit:
     active_required_themes: list[str] = []
     searchable_place_themes: list[str] = []
     no_support_themes: list[str] = []
-    ignored_theme_markers: list[str] = []
 
     for theme in unique_theme_labels(themes):
-        if theme in FESTIVAL_THEME_MARKERS:
-            ignored_theme_markers.append(theme)
-            continue
         active_required_themes.append(theme)
         if theme in NO_SUPPORT_THEME_LABELS:
             no_support_themes.append(theme)
@@ -141,7 +122,6 @@ def split_candidate_themes(themes: Sequence[str]) -> CandidateThemeSplit:
         active_required_themes=tuple(active_required_themes),
         searchable_place_themes=tuple(searchable_place_themes),
         no_support_themes=tuple(no_support_themes),
-        ignored_theme_markers=tuple(ignored_theme_markers),
     )
 
 
@@ -164,12 +144,9 @@ def unique_theme_labels(themes: Sequence[str]) -> tuple[str, ...]:
 __all__ = [
     "ANCHORED_PLACE_SEARCH_MODE",
     "CITY_DISCOVERY_MODE",
-    "FESTIVAL_EXCLUDED_THEME_LABELS",
     "FESTIVAL_SEEDED_CITY_DISCOVERY_MODE",
-    "FESTIVAL_THEME_MARKERS",
     "GOURMET_EXTERNAL_THEME_LABELS",
     "NO_SUPPORT_THEME_LABELS",
-    "PLACE_SEARCH_EXCLUDED_THEME_LABELS",
     "AttractionCandidate",
     "CandidateThemeSplit",
     "CitySelectContext",
