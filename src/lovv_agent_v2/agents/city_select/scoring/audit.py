@@ -20,7 +20,6 @@ def scoring_audit(
     recommended_places_by_city: Mapping[str, tuple[dict[str, Any], ...]],
     festival_seed_result: Any,
     selected_city_id: str,
-    selected_rank_index: int,
     coverage_audit: Mapping[str, Any],
     candidate_counts: Mapping[str, Any],
     status: str,
@@ -44,8 +43,6 @@ def scoring_audit(
             "planner_consumable": True,
             "status_reason": status,
             "festival_seed_applied": festival_seed_result is not None,
-            "selected_city_rank": selected_rank_index + 1,
-            "city_reselected_for_itinerary_capacity": selected_rank_index > 0,
         },
     }
 

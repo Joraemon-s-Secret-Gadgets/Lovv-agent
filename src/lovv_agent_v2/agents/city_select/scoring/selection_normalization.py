@@ -138,14 +138,6 @@ def positive_int(value: Any, field_name: str) -> int:
     return value
 
 
-def non_negative_int(value: Any, field_name: str) -> int:
-    if isinstance(value, bool) or not isinstance(value, int):
-        raise SchemaValidationError(f"{field_name} must be a non-negative integer")
-    if value < 0:
-        raise SchemaValidationError(f"{field_name} must be a non-negative integer")
-    return value
-
-
 def numeric(value: Any, field_name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise SchemaValidationError(f"{field_name} must be numeric")

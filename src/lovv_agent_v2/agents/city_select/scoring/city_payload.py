@@ -26,8 +26,6 @@ def _selected_city(
         if context.candidate_input.destination_id
         else [f"city_score_rank_{selected_rank_index + 1}"]
     )
-    if selected_rank_index > 0:
-        reason_codes.append("itinerary_capacity_fallback")
     if status == "ok":
         reason_codes.append("planner_capacity_sufficient")
     else:

@@ -91,8 +91,11 @@ def test_scoring_node_packages_no_festival_path_without_seed_result(
     city_select = result["city_select"]
     city_result = city_select["city_selection_result"]
     coverage = city_select["scoring_audit"]["coverage_audit"]
+    fallback_audit = city_select["scoring_audit"]["fallback_audit"]
     assert city_result["selected_city"]["city_id"] == "KR-TEST"
     assert city_select["scoring_audit"]["selected_festival_candidates"] == []
+    assert "selected_city_rank" not in fallback_audit
+    assert "city_reselected_for_itinerary_capacity" not in fallback_audit
     assert "reserve_places" not in city_select["scoring_audit"]
     assert "reserve_places_by_city" not in city_select["scoring_audit"]
     assert "reserve_theme_counts" not in coverage

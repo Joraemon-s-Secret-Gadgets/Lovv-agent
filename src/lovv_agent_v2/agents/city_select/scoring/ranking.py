@@ -38,8 +38,6 @@ def _score_groups(
 W_CONG_QUIET = 0.08
 W_CONG_VIBRANT = -0.05
 W_CONG_DEFAULT = 0.03
-_VIBRANT_KEYWORDS = ("vibrant", "활기", "핫플", "축제", "복잡", "인기", "사람 많은", "핫플레이스")
-_QUIET_KEYWORDS = ("quiet", "한적", "조용", "힐링", "고즈넉", "평화", "평온", "아늑", "휴식", "쉼")
 
 
 

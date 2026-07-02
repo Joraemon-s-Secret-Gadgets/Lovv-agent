@@ -23,7 +23,6 @@ from lovv_agent_v2.agents.city_select.scoring.payloads import (
     _passthrough_payload,
     _representative_seed_payload,
     _seed_payloads,
-    _select_city_rank_index,
     _selection_reason_codes,
     _status_from_selection,
     _theme_evidence_payload,
@@ -110,12 +109,7 @@ class CitySelectScoringAgent:
         )
         selection_by_city = selection_maps.selection_by_city
         recommended_places_by_city = selection_maps.recommended_places_by_city
-        selected_rank_index = _select_city_rank_index(
-            city_rankings,
-            selection_by_city=selection_by_city,
-            required_place_count=required_place_count,
-            fixed_city_id=context.candidate_input.destination_id,
-        )
+        selected_rank_index = 0
         selected_city_id = city_rankings[selected_rank_index]["city_id"]
         selected_group = scored_groups[selected_city_id]
         selected_places = selection_by_city[selected_city_id]
@@ -222,7 +216,6 @@ class CitySelectScoringAgent:
                     recommended_places_by_city=recommended_places_by_city,
                     festival_seed_result=festival_seed_result,
                     selected_city_id=selected_city_id,
-                    selected_rank_index=selected_rank_index,
                     coverage_audit=coverage_audit,
                     candidate_counts={
                         "retrieved": retrieved_count,

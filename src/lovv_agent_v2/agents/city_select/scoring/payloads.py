@@ -42,18 +42,6 @@ def _lightweight_selected_places(
 
 
 
-def _select_city_rank_index(
-    city_rankings: Sequence[Mapping[str, Any]],
-    *,
-    selection_by_city: Mapping[str, Any],
-    required_place_count: int,
-    fixed_city_id: str | None,
-) -> int:
-    """Select the highest-ranked city. In V2, capacity-based demotion is removed, so it always returns 0."""
-
-    return 0
-
-
 def _mapping_text(payload: Mapping[str, Any], field_name: str) -> str:
     value = payload.get(field_name)
     if not isinstance(value, str) or not value.strip():
