@@ -13,9 +13,15 @@ REASON_CODES: tuple[str, ...] = (
     "no_candidate_city",
     "contradiction",
     "thin_city",
+    "weather_alternative_available",
 )
 
-NEXT_ACTIONS: tuple[str, ...] = ("anchor", "rerun_discovery", "abort")
+NEXT_ACTIONS: tuple[str, ...] = (
+    "anchor",
+    "rerun_discovery",
+    "abort",
+    "weather_alternative",
+)
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,0 +1,186 @@
+from __future__ import annotations
+
+import json
+from collections.abc import Mapping
+from typing import Any, Final
+
+from lovv_agent_v2.infra.adapters.bedrock_converse import (
+    RuntimeInvoker,
+    build_structured_converse_request,
+    invoke_structured_output,
+)
+from lovv_agent_v2.models.schemas import SchemaValidationError
+
+MODIFY_PROMPT_SCHEMA_NAME: Final = "lovv_v2_modify_intent_output"
+MODIFY_PROMPT_TEXT: Final = """You are Lovv V2 Modify Intent Agent.
+Parse rawModifyQuery against the provided currentOrder itinerary context.
+Return only the JSON schema fields. Do not explain.
+
+Rules:
+- The frontend never sends edit_ops. You must produce edit_ops from rawModifyQuery.
+- Preserve currentOrder item_id/content_id/day/order when resolving targets.
+- Output status=ok only when the edit is executable and target resolution is exact.
+- V2 supports only REPLACE edit ops and city_change.
+- For slot replacement, set kind=slot_replace, routing_hint=planner_apply_edit.
+- For destination city changes, set kind=city_change, routing_hint=city_select_rediscovery, and leave edit_ops empty.
+- Use status=needs_clarification for unresolved or ambiguous targets.
+- Use status=unsupported and kind=backlog for add/remove/reorder/date/booking/trip-length requests.
+- Seed targets may use same_theme_required. Do not silently allow different-theme seed replacement.
+- condition.replacement_query is null when the user only asks for another similar place.
+- Keep audit concise."""
+
+MODIFY_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "status",
+        "kind",
+        "edit_ops",
+        "city_change",
+        "clarification",
+        "unsupported_reasons",
+        "routing_hint",
+        "audit",
+    ],
+    "properties": {
+        "status": {
+            "type": "string",
+            "enum": ["ok", "needs_clarification", "unsupported"],
+        },
+        "kind": {"type": "string", "enum": ["slot_replace", "city_change", "backlog"]},
+        "edit_ops": {"type": "array", "items": {"type": "object"}},
+        "city_change": {"type": ["object", "null"]},
+        "clarification": {"type": ["object", "null"]},
+        "unsupported_reasons": {"type": "array", "items": {"type": "string"}},
+        "routing_hint": {"type": "string"},
+        "audit": {"type": "object"},
+    },
+}
+
+
+def prompt_modify_intent_from_request(
+    *,
+    runtime: RuntimeInvoker,
+    request: Mapping[str, Any],
+    retry_limit: int,
+) -> dict[str, Any] | None:
+    result = invoke_structured_output(
+        runtime=runtime,
+        request=build_modify_prompt_request(request),
+        retry_limit=retry_limit,
+        validator=lambda payload: validate_modify_prompt_output(
+            payload,
+            request=request,
+        ),
+    )
+    return result.value if isinstance(result.value, dict) else None
+
+
+def build_modify_prompt_request(request: Mapping[str, Any]) -> dict[str, Any]:
+    payload = {
+        "task": "Parse Lovv V2 modify_intent from this request.",
+        "modify_request": dict(request),
+        "current_order": request.get("currentOrder", request.get("current_order", [])),
+    }
+    request_payload = build_structured_converse_request(
+        messages=[
+            {
+                "role": "user",
+                "content": [{"text": json.dumps(payload, ensure_ascii=False)}],
+            },
+        ],
+        system=[{"text": MODIFY_PROMPT_TEXT}],
+        schema_name=MODIFY_PROMPT_SCHEMA_NAME,
+        schema=MODIFY_PROMPT_OUTPUT_SCHEMA,
+        schema_description="Lovv V2 modify intent output",
+        reasoning_effort="low",
+    )
+    request_payload["inferenceConfig"] = {"maxTokens": 2048, "temperature": 0}
+    return request_payload
+
+
+def validate_modify_prompt_output(
+    payload: Mapping[str, Any],
+    *,
+    request: Mapping[str, Any],
+) -> dict[str, Any]:
+    raw_query = _required_text(
+        request.get("rawModifyQuery", request.get("raw_modify_query")),
+        "raw_modify_query",
+    )
+    status = _choice(payload.get("status"), ("ok", "needs_clarification", "unsupported"), "status")
+    kind = _choice(payload.get("kind"), ("slot_replace", "city_change", "backlog"), "kind")
+    result = {
+        "intent_type": "modification",
+        "status": status,
+        "thread_id": _required_text(request.get("threadId", request.get("thread_id")), "thread_id"),
+        "itinerary_revision": _required_text(
+            request.get("itineraryRevision", request.get("itinerary_revision")),
+            "itinerary_revision",
+        ),
+        "raw_modify_query": raw_query,
+        "kind": kind,
+        "edit_ops": _list(payload.get("edit_ops"), "edit_ops"),
+        "city_change": _mapping_or_none(payload.get("city_change"), "city_change"),
+        "clarification": _mapping_or_none(payload.get("clarification"), "clarification"),
+        "unsupported_reasons": _string_list(
+            payload.get("unsupported_reasons"),
+            "unsupported_reasons",
+        ),
+        "routing_hint": _required_text(payload.get("routing_hint"), "routing_hint"),
+        "audit": dict(_mapping(payload.get("audit"), "audit")),
+    }
+    _validate_status_shape(result)
+    return result
+
+
+def _validate_status_shape(result: Mapping[str, Any]) -> None:
+    status = result["status"]
+    kind = result["kind"]
+    if status == "ok" and kind == "slot_replace" and not result["edit_ops"]:
+        raise SchemaValidationError("slot_replace modify intent requires edit_ops")
+    if status == "ok" and kind == "city_change" and result["city_change"] is None:
+        raise SchemaValidationError("city_change modify intent requires city_change")
+    if status == "unsupported" and not result["unsupported_reasons"]:
+        raise SchemaValidationError("unsupported modify intent requires unsupported_reasons")
+    if status == "needs_clarification" and result["clarification"] is None:
+        raise SchemaValidationError("clarification modify intent requires clarification")
+
+
+def _choice(value: Any, choices: tuple[str, ...], field_name: str) -> str:
+    text = _required_text(value, field_name)
+    if text not in choices:
+        raise SchemaValidationError(f"{field_name} is invalid")
+    return text
+
+
+def _mapping(value: Any, field_name: str) -> Mapping[str, Any]:
+    if not isinstance(value, Mapping):
+        raise SchemaValidationError(f"{field_name} must be an object")
+    return value
+
+
+def _mapping_or_none(value: Any, field_name: str) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    return dict(_mapping(value, field_name))
+
+
+def _list(value: Any, field_name: str) -> list[Any]:
+    if not isinstance(value, list):
+        raise SchemaValidationError(f"{field_name} must be a list")
+    return list(value)
+
+
+def _string_list(value: Any, field_name: str) -> list[str]:
+    values = _list(value, field_name)
+    return [_required_text(item, field_name) for item in values]
+
+
+def _required_text(value: Any, field_name: str) -> str:
+    if not isinstance(value, str):
+        raise SchemaValidationError(f"{field_name} must be a string")
+    normalized = value.strip()
+    if not normalized:
+        raise SchemaValidationError(f"{field_name} must be non-empty")
+    return normalized

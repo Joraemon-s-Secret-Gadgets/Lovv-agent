@@ -191,7 +191,14 @@ def extract_actor_id(event: Any) -> str | None:
 def _looks_like_recommendation_request(payload: Mapping[str, Any]) -> bool:
     """Return whether a mapping has the public recommendation request fields."""
 
-    return _REQUEST_FIELD_MARKERS.issubset(payload.keys())
+    entry_type = _entry_type(payload)
+    match entry_type:
+        case "modify" | "clarify" | "confirm":
+            return True
+        case "create":
+            return _has_create_request_fields(payload)
+        case _:
+            return _has_create_request_fields(payload)
 
 
 def _graph_payload_from_mapping(
@@ -233,6 +240,11 @@ def _state_from_recommendation_request(
     request_id: str | None,
 ) -> dict[str, Any]:
     resolved_request_id = request_id or _text_or_none(request.get("requestId")) or "agentcore-v2"
+    if _entry_type(request) in {"modify", "clarify", "confirm"}:
+        return {
+            "request": _followup_request(request, request_id=resolved_request_id),
+            "profile": {},
+        }
     normalized_request = _request_from_recommendation_request(
         request,
         request_id=resolved_request_id,
@@ -280,13 +292,37 @@ def _request_from_recommendation_request(
         "trip_type": request["tripType"],
         "destination_id": request.get("destinationId"),
         "include_festivals": request["includeFestivals"],
-        "themes": tuple(request["themes"]),
+        "themes": tuple(request.get("activeRequiredThemes", request.get("themes", ()))),
         "raw_query": request.get("rawQuery", request.get("naturalLanguageQuery", "")),
         "soft_preference_query": request.get("softPreferenceQuery", ""),
         "congestion_pref": request.get("congestionPref", "neutral"),
         "transport_pref": request.get("transportPref", "unknown"),
         "user_location": request.get("userLocation"),
     }
+
+
+def _followup_request(
+    request: Mapping[str, Any],
+    *,
+    request_id: str,
+) -> dict[str, Any]:
+    normalized = dict(request)
+    normalized["request_id"] = request_id
+    return normalized
+
+
+def _has_create_request_fields(payload: Mapping[str, Any]) -> bool:
+    return all(
+        key in payload
+        for key in ("entryType", "country", "travelMonth", "tripType", "includeFestivals")
+    ) and ("themes" in payload or "activeRequiredThemes" in payload)
+
+
+def _entry_type(payload: Mapping[str, Any]) -> str:
+    value = payload.get("entryType", payload.get("entry_type", "create"))
+    if not isinstance(value, str):
+        return "create"
+    return value.strip().lower().replace("-", "_")
 
 
 def _city_select_input_from_request(request: Mapping[str, Any]) -> dict[str, Any]:
