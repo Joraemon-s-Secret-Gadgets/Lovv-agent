@@ -40,7 +40,7 @@ def package_recommendation_response(
     response = {
         "recommendationId": recommendation_id or request_payload["request_id"],
         "expiresAt": expires_at or _default_expires_at(),
-        "destination": _destination_payload(city, request_payload),
+        "destination": _destination_payload(city, request_payload, planner),
         "itinerary": _itinerary_payload(planner, request_payload),
         "explainability": _explainability_payload(
             planner,
@@ -63,11 +63,12 @@ def package_recommendation_response(
 def _destination_payload(
     selected_city: SelectedCity | None,
     request: Mapping[str, Any],
+    planner: PlannerOutput | None,
 ) -> dict[str, Any]:
     if selected_city is None:
         return {
             "destinationId": request.get("destination_id"),
-            "name": None,
+            "name": _planner_city_name(planner, request.get("destination_id")),
             "country": request["country"],
             "region": None,
         }
@@ -77,6 +78,18 @@ def _destination_payload(
         "country": selected_city.country,
         "region": None,
     }
+
+
+def _planner_city_name(planner: PlannerOutput | None, destination_id: Any) -> str | None:
+    if planner is None:
+        return None
+    for item in planner.itinerary:
+        if destination_id is not None and item.get("city_id") != destination_id:
+            continue
+        value = item.get("city_name_ko")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
 
 
 def _itinerary_payload(

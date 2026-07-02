@@ -68,6 +68,47 @@ def test_response_packager_agent_packages_without_unified_state() -> None:
     assert output.response["response_payload"]["recommendationId"] == "REQ-AGENT"
 
 
+def test_response_packager_uses_planner_city_name_for_direct_anchor() -> None:
+    output = ResponsePackagerAgent().run(
+        ResponsePackagerInput(
+            request={
+                "request_id": "REQ-ANCHOR",
+                "country": "KR",
+                "travel_month": 9,
+                "trip_type": "daytrip",
+                "destination_id": "KR-51-150",
+                "themes": ("예술·감성",),
+            },
+            planner_output={
+                "itinerary": [
+                    {
+                        "day": 1,
+                        "slot": "morning",
+                        "placeId": "attraction#2804197",
+                        "title": "아르떼뮤지엄 강릉",
+                        "city_id": "KR-51-150",
+                        "city_name_ko": "강릉시",
+                    },
+                ],
+                "recommendation_reasons": (),
+                "itinerary_flow_reason": "강릉 문화 공간을 하루에 묶은 일정입니다.",
+                "external_links": {},
+                "confidence": 0.5,
+                "user_notice": (),
+                "validation_result": {"planner_status_gate": "ok"},
+            },
+            selected_city=None,
+            festival_verifications=(),
+            unsupported_conditions=(),
+            clarification=None,
+        ),
+    )
+
+    destination = output.response["response_payload"]["destination"]
+    assert destination["destinationId"] == "KR-51-150"
+    assert destination["name"] == "강릉시"
+
+
 def test_response_packager_agent_packages_clarification_mapping() -> None:
     clarification = {
         "reason_code": "festival_none",
