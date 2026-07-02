@@ -14,6 +14,31 @@ from lovv_agent_v2.agentcore_entrypoint import (
 )
 
 
+class FakeProfileEvidenceResolver:
+    calls: list[tuple[dict[str, Any], str | None, str | None]] = []
+
+    def enrich_graph_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        actor_id: str | None,
+        thread_id: str | None,
+    ) -> dict[str, Any]:
+        self.calls.append((payload, actor_id, thread_id))
+        enriched = dict(payload)
+        profile = dict(enriched.get("profile", {}))
+        profile["profile_record"] = {
+            "actor_id": actor_id,
+            "lovv_user_profile": {
+                "saved_trip_count": 3,
+                "saved_theme_counts": {"sea_coast": 3},
+            },
+        }
+        profile["saved_itinerary_evidence_audit"] = {"cache_status": "hit"}
+        enriched["profile"] = profile
+        return enriched
+
+
 def test_extract_actor_id() -> None:
     """Verify that actorId is preferred, and fallback userIds are resolved correctly."""
     # actorId
@@ -42,7 +67,11 @@ def test_extract_resume_value() -> None:
 
 
 @patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
-def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
+@patch("lovv_agent_v2.agentcore_entrypoint._cached_profile_evidence_resolver")
+def test_handle_v2_invocation_plumbing(
+    mock_profile_resolver: MagicMock,
+    mock_cached_harness: MagicMock,
+) -> None:
     """Verify that handle_v2_invocation correctly maps session and actor ids into graph config."""
     mock_harness_instance = MagicMock()
     mock_harness_instance.invoke.return_value = {
@@ -50,6 +79,9 @@ def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
         "response": {"response_payload": {"recommendationId": "REC-1"}},
     }
     mock_cached_harness.return_value = mock_harness_instance
+    fake_resolver = FakeProfileEvidenceResolver()
+    fake_resolver.calls.clear()
+    mock_profile_resolver.return_value = fake_resolver
 
     event = {
         "entryType": "chat",
@@ -72,6 +104,9 @@ def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
     payload = args[0]
     assert payload["request"]["country"] == "KR"
     assert payload["intent"]["city_select_input"]["travel_month"] == 10
+    assert payload["profile"]["profile_record"]["actor_id"] == "actor-abc"
+    assert payload["profile"]["saved_itinerary_evidence_audit"]["cache_status"] == "hit"
+    assert fake_resolver.calls[0][1:] == ("actor-abc", "session-xyz")
     
     # 2. request_id가 sessionId 인지
     assert kwargs["request_id"] == "session-xyz"
@@ -104,6 +139,50 @@ def test_handle_v2_invocation_resumes_existing_thread(
     payload = mock_harness_instance.invoke.call_args.args[0]
     assert payload.resume == {"optionId": "continue_without_festival"}
     assert result == {"recommendationId": "REC-RESUME"}
+
+
+@patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
+@patch("lovv_agent_v2.agentcore_entrypoint._cached_profile_evidence_resolver")
+def test_handle_v2_invocation_continues_when_profile_evidence_lookup_fails(
+    mock_profile_resolver: MagicMock,
+    mock_cached_harness: MagicMock,
+) -> None:
+    class RaisingResolver:
+        def enrich_graph_payload(
+            self,
+            payload: dict[str, Any],
+            *,
+            actor_id: str | None,
+            thread_id: str | None,
+        ) -> dict[str, Any]:
+            raise RuntimeError("profile lookup unavailable")
+
+    mock_harness_instance = MagicMock()
+    mock_harness_instance.invoke.return_value = {
+        "response": {"response_payload": {"recommendationId": "REC-fallback"}},
+    }
+    mock_cached_harness.return_value = mock_harness_instance
+    mock_profile_resolver.return_value = RaisingResolver()
+
+    event = {
+        "entryType": "chat",
+        "country": "KR",
+        "travelMonth": 10,
+        "tripType": "2d1n",
+        "themes": ["sea_coast"],
+        "includeFestivals": False,
+        "sessionId": "session-xyz",
+        "actorId": "actor-abc",
+    }
+
+    result = handle_v2_invocation(event)
+
+    payload = mock_harness_instance.invoke.call_args.args[0]
+    assert payload["profile"]["saved_itinerary_evidence_audit"] == {
+        "cache_status": "bypassed",
+        "fallback_reason": "resolver_failed",
+    }
+    assert result == {"recommendationId": "REC-fallback"}
 
 
 def test_extract_graph_payload_wraps_generation_intent_mock() -> None:
