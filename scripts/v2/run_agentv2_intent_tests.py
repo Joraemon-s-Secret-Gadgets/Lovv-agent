@@ -6,8 +6,6 @@ import json
 import os
 import subprocess
 import sys
-from collections.abc import Sequence
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -23,28 +21,7 @@ from lovv_agent_v2.agents.intent.node import intent_node
 from lovv_agent_v2.agents.intent.parser import parse_initial_query
 from lovv_agent_v2.core.state import UnifiedAgentState
 
-
-@dataclass(frozen=True, slots=True)
-class TestRun:
-    name: str
-    command: tuple[str, ...]
-    log_name: str
-    return_code: int
-    stdout: str
-    stderr: str
-
-    @property
-    def output_text(self) -> str:
-        if self.stderr:
-            return f"{self.stdout.rstrip()}\n{self.stderr.rstrip()}\n"
-        return f"{self.stdout.rstrip()}\n"
-
-    @property
-    def passed_line(self) -> str:
-        for line in reversed(self.output_text.splitlines()):
-            if " passed" in line or " failed" in line or " error" in line:
-                return line.strip()
-        return "결과 요약을 찾지 못함"
+from agentv2_intent_results import TestRun, refresh_result_index, write_report, write_summary, write_test_output
 
 
 def main() -> int:
@@ -64,11 +41,19 @@ def main() -> int:
         log_name="pytest_playground.log",
         result_dir=result_dir,
     )
-    runs = (agent_run, playground_run)
+    runtime_run = _run_pytest(
+        name="V2 Intent runtime wiring pytest",
+        paths=("tests/v2/test_harness.py", "tests/v2/test_config.py", "tests/v2/test_runtime_dependency_injection.py"),
+        log_name="pytest_intent_runtime.log",
+        result_dir=result_dir,
+    )
+    runs = (agent_run, playground_run, runtime_run)
 
-    _write_summary(result_dir, runs)
-    _write_test_output(result_dir, runs)
+    write_summary(result_dir, runs, branch=_git_text("branch", "--show-current"), commit=_git_text("rev-parse", "--short", "HEAD"))
+    write_test_output(result_dir, runs)
     _write_input_output(result_dir)
+    write_report(result_dir, runs, scope="AgentV2 intent parser, prompt runtime, and harness wiring")
+    refresh_result_index(RESULT_ROOT)
 
     print(f"result_dir={result_dir.relative_to(REPO_ROOT).as_posix()}")
     for run in runs:
@@ -128,102 +113,6 @@ def _run_pytest(
     )
     (result_dir / log_name).write_text(run.output_text, encoding="utf-8", newline="\n")
     return run
-
-
-def _write_summary(result_dir: Path, runs: Sequence[TestRun]) -> None:
-    branch = _git_text("branch", "--show-current")
-    commit = _git_text("rev-parse", "--short", "HEAD")
-    body = [
-        "# AgentV2 Intent 로컬 테스트 결과",
-        "",
-        "## 범위",
-        "",
-        f"- Branch: `{branch}`",
-        f"- Base commit: `{commit}`",
-        "- 목표: 사용자 발화에서 선호/비선호 테마를 추출한다.",
-        "- 목표: 사용자 발화에서 선호/비선호 지역과 한글 지역명을 추출한다.",
-        "- 대상: AgentV2 deterministic intent parser, modify parser, preference validator, intent node handoff.",
-        "- GitHub main issue: #18",
-        "- GitHub sub issue: #19, #20, #21, #22, #23, #24",
-        "",
-        "## 결과",
-        "",
-    ]
-    for run in runs:
-        body.extend(
-            [
-                f"- `{_display_command(run.command)}`",
-                f"  - 결과: `{run.passed_line}`",
-                f"  - 종료 코드: `{run.return_code}`",
-                f"  - 원문 로그: `{run.log_name}`",
-                "  - 출력 결과: `test_output.md`",
-                "  - Input/Output 결과: `input_output.md`",
-            ]
-        )
-    body.extend(
-        [
-            "",
-            "## 실패",
-            "",
-            "- 없음." if all(run.return_code == 0 for run in runs) else "- 실패한 pytest 실행이 있다. 원문 로그를 확인한다.",
-            "",
-            "## 후속 작업",
-            "",
-            "- Live smoke testing은 이 로컬 unit/playground gate와 별도로 수행한다.",
-            "",
-            "## 검증 필드",
-            "",
-            "- `preferred_theme_ids`",
-            "- `disliked_theme_ids`",
-            "- `preferred_region_ids`",
-            "- `preferred_region_names`",
-            "- `disliked_region_ids`",
-            "- `disliked_region_names`",
-            "- `needs_clarification`",
-            "- `clarifying_question`",
-            "- `contradiction_reasons`",
-            "- `city_select_input.active_required_themes`",
-        ]
-    )
-    (result_dir / "summary.md").write_text("\n".join(body) + "\n", encoding="utf-8", newline="\n")
-
-
-def _write_test_output(result_dir: Path, runs: Sequence[TestRun]) -> None:
-    body = ["# AgentV2 Intent 테스트 출력 결과", ""]
-    for run in runs:
-        body.extend(
-            [
-                f"## {run.name}",
-                "",
-                "실행 명령:",
-                "",
-                "```bash",
-                _display_command(run.command),
-                "```",
-                "",
-                "출력:",
-                "",
-                "```text",
-                run.output_text.rstrip(),
-                "```",
-                "",
-                "해석:",
-                "",
-                f"- 종료 코드: `{run.return_code}`",
-                f"- 결과 요약: `{run.passed_line}`",
-                "",
-            ]
-        )
-    body.extend(
-        [
-            "## 종합 결과",
-            "",
-            f"- 전체 실행 성공 여부: `{all(run.return_code == 0 for run in runs)}`",
-            "- 원문 로그: `pytest_agentv2_intent.log`, `pytest_playground.log`",
-            "- 테스트 Input/Output 결과: `input_output.md`",
-        ]
-    )
-    (result_dir / "test_output.md").write_text("\n".join(body) + "\n", encoding="utf-8", newline="\n")
 
 
 def _write_input_output(result_dir: Path) -> None:
@@ -302,13 +191,6 @@ def _result_dict(result: object) -> dict[str, object]:
         "clarifying_question": getattr(result, "clarifying_question"),
         "contradiction_reasons": list(getattr(result, "contradiction_reasons")),
     }
-
-
-def _display_command(command: Sequence[str]) -> str:
-    parts = list(command)
-    if parts and parts[0] == sys.executable:
-        parts[0] = "python"
-    return " ".join(parts).replace(str(REPO_ROOT), ".")
 
 
 def _git_text(*args: str) -> str:
