@@ -9,12 +9,32 @@
 ## 0. 원칙 — checkpoint state에서 출발 ✅
 초안 생성에도 checkpointer를 걸기 때문에(`memory_checkpointer_spec`), **생성된 일정 + 전체 `UnifiedAgentState`가 `thread_id`로 persist**된다. 수정은 그 상태를 **resume으로 복원해 거기서 출발**한다.
 
+- **front route 힌트 = `entry_type`** ✅
+  front는 생성/수정/확정 요청을 구분하기 위해 `entry_type`을 보낸다. AgentV2는 `entry_type`을 route 힌트로 쓰되, schema validation과 checkpoint 존재 여부로 최종 방어한다.
 - **modify 처리 입력 = `(현재 itinerary)` + `(재인출 컨텍스트)` + `(ModifyResult)`**.
 - **현재 itinerary 배열 출처 = front 동봉 우선, 미동봉 시 checkpoint fallback** ✅
   front가 **드래그앤드롭**으로 순서·위치를 바꿀 수 있으므로, 수정 요청에 front가 **현재 itinerary를 실어 보낸다**(드래그 반영본). 안 보내졌으면 checkpoint의 itinerary를 신뢰. → **배열=front, 내용 생성=에이전트.**
   - ✅ **front 동봉 itinerary에 seed 표시 포함**(합의): front가 생성된 일정에 seed(day anchor)를 별도 표시해 같이 보냄 → 에이전트의 seed 보호(교체 거부)가 front 배열 위에서도 동작.
 - **재인출 컨텍스트**(themes·query·place 풀·`selected_city`·seed)는 checkpoint(resumed state)에서 복원 — 수정은 이걸 다시 만들지 않는다.
 - ◐ **1차 단순화**: 전체 state 재적재여도 OK(비효율 허용). 최적화(부분 state 로드 등)는 나중. 재인출은 **교체 슬롯 단위만**.
+
+---
+
+## 0.5 `entry_type` route 계약 ✅
+`entry_type`은 public request의 route 힌트다. 내부 정본 state는 여전히 `intent.city_select_input`, `ModifyResult`, `profile.profile_update`로 수렴한다.
+
+| `entry_type` | 의미 | AgentV2 route | 필수 입력 |
+|---|---|---|---|
+| `create` | 신규 추천 생성 | IntentResult → Profile → Festival/CitySelect/Planner | 생성 필드(`country`, `travelMonth`, `tripType`, `themes`, `includeFestivals`) |
+| `recommendation` / `chat` / missing | 신규 추천 생성 alias | `create`와 동일. 단, checkpoint와 수정 payload가 있으면 방어적으로 modify 후보로 재검증 | 생성 필드 |
+| `modify` / `edit` / `resume` | 기존 일정 수정 | checkpoint resume → ModifyResult → Planner modify mode | `thread_id`, 현재 itinerary(front 동봉 우선), 수정 NL |
+| `itinerary_confirmed` / `confirm` | 일정 확정 이벤트 | Profile update 요청 후 recommendation graph 종료 | `thread_id`, `actor_id`, `recommendation_id` 또는 `itinerary_id`(있으면) |
+
+### route 방어 규칙
+- `entry_type=modify`인데 checkpoint/thread가 없으면 `END_WAIT_USER`로 기존 일정이 필요하다고 안내한다.
+- `entry_type=create`인데 수정용 itinerary만 오고 생성 필드가 없으면 schema error 대신 clarification route로 보낸다.
+- `entry_type=itinerary_confirmed`는 추천 재생성을 하지 않는다. Profile update 이벤트만 남기고 graph를 종료한다.
+- alias는 호환을 위해 수용하지만, 신규 front 계약은 `create`, `modify`, `itinerary_confirmed` 세 값만 권장한다.
 
 ---
 
