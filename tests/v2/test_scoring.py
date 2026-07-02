@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from lovv_agent_v2.agents.city_select.scoring import (
+from lovv_agent_v2.agents.city_select.scoring.service import (
     CANDIDATE_SUFFICIENCY_THRESHOLD,
     ScoringTool,
     haversine_distance,
@@ -40,7 +40,7 @@ def attraction(
 class PlaceScoringTest(unittest.TestCase):
     """Validate per-attraction score components."""
 
-    def test_score_place_combines_similarity_theme_quality_and_distance(self) -> None:
+    def test_score_place_combines_similarity_quality_and_reference_distance(self) -> None:
         result = score_place(
             attraction(
                 "P-1",
@@ -52,25 +52,24 @@ class PlaceScoringTest(unittest.TestCase):
         )
 
         self.assertTrue(result.scored)
-        self.assertEqual(result.place_score, 1.2)
+        self.assertEqual(result.place_score, 1.0)
         self.assertEqual(
             result.score_components,
             {
                 "raw_similarity": 0.8,
                 "base_similarity": 0.8,
-                "theme_match_score": 0.2,
                 "source_quality_score": 0.2,
-                "local_distance_penalty": 0.0,
+                "place_reference_distance_penalty": 0.0,
             },
         )
 
-    def test_score_place_filters_external_and_festival_themes(self) -> None:
+    def test_score_place_does_not_add_theme_match_bonus(self) -> None:
         result = score_place(
             attraction("P-1", themes=["바다·해안"]),
             ["미식·노포", "festival_event", "바다·해안"],
         )
 
-        self.assertEqual(result.score_components["theme_match_score"], 0.2)
+        self.assertNotIn("theme_match_score", result.score_components)
 
     def test_score_place_excludes_non_attraction_entities(self) -> None:
         for entity_type in ("restaurant", "festival"):
@@ -100,7 +99,7 @@ class PlaceScoringTest(unittest.TestCase):
         )
 
         self.assertTrue(result.scored)
-        self.assertEqual(result.score_components["theme_match_score"], 0.0)
+        self.assertNotIn("theme_match_score", result.score_components)
 
     def test_festival_theme_label_does_not_receive_theme_bonus(self) -> None:
         result = score_place(
@@ -109,7 +108,7 @@ class PlaceScoringTest(unittest.TestCase):
         )
 
         self.assertTrue(result.scored)
-        self.assertEqual(result.score_components["theme_match_score"], 0.0)
+        self.assertNotIn("theme_match_score", result.score_components)
 
     def test_haversine_distance_returns_kilometers(self) -> None:
         distance = haversine_distance(37.5665, 126.9780, 35.1796, 129.0756)

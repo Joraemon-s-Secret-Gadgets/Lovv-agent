@@ -75,6 +75,29 @@ def test_profile_node_leaves_city_select_input_unweighted_without_profile() -> N
     CitySelectInput.from_mapping(city_input)
 
 
+def test_profile_node_records_itinerary_confirmation_without_city_select_input() -> None:
+    result = profile_node(
+        {
+            "intent": {
+                "intent_type": "itinerary_confirmed",
+                "recommendation_id": "REC-1",
+            },
+            "profile": {
+                "lovv_user_profile": {
+                    "saved_trip_count": 2,
+                    "saved_theme_counts": {"sea_coast": 2},
+                },
+            },
+        },
+    )
+
+    assert result["intent"]["intent_type"] == "itinerary_confirmed"
+    assert result["profile"]["saved_trip_count"] == 3
+    assert result["profile"]["profile_update"]["reason"] == "itinerary_confirmed"
+    assert result["profile"]["profile_update"]["recommendation_id"] == "REC-1"
+    assert result["profile"]["audit"]["profile_update_requested"] is True
+
+
 def test_profile_node_accepts_db_like_profile_record() -> None:
     result = profile_node(
         {

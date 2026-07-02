@@ -6,14 +6,20 @@ from typing import cast
 
 from pytest import MonkeyPatch
 
-from lovv_agent_v2.agents.planner.nodes import (
-    assemble_itinerary_node,
-    retrieve_places_node,
-    route_days_node,
+from lovv_agent_v2.agents.planner.agent import (
+    PlannerAgent,
+    PlannerAgentRequest,
+    PlannerAgentTools,
 )
-from lovv_agent_v2.agents.planner.ors_provider import OrsProviderConfig, OrsTravelTimeProvider
-from lovv_agent_v2.agents.planner.context import travel_time_provider
-from lovv_agent_v2.agents.planner.travel_time import (
+from lovv_agent_v2.agents.planner.state_adapter import (
+    assemble_itinerary_step,
+    retrieve_places,
+    route_days_step,
+)
+from lovv_agent_v2.agents.planner.subgraph import compile_planner_subgraph
+from lovv_agent_v2.agents.planner.external.ors_provider import OrsProviderConfig, OrsTravelTimeProvider
+from lovv_agent_v2.agents.planner.state.context import travel_time_provider
+from lovv_agent_v2.agents.planner.external.travel_time import (
     MatrixResponse,
     SnapResponse,
     TravelTimeProvider,
@@ -117,6 +123,42 @@ class FakeTravelTimeProvider(TravelTimeProvider):
         )
 
 
+def test_planner_agent_core_uses_injected_tools_without_state_scratch() -> None:
+    search = FakeDestinationSearch()
+    embedding = FakeEmbedding()
+    tools = PlannerAgentTools(
+        runtime=FakePlannerTools(destination_search=search, embedding=embedding),
+        travel_time_provider=FakeTravelTimeProvider(),
+    )
+    request = PlannerAgentRequest(
+        selected_city={
+            "city_id": "KR-SOKCHO",
+            "city_name_ko": "속초",
+            "ddb_pk": "CITY#SOKCHO",
+        },
+        city_id="KR-SOKCHO",
+        ddb_pk="CITY#SOKCHO",
+        raw_query="속초 바다 역사",
+        soft_query="조용한 역사 산책",
+        seeds=({"place_id": "raw-1", "theme": "바다·해안", "must_include": True},),
+        active_themes=("바다·해안", "역사·문화"),
+        theme_weights={"바다·해안": 0.7, "역사·문화": 0.3},
+        trip_type="2d1n",
+        transport_pref="car",
+        min_count=3,
+        target_count=6,
+    )
+
+    result = PlannerAgent(tools).run(request)
+
+    assert embedding.queries == ["속초 바다 역사", "조용한 역사 산책"]
+    assert [call["top_k"] for call in search.calls] == [50, 50]
+    assert [call["city_id"] for call in search.calls] == ["KR-SOKCHO", "KR-SOKCHO"]
+    assert result.place_pool["raw_places"]
+    assert result.selection["places"]
+    assert result.route["days"]
+
+
 def _base_state() -> dict[str, object]:
     return {
         "intent": {
@@ -137,26 +179,36 @@ def _base_state() -> dict[str, object]:
                     "country": "KR",
                     "ddb_pk": "CITY#SOKCHO",
                 },
-                "alternative_city": {"city_id": "KR-GANGNEUNG", "city_name_ko": "강릉"},
+                "alternative_city": {"city_id": "KR-GANGNEUNG", "city_name_ko": "강릉", "ddb_pk": "CITY#GANGNEUNG"},
                 "seeds": [{"place_id": "raw-1", "theme": "바다·해안", "must_include": True}],
             },
         },
     }
 
 
+def _set_planner_scratch(state: dict[str, object], **scratch: object) -> None:
+    state["planner"] = {"scratch": scratch}
+
+
 def test_retrieve_places_node_runs_city_anchored_raw_and_soft_channels() -> None:
     search = FakeDestinationSearch()
     embedding = FakeEmbedding()
     state = _base_state()
-    state["planner_runtime"] = FakePlannerTools(destination_search=search, embedding=embedding)
+    _set_planner_scratch(
+        state,
+        runtime=FakePlannerTools(destination_search=search, embedding=embedding),
+    )
 
-    result = retrieve_places_node(state)
+    result = retrieve_places(state)
 
-    pool = cast(dict[str, object], result["planner_place_pool"])
+    planner = cast(dict[str, object], result["planner"])
+    scratch = cast(dict[str, object], planner["scratch"])
+    pool = cast(dict[str, object], scratch["place_pool"])
     assert embedding.queries == ["속초 바다 역사", "조용한 역사 산책"]
+    assert [call["top_k"] for call in search.calls] == [50, 50]
     assert [call["theme"] for call in search.calls] == [None, None]
     assert [call["city_id"] for call in search.calls] == ["KR-SOKCHO", "KR-SOKCHO"]
-    assert [call["ddb_pk"] for call in search.calls] == ["CITY#SOKCHO", "CITY#SOKCHO"]
+    assert [call["ddb_pk"] for call in search.calls] == [None, None]
     assert [place["place_id"] for place in cast(tuple[dict[str, object], ...], pool["raw_places"])] == [
         "raw-1",
         "raw-2",
@@ -166,27 +218,53 @@ def test_retrieve_places_node_runs_city_anchored_raw_and_soft_channels() -> None
     ]
 
 
+def test_planner_subgraph_preserves_internal_state_between_nodes() -> None:
+    state = _base_state()
+    _set_planner_scratch(
+        state,
+        runtime=FakePlannerTools(
+            destination_search=FakeDestinationSearch(),
+            embedding=FakeEmbedding(),
+        ),
+        travel_time_provider=FakeTravelTimeProvider(),
+    )
+
+    result = compile_planner_subgraph().invoke(state)
+
+    planner = cast(dict[str, object], result["planner"])
+    scratch = cast(dict[str, object], planner["scratch"])
+    output = cast(dict[str, object], planner["planner_output"])
+    assert output["itinerary"]
+    assert "place_pool" in scratch
+    assert "planner_place_pool" not in result
+
+
 def test_route_days_node_uses_snap_matrix_and_excludes_only_unroutable() -> None:
     state = _base_state()
-    state["planner_runtime"] = FakePlannerTools(
-        destination_search=FakeDestinationSearch(),
-        embedding=FakeEmbedding(),
-    )
-    state["planner_travel_time_provider"] = FakeTravelTimeProvider()
-    state["planner_place_pool"] = {
-        "raw_places": (
-            _place("raw-1", "해변", 0.92, "바다·해안", subtype="beach"),
-            _place("raw-2", "등대", 0.88, "바다·해안", subtype="view"),
-            _place("soft-1", "향교", 0.74, "역사·문화", subtype="history"),
-            _place("missing-coords", "좌표없음", 0.70, "역사·문화", lat=None, lon=None),
-            _place("far-leg", "먼 전망대", 0.68, "바다·해안"),
+    _set_planner_scratch(
+        state,
+        runtime=FakePlannerTools(
+            destination_search=FakeDestinationSearch(),
+            embedding=FakeEmbedding(),
         ),
-        "soft_places": (),
-    }
+        travel_time_provider=FakeTravelTimeProvider(),
+        place_pool={
+            "raw_places": (
+                _place("raw-1", "해변", 0.92, "바다·해안", subtype="beach"),
+                _place("raw-2", "등대", 0.88, "바다·해안", subtype="view"),
+                _place("soft-1", "향교", 0.74, "역사·문화", subtype="history"),
+                _place("missing-coords", "좌표없음", 0.70, "역사·문화", lat=None, lon=None),
+                _place("far-leg", "먼 전망대", 0.68, "바다·해안"),
+            ),
+            "soft_places": (),
+        },
+    )
 
-    result = route_days_node(state)
+    result = route_days_step(state)
 
-    routed = cast(dict[str, object], result["planner_route"])
+    planner = cast(dict[str, object], result["planner"])
+    scratch = cast(dict[str, object], planner["scratch"])
+    routed = cast(dict[str, object], scratch["route"])
     audit = cast(dict[str, object], routed["audit"])
     assert audit["duration_unit"] == "minutes"
     assert audit["matrix_provider"] == "fake"
@@ -196,27 +274,30 @@ def test_route_days_node_uses_snap_matrix_and_excludes_only_unroutable() -> None
 
 def test_assemble_itinerary_node_returns_structured_audit_and_thin_city_notice() -> None:
     state = _base_state()
-    state["planner_route"] = {
-        "days": (
-            {
-                "day": 1,
-                "anchor_place_id": "raw-1",
-                "anchor_type": "seed",
-                "places": (
-                    {
-                        "place": _place("raw-1", "해변", 0.92, "바다·해안"),
-                        "move_min_from_prev": 0,
-                    },
-                ),
-                "day_travel_min": 0,
-            },
-        ),
-        "reserve": (),
-        "audit": {"duration_unit": "minutes", "trimmed_place_ids": ()},
-    }
-    state["planner_selection"] = {"audit": {"target_count": 8, "selected_count": 1}}
+    _set_planner_scratch(
+        state,
+        route={
+            "days": (
+                {
+                    "day": 1,
+                    "anchor_place_id": "raw-1",
+                    "anchor_type": "seed",
+                    "places": (
+                        {
+                            "place": _place("raw-1", "해변", 0.92, "바다·해안"),
+                            "move_min_from_prev": 0,
+                        },
+                    ),
+                    "day_travel_min": 0,
+                },
+            ),
+            "reserve": (),
+            "audit": {"duration_unit": "minutes", "trimmed_place_ids": ()},
+        },
+        selection={"audit": {"target_count": 8, "selected_count": 1}},
+    )
 
-    result = assemble_itinerary_node(state)
+    result = assemble_itinerary_step(state)
 
     output = cast(dict[str, object], cast(dict[str, object], result["planner"])["planner_output"])
     validation = cast(dict[str, object], output["validation_result"])
@@ -229,34 +310,37 @@ def test_assemble_itinerary_node_returns_structured_audit_and_thin_city_notice()
 
 def test_assemble_itinerary_node_preserves_public_grounding_fields() -> None:
     state = _base_state()
-    state["planner_route"] = {
-        "days": (
-            {
-                "day": 1,
-                "anchor_place_id": "raw-1",
-                "anchor_type": "seed",
-                "places": (
-                    {
-                        "place": {
-                            **_place("raw-1", "해변", 0.92, "바다·해안"),
-                            "city_id": "KR-SOKCHO",
-                            "city_name_ko": "속초",
-                            "ddb_pk": "CITY#SOKCHO",
-                            "ddb_sk": "PLACE#RAW-1",
-                            "source": "s3_vector",
+    _set_planner_scratch(
+        state,
+        route={
+            "days": (
+                {
+                    "day": 1,
+                    "anchor_place_id": "raw-1",
+                    "anchor_type": "seed",
+                    "places": (
+                        {
+                            "place": {
+                                **_place("raw-1", "해변", 0.92, "바다·해안"),
+                                "city_id": "KR-SOKCHO",
+                                "city_name_ko": "속초",
+                                "ddb_pk": "CITY#SOKCHO",
+                                "ddb_sk": "PLACE#RAW-1",
+                                "source": "s3_vector",
+                            },
+                            "move_min_from_prev": 0,
                         },
-                        "move_min_from_prev": 0,
-                    },
-                ),
-                "day_travel_min": 0,
-            },
-        ),
-        "reserve": (),
-        "audit": {"duration_unit": "minutes", "trimmed_place_ids": ()},
-    }
-    state["planner_selection"] = {"audit": {"target_count": 4, "selected_count": 1}}
+                    ),
+                    "day_travel_min": 0,
+                },
+            ),
+            "reserve": (),
+            "audit": {"duration_unit": "minutes", "trimmed_place_ids": ()},
+        },
+        selection={"audit": {"target_count": 4, "selected_count": 1}},
+    )
 
-    result = assemble_itinerary_node(state)
+    result = assemble_itinerary_step(state)
 
     output = cast(dict[str, object], cast(dict[str, object], result["planner"])["planner_output"])
     item = cast(tuple[dict[str, object], ...], output["itinerary"])[0]
@@ -266,6 +350,46 @@ def test_assemble_itinerary_node_preserves_public_grounding_fields() -> None:
     assert item["theme_tags"] == ("바다·해안",)
     assert item["ddb_pk"] == "CITY#SOKCHO"
     assert item["ddb_sk"] == "PLACE#RAW-1"
+
+
+def test_assemble_itinerary_node_labels_overnight_edge_day_slots() -> None:
+    state = _base_state()
+    _set_planner_scratch(
+        state,
+        route={
+            "days": (
+                {
+                    "day": 1,
+                    "anchor_place_id": "day1-a",
+                    "anchor_type": "medoid",
+                    "places": (
+                        {"place": _place("day1-a", "첫날 오후", 0.92, "바다·해안"), "move_min_from_prev": 0},
+                        {"place": _place("day1-b", "첫날 저녁", 0.88, "바다·해안"), "move_min_from_prev": 10},
+                    ),
+                    "day_travel_min": 10,
+                },
+                {
+                    "day": 2,
+                    "anchor_place_id": "day2-a",
+                    "anchor_type": "medoid",
+                    "places": (
+                        {"place": _place("day2-a", "마지막날 오전", 0.86, "바다·해안"), "move_min_from_prev": 0},
+                        {"place": _place("day2-b", "마지막날 오후", 0.82, "바다·해안"), "move_min_from_prev": 12},
+                    ),
+                    "day_travel_min": 12,
+                },
+            ),
+            "reserve": (),
+            "audit": {"duration_unit": "minutes", "trimmed_place_ids": ()},
+        },
+        selection={"audit": {"target_count": 6, "selected_count": 4}},
+    )
+
+    result = assemble_itinerary_step(state)
+
+    output = cast(dict[str, object], cast(dict[str, object], result["planner"])["planner_output"])
+    itinerary = cast(tuple[dict[str, object], ...], output["itinerary"])
+    assert [item["slot"] for item in itinerary] == ["afternoon", "evening", "morning", "afternoon"]
 
 
 def test_ors_provider_loads_external_snap_matrix_module(

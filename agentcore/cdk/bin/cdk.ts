@@ -28,6 +28,16 @@ async function main() {
   const spec = await configIO.readProjectSpec();
   const targets = await configIO.readAWSDeploymentTargets();
 
+  // Support per-target spec overrides: if agentcore.{target.name}.json exists,
+  // use it instead of the default agentcore.json for that target's stack.
+  function loadTargetSpec(targetName: string) {
+    const targetSpecPath = path.join(configRoot, `agentcore.${targetName}.json`);
+    if (fs.existsSync(targetSpecPath)) {
+      return JSON.parse(fs.readFileSync(targetSpecPath, 'utf-8'));
+    }
+    return spec;
+  }
+
   // The vended CDK project compiles against the published @aws/agentcore-cdk
   // schema type, which may lag the CLI's own AgentCoreProjectSpec (e.g. payments,
   // harnesses, gateway fields). Cast once so those fields are reachable.
@@ -123,7 +133,8 @@ async function main() {
 
   for (const target of targets) {
     const env = toEnvironment(target);
-    const stackName = toStackName(spec.name, target.name);
+    const targetSpec = loadTargetSpec(target.name);
+    const stackName = toStackName(targetSpec.name, target.name);
 
     // Extract credentials from deployed state for this target
     const targetState = (deployedState as Record<string, unknown>)?.targets as
@@ -137,8 +148,11 @@ async function main() {
     // Payment credential provider ARNs live in the same credentials map as identity credentials
     const paymentCredentials = credentials;
 
-    const paymentSpec = specAny.payments?.length
-      ? specAny.payments.map(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const targetSpecAny = targetSpec as any;
+
+    const paymentSpec = targetSpecAny.payments?.length
+      ? targetSpecAny.payments.map(
           (p: {
             name: string;
             description?: string;
@@ -174,16 +188,16 @@ async function main() {
       : undefined;
 
     new AgentCoreStack(app, stackName, {
-      spec,
+      spec: targetSpec,
       mcpSpec,
       credentials,
       connectorParametersByFile,
       harnesses: harnessConfigs.length > 0 ? harnessConfigs : undefined,
       paymentSpec,
       env,
-      description: `AgentCore stack for ${spec.name} deployed to ${target.name} (${target.region})`,
+      description: `AgentCore stack for ${targetSpec.name} deployed to ${target.name} (${target.region})`,
       tags: {
-        'agentcore:project-name': spec.name,
+        'agentcore:project-name': targetSpec.name,
         'agentcore:target-name': target.name,
       },
     });

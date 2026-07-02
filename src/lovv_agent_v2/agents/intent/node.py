@@ -1,18 +1,16 @@
-"""Intent Node definition."""
-
 from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import Any
 
-from lovv_agent_v2.agents.intent.parser import IntentPreferenceResult, parse_initial_query
+from lovv_agent_v2.agents.intent.parser import (
+    IntentPreferenceResult,
+    parse_initial_query,
+)
 from lovv_agent_v2.core.state import UnifiedAgentState
-from lovv_agent_v2.models.city_identity import enrich_city_select_identity
-from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
 
 def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
-    """Interpret query and determine if modification is requested."""
     intent = _intent_payload(state)
     request = state.get("request")
     city_input = _city_select_input(intent, request)
@@ -33,7 +31,9 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
         normalized_input["unsupported_conditions"],
     )
     if isinstance(request, Mapping):
-        _apply_preference_result(next_intent, parse_initial_query(_request_raw_query(request)))
+        _apply_preference_result(
+            next_intent, parse_initial_query(_request_raw_query(request))
+        )
     return {"intent": next_intent}
 
 
@@ -113,7 +113,9 @@ def _apply_preference_result(
     intent.setdefault("disliked_theme_ids", preference_result.disliked_theme_ids)
     intent.setdefault("preferred_region_ids", preference_result.preferred_region_ids)
     intent.setdefault("disliked_region_ids", preference_result.disliked_region_ids)
-    intent.setdefault("preferred_region_names", preference_result.preferred_region_names)
+    intent.setdefault(
+        "preferred_region_names", preference_result.preferred_region_names
+    )
     intent.setdefault("disliked_region_names", preference_result.disliked_region_names)
     intent.setdefault("needs_clarification", preference_result.needs_clarification)
     intent.setdefault("clarifying_question", preference_result.clarifying_question)

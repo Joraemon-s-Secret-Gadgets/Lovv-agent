@@ -25,6 +25,11 @@ test('AgentCoreStack synthesizes with empty spec', () => {
     },
   });
   const template = Template.fromStack(stack);
+  template.resourceCountIs('AWS::DynamoDB::Table', 0);
+  template.hasOutput('ProfileTableName', {
+    Description: 'LovvUserProfile DynamoDB table name',
+    Value: 'testproject-LovvUserProfile',
+  });
   template.hasOutput('StackNameOutput', {
     Description: 'Name of the CloudFormation Stack',
   });

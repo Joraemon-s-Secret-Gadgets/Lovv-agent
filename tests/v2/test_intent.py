@@ -22,7 +22,9 @@ def test_parse_initial_query_extracts_disliked_theme_ids() -> None:
 
 
 def test_parse_initial_query_extracts_preferred_and_disliked_regions() -> None:
-    result = parse_initial_query("속초 말고 안동이나 경주처럼 역사 있는 곳으로 추천해줘")
+    result = parse_initial_query(
+        "속초 말고 안동이나 경주처럼 역사 있는 곳으로 추천해줘"
+    )
 
     assert result.preferred_region_ids == ("andong", "gyeongju")
     assert result.preferred_region_names == ("안동", "경주")

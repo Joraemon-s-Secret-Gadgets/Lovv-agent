@@ -5,33 +5,27 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from lovv_agent_v2.agents.response_packager.agent import ResponsePackagerAgent
+from lovv_agent_v2.agents.response_packager.contracts import ResponsePackagerInput
 from lovv_agent_v2.core.state import UnifiedAgentState
-from lovv_agent_v2.agents.response_packager.packager import package_recommendation_response
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
 
 def response_packager_node(state: UnifiedAgentState) -> dict[str, Any]:
     """Format and pack output response. Triggers checkpointer interrupt."""
-    request = _request_payload(state)
-    clarification = _clarification_payload(state)
-    response_status = "END_WAIT_USER" if clarification is not None else "completed"
-    payload = package_recommendation_response(
+    output = ResponsePackagerAgent().run(_response_packager_input(state))
+    return {"response": output.response}
+
+
+def _response_packager_input(state: Mapping[str, Any]) -> ResponsePackagerInput:
+    return ResponsePackagerInput(
+        request=_request_payload(state),
         planner_output=_planner_output(state),
-        request=request,
         selected_city=_selected_city(state),
         festival_verifications=_festival_verifications(state),
         unsupported_conditions=_unsupported_conditions(state),
-        recommendation_id=_recommendation_id(request),
-        response_status=response_status,
-        clarification=clarification,
+        clarification=_clarification_payload(state),
     )
-    return {
-        "response": {
-            "response_status": response_status,
-            "response_payload": payload,
-            "clarification": clarification,
-        },
-    }
 
 
 def _request_payload(state: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -95,7 +89,34 @@ def _festival_verifications(state: Mapping[str, Any]) -> tuple[Any, ...]:
     if not isinstance(result, Mapping):
         return ()
     verified = result.get("verified_festival_cities")
-    return tuple(verified) if isinstance(verified, list) else ()
+    if not isinstance(verified, list):
+        return ()
+    verifications: list[dict[str, Any]] = []
+    for city in verified:
+        if not isinstance(city, Mapping):
+            continue
+        festivals = city.get("festivals")
+        if not isinstance(festivals, list):
+            continue
+        for festival in festivals:
+            if isinstance(festival, Mapping):
+                verifications.append(_festival_verification_payload(festival))
+    return tuple(verifications)
+
+
+def _festival_verification_payload(festival: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "festival_id": festival.get("festival_id"),
+        "name": festival.get("name"),
+        "date_status": festival.get("date_status", "confirmed"),
+        "start_date": festival.get("event_start_date", festival.get("start_date")),
+        "end_date": festival.get("event_end_date", festival.get("end_date")),
+        "is_applicable_to_trip": True,
+        "planner_policy": "placeable",
+        "source_type": festival.get("source", "dynamodb"),
+        "confidence": festival.get("confidence", 1.0),
+        "evidence_summary": "festival gate confirmed this festival for the requested month",
+    }
 
 
 def _unsupported_conditions(state: Mapping[str, Any]) -> tuple[str, ...]:
@@ -106,8 +127,3 @@ def _unsupported_conditions(state: Mapping[str, Any]) -> tuple[str, ...]:
     if isinstance(value, (list, tuple)):
         return tuple(str(item) for item in value)
     return ()
-
-
-def _recommendation_id(request: Mapping[str, Any]) -> str | None:
-    value = request.get("request_id", request.get("requestId"))
-    return value if isinstance(value, str) else None

@@ -1,0 +1,110 @@
+{
+  "name": "LovvAgentCore",
+  "version": 2,
+  "tags": {
+    "agentcore:created-by": "agentcore-cli",
+    "agentcore:project-name": "LovvAgentCore",
+    "Project": "Lovv",
+    "RuntimeTrack": "v1"
+  },
+  "runtimes": [
+    {
+      "name": "LovvAgentV1",
+      "build": "CodeZip",
+      "entrypoint": "main.py",
+      "codeLocation": "app/LovvAgentV1/",
+      "runtimeVersion": "PYTHON_3_12",
+      "networkMode": "PUBLIC",
+      "protocol": "HTTP",
+      "envVars": [
+        {
+          "name": "LOVV_AWS_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "LOVV_S3_VECTOR_BUCKET",
+          "value": "lovv-agentcore-v1-vector"
+        },
+        {
+          "name": "LOVV_S3_VECTOR_INDEX",
+          "value": "kr-agentcore-v1"
+        },
+        {
+          "name": "LOVV_DYNAMODB_TABLE",
+          "value": "TourKoreaDomainData"
+        },
+        {
+          "name": "LOVV_EMBEDDING_MODEL_ID",
+          "value": "amazon.titan-embed-text-v2:0"
+        },
+        {
+          "name": "LOVV_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_INTENT_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_PLANNER_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_SUPERVISOR_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_SEARCH_PER_THEME_TOP_K",
+          "value": "50"
+        },
+        {
+          "name": "LOVV_SEARCH_RAW_SOFT_TOP_K",
+          "value": "50"
+        },
+        {
+          "name": "LOVV_CONNECT_TIMEOUT_SECONDS",
+          "value": "60"
+        },
+        {
+          "name": "LOVV_READ_TIMEOUT_SECONDS",
+          "value": "60"
+        },
+        {
+          "name": "LOVV_PROFILE_ENABLED",
+          "value": "false"
+        },
+        {
+          "name": "LOVV_PROFILE_TABLE",
+          "value": "LovvAgentCore-LovvUserProfile"
+        },
+        {
+          "name": "OTEL_PYTHON_EXCLUDED_URLS",
+          "value": "ping"
+        },
+        {
+          "name": "OTEL_PYTHON_STARLETTE_EXCLUDED_URLS",
+          "value": "ping"
+        }
+      ],
+      "tags": {
+        "RuntimeVersion": "v1"
+      }
+    }
+  ],
+  "memories": [],
+  "credentials": [
+    {
+      "authorizerType": "ApiKeyCredentialProvider",
+      "name": "ors_service_key"
+    }
+  ],
+  "payments": [],
+  "evaluators": [],
+  "onlineEvalConfigs": [],
+  "agentCoreGateways": [],
+  "policyEngines": []
+}

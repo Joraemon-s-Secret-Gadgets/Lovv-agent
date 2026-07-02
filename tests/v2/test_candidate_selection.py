@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from lovv_agent_v2.agents.city_select.selection import (
+from lovv_agent_v2.agents.city_select.scoring.selection import (
     CandidateSelectionHelper,
     candidate_budgets_for_trip,
     select_primary_with_theme_quotas,
@@ -28,19 +28,15 @@ def candidate(
 
 
 class CandidateBudgetTest(unittest.TestCase):
-    """Validate tripType candidate budgets."""
-
     def test_candidate_budgets_for_trip(self) -> None:
-        self.assertEqual(candidate_budgets_for_trip("daytrip"), (6, 4))
-        self.assertEqual(candidate_budgets_for_trip("2d1n"), (10, 8))
-        self.assertEqual(candidate_budgets_for_trip("3d2n"), (14, 10))
-        self.assertEqual(candidate_budgets_for_trip("4d3n"), (18, 12))
-        self.assertEqual(candidate_budgets_for_trip("5d4n"), (18, 12))
+        self.assertEqual(candidate_budgets_for_trip("daytrip"), 6)
+        self.assertEqual(candidate_budgets_for_trip("2d1n"), 10)
+        self.assertEqual(candidate_budgets_for_trip("3d2n"), 14)
+        self.assertEqual(candidate_budgets_for_trip("4d3n"), 18)
+        self.assertEqual(candidate_budgets_for_trip("5d4n"), 18)
 
 
 class CandidateSelectionTest(unittest.TestCase):
-    """Validate primary/reserve selection and quota audit."""
-
     def test_select_primary_fills_min_quota_before_score_tail(self) -> None:
         candidates = [
             candidate("sea-1", "Sea 1", 1.00, ["바다·해안"]),
@@ -56,7 +52,6 @@ class CandidateSelectionTest(unittest.TestCase):
             candidates,
             ["바다·해안", "역사·문화"],
             primary_budget=6,
-            reserve_budget=1,
         )
 
         primary_ids = [item["place_id"] for item in result.primary]
@@ -83,7 +78,6 @@ class CandidateSelectionTest(unittest.TestCase):
             candidates,
             ["바다·해안", "역사·문화"],
             primary_budget=6,
-            reserve_budget=1,
         )
 
         self.assertEqual(len(result.primary), 6)
@@ -94,7 +88,7 @@ class CandidateSelectionTest(unittest.TestCase):
             {"바다·해안": 4, "역사·문화": 2},
         )
 
-    def test_title_dedup_runs_before_primary_and_reserve(self) -> None:
+    def test_title_dedup_runs_before_primary_selection(self) -> None:
         candidates = [
             candidate("P-1", "Same Title", 1.0, ["바다·해안"]),
             candidate("P-2", " same title ", 0.9, ["바다·해안"]),
@@ -107,14 +101,12 @@ class CandidateSelectionTest(unittest.TestCase):
             candidates,
             ["바다·해안"],
             primary_budget=3,
-            reserve_budget=2,
         )
 
-        selected_ids = [item["place_id"] for item in result.primary + result.reserve]
+        selected_ids = [item["place_id"] for item in result.primary]
         self.assertIn("P-1", selected_ids)
         self.assertNotIn("P-2", selected_ids)
         self.assertIn("P-4", selected_ids)
-        self.assertIn("P-5", selected_ids)
         self.assertEqual(result.coverage_audit["deduplicated_title_count"], 1)
 
     def test_quota_shortfall_and_unfilled_slots_are_audited(self) -> None:
@@ -125,23 +117,20 @@ class CandidateSelectionTest(unittest.TestCase):
             ],
             ["바다·해안", "역사·문화"],
             primary_budget=6,
-            reserve_budget=2,
         )
 
         self.assertEqual(result.coverage_audit["min_quota_shortfalls"], {"역사·문화": 1})
         self.assertEqual(result.coverage_audit["unfilled_primary_slots"], 4)
         self.assertEqual(result.coverage_audit["planner_capacity"], "insufficient")
 
-    def test_total_candidate_shortage_keeps_available_primary_and_empty_reserve(self) -> None:
+    def test_total_candidate_shortage_keeps_available_primary(self) -> None:
         result = select_primary_with_theme_quotas(
             [candidate("P-1", "Only", 1.0, ["자연"])],
             ["자연", "역사·문화"],
             primary_budget=4,
-            reserve_budget=2,
         )
 
         self.assertEqual([item["place_id"] for item in result.primary], ["P-1"])
-        self.assertEqual(result.reserve, ())
         self.assertEqual(result.coverage_audit["min_quota_shortfalls"], {"역사·문화": 1})
         self.assertEqual(result.coverage_audit["unfilled_primary_slots"], 3)
         self.assertEqual(result.coverage_audit["planner_capacity"], "insufficient")
@@ -155,7 +144,6 @@ class CandidateSelectionTest(unittest.TestCase):
             ],
             ["자연", "역사·문화"],
             primary_budget=4,
-            reserve_budget=0,
         )
 
         self.assertTrue(result.coverage_audit["max_quota_relaxed"])
@@ -171,15 +159,13 @@ class CandidateSelectionTest(unittest.TestCase):
             ],
             [],
             primary_budget=2,
-            reserve_budget=1,
             required_themes=["미식·노포"],
-            external_link_themes=["미식·노포"],
+            no_support_themes=["미식·노포"],
         )
 
         self.assertEqual([item["place_id"] for item in result.primary], ["P-1", "P-2"])
-        self.assertEqual([item["place_id"] for item in result.reserve], ["P-3"])
         self.assertEqual(result.coverage_audit["theme_min_quota"], 0)
-        self.assertEqual(result.coverage_audit["external_link_themes"], ["미식·노포"])
+        self.assertEqual(result.coverage_audit["no_support_themes"], ["미식·노포"])
 
 
 if __name__ == "__main__":
