@@ -123,3 +123,25 @@ def test_extract_graph_payload_wraps_public_recommendation_request() -> None:
     assert city_input["active_required_themes"] == ("바다·해안",)
     assert city_input["cleaned_raw_query"] == "조용한 바다 당일치기"
     assert city_input["execution_mode"] == "city_discovery"
+
+
+def test_extract_graph_payload_uses_natural_language_query_textfield() -> None:
+    event = {
+        "entryType": "chat",
+        "country": "KR",
+        "travelMonth": 10,
+        "travelYear": 2026,
+        "tripType": "2d1n",
+        "themes": [],
+        "includeFestivals": False,
+        "naturalLanguageQuery": "속초 말고 안동이나 경주처럼 역사 있는 곳 추천해줘.",
+        "softPreferenceQuery": "차분하게 둘러보고 싶어.",
+    }
+
+    payload = extract_graph_payload(event, request_id="REQ-TEXTFIELD")
+
+    city_input = payload["intent"]["city_select_input"]
+    assert payload["request"]["raw_query"] == event["naturalLanguageQuery"]
+    assert payload["request"]["soft_preference_query"] == event["softPreferenceQuery"]
+    assert city_input["cleaned_raw_query"] == event["naturalLanguageQuery"]
+    assert city_input["soft_preference_query"] == event["softPreferenceQuery"]
