@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import MagicMock, patch
 
+from lovv_agent_v2.agentcore_io import extract_thread_id
 from lovv_agent_v2.agentcore_entrypoint import (
     extract_actor_id,
     extract_graph_payload,
@@ -31,6 +32,20 @@ def test_extract_request_id() -> None:
     assert extract_request_id({"sessionId": "sess-999"}) == "sess-999"
     assert extract_request_id({"requestId": "req-111"}) == "req-111"
     assert extract_request_id({"headers": {"x-request-id": "hdr-222"}}) == "hdr-222"
+
+
+def test_extract_thread_id_prefers_session_id_for_checkpoint_resume() -> None:
+    assert (
+        extract_thread_id(
+            {
+                "requestId": "per-invocation-request",
+                "invocationId": "per-invocation-call",
+                "sessionId": "stable-session",
+            },
+            fallback="per-invocation-request",
+        )
+        == "stable-session"
+    )
 
 
 def test_extract_resume_value() -> None:
@@ -81,6 +96,35 @@ def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
     assert graph_config["configurable"]["thread_id"] == "session-xyz"
     assert graph_config["configurable"]["actor_id"] == "actor-abc"
     assert result == {"recommendationId": "REC-1"}
+
+
+@patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
+def test_handle_v2_invocation_uses_session_id_for_checkpoint_thread(
+    mock_cached_harness: MagicMock,
+) -> None:
+    mock_harness_instance = MagicMock()
+    mock_harness_instance.invoke.return_value = {
+        "response": {"response_payload": {"recommendationId": "REC-1"}},
+    }
+    mock_cached_harness.return_value = mock_harness_instance
+
+    handle_v2_invocation(
+        {
+            "entryType": "chat",
+            "country": "KR",
+            "travelMonth": 10,
+            "tripType": "2d1n",
+            "themes": ["sea_coast"],
+            "includeFestivals": False,
+            "requestId": "per-invocation-request",
+            "invocationId": "per-invocation-call",
+            "sessionId": "stable-session",
+        },
+    )
+
+    kwargs = mock_harness_instance.invoke.call_args.kwargs
+    assert kwargs["request_id"] == "per-invocation-request"
+    assert kwargs["graph_config"]["configurable"]["thread_id"] == "stable-session"
 
 
 @patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
