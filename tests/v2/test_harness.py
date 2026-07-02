@@ -5,7 +5,9 @@ from collections.abc import Mapping
 from typing import Any
 
 import lovv_agent_v2.harness as harness_module
+from lovv_agent_v2.agents.intent.tools import IntentPromptRuntime
 from lovv_agent_v2.agents.response_packager.tools import ItineraryExplanationRuntime
+from lovv_agent_v2.core.runtime_state import runtime_value
 from lovv_agent_v2.harness import LovvLangGraphV2Harness
 from lovv_agent_v2.infra.dynamo_lookup import DynamoLookupTool
 from lovv_agent_v2.infra.aws_clients import AwsRuntimeClients
@@ -22,6 +24,7 @@ from lovv_agent_v2.infra.repositories.dynamodb import DynamoDbRepository
 @dataclass(slots=True)
 class CapturingGraph:
     payloads: list[dict[str, Any]] = field(default_factory=list)
+    runtime_values: list[dict[str, Any]] = field(default_factory=list)
 
     def invoke(
         self,
@@ -30,10 +33,16 @@ class CapturingGraph:
         config: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         self.payloads.append(payload)
+        self.runtime_values.append(
+            {
+                "intent": runtime_value(payload, "intent_prompt_runtime"),
+                "runtime": runtime_value(payload, "itinerary_explanation_runtime"),
+            },
+        )
         return {"config": config or {}}
 
 
-def test_harness_injects_default_itinerary_explanation_runtime() -> None:
+def test_harness_uses_context_runtime_without_checkpoint_payload_injection() -> None:
     graph = CapturingGraph()
     runtime = ItineraryExplanationRuntime()
     graph_runtime = {"itinerary_explanation_runtime": runtime}
@@ -48,13 +57,14 @@ def test_harness_injects_default_itinerary_explanation_runtime() -> None:
     result = harness.invoke(payload, graph_config={"configurable": {"thread_id": "t-1"}})
 
     assert result["config"]["configurable"]["thread_id"] == "t-1"
-    assert graph.payloads[0]["runtime"] is graph_runtime
-    assert graph.payloads[0]["itinerary_explanation_runtime"] is runtime
+    assert "runtime" not in graph.payloads[0]
+    assert "itinerary_explanation_runtime" not in graph.payloads[0]
+    assert graph.runtime_values[0]["runtime"] is runtime
     assert "itinerary_explanation_runtime" not in payload
     assert "runtime" not in payload
 
 
-def test_harness_preserves_explicit_itinerary_explanation_runtime() -> None:
+def test_harness_uses_explicit_runtime_context_without_checkpoint_payload() -> None:
     graph = CapturingGraph()
     default_runtime = ItineraryExplanationRuntime()
     explicit_runtime = ItineraryExplanationRuntime(schema_retry_limit=7)
@@ -74,8 +84,9 @@ def test_harness_preserves_explicit_itinerary_explanation_runtime() -> None:
         },
     )
 
-    assert graph.payloads[0]["runtime"] is explicit_graph_runtime
-    assert graph.payloads[0]["itinerary_explanation_runtime"] is explicit_runtime
+    assert "runtime" not in graph.payloads[0]
+    assert "itinerary_explanation_runtime" not in graph.payloads[0]
+    assert graph.runtime_values[0]["runtime"] is explicit_runtime
 
 
 def test_build_live_harness_wires_default_itinerary_explanation_runtime(
@@ -95,8 +106,9 @@ def test_build_live_harness_wires_default_itinerary_explanation_runtime(
     harness = harness_module.build_live_harness(config=RuntimeConfig())
 
     harness.invoke({"request": {"request_id": "REQ-1"}})
-    assert graph.payloads[0]["runtime"] is graph_runtime
-    assert graph.payloads[0]["itinerary_explanation_runtime"] is runtime
+    assert "runtime" not in graph.payloads[0]
+    assert "itinerary_explanation_runtime" not in graph.payloads[0]
+    assert graph.runtime_values[0]["runtime"] is runtime
 
 
 def test_live_graph_runtime_uses_injected_aws_runtime_clients(monkeypatch: Any) -> None:
@@ -165,6 +177,21 @@ def test_live_itinerary_explanation_runtime_uses_explanation_model(
 
     assert captured["model_id"] == "explanation-model"
     assert runtime.explanation_runtime is not None
+
+
+def test_harness_uses_context_intent_prompt_runtime() -> None:
+    graph = CapturingGraph()
+    intent_runtime = IntentPromptRuntime(runtime=lambda request: {})
+    harness = LovvLangGraphV2Harness(
+        graph=graph,
+        config=RuntimeConfig(),
+        runtime={"intent_prompt_runtime": intent_runtime},
+    )
+
+    harness.invoke({"request": {"request_id": "REQ-1"}})
+
+    assert "runtime" not in graph.payloads[0]
+    assert graph.runtime_values[0]["intent"] is intent_runtime
 
 
 def test_live_intent_prompt_runtime_uses_intent_model(monkeypatch: Any) -> None:

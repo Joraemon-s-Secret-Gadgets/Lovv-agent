@@ -9,6 +9,7 @@ from lovv_agent_v2.agentcore_entrypoint import (
     extract_actor_id,
     extract_graph_payload,
     extract_request_id,
+    extract_resume_value,
     handle_v2_invocation,
 )
 
@@ -30,6 +31,14 @@ def test_extract_request_id() -> None:
     assert extract_request_id({"sessionId": "sess-999"}) == "sess-999"
     assert extract_request_id({"requestId": "req-111"}) == "req-111"
     assert extract_request_id({"headers": {"x-request-id": "hdr-222"}}) == "hdr-222"
+
+
+def test_extract_resume_value() -> None:
+    assert extract_resume_value({"resume": {"optionId": "continue"}}) == {
+        "optionId": "continue",
+    }
+    assert extract_resume_value({"resumeValue": "ok"}) == "ok"
+    assert extract_resume_value({"requestId": "REQ-1"}) is None
 
 
 @patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
@@ -72,6 +81,29 @@ def test_handle_v2_invocation_plumbing(mock_cached_harness: MagicMock) -> None:
     assert graph_config["configurable"]["thread_id"] == "session-xyz"
     assert graph_config["configurable"]["actor_id"] == "actor-abc"
     assert result == {"recommendationId": "REC-1"}
+
+
+@patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
+def test_handle_v2_invocation_resumes_existing_thread(
+    mock_cached_harness: MagicMock,
+) -> None:
+    mock_harness_instance = MagicMock()
+    mock_harness_instance.invoke.return_value = {
+        "response": {"response_payload": {"recommendationId": "REC-RESUME"}},
+    }
+    mock_cached_harness.return_value = mock_harness_instance
+
+    result = handle_v2_invocation(
+        {
+            "sessionId": "session-xyz",
+            "actorId": "actor-abc",
+            "resume": {"optionId": "continue_without_festival"},
+        },
+    )
+
+    payload = mock_harness_instance.invoke.call_args.args[0]
+    assert payload.resume == {"optionId": "continue_without_festival"}
+    assert result == {"recommendationId": "REC-RESUME"}
 
 
 def test_extract_graph_payload_wraps_generation_intent_mock() -> None:

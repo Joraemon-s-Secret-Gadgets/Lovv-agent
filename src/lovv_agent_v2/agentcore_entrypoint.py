@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping
 from functools import lru_cache
 from typing import Any
 
+from langgraph.types import Command
+
+from lovv_agent_v2.agentcore_io import decode_json_if_needed as _decode_json_if_needed
+from lovv_agent_v2.agentcore_io import extract_resume_value, interrupt_response
 from lovv_agent_v2.harness import LovvLangGraphV2Harness, build_live_harness
 
 
@@ -34,7 +37,12 @@ def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, An
 
     session_id = extract_request_id(event)
     actor_id = extract_actor_id(event) or session_id
-    payload = extract_graph_payload(event, request_id=session_id)
+    resume_value = extract_resume_value(event)
+    payload = (
+        Command(resume=resume_value)
+        if resume_value is not None
+        else extract_graph_payload(event, request_id=session_id)
+    )
 
     # Requirement 2: thread_id and actor_id plumbing
     graph_config = {
@@ -48,8 +56,14 @@ def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, An
         request_id=session_id,
         graph_config=graph_config,
     )
+    interrupted = interrupt_response(result)
+    if interrupted is not None:
+        return interrupted
     response = result.get("response") if isinstance(result, Mapping) else None
-    if not isinstance(response, Mapping) or not isinstance(response.get("response_payload"), Mapping):
+    if not isinstance(response, Mapping) or not isinstance(
+        response.get("response_payload"),
+        Mapping,
+    ):
         raise ValueError("V2 graph did not produce response payload")
     return dict(response["response_payload"])
 
@@ -129,24 +143,6 @@ def extract_actor_id(event: Any) -> str | None:
         if isinstance(value, str) and value.strip():
             return value.strip()
     return None
-
-
-def _decode_json_if_needed(value: Any) -> Any:
-    """Decode JSON strings or bytes while leaving structured values intact."""
-
-    if isinstance(value, bytes):
-        value = value.decode("utf-8")
-    if isinstance(value, str):
-        stripped = value.strip()
-        if not stripped:
-            raise ValueError("AgentCore invocation payload is empty")
-        try:
-            return json.loads(stripped)
-        except json.JSONDecodeError as exc:
-            raise ValueError(
-                "AgentCore invocation string must be JSON",
-            ) from exc
-    return value
 
 
 def _looks_like_recommendation_request(payload: Mapping[str, Any]) -> bool:

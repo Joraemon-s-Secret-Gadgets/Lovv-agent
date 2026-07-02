@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from collections.abc import Sequence
 from typing import Any
 
+from langgraph.types import Command
+
 from lovv_agent_v2.agents.city_select.tools import (
     CitySelectScoringTools,
     CitySelectTools,
@@ -38,6 +40,7 @@ from lovv_agent_v2.infra.memory.checkpointer import build_checkpointer
 from lovv_agent_v2.infra.repositories.dynamodb import DynamoDbRepository
 from lovv_agent_v2.infra.repositories.s3_vectors import S3VectorRepository
 from lovv_agent_v2.core.graph import compile_v2_graph
+from lovv_agent_v2.core.runtime_state import invocation_runtime
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
 
@@ -60,7 +63,7 @@ class LovvLangGraphV2Harness:
 
     def invoke(
         self,
-        payload: dict[str, Any],
+        payload: Command | dict[str, Any],
         *,
         request_id: str | None = None,
         graph_config: dict[str, Any] | None = None,
@@ -68,17 +71,25 @@ class LovvLangGraphV2Harness:
         """Invoke the V2 graph and return the output."""
 
         config = dict(graph_config or {})
-        graph_payload = self._payload_with_runtime(payload)
-        return self.graph.invoke(graph_payload, config=config)
+        graph_payload = (
+            payload if isinstance(payload, Command) else _checkpoint_payload(payload)
+        )
+        runtime = (
+            self.runtime
+            if isinstance(payload, Command)
+            else _runtime_payload(payload) or self.runtime
+        )
+        itinerary_runtime = self.itinerary_explanation_runtime
+        if not isinstance(payload, Command):
+            itinerary_runtime = (
+                _itinerary_explanation_runtime_payload(payload)
+                or self.itinerary_explanation_runtime
+            )
+        with invocation_runtime(runtime, itinerary_runtime):
+            return self.graph.invoke(graph_payload, config=config)
 
     def _payload_with_runtime(self, payload: dict[str, Any]) -> dict[str, Any]:
-        graph_payload = dict(payload)
-        if self.runtime is not None and "runtime" not in graph_payload:
-            graph_payload["runtime"] = self.runtime
-        runtime = self.itinerary_explanation_runtime
-        if runtime is not None and "itinerary_explanation_runtime" not in graph_payload:
-            graph_payload["itinerary_explanation_runtime"] = runtime
-        return graph_payload
+        return _checkpoint_payload(payload)
 
 
 def build_v2_harness(
@@ -112,6 +123,26 @@ def build_live_harness(
         runtime=runtime,
         itinerary_explanation_runtime=runtime["itinerary_explanation_runtime"],
     )
+
+
+def _checkpoint_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: value
+        for key, value in payload.items()
+        if key not in {"runtime", "itinerary_explanation_runtime"}
+    }
+
+
+def _runtime_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
+    runtime = payload.get("runtime")
+    return dict(runtime) if isinstance(runtime, dict) else None
+
+
+def _itinerary_explanation_runtime_payload(
+    payload: dict[str, Any],
+) -> ItineraryExplanationRuntime | None:
+    runtime = payload.get("itinerary_explanation_runtime")
+    return runtime if isinstance(runtime, ItineraryExplanationRuntime) else None
 
 
 def _build_live_graph_runtime(config: RuntimeConfig) -> dict[str, Any]:

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
+from typing import Any
+
 from langgraph.graph import END, StateGraph
 
 from lovv_agent_v2.agents.intent.node import intent_node
@@ -12,13 +15,28 @@ from lovv_agent_v2.agents.response_packager.node import response_packager_node
 from lovv_agent_v2.agents.supervisor.router import END_ROUTE, supervisor_node
 from lovv_agent_v2.core.state import UnifiedAgentState
 
+GraphNode = Callable[[UnifiedAgentState], Mapping[str, Any]]
+
 
 def compile_v2_graph(checkpointer: object | None = None) -> object:
+    return compile_v2_graph_with_nodes(
+        intent_handler=intent_node,
+        profile_handler=profile_node,
+        checkpointer=checkpointer,
+    )
+
+
+def compile_v2_graph_with_nodes(
+    *,
+    intent_handler: GraphNode,
+    profile_handler: GraphNode,
+    checkpointer: object | None = None,
+) -> object:
     workflow = StateGraph(UnifiedAgentState)
 
-    workflow.add_node("intent", intent_node)
+    workflow.add_node("intent", intent_handler)
     workflow.add_node("supervisor", supervisor_node)
-    workflow.add_node("profile", profile_node)
+    workflow.add_node("profile", profile_handler)
     workflow.add_node("festival_verifier", festival_verifier_node)
     workflow.add_node("explain_itinerary", explain_itinerary_node)
     workflow.add_node("response_packager", response_packager_node)
