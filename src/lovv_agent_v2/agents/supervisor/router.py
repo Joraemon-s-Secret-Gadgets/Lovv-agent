@@ -58,11 +58,11 @@ def _next_node(state: Mapping[str, Any], *, reason_code: str | None) -> str:
         return "festival_verifier"
     if _city_select_needs_response(state):
         return "response_packager"
-    if _can_skip_city_select_for_direct_anchor(state):
-        return "planner"
-    if not _has_city_selection_result(state):
-        return "city_select"
     if not _has_planner_output(state):
+        if _can_skip_city_select_for_direct_anchor(state):
+            return "planner"
+        if not _has_city_selection_result(state):
+            return "city_select"
         return "planner"
     if not _has_itinerary_explanation(state):
         return "explain_itinerary"

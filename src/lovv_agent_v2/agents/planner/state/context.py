@@ -13,6 +13,7 @@ from lovv_agent_v2.agents.planner.tools import (
 from lovv_agent_v2.agents.planner.external.travel_time import TravelTimeProvider
 from lovv_agent_v2.core.runtime_state import runtime_value
 from lovv_agent_v2.models.schemas import SchemaValidationError
+from lovv_agent_v2.models.trip_intent import city_select_input_from_trip_intent
 
 
 def planner_input(state: Mapping[str, object]) -> dict[str, object]:
@@ -168,6 +169,9 @@ def planner_city_input(state: Mapping[str, object]) -> Mapping[str, object]:
     intent = optional_mapping(state.get("intent"))
     if intent is None:
         return {}
+    trip_intent = intent.get("trip_intent")
+    if isinstance(trip_intent, Mapping):
+        return city_select_input_from_trip_intent(trip_intent)
     city_input = intent.get("city_select_input")
     return city_input if isinstance(city_input, Mapping) else {}
 

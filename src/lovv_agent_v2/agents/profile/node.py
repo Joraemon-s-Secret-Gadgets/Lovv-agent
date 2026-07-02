@@ -6,6 +6,7 @@ from typing import Any
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.models.profile import LovvUserProfile, build_profile_theme_weights
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
+from lovv_agent_v2.models.trip_intent import trip_intent_from_mapping
 
 CONFIRMATION_INTENT_VALUES = frozenset(
     {
@@ -45,6 +46,9 @@ def profile_node(state: UnifiedAgentState) -> dict:
 
     next_intent = dict(intent)
     next_intent["city_select_input"] = normalized_input
+    trip_intent = trip_intent_from_mapping(normalized_input)
+    if trip_intent is not None:
+        next_intent["trip_intent"] = trip_intent
     next_profile = _profile_payload(state)
     audit = weights.to_audit()
     next_profile["saved_trip_count"] = profile.saved_trip_count if profile is not None else 0

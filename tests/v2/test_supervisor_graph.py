@@ -86,6 +86,33 @@ def test_supervisor_routes_single_anchor_without_festival_to_planner() -> None:
     assert result["routing"]["completed_groups"] == ["profile", "festival_gate"]
 
 
+def test_supervisor_routes_direct_anchor_planner_output_to_explain() -> None:
+    result = supervisor_node(
+        {
+            "request": {"include_festivals": False},
+            "intent": {
+                "city_select_input": {
+                    "country": "KR",
+                    "include_festivals": False,
+                    "destination_id": "KR-47-760",
+                },
+            },
+            "profile": {"audit": {"profile_active": False}},
+            "planner": {
+                "planner_output": {"itinerary": []},
+                "validation_result": {"planner_status_gate": "insufficient_candidates"},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "explain_itinerary"
+    assert result["routing"]["completed_groups"] == [
+        "profile",
+        "festival_gate",
+        "planner",
+    ]
+
+
 def test_supervisor_routes_confirmed_festival_anchor_to_planner() -> None:
     result = supervisor_node(
         {

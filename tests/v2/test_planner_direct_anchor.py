@@ -100,6 +100,46 @@ def test_retrieve_places_node_uses_direct_anchor_without_city_select() -> None:
     assert [place["place_id"] for place in raw_places] == ["raw-1", "raw-2"]
 
 
+def test_retrieve_places_node_prefers_trip_intent_for_direct_anchor() -> None:
+    search = FakeDestinationSearch()
+    embedding = FakeEmbedding()
+    state: dict[str, object] = {
+        "intent": {
+            "trip_intent": {
+                "country": "KR",
+                "travel_month": 9,
+                "travel_year": 2026,
+                "trip_type": "2d1n",
+                "themes": ("바다·해안", "역사·문화"),
+                "include_festivals": False,
+                "raw_query": "속초 바다 역사",
+                "soft_preference_query": "조용한 역사 산책",
+                "transport_pref": "car",
+                "destination_id": "KR-SOKCHO",
+                "city_key": "CITY#SOKCHO",
+            },
+        },
+        "planner": {
+            "scratch": {
+                "runtime": FakePlannerTools(
+                    destination_search=search,
+                    embedding=embedding,
+                ),
+            },
+        },
+    }
+
+    result = retrieve_places(state)
+
+    planner = cast(dict[str, object], result["planner"])
+    scratch = cast(dict[str, object], planner["scratch"])
+    pool = cast(dict[str, object], scratch["place_pool"])
+    raw_places = cast(tuple[dict[str, object], ...], pool["raw_places"])
+    assert embedding.queries == ["속초 바다 역사", "조용한 역사 산책"]
+    assert [call["city_id"] for call in search.calls] == ["KR-SOKCHO", "KR-SOKCHO"]
+    assert [place["place_id"] for place in raw_places] == ["raw-1", "raw-2"]
+
+
 def test_retrieve_places_node_uses_confirmed_festival_anchor_without_city_select() -> None:
     search = FakeDestinationSearch()
     embedding = FakeEmbedding()
