@@ -10,6 +10,7 @@ from lovv_agent_v2.agents.intent.modify_parser import parse_modify_query
 from lovv_agent_v2.agents.intent.node import intent_node
 from lovv_agent_v2.agents.intent.parser import parse_initial_query
 from lovv_agent_v2.agents.intent.validator import validate_preference_sets
+from lovv_agent_v2.core.runtime_state import invocation_runtime
 from lovv_agent_v2.core.state import UnifiedAgentState
 
 
@@ -155,14 +156,16 @@ def test_intent_node_uses_prompt_runtime_before_code_parser() -> None:
             "congestion_pref": "neutral",
             "transport_pref": "unknown",
         },
-        "runtime": {
+    }
+    with invocation_runtime(
+        {
             "intent_prompt_runtime": {
                 "runtime": runtime,
                 "schema_retry_limit": 0,
             },
         },
-    }
-    output = intent_node(state)
+    ):
+        output = intent_node(state)
 
     intent = output["intent"]
     assert intent["city_select_input"]["active_required_themes"] == [
@@ -225,14 +228,16 @@ def test_intent_node_keeps_request_owned_fields_out_of_prompt_output() -> None:
             "execution_mode": "anchored_place_search",
             "raw_query": "안동 역사 여행을 차 없이 추천해줘",
         },
-        "runtime": {
+    }
+    with invocation_runtime(
+        {
             "intent_prompt_runtime": {
                 "runtime": runtime,
                 "schema_retry_limit": 0,
             },
         },
-    }
-    output = intent_node(state)
+    ):
+        output = intent_node(state)
 
     city_input = output["intent"]["city_select_input"]
     assert city_input["country"] == "KR"
