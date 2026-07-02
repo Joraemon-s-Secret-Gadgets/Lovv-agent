@@ -189,21 +189,19 @@ class RuntimeConfigTest(unittest.TestCase):
         self.assertEqual(config_dict["aws"]["region"], "us-east-1")
         self.assertIn("search_budget", config_dict)
 
-    def test_agentcore_config_keeps_v1_routing_env_non_secret(self) -> None:
+    def test_agentcore_config_uses_v2_node_specific_llm_models(self) -> None:
         config_path = Path(__file__).resolve().parents[1] / "agentcore" / "agentcore.json"
         agentcore_config = json.loads(config_path.read_text(encoding="utf-8"))
         runtime = agentcore_config["runtimes"][0]
         env_vars = {item["name"]: item["value"] for item in runtime["envVars"]}
 
         self.assertEqual(env_vars["LOVV_AWS_REGION"], "us-east-1")
-        self.assertEqual(env_vars["LOVV_LLM_MODEL_ID"], "openai.gpt-oss-120b-1:0")
-        for key in (
-            "LOVV_INTENT_LLM_MODEL_ID",
-            "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
-            "LOVV_PLANNER_LLM_MODEL_ID",
-            "LOVV_SUPERVISOR_LLM_MODEL_ID",
-        ):
-            self.assertEqual(env_vars[key], env_vars["LOVV_LLM_MODEL_ID"])
+        self.assertEqual(env_vars["LOVV_INTENT_LLM_MODEL_ID"], "openai.gpt-oss-120b-1:0")
+        self.assertEqual(env_vars["LOVV_EXPLANATION_LLM_MODEL_ID"], "openai.gpt-oss-120b-1:0")
+        self.assertNotIn("LOVV_LLM_MODEL_ID", env_vars)
+        self.assertNotIn("LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID", env_vars)
+        self.assertNotIn("LOVV_PLANNER_LLM_MODEL_ID", env_vars)
+        self.assertNotIn("LOVV_SUPERVISOR_LLM_MODEL_ID", env_vars)
         self.assertNotIn("LOVV_AWS_PROFILE", env_vars)
         self.assertEqual(agentcore_config["agentCoreGateways"], [])
 
