@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from collections.abc import Mapping
 from typing import Any
 
 import lovv_agent_v2.harness as harness_module
 from lovv_agent_v2.agents.response_packager.tools import ItineraryExplanationRuntime
 from lovv_agent_v2.harness import LovvLangGraphV2Harness
+from lovv_agent_v2.infra.dynamo_lookup import DynamoLookupTool
 from lovv_agent_v2.infra.aws_clients import AwsRuntimeClients
 from lovv_agent_v2.infra.config import (
     EmbeddingSettings,
     LLM_NODE_EXPLANATION,
+    LLM_NODE_INTENT,
     LlmSettings,
     RuntimeConfig,
 )
+from lovv_agent_v2.infra.repositories.dynamodb import DynamoDbRepository
 
 
 @dataclass(slots=True)
@@ -127,7 +131,7 @@ def test_live_graph_runtime_uses_injected_aws_runtime_clients(monkeypatch: Any) 
     assert runtime["city_select_scoring_tools"].dynamo_lookup is city_select_tools.dynamo_lookup
     assert runtime["festival_verifier_tools"].festival_lookup is city_select_tools.dynamo_lookup
     assert runtime["planner_runtime"].destination_search is city_select_tools.destination_search
-    assert runtime["planner_runtime"].embedding is city_select_tools.embedding
+    assert runtime["planner_runtime"].embedding.embedding is city_select_tools.embedding
     assert runtime["travel_time_provider"] is not None
     assert runtime["itinerary_explanation_runtime"].dynamo_lookup is city_select_tools.dynamo_lookup
 
@@ -155,9 +159,62 @@ def test_live_itinerary_explanation_runtime_uses_explanation_model(
                 },
             ),
         ),
-        dynamo_lookup=object(),
+        dynamo_lookup=_dynamo_lookup(),
         bedrock_runtime_client=object(),
     )
 
     assert captured["model_id"] == "explanation-model"
     assert runtime.explanation_runtime is not None
+
+
+def test_live_intent_prompt_runtime_uses_intent_model(monkeypatch: Any) -> None:
+    captured: dict[str, str] = {}
+
+    def create_runtime(*, client: Any, model_id: str) -> object:
+        captured["model_id"] = model_id
+        return object()
+
+    monkeypatch.setattr(
+        harness_module,
+        "create_bedrock_converse_runtime",
+        create_runtime,
+    )
+
+    runtime = harness_module._build_live_intent_prompt_runtime(
+        RuntimeConfig(
+            llm=LlmSettings(
+                model_ids_by_node={
+                    LLM_NODE_INTENT: "intent-model",
+                },
+            ),
+        ),
+        bedrock_runtime_client=object(),
+    )
+
+    assert captured["model_id"] == "intent-model"
+    assert runtime.runtime is not None
+
+
+class FakeDynamoDbClient:
+    def get_item(self, **request: Any) -> Mapping[str, Any]:
+        return {}
+
+    def query(self, **request: Any) -> Mapping[str, Any]:
+        return {}
+
+    def scan(self, **request: Any) -> Mapping[str, Any]:
+        return {}
+
+    def batch_get_item(self, **request: Any) -> Mapping[str, Any]:
+        return {}
+
+
+def _dynamo_lookup() -> DynamoLookupTool:
+    config = RuntimeConfig()
+    return DynamoLookupTool(
+        dynamodb=DynamoDbRepository(
+            client=FakeDynamoDbClient(),
+            settings=config.dynamodb,
+        ),
+        search_budget=config.search_budget,
+    )
