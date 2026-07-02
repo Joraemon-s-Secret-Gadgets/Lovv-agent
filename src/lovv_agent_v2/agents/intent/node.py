@@ -3,6 +3,9 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from lovv_agent_v2.agents.intent.clarify_parser import build_clarify_intent
+from lovv_agent_v2.agents.intent.modify_parser import build_modify_intent
+from lovv_agent_v2.agents.intent.modify_prompt import prompt_modify_intent_from_request
 from lovv_agent_v2.agents.intent.prompt import PromptIntentResult, prompt_intent_from_request
 from lovv_agent_v2.agents.intent.parser import (
     IntentPreferenceResult,
@@ -17,6 +20,22 @@ from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
     intent = _intent_payload(state)
     request = state.get("request")
+    if isinstance(request, Mapping):
+        entry_type = _entry_type(request)
+        match entry_type:
+            case "clarify":
+                return {"intent": build_clarify_intent(request, state)}
+            case "modify":
+                modify_intent = _modify_intent(state, request)
+                next_intent = dict(modify_intent)
+                next_intent["modify_intent"] = dict(modify_intent)
+                return {"intent": next_intent}
+            case "confirm":
+                return {"intent": _confirm_intent(request)}
+            case "create":
+                pass
+            case unreachable:
+                _ = unreachable
     existing_input = _existing_city_select_input(intent)
     prompt_result = _prompt_result(state, request) if existing_input is None else None
     city_input = (
@@ -32,6 +51,7 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
     next_intent = dict(intent)
     if prompt_result is not None:
         next_intent.update(prompt_result.intent_updates)
+    next_intent.setdefault("intent_type", "create")
     next_intent["city_select_input"] = normalized_input
     next_intent.setdefault("cleaned_raw_query", normalized_input["cleaned_raw_query"])
     next_intent.setdefault(
@@ -58,6 +78,61 @@ def _intent_payload(state: Mapping[str, Any]) -> dict[str, Any]:
     if isinstance(intent, Mapping):
         return dict(intent)
     return {}
+
+
+def _entry_type(request: Mapping[str, Any]) -> str:
+    value = request.get("entryType", request.get("entry_type", "create"))
+    if not isinstance(value, str):
+        return "create"
+    normalized = value.strip().lower().replace("-", "_")
+    match normalized:
+        case "clarify":
+            return "clarify"
+        case "modify":
+            return "modify"
+        case "confirm":
+            return "confirm"
+        case "create" | "chat" | "":
+            return "create"
+        case _:
+            return "create"
+
+
+def _confirm_intent(request: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "intent_type": "confirm",
+        "status": "ok",
+        "thread_id": _text_or_none(request.get("threadId", request.get("thread_id"))),
+        "recommendation_id": _text_or_none(
+            request.get("recommendationId", request.get("recommendation_id")),
+        ),
+        "itinerary_revision": _text_or_none(
+            request.get("itineraryRevision", request.get("itinerary_revision")),
+        ),
+    }
+
+
+def _text_or_none(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    return normalized or None
+
+
+def _modify_intent(
+    state: Mapping[str, Any],
+    request: Mapping[str, Any],
+) -> dict[str, Any]:
+    prompt_runtime = intent_prompt_runtime_from_state(state)
+    if prompt_runtime.runtime is not None:
+        prompt_result = prompt_modify_intent_from_request(
+            runtime=prompt_runtime.runtime,
+            request=request,
+            retry_limit=prompt_runtime.schema_retry_limit,
+        )
+        if prompt_result is not None:
+            return prompt_result
+    return build_modify_intent(request, state)
 
 
 def _city_select_input(
