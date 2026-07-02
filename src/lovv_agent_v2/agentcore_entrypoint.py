@@ -9,7 +9,7 @@ from typing import Any
 from langgraph.types import Command
 
 from lovv_agent_v2.agentcore_io import decode_json_if_needed as _decode_json_if_needed
-from lovv_agent_v2.agentcore_io import extract_resume_value, interrupt_response
+from lovv_agent_v2.agentcore_io import extract_resume_value, extract_thread_id, interrupt_response
 from lovv_agent_v2.harness import LovvLangGraphV2Harness, build_live_harness
 
 
@@ -35,25 +35,26 @@ def _cached_live_harness() -> LovvLangGraphV2Harness:
 def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, Any]:
     """Invoke the V2 recommendation graph from an AgentCore payload."""
 
-    session_id = extract_request_id(event)
-    actor_id = extract_actor_id(event) or session_id
+    request_id = extract_request_id(event)
+    thread_id = extract_thread_id(event, fallback=request_id)
+    actor_id = extract_actor_id(event) or thread_id
     resume_value = extract_resume_value(event)
     payload = (
         Command(resume=resume_value)
         if resume_value is not None
-        else extract_graph_payload(event, request_id=session_id)
+        else extract_graph_payload(event, request_id=request_id)
     )
 
     # Requirement 2: thread_id and actor_id plumbing
     graph_config = {
         "configurable": {
-            "thread_id": session_id,
+            "thread_id": thread_id,
             "actor_id": actor_id,
         }
     }
     result = _cached_live_harness().invoke(
         payload,
-        request_id=session_id,
+        request_id=request_id,
         graph_config=graph_config,
     )
     interrupted = interrupt_response(result)

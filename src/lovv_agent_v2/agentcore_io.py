@@ -32,6 +32,16 @@ def extract_resume_value(event: Any) -> Any | None:
     return None
 
 
+def extract_thread_id(event: Any, fallback: str | None = None) -> str | None:
+    decoded = decode_json_if_needed(event)
+    if not isinstance(decoded, Mapping):
+        return fallback
+    session_id = decoded.get("sessionId")
+    if isinstance(session_id, str) and session_id.strip():
+        return session_id.strip()
+    return fallback
+
+
 def interrupt_response(result: Any) -> dict[str, Any] | None:
     if not isinstance(result, Mapping):
         return None
