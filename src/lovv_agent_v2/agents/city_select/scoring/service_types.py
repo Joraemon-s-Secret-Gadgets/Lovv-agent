@@ -13,7 +13,6 @@ class PlaceScoreResult:
     theme_tags: tuple[str, ...]
     latitude: float | None
     longitude: float | None
-    place_score: float
     score_components: dict[str, float]
     scored: bool = True
     exclusion_reason: str | None = None

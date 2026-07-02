@@ -11,6 +11,8 @@ from lovv_agent_v2.agents.city_select.scoring.ranking import (
 )
 from lovv_agent_v2.agents.city_select.domain.contracts import CitySelectContext
 from lovv_agent_v2.models.schemas import SelectedCity
+
+
 def _selected_city(
     city_id: str,
     scored_places: Sequence[PlaceScoreResult],
@@ -26,10 +28,7 @@ def _selected_city(
         if context.candidate_input.destination_id
         else [f"city_score_rank_{selected_rank_index + 1}"]
     )
-    if status == "ok":
-        reason_codes.append("planner_capacity_sufficient")
-    else:
-        reason_codes.append("insufficient_candidates")
+    del status
     province = _candidate_attr(scored_places[0].place, "province") or _candidate_attr(
         scored_places[0].place,
         "location",

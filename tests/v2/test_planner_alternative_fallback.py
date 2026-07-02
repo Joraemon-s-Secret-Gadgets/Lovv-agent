@@ -23,6 +23,29 @@ def _place(place_id: str, title: str, sim: float, theme: str, subtype: str) -> d
     }
 
 
+def _seed(
+    place_id: str,
+    title: str,
+    sim: float,
+    theme: str,
+    *,
+    city_id: str | None = None,
+) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "place_id": place_id,
+        "title": title,
+        "theme": theme,
+        "theme_tags": [theme],
+        "sim": sim,
+        "latitude": 38.2,
+        "longitude": 128.6,
+        "must_include": True,
+    }
+    if city_id is not None:
+        payload["city_id"] = city_id
+    return payload
+
+
 class FakeEmbedding:
     def __init__(self) -> None:
         self.queries: list[str] = []
@@ -89,11 +112,15 @@ def test_planner_subgraph_retries_second_city_when_primary_city_is_too_thin() ->
     _assert_retry_result(result, search)
 
 
-def test_planner_node_retries_second_city_when_primary_city_is_too_thin() -> None:
+def test_planner_node_does_not_retry_ranked_city_without_alternative_seeds() -> None:
     search = ThinThenAlternativeDestinationSearch()
     result = planner_node(_state(search, include_alternative=False))
 
-    _assert_retry_result(result, search)
+    planner = cast(dict[str, object], result["planner"])
+    output = cast(dict[str, object], planner["planner_output"])
+    validation = cast(dict[str, object], output["validation_result"])
+    assert validation["planner_status_gate"] == "insufficient_candidates"
+    assert planner.get("fallback") is None
 
 
 def test_planner_subgraph_reuses_second_city_scoring_audit_without_runtime() -> None:
@@ -111,11 +138,11 @@ def test_planner_subgraph_reuses_second_city_scoring_audit_without_runtime() -> 
     fallback = cast(dict[str, object], planner["fallback"])
     itinerary = cast(list[dict[str, object]], output["itinerary"])
     assert validation["planner_status_gate"] == "ok"
-    assert selected_city["city_id"] == "KR-DONGHAE"
+    assert selected_city["city_id"] == "KR-51-170"
     assert fallback["from_city_id"] == "CITY#GANGJIN"
-    assert fallback["to_city_id"] == "KR-DONGHAE"
+    assert fallback["to_city_id"] == "KR-51-170"
     assert len(itinerary) == 4
-    assert {item["city_id"] for item in itinerary} == {"KR-DONGHAE"}
+    assert {item["city_id"] for item in itinerary} == {"KR-51-170"}
     assert selected_city["province"] == "강원특별자치도"
 
 
@@ -149,7 +176,14 @@ def _state(
         "seeds": [{"place_id": "thin-1", "theme": "바다·해안", "must_include": True}],
     }
     if include_alternative:
-        city_selection_result["alternative_city"] = {"city_name_ko": "강릉", "ddb_pk": "CITY#GANGNEUNG"}
+        city_selection_result["alternative_city"] = {
+            "city_name_ko": "강릉",
+            "ddb_pk": "CITY#GANGNEUNG",
+            "seeds": (
+                _seed("alt-seed-1", "강릉 바다", 0.92, "바다·해안", city_id="KR-GANGNEUNG"),
+                _seed("alt-seed-2", "강릉 역사", 0.84, "역사·문화", city_id="KR-GANGNEUNG"),
+            ),
+        }
     return {
         "intent": {
             "city_select_input": {
@@ -180,25 +214,6 @@ def _state(
 
 
 def _state_without_planner_runtime() -> dict[str, object]:
-    primary_place = _place("thin-1", "강진 바다", 0.92, "바다·해안", "beach")
-    primary_place["city_id"] = "CITY#GANGJIN"
-    alt_places = tuple(
-        {
-            **_place(f"alt-{index}", title, sim, "바다·해안", subtype),
-            "city_id": "KR-DONGHAE",
-            "city_name_ko": "동해시",
-            "ddb_pk": "CITY#DONGHAE",
-        }
-        for index, (title, sim, subtype) in enumerate(
-            (
-                ("동해 해변", 0.91, "beach"),
-                ("동해 항구", 0.88, "port"),
-                ("동해 전망", 0.86, "view"),
-                ("동해 산책", 0.82, "walk"),
-            ),
-            start=1,
-        )
-    )
     return {
         "intent": {
             "city_select_input": {
@@ -223,6 +238,12 @@ def _state_without_planner_runtime() -> dict[str, object]:
                     "city_id": "CITY#DONGHAE",
                     "city_name_ko": "동해시",
                     "ddb_pk": "CITY#DONGHAE",
+                    "seeds": (
+                        _seed("alt-1", "동해 해변", 0.91, "바다·해안", city_id="KR-51-170"),
+                        _seed("alt-2", "동해 항구", 0.88, "바다·해안", city_id="KR-51-170"),
+                        _seed("alt-3", "동해 전망", 0.86, "바다·해안", city_id="KR-51-170"),
+                        _seed("alt-4", "동해 산책", 0.82, "바다·해안", city_id="KR-51-170"),
+                    ),
                 },
                 "seeds": [{"place_id": "thin-1", "theme": "바다·해안", "must_include": True}],
             },
@@ -231,11 +252,6 @@ def _state_without_planner_runtime() -> dict[str, object]:
                     {"city_id": "CITY#GANGJIN", "city_name_ko": "강진군", "city_score": 0.9},
                     {"city_id": "CITY#DONGHAE", "city_name_ko": "동해시", "city_score": 0.8},
                 ),
-                "recommended_places": (primary_place,),
-                "recommended_places_by_city": {
-                    "CITY#GANGJIN": (primary_place,),
-                    "CITY#DONGHAE": alt_places,
-                },
             },
         },
         "planner": {"scratch": {"travel_time_provider": FakeTravelTimeProvider()}},
@@ -254,10 +270,13 @@ def _assert_retry_result(
     city_result = cast(dict[str, object], city_select["city_selection_result"])
     selected_city = cast(dict[str, object], city_result["selected_city"])
     fallback = cast(dict[str, object], planner["fallback"])
+    seeds = cast(tuple[dict[str, object], ...] | list[dict[str, object]], city_result["seeds"])
     assert validation["planner_status_gate"] == "ok"
     assert selected_city["city_id"] == "KR-GANGNEUNG"
     assert fallback["from_city_id"] == "KR-SOKCHO"
     assert fallback["to_city_id"] == "KR-GANGNEUNG"
+    assert seeds
+    assert seeds[0]["place_id"] != "thin-1"
     assert [call["city_id"] for call in search.calls] == [
         "KR-SOKCHO",
         "KR-SOKCHO",

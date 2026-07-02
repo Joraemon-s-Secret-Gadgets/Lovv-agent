@@ -16,8 +16,6 @@ def scoring_audit(
     *,
     context: Any,
     annotated_rankings: tuple[dict[str, Any], ...],
-    recommended_places: tuple[dict[str, Any], ...],
-    recommended_places_by_city: Mapping[str, tuple[dict[str, Any], ...]],
     festival_seed_result: Any,
     selected_city_id: str,
     coverage_audit: Mapping[str, Any],
@@ -27,8 +25,6 @@ def scoring_audit(
 ) -> dict[str, Any]:
     return {
         "city_rankings": annotated_rankings,
-        "recommended_places": recommended_places,
-        "recommended_places_by_city": recommended_places_by_city,
         "festival_candidates": festival_payloads(festival_seed_result),
         "selected_festival_candidates": festival_payloads(
             festival_seed_result,

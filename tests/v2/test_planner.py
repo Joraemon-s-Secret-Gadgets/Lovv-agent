@@ -264,18 +264,25 @@ def test_planner_node_writes_v2_planner_output_from_city_select_state() -> None:
                     "ddb_pk": "CITY#SOKCHO",
                 },
                 "seeds": [
-                    {"place_id": "seed", "theme": "바다·해안", "must_include": True},
+                    {
+                        **_place("seed", "해변", 0.9, "바다·해안", lat=38.20, lon=128.59),
+                        "theme": "바다·해안",
+                        "must_include": True,
+                    },
+                    {
+                        **_place("near", "전망대", 0.8, "바다·해안", lat=38.21, lon=128.60),
+                        "theme": "바다·해안",
+                        "must_include": True,
+                    },
+                    {
+                        **_place("tail", "항구", 0.7, "바다·해안", lat=38.22, lon=128.61),
+                        "theme": "바다·해안",
+                        "must_include": True,
+                    },
                 ],
                 "passthrough": {"transport_pref": "walk"},
             },
-            "scoring_audit": {
-                "recommended_places": [
-                    _place("seed", "해변", 0.9, "바다·해안", lat=38.20, lon=128.59),
-                    _place("near", "전망대", 0.8, "바다·해안", lat=38.21, lon=128.60),
-                    _place("tail", "항구", 0.7, "바다·해안", lat=38.22, lon=128.61),
-                ],
-                "reserve_places": [],
-            },
+            "scoring_audit": {},
         },
     }
 

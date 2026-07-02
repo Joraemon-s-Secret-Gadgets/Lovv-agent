@@ -7,12 +7,9 @@ from typing import Any
 from lovv_agent_v2.agents.city_select.domain.contracts import (
     ANCHORED_PLACE_SEARCH_MODE,
     CITY_DISCOVERY_MODE,
-    FESTIVAL_EXCLUDED_THEME_LABELS,
     FESTIVAL_SEEDED_CITY_DISCOVERY_MODE,
-    FESTIVAL_THEME_MARKERS,
     GOURMET_EXTERNAL_THEME_LABELS,
     NO_SUPPORT_THEME_LABELS,
-    PLACE_SEARCH_EXCLUDED_THEME_LABELS,
     AttractionCandidate,
     CandidateThemeSplit,
     CitySelectContext,
@@ -176,7 +173,7 @@ def resolve_place_search_theme(
 
 
 def is_excluded_place_search_theme(theme: str) -> bool:
-    return theme in PLACE_SEARCH_EXCLUDED_THEME_LABELS
+    return theme in NO_SUPPORT_THEME_LABELS
 
 
 def metadata_from_record(record: Mapping[str, Any]) -> dict[str, Any]:
@@ -237,12 +234,9 @@ __all__ = [
     "CITY_DISCOVERY_MODE",
     "DEFAULT_RETURN_DISTANCE",
     "DEFAULT_RETURN_METADATA",
-    "FESTIVAL_EXCLUDED_THEME_LABELS",
     "FESTIVAL_SEEDED_CITY_DISCOVERY_MODE",
-    "FESTIVAL_THEME_MARKERS",
     "GOURMET_EXTERNAL_THEME_LABELS",
     "NO_SUPPORT_THEME_LABELS",
-    "PLACE_SEARCH_EXCLUDED_THEME_LABELS",
     "AttractionCandidate",
     "CandidateThemeSplit",
     "CitySelectContext",

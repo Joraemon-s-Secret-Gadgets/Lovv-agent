@@ -71,12 +71,9 @@ owns scored-theme filtering and profile theme-weight normalization.
 `scoring/ranking.py`
 scores groups and produces ranked city candidates.
 
-`scoring/selection_maps.py`
-maps ranked cities to selected and reserve places.
-
 `scoring/payloads.py`
-packages selected city evidence, seeds, coverage audit, passthrough data, and
-reason codes.
+packages selected city evidence, planner seeds, passthrough data, and reason
+codes.
 
 `scoring/city_payload.py`
 builds the selected-city payload from ranked evidence.
@@ -86,18 +83,6 @@ packages explainable scoring audit output.
 
 `scoring/failures.py`
 packages terminal city-select failures.
-
-`scoring/selection.py`
-owns the candidate selection facade, trip budgets, and theme quota algorithm.
-
-`scoring/selection_types.py`
-defines normalized selection candidates and result payloads.
-
-`scoring/selection_normalization.py`
-coerces scored candidates, validates selection inputs, and deduplicates titles.
-
-`scoring/selection_result.py`
-packages selected/reserve places and selection coverage audit.
 
 ## State Contract
 
@@ -124,8 +109,8 @@ Change retrieval filters or AWS query shape in `tools.py` and
 
 Change city ranking math in `scoring/service.py` or `scoring/ranking.py`.
 
-Change selected/reserve place allocation in `scoring/selection.py` and
-`scoring/selection_maps.py`.
+Change place allocation in the planner route-days package. City Select only
+chooses the city and emits planner seeds.
 
 Change response-facing city-select payload shape in `scoring/payloads.py`.
 
