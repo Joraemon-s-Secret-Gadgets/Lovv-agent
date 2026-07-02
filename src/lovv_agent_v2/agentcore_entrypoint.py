@@ -10,10 +10,6 @@ from langgraph.types import Command
 
 from lovv_agent_v2.agentcore_io import decode_json_if_needed as _decode_json_if_needed
 from lovv_agent_v2.agentcore_io import extract_resume_value, extract_thread_id, interrupt_response
-from lovv_agent_v2.agents.profile.evidence import (
-    InMemoryProfileEvidenceCache,
-    ProfileEvidenceResolver,
-)
 from lovv_agent_v2.harness import LovvLangGraphV2Harness, build_live_harness
 
 
@@ -36,14 +32,6 @@ def _cached_live_harness() -> LovvLangGraphV2Harness:
     return build_live_harness()
 
 
-@lru_cache(maxsize=1)
-def _cached_profile_evidence_resolver() -> ProfileEvidenceResolver:
-    return ProfileEvidenceResolver(
-        cache=InMemoryProfileEvidenceCache(ttl_seconds=900),
-        tool=None,
-    )
-
-
 def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, Any]:
     """Invoke the V2 recommendation graph from an AgentCore payload."""
 
@@ -56,12 +44,6 @@ def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, An
         if resume_value is not None
         else extract_graph_payload(event, request_id=request_id)
     )
-    if resume_value is None:
-        payload = _payload_with_profile_evidence(
-            payload,
-            actor_id=actor_id,
-            thread_id=thread_id,
-        )
 
     # Requirement 2: thread_id and actor_id plumbing
     graph_config = {
@@ -85,30 +67,6 @@ def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, An
     ):
         raise ValueError("V2 graph did not produce response payload")
     return dict(response["response_payload"])
-
-
-def _payload_with_profile_evidence(
-    payload: dict[str, Any],
-    *,
-    actor_id: str | None,
-    thread_id: str | None,
-) -> dict[str, Any]:
-    try:
-        return _cached_profile_evidence_resolver().enrich_graph_payload(
-            payload,
-            actor_id=actor_id,
-            thread_id=thread_id,
-        )
-    except Exception:  # noqa: BLE001
-        enriched = dict(payload)
-        profile_value = enriched.get("profile", {})
-        profile = dict(profile_value) if isinstance(profile_value, Mapping) else {}
-        profile["saved_itinerary_evidence_audit"] = {
-            "cache_status": "bypassed",
-            "fallback_reason": "resolver_failed",
-        }
-        enriched["profile"] = profile
-        return enriched
 
 
 def extract_graph_payload(event: Any, *, request_id: str | None = None) -> dict[str, Any]:

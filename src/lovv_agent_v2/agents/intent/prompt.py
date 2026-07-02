@@ -14,9 +14,18 @@ from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
 INTENT_PROMPT_SCHEMA_NAME: Final = "lovv_v2_intent_output"
 _REQUIRED_FIELDS: Final = (
+    "country",
+    "travel_month",
+    "travel_year",
+    "trip_type",
+    "active_required_themes",
+    "include_festivals",
     "cleaned_raw_query",
     "soft_preference_query",
     "unsupported_conditions",
+    "destination_id",
+    "user_location",
+    "execution_mode",
     "congestion_pref",
     "transport_pref",
     "preferred_theme_ids",
@@ -28,19 +37,6 @@ _REQUIRED_FIELDS: Final = (
     "needs_clarification",
     "clarifying_question",
     "contradiction_reasons",
-)
-_REQUEST_OWNED_FIELDS: Final = (
-    "country",
-    "travel_month",
-    "travel_year",
-    "trip_type",
-    "include_festivals",
-    "destination_id",
-    "user_location",
-    "city_key",
-    "ddb_pk",
-    "execution_mode",
-    "active_required_themes",
 )
 _THEME_ID_ENUM: Final = (
     "sea_coast",
@@ -66,10 +62,8 @@ Extract the user's travel intent from the API request and natural-language query
 Return only the JSON schema fields. Do not explain.
 
 Rules:
-- Do not output request-owned fields: country, travel_month, travel_year,
-  trip_type, include_festivals, destination_id, user_location, city_key,
-  ddb_pk, execution_mode, active_required_themes.
-- The application fills request-owned fields directly from api_request.
+- Preserve API-owned fields unless the user clearly asks to change them.
+- Use active_required_themes as Korean labels such as 역사·전통, 자연·트레킹, 바다·해안.
 - Fill preferred_theme_ids and disliked_theme_ids with canonical ids:
   sea_coast, nature_trekking, history_tradition, art_sense, healing_rest, food_local.
 - Fill preferred_region_ids and disliked_region_ids with canonical ids:
@@ -79,6 +73,7 @@ Rules:
 - For "A는 피하고 B에서 C 위주", put A in disliked_region_ids, B in preferred_region_ids, and C in preferred_theme_ids.
 - Do not treat preferred words after "피하고/말고/빼고" as disliked when they appear
   after a new positive phrase such as "B에서", "B로", "B 위주".
+- active_required_themes should mirror preferred_theme_ids as Korean labels.
 - transport_pref must be walk, car, or unknown.
 - congestion_pref must be quiet, vibrant, or neutral.
 - Set transport_pref=walk for 뚜벅이, 도보, 걸어서, 차 없이, 대중교통 중심.
@@ -89,6 +84,7 @@ Rules:
 - Do not infer congestion_pref from soft mood words alone such as 고즈넉한 or 차분한; keep those in soft_preference_query.
 - Do not set congestion_pref from soft_preference_query alone; use neutral unless
   the main query has a crowd or liveliness signal.
+- execution_mode must be city_discovery, anchored_place_search, or festival_seeded_city_discovery.
 - soft_preference_query should keep the user's softer mood/style request.
 - unsupported_conditions should list only impossible live guarantees."""
 
@@ -97,9 +93,25 @@ INTENT_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
     "additionalProperties": False,
     "required": list(_REQUIRED_FIELDS),
     "properties": {
+        "country": {"type": "string"},
+        "travel_month": {"type": "integer"},
+        "travel_year": {"type": "integer"},
+        "trip_type": {"type": "string"},
+        "active_required_themes": {"type": "array", "items": {"type": "string"}},
+        "include_festivals": {"type": "boolean"},
         "cleaned_raw_query": {"type": "string"},
         "soft_preference_query": {"type": "string"},
         "unsupported_conditions": {"type": "array", "items": {"type": "string"}},
+        "destination_id": {"type": ["string", "null"]},
+        "user_location": {"type": ["object", "null"]},
+        "execution_mode": {
+            "type": "string",
+            "enum": [
+                "city_discovery",
+                "anchored_place_search",
+                "festival_seeded_city_discovery",
+            ],
+        },
         "congestion_pref": {"type": "string", "enum": ["quiet", "vibrant", "neutral"]},
         "transport_pref": {"type": "string", "enum": ["walk", "car", "unknown"]},
         "preferred_theme_ids": {
@@ -166,10 +178,7 @@ def prompt_intent_from_request(
         runtime=runtime,
         request=converse_request,
         retry_limit=retry_limit,
-        validator=lambda payload: validate_intent_prompt_output(
-            payload,
-            request=request,
-        ),
+        validator=validate_intent_prompt_output,
     )
     return result.value if isinstance(result.value, PromptIntentResult) else None
 
@@ -196,29 +205,14 @@ def build_intent_prompt_request(request: Mapping[str, Any]) -> dict[str, Any]:
     return request_payload
 
 
-def validate_intent_prompt_output(
-    payload: Mapping[str, Any],
-    *,
-    request: Mapping[str, Any] | None = None,
-) -> PromptIntentResult:
+def validate_intent_prompt_output(payload: Mapping[str, Any]) -> PromptIntentResult:
     normalized_payload = dict(payload)
-    value = normalized_payload.get("clarifying_question")
-    if isinstance(value, str) and not value.strip():
-        normalized_payload["clarifying_question"] = None
+    for field_name in ("destination_id", "clarifying_question"):
+        value = normalized_payload.get(field_name)
+        if isinstance(value, str) and not value.strip():
+            normalized_payload[field_name] = None
     _normalize_soft_congestion(normalized_payload)
-    city_input_payload = _city_select_input_from_request(
-        payload if request is None else request,
-    )
-    city_input_payload.update(
-        {
-            "cleaned_raw_query": normalized_payload["cleaned_raw_query"],
-            "soft_preference_query": normalized_payload["soft_preference_query"],
-            "unsupported_conditions": normalized_payload["unsupported_conditions"],
-            "congestion_pref": normalized_payload["congestion_pref"],
-            "transport_pref": normalized_payload["transport_pref"],
-        },
-    )
-    city_input = CitySelectInput.from_mapping(city_input_payload).to_dict()
+    city_input = CitySelectInput.from_mapping(normalized_payload).to_dict()
     city_input["active_required_themes"] = list(city_input["active_required_themes"])
     updates: dict[str, Any] = {
         "intent_output": dict(city_input),
@@ -234,53 +228,6 @@ def validate_intent_prompt_output(
         normalized_payload.get("clarifying_question"),
     )
     return PromptIntentResult(city_select_input=city_input, intent_updates=updates)
-
-
-def _city_select_input_from_request(request: Mapping[str, Any]) -> dict[str, Any]:
-    themes = request.get("themes", request.get("active_required_themes", ()))
-    destination_id = request.get("destination_id", request.get("destinationId"))
-    include_festivals = _first_present(
-        request,
-        "include_festivals",
-        "includeFestivals",
-    )
-    return {
-        "country": _first_present(request, "country"),
-        "travel_month": _first_present(request, "travel_month", "travelMonth"),
-        "travel_year": _first_present(request, "travel_year", "travelYear"),
-        "trip_type": _first_present(request, "trip_type", "tripType"),
-        "active_required_themes": themes,
-        "include_festivals": include_festivals,
-        "destination_id": destination_id,
-        "city_key": request.get("city_key", request.get("cityKey")),
-        "ddb_pk": request.get("ddb_pk", request.get("ddbPk")),
-        "user_location": request.get("user_location", request.get("userLocation")),
-        "execution_mode": request.get(
-            "execution_mode",
-            request.get(
-                "executionMode",
-                _execution_mode(
-                    destination_id=destination_id,
-                    include_festivals=include_festivals,
-                ),
-            ),
-        ),
-    }
-
-
-def _execution_mode(*, destination_id: Any, include_festivals: Any) -> str:
-    if isinstance(destination_id, str) and destination_id.strip():
-        return "anchored_place_search"
-    if include_festivals is True:
-        return "festival_seeded_city_discovery"
-    return "city_discovery"
-
-
-def _first_present(mapping: Mapping[str, Any], *keys: str) -> Any:
-    for key in keys:
-        if key in mapping:
-            return mapping[key]
-    raise SchemaValidationError(f"missing required request field: {keys[0]}")
 
 
 def _normalize_soft_congestion(payload: dict[str, Any]) -> None:

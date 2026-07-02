@@ -12,22 +12,6 @@
 | profile_score_cap | 0.05 | 거의 non-binding(평평 coverage라 tilt가 작음), 기본값 |
 | profile_activation_saved_trip_count | 3 | **3건 미만 → profile 완전 off(하드 게이트)** |
 
-## runtime profile source ✅
-Profile 데이터의 live 정본은 DynamoDB `LovvUserProfile`이다. `src/lovv_agent_v2/resources/mock_user_profiles.json`과 `app/LovvAgentV2/lovv_agent_v2/resources/mock_user_profiles.json`은 local/dev fixture로만 사용한다.
-
-### read 경로
-1. `LOVV_PROFILE_ENABLED=true`이면 Profile Agent는 `LOVV_PROFILE_TABLE`에서 actor별 profile을 읽는다.
-2. DynamoDB key shape는 `PK=ACTOR#{actorId}`, `SK=PROFILE#v1`이다.
-3. DynamoDB read 실패, missing item, malformed item은 추천 흐름을 실패시키지 않고 cold profile(`None`)로 degrade한다.
-4. 테스트/fixture 실행에서는 state의 `profile.lovv_user_profile` 또는 `profile.mock_profile`을 허용한다. 이 값은 live DynamoDB보다 우선하는 운영 계약이 아니라 local injection seam이다.
-
-### write 경계
-- 추천 실행 중 Profile Agent는 read-only다.
-- `entry_type=itinerary_confirmed` 또는 동등한 확정 이벤트에서만 profile update 요청을 남긴다.
-- hot aggregate profile(`LovvUserProfile`)에는 TTL을 두지 않는다. 장기 이벤트 이력은 별도 TTL 테이블로 분리한다.
-- long-turn personalization event table은 `LovvUserMemoryEvent` 계열을 권장한다. key shape는 `PK=ACTOR#{actorId}`, `SK=EVENT#{created_at_epoch}#{event_id}`, TTL field는 `expires_at` epoch seconds다.
-- DAX는 필요한 경우 나중에 붙이는 cache layer이며 필수 table inventory가 아니다.
-
 ## 학습 공식 (reference)
 ```
 observed_ratio = saved_theme_counts[t] / total_saved_theme_count
