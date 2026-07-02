@@ -10,6 +10,9 @@ from lovv_agent_v2.infra.adapters.bedrock_converse import (
     build_structured_converse_request,
     invoke_structured_output,
 )
+from lovv_agent_v2.agents.intent.parser import theme_labels
+from lovv_agent_v2.agents.intent.prompts.intent_normalization import INTENT_PROMPT_TEXT
+from lovv_agent_v2.agents.intent.prompt_regions import canonical_prompt_region_updates
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
 INTENT_PROMPT_SCHEMA_NAME: Final = "lovv_v2_intent_output"
@@ -21,26 +24,11 @@ _REQUIRED_FIELDS: Final = (
     "transport_pref",
     "preferred_theme_ids",
     "disliked_theme_ids",
-    "preferred_region_ids",
-    "disliked_region_ids",
-    "preferred_region_names",
-    "disliked_region_names",
+    "preferred_region_spans",
+    "disliked_region_spans",
     "needs_clarification",
     "clarifying_question",
     "contradiction_reasons",
-)
-_REQUEST_OWNED_FIELDS: Final = (
-    "country",
-    "travel_month",
-    "travel_year",
-    "trip_type",
-    "include_festivals",
-    "destination_id",
-    "user_location",
-    "city_key",
-    "ddb_pk",
-    "execution_mode",
-    "active_required_themes",
 )
 _THEME_ID_ENUM: Final = (
     "sea_coast",
@@ -50,48 +38,6 @@ _THEME_ID_ENUM: Final = (
     "healing_rest",
     "food_local",
 )
-_REGION_ID_ENUM: Final = (
-    "gangwon",
-    "gyeongbuk",
-    "sokcho",
-    "andong",
-    "gyeongju",
-    "gangneung",
-    "samcheok",
-    "yeongju",
-    "uljin",
-)
-INTENT_PROMPT_TEXT: Final = """You are Lovv V2 Intent Agent.
-Extract the user's travel intent from the API request and natural-language query.
-Return only the JSON schema fields. Do not explain.
-
-Rules:
-- Do not output request-owned fields: country, travel_month, travel_year,
-  trip_type, include_festivals, destination_id, user_location, city_key,
-  ddb_pk, execution_mode, active_required_themes.
-- The application fills request-owned fields directly from api_request.
-- Fill preferred_theme_ids and disliked_theme_ids with canonical ids:
-  sea_coast, nature_trekking, history_tradition, art_sense, healing_rest, food_local.
-- Fill preferred_region_ids and disliked_region_ids with canonical ids:
-  gangwon, gyeongbuk, sokcho, andong, gyeongju, gangneung, samcheok, yeongju, uljin.
-- Use preferred_region_names and disliked_region_names as Korean names matching the region id arrays.
-- For "A 말고 B" or "A 빼고 B", put A in disliked_* and B in preferred_*.
-- For "A는 피하고 B에서 C 위주", put A in disliked_region_ids, B in preferred_region_ids, and C in preferred_theme_ids.
-- Do not treat preferred words after "피하고/말고/빼고" as disliked when they appear
-  after a new positive phrase such as "B에서", "B로", "B 위주".
-- transport_pref must be walk, car, or unknown.
-- congestion_pref must be quiet, vibrant, or neutral.
-- Set transport_pref=walk for 뚜벅이, 도보, 걸어서, 차 없이, 대중교통 중심.
-- Set transport_pref=car for 자차, 렌터카, 차로 이동, 운전.
-- Keep transport_pref=unknown for vague low-burden requests such as 이동 부담 적게.
-- Set congestion_pref=quiet for explicit crowd-avoidance signals: 조용한, 한적한, 사람 적은, 사람 많은 곳 피하기.
-- Set congestion_pref=vibrant for 북적이는, 활기 있는, 생동감 있는, 축제/야간/도시 분위기.
-- Do not infer congestion_pref from soft mood words alone such as 고즈넉한 or 차분한; keep those in soft_preference_query.
-- Do not set congestion_pref from soft_preference_query alone; use neutral unless
-  the main query has a crowd or liveliness signal.
-- soft_preference_query should keep the user's softer mood/style request.
-- unsupported_conditions should list only impossible live guarantees."""
-
 INTENT_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "additionalProperties": False,
@@ -110,16 +56,8 @@ INTENT_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": {"type": "string", "enum": list(_THEME_ID_ENUM)},
         },
-        "preferred_region_ids": {
-            "type": "array",
-            "items": {"type": "string", "enum": list(_REGION_ID_ENUM)},
-        },
-        "disliked_region_ids": {
-            "type": "array",
-            "items": {"type": "string", "enum": list(_REGION_ID_ENUM)},
-        },
-        "preferred_region_names": {"type": "array", "items": {"type": "string"}},
-        "disliked_region_names": {"type": "array", "items": {"type": "string"}},
+        "preferred_region_spans": {"type": "array", "items": {"type": "string"}},
+        "disliked_region_spans": {"type": "array", "items": {"type": "string"}},
         "needs_clarification": {"type": "boolean"},
         "clarifying_question": {"type": ["string", "null"]},
         "contradiction_reasons": {"type": "array", "items": {"type": "string"}},
@@ -129,10 +67,8 @@ INTENT_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
 _TUPLE_FIELDS: Final = (
     "preferred_theme_ids",
     "disliked_theme_ids",
-    "preferred_region_ids",
-    "disliked_region_ids",
-    "preferred_region_names",
-    "disliked_region_names",
+    "preferred_region_spans",
+    "disliked_region_spans",
     "contradiction_reasons",
 )
 _CONGESTION_SIGNAL_KEYWORDS: Final = (
@@ -209,6 +145,12 @@ def validate_intent_prompt_output(
     city_input_payload = _city_select_input_from_request(
         payload if request is None else request,
     )
+    preferred_theme_ids = _string_tuple(
+        normalized_payload.get("preferred_theme_ids", ()),
+        "preferred_theme_ids",
+    )
+    if not city_input_payload["active_required_themes"] and preferred_theme_ids:
+        city_input_payload["active_required_themes"] = theme_labels(preferred_theme_ids)
     city_input_payload.update(
         {
             "cleaned_raw_query": normalized_payload["cleaned_raw_query"],
@@ -225,10 +167,18 @@ def validate_intent_prompt_output(
         "intent_extraction_mode": "prompt_structured_output",
     }
     for field_name in _TUPLE_FIELDS:
-        updates[field_name] = _string_tuple(
-            normalized_payload.get(field_name, ()),
-            field_name,
+        updates[field_name] = (
+            preferred_theme_ids
+            if field_name == "preferred_theme_ids"
+            else _string_tuple(normalized_payload.get(field_name, ()), field_name)
         )
+    updates.update(
+        canonical_prompt_region_updates(
+            raw_query=_request_raw_query({} if request is None else request),
+            preferred_spans=updates["preferred_region_spans"],
+            disliked_spans=updates["disliked_region_spans"],
+        ),
+    )
     updates["needs_clarification"] = _bool(normalized_payload.get("needs_clarification"))
     updates["clarifying_question"] = _optional_text(
         normalized_payload.get("clarifying_question"),
@@ -281,6 +231,14 @@ def _first_present(mapping: Mapping[str, Any], *keys: str) -> Any:
         if key in mapping:
             return mapping[key]
     raise SchemaValidationError(f"missing required request field: {keys[0]}")
+
+
+def _request_raw_query(request: Mapping[str, Any]) -> str:
+    value = request.get(
+        "raw_query",
+        request.get("rawQuery", request.get("naturalLanguageQuery", "")),
+    )
+    return value if isinstance(value, str) else ""
 
 
 def _normalize_soft_congestion(payload: dict[str, Any]) -> None:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from lovv_agent_v2.agents.intent.clarify_parser import build_clarify_intent
@@ -9,12 +9,18 @@ from lovv_agent_v2.agents.intent.modify_prompt import prompt_modify_intent_from_
 from lovv_agent_v2.agents.intent.prompt import PromptIntentResult, prompt_intent_from_request
 from lovv_agent_v2.agents.intent.parser import (
     IntentPreferenceResult,
+    clean_preference_query,
     parse_initial_query,
 )
 from lovv_agent_v2.agents.intent.tools import intent_prompt_runtime_from_state
+from lovv_agent_v2.agents.intent.validator import validate_preference_sets
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.models.city_identity import enrich_city_select_identity
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
+
+_PREFERENCE_CLARIFYING_QUESTION = (
+    "선호와 비선호가 동시에 언급된 테마나 지역이 있어 우선순위를 확인해야 합니다."
+)
 
 
 def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
@@ -48,9 +54,13 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
     normalized_input["active_required_themes"] = list(
         normalized_input["active_required_themes"],
     )
+    normalized_input["cleaned_raw_query"] = clean_preference_query(
+        normalized_input["cleaned_raw_query"],
+    )
     next_intent = dict(intent)
     if prompt_result is not None:
         next_intent.update(prompt_result.intent_updates)
+        _reconcile_preference_fields(next_intent)
     next_intent.setdefault("intent_type", "create")
     next_intent["city_select_input"] = normalized_input
     next_intent.setdefault("cleaned_raw_query", normalized_input["cleaned_raw_query"])
@@ -228,6 +238,9 @@ def _apply_preference_result(
     intent.setdefault("disliked_theme_ids", preference_result.disliked_theme_ids)
     intent.setdefault("preferred_region_ids", preference_result.preferred_region_ids)
     intent.setdefault("disliked_region_ids", preference_result.disliked_region_ids)
+    intent.setdefault("preferred_region_spans", preference_result.preferred_region_spans)
+    intent.setdefault("disliked_region_spans", preference_result.disliked_region_spans)
+    intent.setdefault("unresolved_region_spans", preference_result.unresolved_region_spans)
     intent.setdefault(
         "preferred_region_names", preference_result.preferred_region_names
     )
@@ -235,3 +248,24 @@ def _apply_preference_result(
     intent.setdefault("needs_clarification", preference_result.needs_clarification)
     intent.setdefault("clarifying_question", preference_result.clarifying_question)
     intent.setdefault("contradiction_reasons", preference_result.contradiction_reasons)
+
+
+def _reconcile_preference_fields(intent: dict[str, Any]) -> None:
+    validation = validate_preference_sets(
+        preferred_theme_ids=_text_tuple(intent.get("preferred_theme_ids", ())),
+        disliked_theme_ids=_text_tuple(intent.get("disliked_theme_ids", ())),
+        preferred_region_ids=_text_tuple(intent.get("preferred_region_ids", ())),
+        disliked_region_ids=_text_tuple(intent.get("disliked_region_ids", ())),
+    )
+    if not validation.needs_clarification:
+        intent.setdefault("contradiction_reasons", ())
+        return
+    intent["needs_clarification"] = True
+    intent["clarifying_question"] = _PREFERENCE_CLARIFYING_QUESTION
+    intent["contradiction_reasons"] = validation.contradiction_reasons
+
+
+def _text_tuple(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        return ()
+    return tuple(item for item in value if isinstance(item, str))
