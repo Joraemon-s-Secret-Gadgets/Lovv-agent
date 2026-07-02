@@ -21,6 +21,15 @@ The front does **not** send `edit_ops`.
 
 Intent parses `rawModifyQuery`, resolves target items against the current itinerary context, and emits a typed `modify_intent` for Supervisor/Planner.
 
+Current executable scope is intentionally narrow:
+
+1. single `REPLACE` without a new replacement query
+2. single `REPLACE` with a new replacement query
+3. multiple `REPLACE` ops, each with or without a replacement query
+4. city change through rediscovery
+
+Everything else is backlog unless explicitly listed below.
+
 ---
 
 ## 1. Top-Level Shape
@@ -31,13 +40,20 @@ Intent parses `rawModifyQuery`, resolves target items against the current itiner
   "status": "ok",
   "thread_id": "thread-id",
   "itinerary_revision": "rev-001",
-  "raw_modify_query": "1일차 오후 장소를 조용한 자연 쪽으로 바꿔줘",
-  "kind": "slot_replace",
+  "raw_modify_query": "경주로 도시를 바꿔줘",
+  "kind": "city_change",
   "edit_ops": [],
-  "reset": null,
+  "city_change": {
+    "target_city_id": "KR-47-130",
+    "target_city_name": "경주시",
+    "city_preference_query": "경주로 도시를 바꿔줘",
+    "carry_over_themes": true,
+    "carry_over_festivals": true,
+    "avoid_city_ids": []
+  },
   "clarification": null,
   "unsupported_reasons": [],
-  "routing_hint": "planner_apply_edit",
+  "routing_hint": "city_select_rediscovery",
   "audit": {}
 }
 ```
@@ -51,9 +67,9 @@ Intent parses `rawModifyQuery`, resolves target items against the current itiner
 | `thread_id` | string | yes | Checkpoint resume key copied from request. |
 | `itinerary_revision` | string | yes | Stale-detection token copied from request. |
 | `raw_modify_query` | string | yes | Original modify utterance, non-empty. |
-| `kind` | `slot_replace \| reset \| confirm_plan_b \| backlog` | yes | Intent class. |
+| `kind` | `slot_replace \| city_change \| backlog` | yes | Intent class. |
 | `edit_ops` | `EditOperation[]` | yes | Non-empty only for `slot_replace`. |
-| `reset` | `ResetIntent \| null` | yes | Non-null only for `reset`. |
+| `city_change` | `CityChangeIntent \| null` | yes | Non-null only for `city_change`. |
 | `clarification` | `Clarification \| null` | yes | Non-null when `status=needs_clarification`. |
 | `unsupported_reasons` | string[] | yes | Non-empty when `status=unsupported`. |
 | `routing_hint` | string | yes | Supervisor hint, not final authority. |
@@ -66,8 +82,7 @@ Intent parses `rawModifyQuery`, resolves target items against the current itiner
 | status | kind | routing_hint | downstream |
 |---|---|---|---|
 | `ok` | `slot_replace` | `planner_apply_edit` | Planner edit mode. Skip profile/city_select/festival. |
-| `ok` | `reset` | `city_select_rediscovery` | Re-run city discovery with session avoid. |
-| `ok` | `confirm_plan_b` | `planner_apply_weather_alternative` | Future/on-demand weather Plan B path. |
+| `ok` | `city_change` | `city_select_rediscovery` | Re-run city discovery with requested city or city preference. |
 | `needs_clarification` | any | `response_packager_wait_user` | Ask user; do not execute edit. |
 | `unsupported` | `backlog` | `response_packager_notice` | Explain unsupported modify scope. |
 
@@ -113,9 +128,13 @@ Intent parses `rawModifyQuery`, resolves target items against the current itiner
    - `exact`: one item resolved
    - `ambiguous`: multiple possible items
    - `unresolved`: no item resolved
-4. `condition.replacement_query` is the slot-local query used for re-retrieval.
+4. `condition.replacement_query` is nullable.
+   - `null`: simple replacement. Planner should use the target slot context, original item theme/subtype, and current itinerary constraints.
+   - string: query-constrained replacement. Planner should use this as the slot-local retrieval query.
 5. `condition` must describe only the replacement slot, not a full itinerary rewrite.
 6. `avoid_content_ids` should include the replaced item so Planner does not immediately pick the same place unless no alternative exists and policy allows fallback.
+7. Single vs multiple replace is represented only by `edit_ops.length`.
+8. All `edit_ops` in V2.0 use `op="REPLACE"`. There is no `ADD`, `REMOVE`, `MOVE`, or reorder op.
 
 ---
 
@@ -143,27 +162,30 @@ Intent may set `required_theme` only when it can read the original item theme fr
 
 ---
 
-## 5. ResetIntent
+## 5. CityChangeIntent
 
-`reset` is for broad dissatisfaction such as "다 별로야", "다른 느낌으로 다시 짜줘", or "이 도시는 빼고 다시".
+`city_change` is for requests that keep the itinerary-generation goal but change the destination city.
 
 ```json
 {
-  "avoid": {
-    "city_ids": ["KR-47-130"],
-    "theme_ids": [],
-    "content_ids": []
-  },
-  "reason": "user_rejected_current_itinerary"
+  "target_city_id": "KR-47-130",
+  "target_city_name": "경주시",
+  "city_preference_query": "경주로 바꿔줘",
+  "carry_over_themes": true,
+  "carry_over_festivals": true,
+  "avoid_city_ids": ["KR-42-210"]
 }
 ```
 
-Reset rules:
+City change rules:
 
-1. Reset does not create `edit_ops`.
-2. Reset writes session avoid only. It does not update long-term profile.
-3. Reset routes to city rediscovery.
-4. Targeted city change like "속초로 바꿔" remains V2.1/backlog unless the current approved product decision changes.
+1. City change does not create `edit_ops`.
+2. If the user names one supported city and it resolves to a city id, set `target_city_id`.
+3. If the user gives only a city preference phrase without a resolvable id, set `target_city_id=null` and keep `city_preference_query`.
+4. `carry_over_themes=true` unless the user explicitly changes themes.
+5. `carry_over_festivals=true` unless the user explicitly drops festival mode.
+6. City change routes to city discovery/anchored rediscovery, not planner edit mode.
+7. If the city phrase is ambiguous, return `needs_clarification`.
 
 ---
 
@@ -178,6 +200,7 @@ Required cases:
 - same slot receives contradictory conditions
 - multiple ops conflict with each other
 - user asks to change a seed in a way that is not same-theme
+- city name resolves to multiple possible cities
 
 Clarification shape:
 
@@ -206,7 +229,7 @@ Backlog reasons:
 - `add_place`
 - `remove_place`
 - `reorder_only`
-- `targeted_city_change`
+- `reset_all_without_city_target`
 - `trip_length_change`
 - `travel_month_change`
 - `transport_mode_replan`
@@ -222,7 +245,62 @@ Important distinction:
 
 ## 8. Examples
 
-### 8.1 Non-Seed Slot Replace
+### 8.1 Single Replace Without New Query
+
+User:
+
+```text
+1일차 오후 장소만 다른 곳으로 바꿔줘.
+```
+
+Output:
+
+```json
+{
+  "intent_type": "modification",
+  "status": "ok",
+  "thread_id": "thread-1",
+  "itinerary_revision": "rev-001",
+  "raw_modify_query": "1일차 오후 장소만 다른 곳으로 바꿔줘.",
+  "kind": "slot_replace",
+  "routing_hint": "planner_apply_edit",
+  "edit_ops": [
+    {
+      "op_id": "op-1",
+      "op": "REPLACE",
+      "target": {
+        "item_id": "item-2",
+        "content_id": "attraction#127691",
+        "item_type": "attraction",
+        "day": 1,
+        "order": 2,
+        "target_text": "1일차 오후 장소",
+        "resolution": "exact"
+      },
+      "condition": {
+        "replacement_query": null,
+        "theme": null,
+        "mood": null,
+        "place_type": null,
+        "location": null,
+        "avoid_content_ids": ["attraction#127691"]
+      },
+      "seed_policy": {
+        "target_is_seed": false,
+        "policy": "not_seed"
+      }
+    }
+  ],
+  "city_change": null,
+  "clarification": null,
+  "unsupported_reasons": [],
+  "audit": {}
+}
+```
+
+Planner interprets `replacement_query=null` as "replace using the original slot context".
+
+### 8.2 Single Replace With New Query
 
 User:
 
@@ -236,6 +314,9 @@ Output:
 {
   "intent_type": "modification",
   "status": "ok",
+  "thread_id": "thread-1",
+  "itinerary_revision": "rev-001",
+  "raw_modify_query": "1일차 오후 이이 유적 말고, 조용히 산책하기 좋은 자연 쪽으로 바꿔줘.",
   "kind": "slot_replace",
   "routing_hint": "planner_apply_edit",
   "edit_ops": [
@@ -265,34 +346,126 @@ Output:
       }
     }
   ],
-  "reset": null,
+  "city_change": null,
   "clarification": null,
   "unsupported_reasons": [],
   "audit": {}
 }
 ```
 
-### 8.2 Seed Same-Theme Replace
+### 8.3 Multiple Replace
 
 User:
 
 ```text
-대표 역사 장소는 유지하되, 비슷한 역사 장소로 바꿔줘.
+1일차 오후는 다른 곳으로 바꾸고, 2일차 점심 전 장소는 바다 전망 있는 곳으로 바꿔줘.
 ```
 
-Output policy:
+Output:
 
 ```json
 {
-  "seed_policy": {
-    "target_is_seed": true,
-    "policy": "same_theme_required",
-    "required_theme": "역사·전통"
-  }
+  "intent_type": "modification",
+  "status": "ok",
+  "thread_id": "thread-1",
+  "itinerary_revision": "rev-001",
+  "raw_modify_query": "1일차 오후는 다른 곳으로 바꾸고, 2일차 점심 전 장소는 바다 전망 있는 곳으로 바꿔줘.",
+  "kind": "slot_replace",
+  "routing_hint": "planner_apply_edit",
+  "edit_ops": [
+    {
+      "op_id": "op-1",
+      "op": "REPLACE",
+      "target": {
+        "item_id": "item-2",
+        "content_id": "attraction#127691",
+        "item_type": "attraction",
+        "day": 1,
+        "order": 2,
+        "target_text": "1일차 오후",
+        "resolution": "exact"
+      },
+      "condition": {
+        "replacement_query": null,
+        "theme": null,
+        "mood": null,
+        "place_type": null,
+        "location": null,
+        "avoid_content_ids": ["attraction#127691"]
+      },
+      "seed_policy": {
+        "target_is_seed": false,
+        "policy": "not_seed"
+      }
+    },
+    {
+      "op_id": "op-2",
+      "op": "REPLACE",
+      "target": {
+        "item_id": "item-5",
+        "content_id": "attraction#2501001",
+        "item_type": "attraction",
+        "day": 2,
+        "order": 2,
+        "target_text": "2일차 점심 전 장소",
+        "resolution": "exact"
+      },
+      "condition": {
+        "replacement_query": "바다 전망 있는 곳",
+        "theme": "바다·해안",
+        "mood": null,
+        "place_type": null,
+        "location": null,
+        "avoid_content_ids": ["attraction#2501001"]
+      },
+      "seed_policy": {
+        "target_is_seed": false,
+        "policy": "not_seed"
+      }
+    }
+  ],
+  "city_change": null,
+  "clarification": null,
+  "unsupported_reasons": [],
+  "audit": {}
 }
 ```
 
-### 8.3 Backlog
+### 8.4 City Change
+
+User:
+
+```text
+도시는 경주로 바꿔줘.
+```
+
+Output:
+
+```json
+{
+  "intent_type": "modification",
+  "status": "ok",
+  "thread_id": "thread-1",
+  "itinerary_revision": "rev-001",
+  "raw_modify_query": "도시는 경주로 바꿔줘.",
+  "kind": "city_change",
+  "edit_ops": [],
+  "city_change": {
+    "target_city_id": "KR-47-130",
+    "target_city_name": "경주시",
+    "city_preference_query": "경주로 바꿔줘",
+    "carry_over_themes": true,
+    "carry_over_festivals": true,
+    "avoid_city_ids": ["KR-51-150"]
+  },
+  "clarification": null,
+  "unsupported_reasons": [],
+  "routing_hint": "city_select_rediscovery",
+  "audit": {}
+}
+```
+
+### 8.5 Backlog
 
 User:
 
@@ -308,6 +481,7 @@ Output:
   "status": "unsupported",
   "kind": "backlog",
   "edit_ops": [],
+  "city_change": null,
   "unsupported_reasons": ["trip_length_change"],
   "routing_hint": "response_packager_notice"
 }
@@ -321,7 +495,8 @@ Output:
 - Resolve targets to `item_id`; do not let Planner guess vague text.
 - Preserve `thread_id`, `itinerary_revision`, and `raw_modify_query`.
 - Emit `slot_replace` with one or more `REPLACE` ops.
+- Emit `city_change` without `edit_ops` for destination city changes.
 - Mark seed targets with `same_theme_required` instead of rejecting by default.
 - Return clarification for ambiguous or contradictory executable edits.
-- Return unsupported/backlog for add/remove/reorder-only/date/length/city-target replan.
+- Return unsupported/backlog for add/remove/reorder-only/date/length/reset-all requests.
 - Never write long-term profile from modify utterances.
