@@ -8,7 +8,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.infra.config import RuntimeConfig
+from lovv_agent_v2.agents.intent.tools import IntentPromptRuntime
+from lovv_agent_v2.infra.adapters.bedrock_converse import create_bedrock_converse_runtime
+from lovv_agent_v2.infra.aws_clients import create_boto3_client_provider
+from lovv_agent_v2.infra.config import LLM_NODE_INTENT, RuntimeConfig, resolve_llm_model_id
 from lovv_agent_v2.infra.memory.checkpointer import build_checkpointer
 from lovv_agent_v2.core.graph import compile_v2_graph
 
@@ -19,6 +22,7 @@ class LovvLangGraphV2Harness:
 
     graph: Any
     config: RuntimeConfig
+    runtime: dict[str, Any] | None = None
 
     def invoke(
         self,
@@ -30,17 +34,24 @@ class LovvLangGraphV2Harness:
         """Invoke the V2 graph and return the output."""
 
         config = dict(graph_config or {})
-        return self.graph.invoke(payload, config=config)
+        return self.graph.invoke(self._payload_with_runtime(payload), config=config)
+
+    def _payload_with_runtime(self, payload: dict[str, Any]) -> dict[str, Any]:
+        graph_payload = dict(payload)
+        if self.runtime is not None and "runtime" not in graph_payload:
+            graph_payload["runtime"] = self.runtime
+        return graph_payload
 
 
 def build_v2_harness(
     config: RuntimeConfig,
     checkpointer: Any | None = None,
+    runtime: dict[str, Any] | None = None,
 ) -> LovvLangGraphV2Harness:
     """Build and compile the V2 recommendation graph."""
 
     graph = compile_v2_graph(checkpointer=checkpointer)
-    return LovvLangGraphV2Harness(graph=graph, config=config)
+    return LovvLangGraphV2Harness(graph=graph, config=config, runtime=runtime)
 
 
 def build_live_harness(
@@ -50,7 +61,38 @@ def build_live_harness(
 
     resolved_config = RuntimeConfig.from_env() if config is None else config
     checkpointer = build_checkpointer(resolved_config.memory)
-    return build_v2_harness(config=resolved_config, checkpointer=checkpointer)
+    client_provider = create_boto3_client_provider(config=resolved_config)
+    runtime = {
+        "intent_prompt_runtime": _build_live_intent_prompt_runtime(
+            resolved_config,
+            bedrock_runtime_client=client_provider.create_bedrock_runtime_client(),
+        ),
+    }
+    return build_v2_harness(
+        config=resolved_config,
+        checkpointer=checkpointer,
+        runtime=runtime,
+    )
+
+
+def _build_live_intent_prompt_runtime(
+    config: RuntimeConfig,
+    *,
+    bedrock_runtime_client: Any,
+) -> IntentPromptRuntime:
+    model_id = resolve_llm_model_id(config.llm, LLM_NODE_INTENT)
+    bedrock_runtime = (
+        None
+        if model_id is None
+        else create_bedrock_converse_runtime(
+            client=bedrock_runtime_client,
+            model_id=model_id,
+        )
+    )
+    return IntentPromptRuntime(
+        runtime=bedrock_runtime,
+        schema_retry_limit=config.retries.schema_retry_limit,
+    )
 
 
 __all__ = ["LovvLangGraphV2Harness", "build_v2_harness", "build_live_harness"]
