@@ -1,0 +1,27 @@
+{
+  "has_record": true,
+  "module_file": "D:\\bootcamp\\workspace\\project\\03_final\\04_Lovv-agent\\app\\LovvAgentV2\\lovv_agent_v2\\agents\\profile\\evidence.py",
+  "profile_record": {
+    "actor_id": "actor-app",
+    "lovv_user_profile": {
+      "saved_theme_counts": {
+        "art_sense": 0,
+        "healing_rest": 0,
+        "history_tradition": 0,
+        "nature_trekking": 0,
+        "sea_coast": 2
+      },
+      "saved_trip_count": 3
+    },
+    "profile_id": "saved-itinerary://actor-app",
+    "profile_status": "found",
+    "saved_itinerary_evidence": {
+      "destinations": [],
+      "liked_itinerary_count": 0,
+      "places": [],
+      "source": "app_copy_smoke",
+      "thread_id": "thread-app",
+      "trip_styles": []
+    }
+  }
+}
