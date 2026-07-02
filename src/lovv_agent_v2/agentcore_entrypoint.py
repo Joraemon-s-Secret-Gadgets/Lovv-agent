@@ -100,7 +100,7 @@ def _payload_with_profile_evidence(
             actor_id=actor_id,
             thread_id=thread_id,
         )
-    except Exception:  # noqa: BROAD_EXCEPT_OK
+    except Exception:  # noqa: BLE001
         enriched = dict(payload)
         profile_value = enriched.get("profile", {})
         profile = dict(profile_value) if isinstance(profile_value, Mapping) else {}

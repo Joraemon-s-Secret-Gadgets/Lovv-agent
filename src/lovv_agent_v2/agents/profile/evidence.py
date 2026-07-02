@@ -176,7 +176,7 @@ class ProfileEvidenceResolver:
         now_epoch = self.clock()
         try:
             cached = self.cache.get(key, now_epoch=now_epoch)
-        except Exception:  # noqa: BROAD_EXCEPT_OK
+        except Exception:  # noqa: BLE001
             return ProfileEvidenceResolution(
                 record=None,
                 audit={
@@ -205,7 +205,7 @@ class ProfileEvidenceResolver:
                 recent_limit=self.recent_limit,
                 liked_limit=self.liked_limit,
             )
-        except Exception:  # noqa: BROAD_EXCEPT_OK
+        except Exception:  # noqa: BLE001
             return ProfileEvidenceResolution(
                 record=None,
                 audit={
@@ -231,7 +231,7 @@ class ProfileEvidenceResolver:
         audit: dict[str, Any] = {"cache_status": "miss", "tool_status": "success"}
         try:
             self.cache.put(key, record, now_epoch=now_epoch)
-        except Exception:  # noqa: BROAD_EXCEPT_OK
+        except Exception:  # noqa: BLE001
             audit["cache_write_status"] = "write_failed"
         else:
             audit["cache_write_status"] = "stored"
