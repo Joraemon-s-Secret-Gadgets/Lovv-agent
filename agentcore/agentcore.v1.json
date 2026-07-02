@@ -5,14 +5,14 @@
     "agentcore:created-by": "agentcore-cli",
     "agentcore:project-name": "LovvAgentCore",
     "Project": "Lovv",
-    "RuntimeTrack": "v2"
+    "RuntimeTrack": "v1"
   },
   "runtimes": [
     {
-      "name": "LovvAgentV2",
+      "name": "LovvAgentV1",
       "build": "CodeZip",
       "entrypoint": "main.py",
-      "codeLocation": "app/LovvAgentV2/",
+      "codeLocation": "app/LovvAgentV1/",
       "runtimeVersion": "PYTHON_3_12",
       "networkMode": "PUBLIC",
       "protocol": "HTTP",
@@ -23,30 +23,46 @@
         },
         {
           "name": "LOVV_S3_VECTOR_BUCKET",
-          "value": "lovv-vector-dev"
+          "value": "lovv-agentcore-v1-vector"
         },
         {
           "name": "LOVV_S3_VECTOR_INDEX",
-          "value": "kr-tour-domain-v2"
+          "value": "kr-agentcore-v1"
         },
         {
           "name": "LOVV_DYNAMODB_TABLE",
-          "value": "TourKoreaDomainDataV2"
+          "value": "TourKoreaDomainData"
         },
         {
           "name": "LOVV_EMBEDDING_MODEL_ID",
           "value": "amazon.titan-embed-text-v2:0"
         },
         {
+          "name": "LOVV_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
           "name": "LOVV_INTENT_LLM_MODEL_ID",
           "value": "openai.gpt-oss-120b-1:0"
         },
         {
-          "name": "LOVV_EXPLANATION_LLM_MODEL_ID",
+          "name": "LOVV_CANDIDATE_EVIDENCE_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_PLANNER_LLM_MODEL_ID",
+          "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_SUPERVISOR_LLM_MODEL_ID",
           "value": "openai.gpt-oss-120b-1:0"
         },
         {
           "name": "LOVV_SEARCH_PER_THEME_TOP_K",
+          "value": "50"
+        },
+        {
+          "name": "LOVV_SEARCH_RAW_SOFT_TOP_K",
           "value": "50"
         },
         {
@@ -59,39 +75,11 @@
         },
         {
           "name": "LOVV_PROFILE_ENABLED",
-          "value": "true"
+          "value": "false"
         },
         {
           "name": "LOVV_PROFILE_TABLE",
           "value": "LovvAgentCore-LovvUserProfile"
-        },
-        {
-          "name": "LOVV_MEMORY_ENABLED",
-          "value": "true"
-        },
-        {
-          "name": "LOVV_MEMORY_ID",
-          "value": "arn:aws:bedrock-agentcore:us-east-1:925273580929:memory/Lovv_agent_v2_checkpointer-OUxTJ7HuIM"
-        },
-        {
-          "name": "LOVV_MAX_FESTIVAL_SEED_CANDIDATES",
-          "value": "50"
-        },
-        {
-          "name": "LOVV_PLANNER_TRAVEL_TIME_PROVIDER",
-          "value": "ors"
-        },
-        {
-          "name": "LOVV_AGENTCORE_WORKLOAD_NAME",
-          "value": "LovvAgentCore_LovvAgentV2"
-        },
-        {
-          "name": "LOVV_AGENTCORE_USER_ID",
-          "value": "lovv-runtime"
-        },
-        {
-          "name": "LOVV_SCHEMA_RETRY_LIMIT",
-          "value": "2"
         },
         {
           "name": "OTEL_PYTHON_EXCLUDED_URLS",
@@ -103,7 +91,7 @@
         }
       ],
       "tags": {
-        "RuntimeVersion": "v2"
+        "RuntimeVersion": "v1"
       }
     }
   ],
