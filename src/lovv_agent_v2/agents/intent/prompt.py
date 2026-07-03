@@ -13,56 +13,11 @@ from lovv_agent_v2.infra.adapters.bedrock_converse import (
 from lovv_agent_v2.agents.intent.parser import theme_labels
 from lovv_agent_v2.agents.intent.prompts.intent_normalization import INTENT_PROMPT_TEXT
 from lovv_agent_v2.agents.intent.prompt_regions import canonical_prompt_region_updates
+from lovv_agent_v2.agents.intent.prompt_schema import (
+    INTENT_PROMPT_OUTPUT_SCHEMA,
+    INTENT_PROMPT_SCHEMA_NAME,
+)
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
-
-INTENT_PROMPT_SCHEMA_NAME: Final = "lovv_v2_intent_output"
-_REQUIRED_FIELDS: Final = (
-    "cleaned_raw_query",
-    "soft_preference_query",
-    "unsupported_conditions",
-    "congestion_pref",
-    "transport_pref",
-    "preferred_theme_ids",
-    "disliked_theme_ids",
-    "preferred_region_spans",
-    "disliked_region_spans",
-    "needs_clarification",
-    "clarifying_question",
-    "contradiction_reasons",
-)
-_THEME_ID_ENUM: Final = (
-    "sea_coast",
-    "nature_trekking",
-    "history_tradition",
-    "art_sense",
-    "healing_rest",
-    "food_local",
-)
-INTENT_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": list(_REQUIRED_FIELDS),
-    "properties": {
-        "cleaned_raw_query": {"type": "string"},
-        "soft_preference_query": {"type": "string"},
-        "unsupported_conditions": {"type": "array", "items": {"type": "string"}},
-        "congestion_pref": {"type": "string", "enum": ["quiet", "vibrant", "neutral"]},
-        "transport_pref": {"type": "string", "enum": ["walk", "car", "unknown"]},
-        "preferred_theme_ids": {
-            "type": "array",
-            "items": {"type": "string", "enum": list(_THEME_ID_ENUM)},
-        },
-        "disliked_theme_ids": {
-            "type": "array",
-            "items": {"type": "string", "enum": list(_THEME_ID_ENUM)},
-        },
-        "preferred_region_spans": {"type": "array", "items": {"type": "string"}},
-        "disliked_region_spans": {"type": "array", "items": {"type": "string"}},
-        "needs_clarification": {"type": "boolean"},
-        "clarifying_question": {"type": ["string", "null"]},
-        "contradiction_reasons": {"type": "array", "items": {"type": "string"}},
-    },
-}
 
 _TUPLE_FIELDS: Final = (
     "preferred_theme_ids",
@@ -160,10 +115,7 @@ def validate_intent_prompt_output(
             "transport_pref": normalized_payload["transport_pref"],
         },
     )
-    city_input = CitySelectInput.from_mapping(city_input_payload).to_dict()
-    city_input["active_required_themes"] = list(city_input["active_required_themes"])
     updates: dict[str, Any] = {
-        "intent_output": dict(city_input),
         "intent_extraction_mode": "prompt_structured_output",
     }
     for field_name in _TUPLE_FIELDS:
@@ -183,6 +135,25 @@ def validate_intent_prompt_output(
     updates["clarifying_question"] = _optional_text(
         normalized_payload.get("clarifying_question"),
     )
+    city_input_payload.update(
+        {
+            "preferred_theme_ids": updates["preferred_theme_ids"],
+            "disliked_theme_ids": updates["disliked_theme_ids"],
+            "preferred_region_ids": updates.get("preferred_region_ids", ()),
+            "disliked_region_ids": updates.get("disliked_region_ids", ()),
+            "preferred_region_spans": updates["preferred_region_spans"],
+            "disliked_region_spans": updates["disliked_region_spans"],
+            "unresolved_region_spans": updates.get("unresolved_region_spans", ()),
+            "preferred_region_names": updates.get("preferred_region_names", ()),
+            "disliked_region_names": updates.get("disliked_region_names", ()),
+            "needs_clarification": updates["needs_clarification"],
+            "clarifying_question": updates["clarifying_question"],
+            "contradiction_reasons": updates["contradiction_reasons"],
+        },
+    )
+    city_input = CitySelectInput.from_mapping(city_input_payload).to_dict()
+    city_input["active_required_themes"] = list(city_input["active_required_themes"])
+    updates["intent_output"] = dict(city_input)
     return PromptIntentResult(city_select_input=city_input, intent_updates=updates)
 
 

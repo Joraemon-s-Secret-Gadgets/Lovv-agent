@@ -182,10 +182,8 @@ def _prompt_result(
 
 def _city_select_input_from_request(request: Mapping[str, Any]) -> dict[str, Any]:
     preference_result = parse_initial_query(_request_raw_query(request))
-    themes = preference_result.active_theme_labels or request.get(
-        "themes",
-        request.get("active_required_themes", ()),
-    )
+    request_themes = request.get("themes", request.get("active_required_themes", ()))
+    themes = request_themes or preference_result.active_theme_labels
     return {
         "country": _first_present(request, "country"),
         "travel_month": _first_present(request, "travel_month", "travelMonth"),
@@ -210,6 +208,18 @@ def _city_select_input_from_request(request: Mapping[str, Any]) -> dict[str, Any
         "execution_mode": request.get("execution_mode", "city_discovery"),
         "congestion_pref": request.get("congestion_pref", "neutral"),
         "transport_pref": request.get("transport_pref", "unknown"),
+        "preferred_theme_ids": preference_result.preferred_theme_ids,
+        "disliked_theme_ids": preference_result.disliked_theme_ids,
+        "preferred_region_ids": preference_result.preferred_region_ids,
+        "disliked_region_ids": preference_result.disliked_region_ids,
+        "preferred_region_spans": preference_result.preferred_region_spans,
+        "disliked_region_spans": preference_result.disliked_region_spans,
+        "unresolved_region_spans": preference_result.unresolved_region_spans,
+        "preferred_region_names": preference_result.preferred_region_names,
+        "disliked_region_names": preference_result.disliked_region_names,
+        "needs_clarification": preference_result.needs_clarification,
+        "clarifying_question": preference_result.clarifying_question,
+        "contradiction_reasons": preference_result.contradiction_reasons,
     }
 
 

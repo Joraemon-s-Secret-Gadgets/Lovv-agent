@@ -148,6 +148,14 @@ def test_intent_node_projects_request_preferences_to_intent_payload() -> None:
         "바다·해안",
         "미식·노포",
     ]
+    assert intent["city_select_input"]["preferred_theme_ids"] == (
+        "sea_coast",
+        "food_local",
+    )
+    assert intent["city_select_input"]["unresolved_region_spans"] == (
+        "경북",
+        "강원도",
+    )
 
 
 def test_intent_node_reads_front_textfield_natural_language_query() -> None:
@@ -171,6 +179,10 @@ def test_intent_node_reads_front_textfield_natural_language_query() -> None:
     assert city_input["soft_preference_query"] == "차분한 분위기."
     assert intent["preferred_region_ids"] == ("KR-47-170",)
     assert intent["disliked_region_ids"] == ("KR-51-210",)
+    assert city_input["preferred_region_ids"] == ("KR-47-170",)
+    assert city_input["disliked_region_ids"] == ("KR-51-210",)
+    assert city_input["preferred_region_names"] == ("안동시",)
+    assert city_input["disliked_region_names"] == ("속초시",)
 
 
 def test_intent_node_uses_prompt_runtime_before_code_parser() -> None:
@@ -223,6 +235,11 @@ def test_intent_node_uses_prompt_runtime_before_code_parser() -> None:
     assert intent["city_select_input"]["congestion_pref"] == "neutral"
     assert intent["city_select_input"]["transport_pref"] == "walk"
     assert intent["city_select_input"]["destination_id"] is None
+    assert intent["city_select_input"]["preferred_theme_ids"] == (
+        "history_tradition",
+        "nature_trekking",
+    )
+    assert intent["city_select_input"]["disliked_theme_ids"] == ()
     assert intent["preferred_theme_ids"] == ("history_tradition", "nature_trekking")
     assert intent["clarifying_question"] is None
     assert intent["intent_extraction_mode"] == "prompt_structured_output"
