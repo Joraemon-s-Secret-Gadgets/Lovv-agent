@@ -55,6 +55,19 @@ def _request_payload(state: Mapping[str, Any]) -> Mapping[str, Any]:
 
 
 def _clarification_payload(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    intent = state.get("intent")
+    if isinstance(intent, Mapping):
+        modify_intent = intent.get("modify_intent")
+        if isinstance(modify_intent, Mapping):
+            clarification = modify_intent.get("clarification")
+            if isinstance(clarification, Mapping):
+                return _modify_clarification_payload(clarification)
+        clarification = intent.get("clarification")
+        if intent.get("intent_type") == "modification" and isinstance(
+            clarification,
+            Mapping,
+        ):
+            return _modify_clarification_payload(clarification)
     festival_gate = state.get("festival_gate")
     if isinstance(festival_gate, Mapping):
         clarification = festival_gate.get("clarification")
@@ -66,6 +79,22 @@ def _clarification_payload(state: Mapping[str, Any]) -> Mapping[str, Any] | None
         if isinstance(clarification, Mapping):
             return clarification
     return None
+
+
+def _modify_clarification_payload(clarification: Mapping[str, Any]) -> dict[str, Any]:
+    payload = dict(clarification)
+    options = payload.get("options")
+    if isinstance(options, list) and options:
+        return payload
+    payload["options"] = [
+        {
+            "option_id": "revise_modify_query",
+            "label": "수정 요청 다시 입력",
+            "apply": {},
+            "then": "abort",
+        },
+    ]
+    return payload
 
 
 def _planner_output(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
@@ -130,7 +159,16 @@ def _unsupported_conditions(state: Mapping[str, Any]) -> tuple[str, ...]:
     intent = state.get("intent")
     if not isinstance(intent, Mapping):
         return ()
-    value = intent.get("unsupported_conditions")
-    if isinstance(value, (list, tuple)):
-        return tuple(str(item) for item in value)
-    return ()
+    values: list[str] = []
+    _extend_texts(values, intent.get("unsupported_conditions"))
+    _extend_texts(values, intent.get("unsupported_reasons"))
+    modify_intent = intent.get("modify_intent")
+    if isinstance(modify_intent, Mapping):
+        _extend_texts(values, modify_intent.get("unsupported_reasons"))
+    return tuple(values)
+
+
+def _extend_texts(target: list[str], value: Any) -> None:
+    if not isinstance(value, (list, tuple)):
+        return
+    target.extend(str(item) for item in value)
