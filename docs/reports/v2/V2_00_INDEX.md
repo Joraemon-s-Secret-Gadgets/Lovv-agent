@@ -31,9 +31,15 @@
 | 32 | `V2_32_ALTERNATIVE_ITINERARY_WEATHER_DIRECTIVE.md` | **월별 weather risk 기반 alternative itinerary 지시서** |
 | 32 | `V2_32_CITY_SELECT_SCORING_LEGACY_AUDIT.md` | **city_select 스코어링 V1 legacy 감사와 제거/유지 판단** |
 | 33 | `V2_33_SCORING_DATADRIVEN_RATIONALE.md` | **city_select/planner 점수식 도달 과정과 남은 한계** |
-| 34 | `V2_34_MODIFY_INTENT_SCHEMA.md` | **수정 Intent Agent 출력 스키마(slot_replace/reset/backlog + seed same-theme 정책)** |
+| 34 | `V2_34_MODIFY_INTENT_SCHEMA.md` | **수정 Intent Agent 출력 스키마(slot_replace/city_change/backlog + seed same-theme 정책)** |
 | 35 | `V2_35_ROUTE_DAYS_EXPLANATION.md` | **Planner route_days 일자 배치 알고리즘 + smoke 사례 설명** |
 | 36 | `V2_36_INTERRUPT_HANDLING_MATRIX.md` | **interrupt option/apply/then 처리 matrix와 수락 기준** |
+| 37 | `V2_37_PROFILE_RDS_IMPLEMENTATION_DIRECTIVE.md` | **Profile Agent RDS 연동 구현 지시서(theme weight read/write)** |
+| 38 | `V2_38_INTENT_FRONTEND_INPUT_CONTRACT.md` | **프론트가 Intent 경로로 보내는 create/clarify/modify/confirm 입력 계약** |
+| 39 | `V2_39_INTENT_PROCESSING_OUTPUT_SCHEMA.md` | **Intent Agent entryType별 처리 방안과 downstream 출력 스키마** |
+| 40 | `V2_40_YEOSU_ROUTE_DAYS_CASE.md` | **여수 route_days 중요 사례: 유사도 나열 대비 이동시간 기반 군집 배치 효과** |
+| 41 | `V2_41_ROUTE_DAYS_SMOKE_CASEBOOK.md` | **이 스레드 live smoke 변화 사례집: insufficient 완화·이동 제한·남은 품질 이슈** |
+| 42 | `V2_42_MODIFY_TROUBLESHOOTING.md` | **modify city-change live timeout 원인과 supervisor loop fix + 장소 replace 설계 메모** |
 | — | `V2_DECISIONS_LOG.md` | Step 4 결정 로그(왜 그렇게 정했나) |
 | — | `../../tasks/results/v2_intent_mocks/` | V2 입력 mock(생성14·수정4) + 핸드오프 |
 
