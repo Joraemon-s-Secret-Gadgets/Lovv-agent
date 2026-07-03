@@ -62,6 +62,8 @@ def test_packager_exposes_seed_flag_for_saved_itinerary() -> None:
                     "slot": "morning",
                     "placeId": "attraction#seed",
                     "title": "시드 장소",
+                    "city_id": "KR-41-1",
+                    "theme_tags": ("역사·전통",),
                     "reason_code": "seed_floor",
                 },
             ],
@@ -84,4 +86,9 @@ def test_packager_exposes_seed_flag_for_saved_itinerary() -> None:
     )
 
     item = response["itinerary"]["days"][0]["items"][0]
+    assert item["day"] == 1
+    assert item["order"] == 1
+    assert item["itemType"] == "attraction"
+    assert item["cityId"] == "KR-41-1"
+    assert item["theme"] == "역사·전통"
     assert item["isSeed"] is True

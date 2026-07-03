@@ -4,6 +4,9 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from lovv_agent_v2.agents.response_packager.itinerary_item_payload import (
+    build_itinerary_item_payload,
+)
 from lovv_agent_v2.agents.response_packager.notice import joined_notice, unsupported_notice
 from lovv_agent_v2.models.clarification import Clarification
 from lovv_agent_v2.models.schemas import (
@@ -103,7 +106,9 @@ def _itinerary_payload(
     days: dict[int, list[dict[str, Any]]] = {}
     for sort_order, item in enumerate(planner.itinerary, start=1):
         day = int(item.get("day", 1) or 1)
-        days.setdefault(day, []).append(_itinerary_item_payload(item, sort_order))
+        day_items = days.setdefault(day, [])
+        item_with_order = {**item, "order": len(day_items) + 1}
+        day_items.append(build_itinerary_item_payload(item_with_order, sort_order))
     return {
         "tripType": request["trip_type"],
         "days": [
@@ -111,37 +116,6 @@ def _itinerary_payload(
             for day, items in sorted(days.items(), key=lambda pair: pair[0])
         ],
     }
-
-
-def _itinerary_item_payload(item: Mapping[str, Any], sort_order: int) -> dict[str, Any]:
-    return {
-        "itemId": f"item-{sort_order}",
-        "contentId": item.get("placeId") or item.get("festivalId"),
-        "timeOfDay": item.get("slot"),
-        "sortOrder": sort_order,
-        "title": item.get("title"),
-        "body": item.get("body"),
-        "reason": item.get("reason"),
-        "isSeed": item.get("isSeed") is True or item.get("is_seed") is True or item.get("reason_code") == "seed_floor",
-        "moveMinutes": _optional_number(item, "moveMinutes", "move_minutes"),
-        "latitude": _optional_number(item, "latitude", "lat"),
-        "longitude": _optional_number(item, "longitude", "lng", "lon"),
-    }
-
-
-def _optional_number(item: Mapping[str, Any], *field_names: str) -> float | int | None:
-    for field_name in field_names:
-        value = item.get(field_name)
-        if isinstance(value, bool):
-            continue
-        if isinstance(value, (int, float)):
-            return value
-        if isinstance(value, str):
-            try:
-                return float(value)
-            except ValueError:
-                continue
-    return None
 
 
 def _explainability_payload(
