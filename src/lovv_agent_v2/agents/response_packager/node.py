@@ -36,22 +36,48 @@ def _response_packager_input(state: Mapping[str, Any]) -> ResponsePackagerInput:
 
 
 def _request_payload(state: Mapping[str, Any]) -> Mapping[str, Any]:
+    city_input = _intent_city_input(state)
     request = state.get("request")
     if isinstance(request, Mapping):
-        return request
+        return _request_with_city_input(request, city_input)
+    if city_input is not None:
+        return _request_from_city_input(city_input)
+    raise SchemaValidationError("state.request or intent.city_select_input is required")
+
+
+def _intent_city_input(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
     intent = state.get("intent")
     if isinstance(intent, Mapping):
         city_input = intent.get("city_select_input")
         if isinstance(city_input, Mapping):
-            return {
-                "request_id": "mock-v2-request",
-                "country": city_input.get("country"),
-                "travel_month": city_input.get("travel_month"),
-                "trip_type": city_input.get("trip_type"),
-                "destination_id": city_input.get("destination_id"),
-                "themes": city_input.get("active_required_themes", ()),
-            }
-    raise SchemaValidationError("state.request or intent.city_select_input is required")
+            return city_input
+    return None
+
+
+def _request_with_city_input(
+    request: Mapping[str, Any],
+    city_input: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    payload = dict(request)
+    if city_input is None:
+        return payload
+    payload.setdefault("country", city_input.get("country"))
+    payload.setdefault("travel_month", city_input.get("travel_month"))
+    payload.setdefault("trip_type", city_input.get("trip_type"))
+    payload.setdefault("destination_id", city_input.get("destination_id"))
+    payload.setdefault("themes", city_input.get("active_required_themes", ()))
+    return payload
+
+
+def _request_from_city_input(city_input: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "request_id": "mock-v2-request",
+        "country": city_input.get("country"),
+        "travel_month": city_input.get("travel_month"),
+        "trip_type": city_input.get("trip_type"),
+        "destination_id": city_input.get("destination_id"),
+        "themes": city_input.get("active_required_themes", ()),
+    }
 
 
 def _clarification_payload(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
