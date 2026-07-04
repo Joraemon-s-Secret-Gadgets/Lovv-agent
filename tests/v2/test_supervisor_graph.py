@@ -4,7 +4,7 @@ from lovv_agent_v2.agents.supervisor.router import supervisor_node
 
 
 def test_supervisor_starts_non_intent_flow_at_profile() -> None:
-    result = supervisor_node({"intent": {"intent_output": {"country": "KR"}}})
+    result = supervisor_node({"intent": {"city_select_input": {"country": "KR"}}})
 
     assert result["routing"]["next_node"] == "profile"
     assert result["routing"]["completed_groups"] == []
@@ -218,13 +218,19 @@ def test_supervisor_routes_modify_unsupported_to_response_packager() -> None:
 def test_supervisor_routes_city_change_modify_to_planner_before_stale_response() -> None:
     result = supervisor_node(
         {
+            "request": {"include_festivals": False},
             "intent": {
                 "intent_type": "modification",
                 "status": "ok",
+                "city_select_input": {
+                    "country": "KR",
+                    "include_festivals": False,
+                    "destination_id": "KR-47-130",
+                },
                 "modify_intent": {
                     "status": "ok",
                     "kind": "city_change",
-                    "routing_hint": "city_select_rediscovery",
+                    "routing_hint": "planner_direct_anchor",
                     "city_change": {"target_city_id": "KR-47-130"},
                 },
             },
@@ -236,6 +242,29 @@ def test_supervisor_routes_city_change_modify_to_planner_before_stale_response()
     )
 
     assert result["routing"]["next_node"] == "planner"
+
+
+def test_supervisor_does_not_route_city_change_to_planner_without_anchor_input() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "intent_type": "modification",
+                "status": "ok",
+                "modify_intent": {
+                    "status": "ok",
+                    "kind": "city_change",
+                    "routing_hint": "planner_direct_anchor",
+                    "city_change": {"target_city_id": "KR-47-130"},
+                },
+            },
+            "response": {
+                "response_status": "modification_pending",
+                "response_payload": {"recommendationId": "REQ-OLD"},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] != "planner"
 
 
 def test_supervisor_routes_city_change_planner_output_to_explain_before_stale_response() -> None:

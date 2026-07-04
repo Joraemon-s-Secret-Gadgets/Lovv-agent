@@ -132,8 +132,11 @@ def _modify_intent_routes_direct_anchor_planner(state: Mapping[str, Any]) -> boo
     modify_intent = _modify_intent(state)
     if modify_intent is None:
         return False
-    return not _has_planner_output(state) and not _has_city_select_result_or_terminal_status(state) and (
-        modify_intent.get("status") == "ok"
+    return (
+        not _has_planner_output(state)
+        and not _has_city_select_result_or_terminal_status(state)
+        and _can_skip_city_select_for_direct_anchor(state)
+        and modify_intent.get("status") == "ok"
         and modify_intent.get("routing_hint")
         in {"planner_direct_anchor", "city_select_rediscovery"}
     )
