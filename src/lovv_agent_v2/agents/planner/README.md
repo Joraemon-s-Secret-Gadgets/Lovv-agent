@@ -4,20 +4,16 @@ Planner turns a selected city into an in-city itinerary.
 
 Read in this order:
 
-1. `node.py` - parent graph entrypoint.
-2. `subgraph.py` - local planner graph shape.
-3. `state_adapter.py` - `UnifiedAgentState` to planner request/result boundary.
-4. `agent.py` - deterministic planner core.
-5. `tools.py` - planner runtime capability contracts.
-6. `steps/` - implementation details for each subgraph step.
+1. `subgraph.py` - parent graph entrypoint and local planner graph shape.
+2. `state_adapter.py` - `UnifiedAgentState` to planner request/result boundary.
+3. `agent.py` - deterministic planner core.
+4. `tools.py` - planner runtime capability contracts.
+5. `steps/` - implementation details for each subgraph step.
 
 ## Shape
 
 The planner root keeps only files that are useful from outside the planner or
 from the local LangGraph subgraph:
-
-`node.py`
-exposes the single parent-graph entrypoint: `planner_node`.
 
 `subgraph.py`
 wires the local step graph:

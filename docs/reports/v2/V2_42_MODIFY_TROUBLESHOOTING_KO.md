@@ -1,8 +1,8 @@
-# V2_42 — Modify Troubleshooting Notes
+# V2_42 — 일정 수정 트러블슈팅 기록
 
 작성일: 2026-07-03
 
-상태: live smoke 기반 troubleshooting 기록
+상태: live smoke 기반 트러블슈팅 한글판
 
 관련 문서:
 
@@ -15,29 +15,30 @@
 
 ## 0. 목적
 
-이 문서는 modify 경로를 live smoke로 검증하면서 발견한 문제와 수정 내용을 기록한다.
+이 문서는 V2 일정 수정 경로를 live smoke로 검증하면서 발견한 문제, 원인, 수정 방향을 한글로 정리한다.
 
 범위:
 
-- city-change modify timeout 원인
-- supervisor routing 수정
+- 도시 변경 수정 요청의 timeout 원인
+- supervisor routing loop 수정
 - live smoke 재검증 결과
-- 다음 modify 범위인 장소 replace 설계 메모
+- 장소 교체 수정 설계 메모
+- 복합 수정 요청에 대한 intent 차단 필요성
 
 ---
 
-## 1. City Change Live Smoke Timeout
+## 1. 도시 변경 live smoke timeout
 
 ### 시나리오
 
 새 AgentCore checkpoint session에서 다음 순서로 실행했다.
 
-1. 일반 탐색 create
+1. 일반 탐색 생성
    - `destinationId` 없음
    - query: `조용한 바다 산책과 해안 풍경 위주로 2박 3일 일정`
    - theme: `바다·해안`
    - festival: false
-2. 같은 session에서 modify
+2. 같은 session에서 수정 요청
    - `rawModifyQuery`: `도시는 강릉으로 바꿔줘.`
 
 초기 실행은 150초 timeout에 걸렸다.
@@ -80,13 +81,13 @@ planner
 
 원인:
 
-- modify city-change 진행 중에는 기존 `response.response_payload`를 stale response로 무시해야 한다.
-- 하지만 response packager가 새 response를 만든 뒤에도 supervisor가 "현재 modify에 대한 새 response"와 "이전 create response"를 구분하지 못했다.
+- 도시 변경 수정 중에는 기존 `response.response_payload`를 stale response로 무시해야 한다.
+- 하지만 response packager가 새 response를 만든 뒤에도 supervisor가 "현재 수정 요청에 대한 새 response"와 "이전 create response"를 구분하지 못했다.
 - 그 결과 response packager 이후에도 다시 response packager로 라우팅했다.
 
 ---
 
-## 2. Fix
+## 2. 수정 내용
 
 수정 파일:
 
@@ -103,7 +104,7 @@ planner
 - `modify_intent.city_change.target_city_id == response.response_payload.destination.destinationId`, 또는
 - `modify_intent.city_change.target_city_name == response.response_payload.destination.name`
 
-이 판정은 현재 live smoke에서 `destination.name = 강릉시`가 들어오지만 `destinationId = null`인 케이스를 수용하기 위해 name fallback을 둔다.
+초기에는 live smoke에서 `destination.name = 강릉시`는 들어오지만 `destinationId = null`인 케이스가 있었기 때문에 name fallback을 두었다.
 
 주의:
 
@@ -112,7 +113,7 @@ planner
 
 ---
 
-## 3. Verification
+## 3. 검증
 
 관련 테스트:
 
@@ -131,7 +132,7 @@ tests/v2/test_intent_dispatch_contract.py::test_intent_node_builds_city_change_m
 6 passed
 ```
 
-Final live trace:
+최종 live trace:
 
 ```text
 session: city-change-general-final-20260703132501
@@ -162,7 +163,7 @@ response:
   destination.name: 강릉시
 ```
 
-### 3.1 2026-07-04 재현: 기존 destinationId가 남는 city-change loop
+### 3.1 2026-07-04 재현: 기존 destinationId가 남는 도시 변경 loop
 
 별도 slot replace 검증 중 다음 순서로 다시 재현했다.
 
@@ -221,9 +222,9 @@ live:
     Day 1 slot 2: 소돌아들바위공원 -> 칠성산
 ```
 
-### 3.2 Mixed raw query: city-change + slot replace
+### 3.2 복합 raw query: 도시 변경 + 장소 교체
 
-다음처럼 한 문장에 도시 변경과 슬롯 변경이 함께 들어오는 경우도 확인했다.
+다음처럼 한 문장에 도시 변경과 장소 변경이 함께 들어오는 경우도 확인했다.
 
 ```text
 rawModifyQuery:
@@ -258,7 +259,7 @@ mixed modify: 19.180s / 강릉시 / KR-51-150 / 10 items
 
 결론:
 
-- 현재 구현은 mixed modify를 복합 수정으로 처리하지 않는다.
+- 현재 구현은 복합 modify를 복합 수정으로 처리하지 않는다.
 - city-change가 우선 적용되고, slot replace는 `edit_ops`로 남지 않는다.
 - 따라서 사용자가 "도시도 바꾸고 장소도 바꿔줘"라고 말하면 현재는 "도시 변경 후 재생성"으로만 처리된다.
 - 이 동작은 사용자 의도 일부를 조용히 누락하므로 올바른 최종 정책이 아니다.
@@ -267,11 +268,11 @@ mixed modify: 19.180s / 강릉시 / KR-51-150 / 10 items
 
 ---
 
-## 4. Place Replace Design Notes
+## 4. 장소 교체 설계 메모
 
-장소 replace는 city-change와 다르게 도시/일정 전체를 다시 만들지 않는다.
+장소 교체는 도시 변경과 다르게 도시/일정 전체를 다시 만들지 않는다.
 
-목표는 다음과 같다.
+목표 흐름:
 
 ```text
 rawModifyQuery
@@ -362,10 +363,10 @@ Planner edit mode는 현재 itinerary를 base로 두고 target slot만 교체한
 
 replacement source:
 
-| condition | candidate source | note |
+| 조건 | 후보 출처 | 비고 |
 |---|---|---|
 | `replacement_query` 없음 | 기존 planner reserve pool | "그 장소만 다른 곳으로" 같은 단순 교체. 새 vector search 없이 현재 일정 생성에서 남은 후보를 우선 사용한다. |
-| `replacement_query` 있음 | same-city vector retrieval | "조용한 산책지로 바꿔줘" 같은 의도 교체. 해당 query로만 retrieval한다. |
+| `replacement_query` 있음 | 같은 도시 안 vector retrieval | "조용한 산책지로 바꿔줘" 같은 의도 교체. 해당 query로만 retrieval한다. |
 
 검색/후보 범위:
 
@@ -416,7 +417,7 @@ with modifyQuery:
   -> route insertion cost
 ```
 
-기존 target item의 theme/subtype/slot/day context는 `replacement_query`가 없을 때 **검색 query**가 아니라 reserve 후보의 compatibility scoring에만 사용한다.
+기존 target item의 theme/subtype/slot/day context는 `replacement_query`가 없을 때 검색 query가 아니라 reserve 후보의 compatibility scoring에만 사용한다.
 
 기존 문맥 기반 fallback retrieval은 V2.0 기본 경로로 두지 않는다. 이유는 사용자가 "그냥 바꿔줘"라고 했을 때 backend가 임의 해석 query를 만들어 새로운 장소를 끌고 오면 수정 의도가 과해질 수 있기 때문이다.
 
@@ -520,7 +521,7 @@ replace는 다음 경우에 실행하지 않는다.
 
 ---
 
-## 5. Next Implementation Order
+## 5. 다음 구현 순서
 
 권장 순서:
 

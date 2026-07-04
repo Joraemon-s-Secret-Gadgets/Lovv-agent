@@ -1,0 +1,72 @@
+{
+  "entryType": "modify",
+  "sessionId": "slot-replace-live-gen05-20260704-01",
+  "threadId": "slot-replace-live-gen05-20260704-01",
+  "actorId": "P00_new_user_uniform",
+  "requestId": "slot-replace-live-gen05-20260704-01-replace-no-query",
+  "itineraryRevision": "rev-live-gen05-slot-replace-no-query",
+  "destinationId": "KR-51-810",
+  "rawModifyQuery": "1일차 2번째 장소 바꿔줘.",
+  "currentOrder": [
+    {
+      "itemId": "item-1",
+      "contentId": "attraction#1835658",
+      "itemType": "attraction",
+      "day": 1,
+      "order": 1,
+      "title": "내설악 백공미술관",
+      "isSeed": true,
+      "cityId": "KR-51-810",
+      "theme": "예술·감성",
+      "latitude": 38.2132523005745,
+      "longitude": 128.362122716697,
+      "timeOfDay": "afternoon",
+      "sortOrder": 1
+    },
+    {
+      "itemId": "item-2",
+      "contentId": "attraction#2514804",
+      "itemType": "attraction",
+      "day": 1,
+      "order": 2,
+      "title": "진부령미술관",
+      "isSeed": false,
+      "cityId": "KR-51-810",
+      "theme": "예술·감성",
+      "latitude": 38.2654124845,
+      "longitude": 128.3588495234,
+      "timeOfDay": "evening",
+      "sortOrder": 2
+    },
+    {
+      "itemId": "item-3",
+      "contentId": "attraction#2773530",
+      "itemType": "attraction",
+      "day": 2,
+      "order": 1,
+      "title": "공립인제내설악미술관",
+      "isSeed": false,
+      "cityId": "KR-51-810",
+      "theme": "예술·감성",
+      "latitude": 38.1455549761,
+      "longitude": 128.2533294992,
+      "timeOfDay": "morning",
+      "sortOrder": 3
+    },
+    {
+      "itemId": "item-4",
+      "contentId": "attraction#2773563",
+      "itemType": "attraction",
+      "day": 2,
+      "order": 2,
+      "title": "목공예 갤러리",
+      "isSeed": false,
+      "cityId": "KR-51-810",
+      "theme": "예술·감성",
+      "latitude": 38.0644585009167,
+      "longitude": 128.174265091633,
+      "timeOfDay": "afternoon",
+      "sortOrder": 4
+    }
+  ]
+}
