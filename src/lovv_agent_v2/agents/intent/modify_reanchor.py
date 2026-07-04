@@ -45,7 +45,7 @@ def _city_change_input(
 
 
 def _current_city_input(current_intent: Mapping[str, Any]) -> Mapping[str, Any]:
-    value = current_intent.get("city_select_input", current_intent.get("intent_output"))
+    value = current_intent.get("city_select_input")
     return value if isinstance(value, Mapping) else {}
 
 

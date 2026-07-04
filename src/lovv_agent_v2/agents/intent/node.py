@@ -157,8 +157,6 @@ def _city_select_input(
 
 def _existing_city_select_input(intent: Mapping[str, Any]) -> Mapping[str, Any] | None:
     value = intent.get("city_select_input")
-    if value is None:
-        value = intent.get("intent_output")
     return value if isinstance(value, Mapping) else None
 
 
@@ -194,18 +192,15 @@ def _city_select_input_from_request(request: Mapping[str, Any]) -> dict[str, Any
             "includeFestivals",
         ),
         "cleaned_raw_query": preference_result.cleaned_raw_query,
-        "soft_preference_query": request.get(
-            "soft_preference_query",
-            request.get("softPreferenceQuery", request.get("soft_query", "")),
-        ),
+        "soft_preference_query": "",
         "unsupported_conditions": request.get("unsupported_conditions", ()),
         "destination_id": request.get("destination_id", request.get("destinationId")),
         "city_key": request.get("city_key", request.get("cityKey")),
         "ddb_pk": request.get("ddb_pk", request.get("ddbPk")),
         "user_location": request.get("user_location", request.get("userLocation")),
         "execution_mode": request.get("execution_mode", "city_discovery"),
-        "congestion_pref": request.get("congestion_pref", "neutral"),
-        "transport_pref": request.get("transport_pref", "unknown"),
+        "congestion_pref": "neutral",
+        "transport_pref": "unknown",
         "preferred_theme_ids": preference_result.preferred_theme_ids,
         "disliked_theme_ids": preference_result.disliked_theme_ids,
         "preferred_region_ids": preference_result.preferred_region_ids,

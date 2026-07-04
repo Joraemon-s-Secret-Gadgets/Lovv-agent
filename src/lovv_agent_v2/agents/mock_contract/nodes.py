@@ -92,12 +92,11 @@ def _city_select_source(
 ) -> Mapping[str, Any]:
     for value in (
         intent.get("city_select_input"),
-        intent.get("intent_output"),
         state.get("request"),
     ):
         if isinstance(value, Mapping):
             return value
-    raise SchemaValidationError("mock intent requires city_select_input or intent_output")
+    raise SchemaValidationError("mock contract requires city_select_input or request")
 
 
 def _profile_confirmation_update(

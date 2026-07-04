@@ -5,7 +5,7 @@ from typing import Any
 
 
 def trip_intent_from_intent(intent: Mapping[str, Any]) -> dict[str, Any] | None:
-    for key in ("trip_intent", "city_select_input", "intent_output"):
+    for key in ("trip_intent", "city_select_input"):
         payload = intent.get(key)
         if isinstance(payload, Mapping):
             trip_intent = trip_intent_from_mapping(payload)

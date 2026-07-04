@@ -12,6 +12,7 @@ from lovv_agent_v2.agents.intent.parser import parse_initial_query
 from lovv_agent_v2.agents.intent.validator import validate_preference_sets
 from lovv_agent_v2.core.runtime_state import invocation_runtime
 from lovv_agent_v2.core.state import UnifiedAgentState
+from lovv_agent_v2.models.schemas import SchemaValidationError
 
 
 def test_parse_initial_query_extracts_preferred_theme_ids() -> None:
@@ -176,7 +177,7 @@ def test_intent_node_reads_front_textfield_natural_language_query() -> None:
     intent = output["intent"]
     city_input = intent["city_select_input"]
     assert city_input["cleaned_raw_query"] == "안동 역사 여행을 추천해줘"
-    assert city_input["soft_preference_query"] == "차분한 분위기."
+    assert city_input["soft_preference_query"] == ""
     assert intent["preferred_region_ids"] == ("KR-47-170",)
     assert intent["disliked_region_ids"] == ("KR-51-210",)
     assert city_input["preferred_region_ids"] == ("KR-47-170",)
@@ -538,29 +539,30 @@ def test_intent_node_prefers_existing_city_select_input_over_request() -> None:
     assert intent["city_select_input"]["cleaned_raw_query"] == "안동 역사 여행"
 
 
-def test_intent_node_accepts_intent_output_alias() -> None:
-    output = intent_node(
-        {
-            "intent": {
-                "intent_output": {
-                    "country": "KR",
-                    "travel_month": 9,
-                    "travel_year": 2026,
-                    "trip_type": "solo",
-                    "active_required_themes": ["역사·전통"],
-                    "include_festivals": False,
-                    "cleaned_raw_query": "안동 역사 여행",
-                    "soft_preference_query": "",
-                    "unsupported_conditions": [],
+def test_intent_node_rejects_intent_output_alias_without_front_request() -> None:
+    try:
+        intent_node(
+            {
+                "intent": {
+                    "intent_output": {
+                        "country": "KR",
+                        "travel_month": 9,
+                        "travel_year": 2026,
+                        "trip_type": "solo",
+                        "active_required_themes": ["역사·전통"],
+                        "include_festivals": False,
+                        "cleaned_raw_query": "안동 역사 여행",
+                        "soft_preference_query": "",
+                        "unsupported_conditions": [],
+                    },
+                    "preferred_theme_ids": ("history_tradition",),
                 },
-                "preferred_theme_ids": ("history_tradition",),
             },
-        },
-    )
-
-    intent = output["intent"]
-    assert intent["city_select_input"]["active_required_themes"] == ["역사·전통"]
-    assert intent["preferred_theme_ids"] == ("history_tradition",)
+        )
+    except SchemaValidationError as exc:
+        assert "intent.city_select_input or state.request is required" in str(exc)
+    else:
+        raise AssertionError("intent_output alias must be rejected")
 
 
 def test_parse_modify_query_extracts_turn_updates() -> None:

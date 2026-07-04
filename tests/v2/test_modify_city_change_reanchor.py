@@ -17,10 +17,6 @@ def test_intent_node_reanchors_city_change_and_clears_stale_outputs() -> None:
                     "destination_id": None,
                     "raw_query": "이전 생성 입력",
                 },
-                "intent_output": {
-                    "destination_id": None,
-                    "cleaned_raw_query": "이전 생성 입력",
-                },
                 "city_select_input": {
                     "country": "KR",
                     "travel_month": 10,
