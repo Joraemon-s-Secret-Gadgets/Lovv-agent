@@ -4,7 +4,6 @@ from collections.abc import Mapping
 
 from lovv_agent_v2.agents.planner.agent import PlannerAgent, PlannerAgentRequest, PlannerAgentTools
 from lovv_agent_v2.agents.planner.state.context import (
-    direct_anchor_city_selection_result,
     fallback_places,
     int_value,
     mapping,
@@ -22,33 +21,7 @@ from lovv_agent_v2.agents.planner.steps.assemble_itinerary.node import assemble_
 from lovv_agent_v2.agents.planner.steps.retrieve_places.festival_seed import festival_seed_places
 from lovv_agent_v2.agents.planner.steps.retry_alternative_city.node import (
     fallback_to_alternative_city_node,
-    should_retry_alternative_city,
 )
-
-
-def run_planner_agent(agent_input: Mapping[str, object]) -> dict[str, object]:
-    if (
-        not isinstance(agent_input.get("city_select"), Mapping)
-        and direct_anchor_city_selection_result(agent_input) is None
-    ):
-        return {
-            "planner": {
-                "planner_output": None,
-                "validation_result": {"planner_status_gate": "no_city_selection"},
-                "audit": {},
-            },
-        }
-    assemble_state = _run_core_once(agent_input)
-    assembled = assemble_itinerary_step(assemble_state)
-    retry_state = _merge_update(assemble_state, assembled)
-    if not should_retry_alternative_city(retry_state):
-        return assembled
-
-    fallback = retry_alternative_city(retry_state)
-    fallback_state = _merge_update(retry_state, fallback)
-    assemble_state = _run_core_once(fallback_state)
-    final = assemble_itinerary_step(assemble_state)
-    return _merge_update(fallback, final)
 
 
 def retrieve_places(agent_input: Mapping[str, object]) -> dict[str, object]:
@@ -62,20 +35,6 @@ def route_days_step(agent_input: Mapping[str, object]) -> dict[str, object]:
     pool = planner_scratch_mapping(agent_input, "place_pool", "planner.scratch.place_pool")
     selection, route = PlannerAgent(_planner_agent_tools(agent_input)).route_place_pool(request, pool)
     return planner_state_update(agent_input, scratch_updates={"selection": selection, "route": route})
-
-
-def _run_core_once(agent_input: Mapping[str, object]) -> dict[str, object]:
-    request = _planner_agent_request(agent_input)
-    result = PlannerAgent(_planner_agent_tools(agent_input)).run(request)
-    update = planner_state_update(
-        agent_input,
-        scratch_updates={
-            "place_pool": result.place_pool,
-            "selection": result.selection,
-            "route": result.route,
-        },
-    )
-    return _merge_update(agent_input, update)
 
 
 def assemble_itinerary_step(agent_input: Mapping[str, object]) -> dict[str, object]:
@@ -118,10 +77,3 @@ def _planner_agent_tools(agent_input: Mapping[str, object]) -> PlannerAgentTools
         runtime=runtime_tools(agent_input),
         travel_time_provider=travel_time_provider(agent_input),
     )
-
-
-def _merge_update(
-    base: Mapping[str, object],
-    update: Mapping[str, object],
-) -> dict[str, object]:
-    return {**base, **update}

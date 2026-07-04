@@ -55,6 +55,7 @@ def assemble_itinerary_node(state: Mapping[str, object]) -> dict[str, object]:
         public_updates={
             "planner_output": output.to_dict(),
             "validation_result": output.validation_result,
+            "modify_context": _modify_context(state, route_payload),
             "modification": None,
             "alternative_itinerary": list(output.alternative_itinerary),
             "fallback": _planner_fallback(state),
@@ -230,3 +231,14 @@ def _planner_fallback(state: Mapping[str, object]) -> Mapping[str, object] | Non
         return None
     fallback = optional_mapping(planner.get("fallback"))
     return dict(fallback) if fallback is not None else None
+
+
+def _modify_context(
+    state: Mapping[str, object],
+    route_payload: Mapping[str, object],
+) -> dict[str, object]:
+    planner = optional_mapping(state.get("planner"))
+    context = optional_mapping(planner.get("modify_context")) if planner is not None else None
+    current = dict(context) if context is not None else {}
+    current.setdefault("reserve_pool", route_payload.get("reserve", ()))
+    return current

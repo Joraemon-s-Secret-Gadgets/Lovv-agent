@@ -18,6 +18,9 @@ REASON_CODES: tuple[str, ...] = (
     "modify_target_ambiguous",
     "modify_ops_conflict",
     "modify_seed_theme_conflict",
+    "modify_multi_edit_deferred",
+    "slot_replace_no_candidate",
+    "slot_replace_route_infeasible",
 )
 
 NEXT_ACTIONS: tuple[str, ...] = (

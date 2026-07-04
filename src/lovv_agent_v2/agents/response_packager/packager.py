@@ -70,10 +70,18 @@ def _destination_payload(
     request: Mapping[str, Any],
     planner: PlannerOutput | None,
 ) -> dict[str, Any]:
+    request_destination_id = request.get("destination_id")
+    if request_destination_id is not None:
+        return {
+            "destinationId": request_destination_id,
+            "name": _planner_city_name(planner, request_destination_id),
+            "country": request["country"],
+            "region": None,
+        }
     if selected_city is None:
         return {
-            "destinationId": request.get("destination_id"),
-            "name": _planner_city_name(planner, request.get("destination_id")),
+            "destinationId": None,
+            "name": _planner_city_name(planner, None),
             "country": request["country"],
             "region": None,
         }

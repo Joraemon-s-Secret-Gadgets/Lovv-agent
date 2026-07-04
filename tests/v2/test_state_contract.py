@@ -88,7 +88,7 @@ def test_planner_agent_keeps_state_adapter_out_of_core_orchestration() -> None:
     assert "scratch" not in tools_source
 
 
-def test_planner_node_implementation_files_are_grouped_by_subgraph_step() -> None:
+def test_planner_subgraph_implementation_files_are_grouped_by_step() -> None:
     planner_root = Path(__file__).parents[2] / "src/lovv_agent_v2/agents/planner"
     expected_step_files = (
         "steps/retrieve_places/festival_seed.py",
@@ -106,6 +106,7 @@ def test_planner_node_implementation_files_are_grouped_by_subgraph_step() -> Non
         "external/agentcore_credentials.py",
     )
     legacy_root_files = (
+        "node.py",
         "nodes.py",
         "context.py",
         "scratch.py",
