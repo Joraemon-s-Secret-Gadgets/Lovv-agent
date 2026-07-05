@@ -20,7 +20,7 @@ def weather_alternative_node(state: UnifiedAgentState) -> dict[str, object]:
     planner_output = _mapping(planner.get("planner_output"))
     itinerary = _mapping_sequence(planner_output.get("itinerary"))
     if not itinerary:
-        return {"planner": planner}
+        return {"planner": _planner_with_unavailable_weather(planner, planner_output, "empty_itinerary")}
     summary = summarize_exposure(itinerary)
     city_id = _city_id(planner_output, itinerary)
     travel_month = _travel_month(state)
@@ -46,6 +46,25 @@ def weather_alternative_node(state: UnifiedAgentState) -> dict[str, object]:
     planner["validation_result"] = validation
     planner["weather_risk"] = validation["weather_audit"]
     return {"planner": planner}
+
+
+def _planner_with_unavailable_weather(
+    planner: dict[str, object],
+    planner_output: Mapping[str, object],
+    reason: str,
+) -> dict[str, object]:
+    validation = dict(_mapping(planner_output.get("validation_result")))
+    validation["weather_audit"] = {
+        "status": "unavailable",
+        "evaluation_stage": _evaluation_stage(planner_output),
+        "unavailable_reason": reason,
+    }
+    output = dict(planner_output)
+    output["validation_result"] = validation
+    planner["planner_output"] = output
+    planner["validation_result"] = validation
+    planner["weather_risk"] = validation["weather_audit"]
+    return planner
 
 
 def _weather_index(state: UnifiedAgentState) -> WeatherRiskIndex:

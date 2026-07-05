@@ -239,6 +239,34 @@ def test_weather_node_marks_city_missing_from_weather_map_as_unavailable() -> No
     assert weather_audit["unavailable_reason"] == "city_weather_map_missing"
 
 
+def test_weather_node_marks_empty_itinerary_as_processed_after_explain() -> None:
+    state = {
+        "intent": {"city_select_input": {"travel_month": 7}},
+        "planner": {
+            "planner_output": {
+                "itinerary": (),
+                "recommendation_reasons": (),
+                "itinerary_flow_reason": "",
+                "external_links": {},
+                "confidence": 0.7,
+                "user_notice": (),
+                "validation_result": {
+                    "planner_status_gate": "insufficient_candidates",
+                    "planner_copy_generation_used_llm": False,
+                },
+                "alternative_itinerary": (),
+            },
+        },
+    }
+
+    result = weather_alternative_node(state)
+
+    validation = result["planner"]["planner_output"]["validation_result"]
+    assert validation["weather_audit"]["evaluation_stage"] == "post_explain"
+    assert validation["weather_audit"]["status"] == "unavailable"
+    assert validation["weather_audit"]["unavailable_reason"] == "empty_itinerary"
+
+
 def test_supervisor_routes_post_explain_state_to_weather_before_packager() -> None:
     state = {
         "profile": {"audit": {}},
