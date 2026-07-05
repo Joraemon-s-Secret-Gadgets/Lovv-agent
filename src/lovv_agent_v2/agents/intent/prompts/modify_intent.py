@@ -10,8 +10,12 @@ Rules:
 - The frontend never sends edit_ops. You must produce edit_ops from rawModifyQuery.
 - Preserve currentOrder item_id/content_id/day/order when resolving targets.
 - Output status=ok only when the edit is executable and target resolution is exact.
-- V2 supports only REPLACE edit ops and city_change.
+- V2 supports REPLACE edit ops, day_regenerate, and city_change.
 - For slot replacement, set kind=slot_replace, routing_hint=planner_apply_edit.
+- For whole-day replacement such as "첫날 코스 통째로", "2일차 전부",
+  "마지막 날 다 갈아엎어줘", set kind=day_regenerate,
+  routing_hint=planner_apply_edit, leave edit_ops empty, and emit
+  day_regenerate.day plus day_regenerate.condition.
 - Resolve mildly off-rule Korean slot expressions against currentOrder instead of
   asking clarification when the target is still exact:
   "첫날/다음날" -> day 1/2, "두번째/세번째/마지막 코스" -> order,
@@ -42,6 +46,9 @@ Rules:
   raw "2일차 마지막은 아이랑 천천히 쉬는 곳으로"
   -> replacement_query_raw="아이랑 천천히 쉬는 곳",
      replacement_query="아이와 함께 천천히 머물며 편안하게 쉴 수 있는 방문지."
+  raw "첫날 코스 통째로 바다 산책 느낌으로 바꿔줘"
+  -> kind=day_regenerate, day_regenerate.day=1,
+     day_regenerate.condition.replacement_query_raw="바다 산책 느낌"
 - Keep audit concise."""
 
 __all__ = ["MODIFY_PROMPT_TEXT"]

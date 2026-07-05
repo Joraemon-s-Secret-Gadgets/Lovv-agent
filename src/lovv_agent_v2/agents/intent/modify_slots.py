@@ -6,6 +6,7 @@ from typing import Any, Final
 
 from lovv_agent_v2.agents.intent.modify_replacement_query import (
     replacement_query_fields,
+    slot_replacement_phrase,
 )
 from lovv_agent_v2.agents.intent.modify_current_order import current_order
 from lovv_agent_v2.agents.intent.parser import parse_initial_query
@@ -188,44 +189,7 @@ def _target_option(item: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _replacement_query(raw_query: str, item: Mapping[str, Any]) -> str | None:
-    if "말고" not in raw_query:
-        return _replacement_query_without_negative_target(raw_query, item)
-    _, replacement = raw_query.split("말고", 1)
-    normalized = replacement.strip(" .,。")
-    normalized = re.sub(
-        r"(쪽으로|으로|로)?\s*(바꾸고|바꿔줘|바꿔|변경해줘|교체해줘)\.?$",
-        "",
-        normalized,
-    )
-    normalized = normalized.strip(" .,。")
-    return normalized or None
-
-
-def _replacement_query_without_negative_target(
-    raw_query: str,
-    item: Mapping[str, Any],
-) -> str | None:
-    normalized = re.sub(
-        rf"^\s*\d+일차\s*(오전|오후|{ORDER_TOKEN_RE})?\s*(장소|코스|일정)?\s*(은|는|을|를|만)?\s*",
-        "",
-        raw_query,
-    )
-    normalized = re.sub(
-        r"(쪽으로|으로|로)?\s*(바꾸고|바꿔줘|바꿔|변경해줘|교체해줘)\.?$",
-        "",
-        normalized.strip(" .,。"),
-    )
-    title = _item_title(item)
-    if title is not None:
-        normalized = re.sub(
-            rf"^\s*{re.escape(title)}\s*(은|는|을|를|만)?\s*",
-            "",
-            normalized,
-        )
-    normalized = normalized.strip(" .,。")
-    if normalized in {"다른 곳", "다른 장소", "다른 코스"}:
-        return None
-    return normalized or None
+    return slot_replacement_phrase(raw_query, item, order_token_re=ORDER_TOKEN_RE)
 
 
 def _target_text(raw_query: str, item: Mapping[str, Any]) -> str:

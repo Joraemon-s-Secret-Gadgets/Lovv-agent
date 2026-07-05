@@ -380,6 +380,40 @@ def test_modify_prompt_validator_resolves_loose_slot_position_from_current_order
     assert operation["condition"]["replacement_query_raw"] == "실내 전시 공간"
 
 
+def test_modify_prompt_validator_canonicalizes_day_regenerate_shape() -> None:
+    result = validate_modify_prompt_output(
+        {
+            "status": "ok",
+            "kind": "day_regenerate",
+            "edit_ops": [],
+            "day_regenerate": {
+                "target_day": 2,
+                "replacement_query": "바다 산책 느낌",
+            },
+            "city_change": None,
+            "clarification": None,
+            "unsupported_reasons": [],
+            "routing_hint": "planner_apply_edit",
+            "audit": {"parser": "llm"},
+        },
+        request={
+            "threadId": "thread-001",
+            "itineraryRevision": "rev-001",
+            "rawModifyQuery": "둘째 날 일정은 바다 산책 느낌으로 통째로 바꿔줘.",
+            "currentOrder": [
+                _current_item("item-1", "attraction#one", 1),
+                _current_item("item-2", "attraction#two", 2),
+            ],
+        },
+    )
+
+    assert result["kind"] == "day_regenerate"
+    assert result["routing_hint"] == "planner_apply_edit"
+    assert result["day_regenerate"]["day"] == 2
+    assert result["day_regenerate"]["condition"]["replacement_query_raw"] == "바다 산책 느낌"
+    assert result["day_regenerate"]["condition"]["query_required"] is True
+
+
 def test_modify_prompt_validator_canonicalizes_loose_city_change_shape() -> None:
     result = validate_modify_prompt_output(
         {

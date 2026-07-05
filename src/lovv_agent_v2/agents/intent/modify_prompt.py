@@ -8,6 +8,7 @@ from lovv_agent_v2.agents.intent.modify_prompt_normalizer import (
     normalize_prompt_city_change,
     normalize_prompt_edit_ops,
 )
+from lovv_agent_v2.agents.intent.modify_day_regenerate import normalize_prompt_day_regenerate
 from lovv_agent_v2.agents.intent.prompts.modify_intent import MODIFY_PROMPT_TEXT
 from lovv_agent_v2.infra.adapters.bedrock_converse import (
     RuntimeInvoker,
@@ -36,8 +37,9 @@ MODIFY_PROMPT_OUTPUT_SCHEMA: dict[str, Any] = {
             "type": "string",
             "enum": ["ok", "needs_clarification", "unsupported"],
         },
-        "kind": {"type": "string", "enum": ["slot_replace", "city_change", "backlog"]},
+        "kind": {"type": "string", "enum": ["slot_replace", "day_regenerate", "city_change", "backlog"]},
         "edit_ops": {"type": "array", "items": {"type": "object"}},
+        "day_regenerate": {"type": ["object", "null"]},
         "city_change": {"type": ["object", "null"]},
         "clarification": {"type": ["object", "null"]},
         "unsupported_reasons": {"type": "array", "items": {"type": "string"}},
@@ -98,7 +100,8 @@ def validate_modify_prompt_output(
         "raw_modify_query",
     )
     status = _choice(payload.get("status"), ("ok", "needs_clarification", "unsupported"), "status")
-    kind = _choice(payload.get("kind"), ("slot_replace", "city_change", "backlog"), "kind")
+    kind = _choice(payload.get("kind"), ("slot_replace", "day_regenerate", "city_change", "backlog"), "kind")
+    day_regenerate = normalize_prompt_day_regenerate(payload.get("day_regenerate"), request)
     city_change = normalize_prompt_city_change(
         _mapping_or_none(payload.get("city_change"), "city_change"),
         request,
@@ -120,6 +123,7 @@ def validate_modify_prompt_output(
             _list(payload.get("edit_ops"), "edit_ops"),
             request,
         ),
+        "day_regenerate": day_regenerate,
         "city_change": city_change,
         "clarification": _clarification(
             payload.get("clarification"),
@@ -147,6 +151,8 @@ def _validate_status_shape(result: Mapping[str, Any]) -> None:
     kind = result["kind"]
     if status == "ok" and kind == "slot_replace" and not result["edit_ops"]:
         raise SchemaValidationError("slot_replace modify intent requires edit_ops")
+    if status == "ok" and kind == "day_regenerate" and result["day_regenerate"] is None:
+        raise SchemaValidationError("day_regenerate modify intent requires day_regenerate")
     if status == "ok" and kind == "city_change" and result["city_change"] is None:
         raise SchemaValidationError("city_change modify intent requires city_change")
     if status == "unsupported" and not result["unsupported_reasons"]:
@@ -173,6 +179,8 @@ def _routing_hint(
             return "city_select_rediscovery"
         return "planner_direct_anchor"
     if kind == "slot_replace":
+        return "planner_apply_edit"
+    if kind == "day_regenerate":
         return "planner_apply_edit"
     return _required_text(value, "routing_hint")
 

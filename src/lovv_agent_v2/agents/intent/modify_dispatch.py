@@ -13,7 +13,7 @@ def resolve_modify_intent(
     request: Mapping[str, Any],
 ) -> dict[str, Any]:
     rule_result = build_modify_intent(request, state)
-    if _is_rule_city_change(rule_result):
+    if _is_rule_terminal_planner_intent(rule_result):
         return rule_result
     prompt_runtime = intent_prompt_runtime_from_state(state)
     if prompt_runtime.runtime is None:
@@ -30,8 +30,8 @@ def resolve_modify_intent(
     return prompt_result
 
 
-def _is_rule_city_change(modify_intent: Mapping[str, Any]) -> bool:
-    return modify_intent.get("status") == "ok" and modify_intent.get("kind") == "city_change"
+def _is_rule_terminal_planner_intent(modify_intent: Mapping[str, Any]) -> bool:
+    return modify_intent.get("status") == "ok" and modify_intent.get("kind") in {"city_change", "day_regenerate"}
 
 
 def _should_keep_rule_modify_intent(

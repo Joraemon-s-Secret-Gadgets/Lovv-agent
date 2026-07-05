@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from lovv_agent_v2.agents.intent.parser import IntentPreferenceResult, parse_initial_query
+from lovv_agent_v2.agents.intent.modify_day_regenerate import day_regenerate_request
 from lovv_agent_v2.agents.intent.modify_slots import (
     avoid_city_ids,
     current_order,
@@ -54,6 +55,20 @@ def build_modify_intent(
             "clarification": None,
             "unsupported_reasons": [],
             "routing_hint": _city_change_routing_hint(city_change),
+            "audit": {"parser": "rule_v2"},
+        }
+    day_regenerate = day_regenerate_request(raw_query, current_order_items)
+    if day_regenerate is not None:
+        return {
+            **base,
+            "status": "ok",
+            "kind": "day_regenerate",
+            "edit_ops": [],
+            "day_regenerate": day_regenerate,
+            "city_change": None,
+            "clarification": None,
+            "unsupported_reasons": [],
+            "routing_hint": "planner_apply_edit",
             "audit": {"parser": "rule_v2"},
         }
     operations = slot_replace_operations(raw_query, current_order_items)

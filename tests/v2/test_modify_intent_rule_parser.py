@@ -226,12 +226,71 @@ def test_intent_node_supports_multiple_targets_in_same_day_with_shared_query() -
     ]
 
 
-def _current_item(item_id: str, content_id: str, order: int) -> dict[str, object]:
+def test_intent_node_builds_day_regenerate_modify_intent() -> None:
+    output = intent_node(
+        {
+            "request": {
+                "entryType": "modify",
+                "threadId": "thread-001",
+                "itineraryRevision": "rev-001",
+                "rawModifyQuery": "1일차 전체를 바다 산책 느낌으로 바꿔줘.",
+                "currentOrder": [
+                    _current_item("item-1", "attraction#one", 1),
+                    _current_item("item-2", "attraction#two", 2),
+                ],
+            },
+        },
+    )
+
+    modify_intent = output["intent"]["modify_intent"]
+    assert modify_intent["status"] == "ok"
+    assert modify_intent["kind"] == "day_regenerate"
+    assert modify_intent["routing_hint"] == "planner_apply_edit"
+    assert modify_intent["day_regenerate"]["day"] == 1
+    assert modify_intent["day_regenerate"]["condition"]["replacement_query_raw"] == "바다 산책 느낌"
+
+
+def test_intent_node_builds_day_regenerate_from_loose_day_phrases() -> None:
+    for raw_query, expected_day, expected_query in (
+        ("첫날 코스 통째로 바다 산책 느낌으로 바꿔줘.", 1, "바다 산책 느낌"),
+        ("둘째 날 일정 다 조용한 숲길로 갈아엎어줘.", 2, "조용한 숲길"),
+        ("마지막 날 전부 실내 전시 공간으로 교체해줘.", 2, "실내 전시 공간"),
+    ):
+        output = intent_node(
+            {
+                "request": {
+                    "entryType": "modify",
+                    "threadId": "thread-001",
+                    "itineraryRevision": "rev-001",
+                    "rawModifyQuery": raw_query,
+                    "currentOrder": [
+                        _current_item("item-1", "attraction#one", 1, day=1),
+                        _current_item("item-2", "attraction#two", 2, day=1),
+                        _current_item("item-3", "attraction#three", 1, day=2),
+                    ],
+                },
+            },
+        )
+
+        modify_intent = output["intent"]["modify_intent"]
+        assert modify_intent["status"] == "ok"
+        assert modify_intent["kind"] == "day_regenerate"
+        assert modify_intent["day_regenerate"]["day"] == expected_day
+        assert modify_intent["day_regenerate"]["condition"]["replacement_query_raw"] == expected_query
+
+
+def _current_item(
+    item_id: str,
+    content_id: str,
+    order: int,
+    *,
+    day: int = 1,
+) -> dict[str, object]:
     return {
         "itemId": item_id,
         "contentId": content_id,
         "itemType": "attraction",
-        "day": 1,
+        "day": day,
         "order": order,
         "title": f"{order}번째 장소",
         "isSeed": False,

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+from collections.abc import Mapping
 from typing import Final
 
 _GENERIC_REPLACEMENT_PHRASES: Final = (
@@ -47,8 +49,53 @@ def hyde_replacement_query(raw_phrase: str | None) -> str | None:
     return f"{normalized} 분위기와 장소 유형이 잘 드러나는 방문지."
 
 
+def slot_replacement_phrase(
+    raw_query: str,
+    item: Mapping[str, object],
+    *,
+    order_token_re: str,
+) -> str | None:
+    if "말고" in raw_query:
+        _, replacement = raw_query.split("말고", 1)
+        normalized = _strip_replace_suffix(replacement)
+    else:
+        normalized = _strip_replace_suffix(_strip_target_prefix(raw_query, item, order_token_re))
+    if normalized in {"다른 곳", "다른 장소", "다른 코스"}:
+        return None
+    return normalized or None
+
+
+def _strip_target_prefix(
+    raw_query: str,
+    item: Mapping[str, object],
+    order_token_re: str,
+) -> str:
+    normalized = re.sub(
+        rf"^\s*\d+일차\s*(오전|오후|{order_token_re})?\s*(장소|코스|일정)?\s*(은|는|을|를|만)?\s*",
+        "",
+        raw_query,
+    )
+    title = _optional_text(item.get("title", item.get("name")))
+    if title is None:
+        return normalized
+    return re.sub(rf"^\s*{re.escape(title)}\s*(은|는|을|를|만)?\s*", "", normalized)
+
+
+def _strip_replace_suffix(value: str) -> str:
+    return re.sub(
+        r"(쪽으로|으로|로)?\s*(바꾸고|바꿔줘|바꿔|변경해줘|교체해줘)\.?$",
+        "",
+        value.strip(" .,。"),
+    ).strip(" .,。")
+
+
+def _optional_text(value: object) -> str | None:
+    return value.strip() if isinstance(value, str) and value.strip() else None
+
+
 __all__ = [
     "hyde_replacement_query",
     "normalized_replacement_phrase",
     "replacement_query_fields",
+    "slot_replacement_phrase",
 ]
