@@ -18,6 +18,7 @@ def build_clarify_intent(
             "thread_id": thread_id,
             "selected_option_id": selected_option_id,
             "resume": {"option_id": selected_option_id},
+            "clarification_resume": option,
             "audit": {"matched_label": option["label"]},
         }
     raw_query = _text(request.get("rawQuery", request.get("raw_query")))
@@ -44,7 +45,7 @@ def _selected_option_id(request: Mapping[str, Any]) -> str | None:
 def _pending_option(
     state: Mapping[str, Any],
     selected_option_id: str | None,
-) -> Mapping[str, str] | None:
+) -> Mapping[str, Any] | None:
     if selected_option_id is None:
         return None
     for clarification in _pending_clarifications(state):
@@ -61,7 +62,18 @@ def _pending_option(
                 and option_id == selected_option_id
                 and label is not None
             ):
-                return {"option_id": option_id, "label": label}
+                return {
+                    "option_id": option_id,
+                    "label": label,
+                    "reason_code": _text(
+                        clarification.get(
+                            "reason_code",
+                            clarification.get("reasonCode"),
+                        ),
+                    ),
+                    "apply": _mapping_or_empty(option.get("apply")),
+                    "then": _text(option.get("then")),
+                }
     return None
 
 
@@ -69,7 +81,7 @@ def _pending_clarifications(
     state: Mapping[str, Any],
 ) -> tuple[Mapping[str, Any], ...]:
     clarifications: list[Mapping[str, Any]] = []
-    for group_name in ("memory", "festival_gate", "city_select", "response"):
+    for group_name in ("intent", "memory", "festival_gate", "city_select", "response"):
         group = state.get(group_name)
         if not isinstance(group, Mapping):
             continue
@@ -87,3 +99,7 @@ def _text(value: Any) -> str | None:
         return None
     normalized = value.strip()
     return normalized or None
+
+
+def _mapping_or_empty(value: Any) -> Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}

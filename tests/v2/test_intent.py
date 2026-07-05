@@ -457,6 +457,8 @@ def test_prompt_intent_reconciles_preference_contradictions() -> None:
     assert intent["needs_clarification"] is True
     assert intent["contradiction_reasons"] == ("region:KR-51-210",)
     assert intent["clarifying_question"] is not None
+    assert intent["clarification"]["reason_code"] == "contradiction"
+    assert intent["clarification"]["options"][0]["then"] == "abort"
 
 
 def test_intent_prompt_defines_transport_and_congestion_enum_rules() -> None:
@@ -507,10 +509,15 @@ def test_intent_prompt_defines_preference_id_rules_and_enums() -> None:
         assert field_name not in INTENT_PROMPT_OUTPUT_SCHEMA["required"]
 
 
-def test_intent_node_prefers_existing_city_select_input_over_request() -> None:
+def test_intent_node_reparses_fresh_create_request_over_stale_city_input() -> None:
     output = intent_node(
         {
             "intent": {
+                "clarification": {
+                    "reason_code": "contradiction",
+                    "prompt": "old prompt",
+                    "options": [],
+                },
                 "city_select_input": {
                     "country": "KR",
                     "travel_month": 9,
@@ -524,19 +531,24 @@ def test_intent_node_prefers_existing_city_select_input_over_request() -> None:
                 },
             },
             "request": {
+                "entryType": "create",
                 "country": "KR",
                 "travel_month": 9,
                 "travel_year": 2026,
                 "trip_type": "solo",
                 "include_festivals": False,
-                "raw_query": "바다 여행으로 바꿔줘",
+                "raw_query": "강릉 바다 여행지를 추천해줘",
             },
         },
     )
 
     intent = output["intent"]
-    assert intent["city_select_input"]["active_required_themes"] == ["역사·전통"]
-    assert intent["city_select_input"]["cleaned_raw_query"] == "안동 역사 여행"
+    assert intent["city_select_input"]["active_required_themes"] == ["바다·해안"]
+    assert intent["city_select_input"]["cleaned_raw_query"] == "강릉 바다 여행지를 추천해줘"
+    assert "clarification" not in intent
+    assert output["response"] == {}
+    assert output["planner"] == {}
+    assert output["city_select"] == {}
 
 
 def test_intent_node_rejects_intent_output_alias_without_front_request() -> None:

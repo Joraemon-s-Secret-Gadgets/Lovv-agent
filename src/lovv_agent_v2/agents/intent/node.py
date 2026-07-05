@@ -4,8 +4,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from lovv_agent_v2.agents.intent.clarify_parser import build_clarify_intent
-from lovv_agent_v2.agents.intent.modify_parser import build_modify_intent
-from lovv_agent_v2.agents.intent.modify_prompt import prompt_modify_intent_from_request
+from lovv_agent_v2.agents.intent.modify_dispatch import resolve_modify_intent
 from lovv_agent_v2.agents.intent.modify_reanchor import modify_state_update
 from lovv_agent_v2.agents.intent.prompt import PromptIntentResult, prompt_intent_from_request
 from lovv_agent_v2.agents.intent.parser import (
@@ -17,6 +16,7 @@ from lovv_agent_v2.agents.intent.tools import intent_prompt_runtime_from_state
 from lovv_agent_v2.agents.intent.validator import validate_preference_sets
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.models.city_identity import enrich_city_select_identity
+from lovv_agent_v2.models.clarification_texts import clarification_helper_text as _helper_text
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
 _PREFERENCE_CLARIFYING_QUESTION = (
@@ -31,21 +31,28 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
         entry_type = _entry_type(request)
         match entry_type:
             case "clarify":
-                return {"intent": build_clarify_intent(request, state)}
+                if _has_create_request_fields(request):
+                    pass
+                else:
+                    return {"intent": build_clarify_intent(request, state)}
             case "modify":
-                return modify_state_update(intent, _modify_intent(state, request), state)
+                return modify_state_update(intent, resolve_modify_intent(state, request), state)
             case "confirm":
                 return {"intent": _confirm_intent(request)}
             case "create":
                 pass
             case unreachable:
                 _ = unreachable
-    existing_input = _existing_city_select_input(intent)
+    fresh_create_request = isinstance(request, Mapping) and _entry_type(request) in {
+        "create",
+        "clarify",
+    }
+    existing_input = None if fresh_create_request else _existing_city_select_input(intent)
     prompt_result = _prompt_result(state, request) if existing_input is None else None
     city_input = (
         prompt_result.city_select_input
         if prompt_result is not None
-        else _city_select_input(intent, request)
+        else _city_select_input({} if fresh_create_request else intent, request)
     )
     enriched_input = enrich_city_select_identity(city_input)
     normalized_input = CitySelectInput.from_mapping(enriched_input).to_dict()
@@ -55,7 +62,7 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
     normalized_input["cleaned_raw_query"] = clean_preference_query(
         normalized_input["cleaned_raw_query"],
     )
-    next_intent = dict(intent)
+    next_intent = {} if fresh_create_request else dict(intent)
     if prompt_result is not None:
         next_intent.update(prompt_result.intent_updates)
         _reconcile_preference_fields(next_intent)
@@ -78,6 +85,15 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
         _apply_preference_result(
             next_intent, parse_initial_query(_request_raw_query(request))
         )
+    if fresh_create_request:
+        return {
+            "intent": next_intent,
+            "festival_gate": {},
+            "city_select": {},
+            "planner": {},
+            "response": {},
+            "routing": {},
+        }
     return {"intent": next_intent}
 
 
@@ -106,6 +122,19 @@ def _entry_type(request: Mapping[str, Any]) -> str:
             return "create"
 
 
+def _has_create_request_fields(request: Mapping[str, Any]) -> bool:
+    required_fields = ("country", "travelMonth", "tripType", "includeFestivals")
+    snake_fields = ("country", "travel_month", "trip_type", "include_festivals")
+    has_core = all(key in request for key in required_fields) or all(
+        key in request for key in snake_fields
+    )
+    has_query = any(
+        key in request
+        for key in ("rawQuery", "raw_query", "naturalLanguageQuery")
+    )
+    return has_core and has_query
+
+
 def _confirm_intent(request: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "intent_type": "confirm",
@@ -125,49 +154,6 @@ def _text_or_none(value: Any) -> str | None:
         return None
     normalized = value.strip()
     return normalized or None
-
-
-def _modify_intent(
-    state: Mapping[str, Any],
-    request: Mapping[str, Any],
-) -> dict[str, Any]:
-    rule_result = build_modify_intent(request, state)
-    if _is_rule_city_change(rule_result):
-        return rule_result
-    prompt_runtime = intent_prompt_runtime_from_state(state)
-    if prompt_runtime.runtime is not None:
-        prompt_result = prompt_modify_intent_from_request(
-            runtime=prompt_runtime.runtime,
-            request=request,
-            retry_limit=prompt_runtime.schema_retry_limit,
-        )
-        if prompt_result is not None:
-            if _should_keep_rule_modify_intent(rule_result, prompt_result):
-                return rule_result
-            return prompt_result
-    return rule_result
-
-
-def _is_rule_city_change(modify_intent: Mapping[str, Any]) -> bool:
-    return modify_intent.get("status") == "ok" and modify_intent.get("kind") == "city_change"
-
-
-def _should_keep_rule_modify_intent(
-    rule_result: Mapping[str, Any],
-    prompt_result: Mapping[str, Any],
-) -> bool:
-    if rule_result.get("status") != "ok" or rule_result.get("kind") != "slot_replace":
-        return False
-    edit_ops = rule_result.get("edit_ops")
-    if isinstance(edit_ops, Sequence) and not isinstance(edit_ops, (str, bytes)) and len(edit_ops) > 1:
-        return True
-    if prompt_result.get("status") != "needs_clarification":
-        return False
-    clarification = prompt_result.get("clarification")
-    return (
-        isinstance(clarification, Mapping)
-        and clarification.get("reason_code") == "modify_target_unresolved"
-    )
 
 
 def _city_select_input(
@@ -278,6 +264,7 @@ def _apply_preference_result(
     intent.setdefault("needs_clarification", preference_result.needs_clarification)
     intent.setdefault("clarifying_question", preference_result.clarifying_question)
     intent.setdefault("contradiction_reasons", preference_result.contradiction_reasons)
+    _set_contradiction_clarification(intent)
 
 
 def _reconcile_preference_fields(intent: dict[str, Any]) -> None:
@@ -293,6 +280,28 @@ def _reconcile_preference_fields(intent: dict[str, Any]) -> None:
     intent["needs_clarification"] = True
     intent["clarifying_question"] = _PREFERENCE_CLARIFYING_QUESTION
     intent["contradiction_reasons"] = validation.contradiction_reasons
+    _set_contradiction_clarification(intent)
+
+
+def _set_contradiction_clarification(intent: dict[str, Any]) -> None:
+    reasons = _text_tuple(intent.get("contradiction_reasons", ()))
+    if not reasons:
+        return
+    intent["clarification"] = {
+        "reason_code": "contradiction",
+        "prompt": _PREFERENCE_CLARIFYING_QUESTION,
+        "options": [
+            {
+                "option_id": "revise_conditions",
+                "label": "조건 다시 입력",
+                "helper_text": _helper_text("contradiction", "revise_conditions", "충돌하는 선호/비선호 조건을 정리해 다시 입력합니다."),
+                "apply": {},
+                "then": "abort",
+            },
+        ],
+        "context": {"contradiction_reasons": list(reasons)},
+        "failure_signals": list(reasons),
+    }
 
 
 def _text_tuple(value: Any) -> tuple[str, ...]:

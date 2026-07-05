@@ -159,14 +159,13 @@ def test_graph_stops_before_city_select_when_festival_needs_clarification() -> N
     assert interrupt_payload["clarification"]["reasonCode"] == "festival_tentative"
 
     resumed = graph.invoke(
-        Command(resume={"optionId": "continue_without_festival"}),
+        Command(resume={"optionId": "revise_conditions"}),
         config=config,
     )
 
     assert resumed["response"]["response_status"] == "END_WAIT_USER"
-    assert resumed["response"]["clarification_resume"] == {
-        "optionId": "continue_without_festival",
-    }
+    assert resumed["response"]["clarification_resume"]["option_id"] == "revise_conditions"
+    assert resumed["response"]["clarification_resume"]["then"] == "abort"
 
 
 class RecordingFestivalLookup:

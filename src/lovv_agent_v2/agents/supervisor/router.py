@@ -8,6 +8,9 @@ from lovv_agent_v2.agents.supervisor.confirmation_routing import (
 )
 from lovv_agent_v2.agents.supervisor.modify_routing import (
     has_current_modify_response_payload,
+    modify_intent_from_state,
+    modify_intent_needs_response,
+    modify_intent_routes_slot_replace_planner,
     slot_replace_applied,
     slot_replace_failed,
 )
@@ -37,20 +40,21 @@ def route_next_action(state: UnifiedAgentState) -> str:
 
 
 def _next_node(state: Mapping[str, Any], *, reason_code: str | None) -> str:
+    modify_intent = modify_intent_from_state(state)
     if is_itinerary_confirmation_state(state):
         return END_ROUTE if _has_profile_update(state) else "profile"
-    if _has_current_modify_response_payload(state):
+    if _has_current_modify_response_payload(state, modify_intent):
         return END_ROUTE
     if slot_replace_failed(state):
         return "response_packager"
-    if _modify_intent_routes_slot_replace_planner(state):
+    if modify_intent_routes_slot_replace_planner(state, modify_intent):
         return "planner"
-    if _modify_intent_routes_direct_anchor_planner(state):
+    if _modify_intent_routes_direct_anchor_planner(state, modify_intent):
         return "planner"
-    if _modify_intent_needs_response(state):
+    if modify_intent_needs_response(modify_intent):
         return "response_packager"
-    if _modify_intent_has_planner_output(state):
-        if _has_current_modify_response_payload(state):
+    if _modify_intent_has_planner_output(state, modify_intent):
+        if _has_current_modify_response_payload(state, modify_intent):
             return END_ROUTE
         if not _has_itinerary_explanation(state):
             return "explain_itinerary"
@@ -94,7 +98,12 @@ def _completed_groups(state: Mapping[str, Any]) -> list[str]:
 
 
 def _clarification_reason_code(state: Mapping[str, Any]) -> str | None:
-    modify_intent = _modify_intent(state)
+    intent = state.get("intent")
+    if isinstance(intent, Mapping):
+        value = _clarification_reason_from_group(intent)
+        if value is not None:
+            return value
+    modify_intent = modify_intent_from_state(state)
     if modify_intent is not None:
         value = _clarification_reason_from_group(modify_intent)
         if value is not None:
@@ -118,41 +127,10 @@ def _clarification_reason_from_group(group: Mapping[str, Any]) -> str | None:
     return None
 
 
-def _modify_intent_needs_response(state: Mapping[str, Any]) -> bool:
-    modify_intent = _modify_intent(state)
-    if modify_intent is None:
-        return False
-    status = modify_intent.get("status")
-    if status in {"needs_clarification", "unsupported"}:
-        return True
-    routing_hint = modify_intent.get("routing_hint")
-    if routing_hint == "planner_apply_edit":
-        return not _slot_replace_edit_is_supported(modify_intent)
-    return routing_hint in {"response_packager_wait_user", "response_packager_notice"}
-
-
-def _modify_intent_routes_slot_replace_planner(state: Mapping[str, Any]) -> bool:
-    modify_intent = _modify_intent(state)
-    if modify_intent is None or not _slot_replace_edit_is_supported(modify_intent):
-        return False
-    if slot_replace_applied(state) or slot_replace_failed(state):
-        return False
-    return True
-
-
-def _slot_replace_edit_is_supported(modify_intent: Mapping[str, Any]) -> bool:
-    edit_ops = modify_intent.get("edit_ops")
-    return (
-        modify_intent.get("status") == "ok"
-        and modify_intent.get("kind") == "slot_replace"
-        and modify_intent.get("routing_hint") == "planner_apply_edit"
-        and isinstance(edit_ops, list)
-        and len(edit_ops) >= 1
-    )
-
-
-def _modify_intent_routes_direct_anchor_planner(state: Mapping[str, Any]) -> bool:
-    modify_intent = _modify_intent(state)
+def _modify_intent_routes_direct_anchor_planner(
+    state: Mapping[str, Any],
+    modify_intent: Mapping[str, Any] | None,
+) -> bool:
     if modify_intent is None:
         return False
     return (
@@ -164,28 +142,20 @@ def _modify_intent_routes_direct_anchor_planner(state: Mapping[str, Any]) -> boo
     )
 
 
-def _modify_intent_has_planner_output(state: Mapping[str, Any]) -> bool:
-    modify_intent = _modify_intent(state)
+def _modify_intent_has_planner_output(
+    state: Mapping[str, Any],
+    modify_intent: Mapping[str, Any] | None,
+) -> bool:
     if modify_intent is None:
         return False
     return modify_intent.get("status") == "ok" and _has_planner_output(state)
 
 
-def _has_current_modify_response_payload(state: Mapping[str, Any]) -> bool:
-    modify_intent = _modify_intent(state)
+def _has_current_modify_response_payload(
+    state: Mapping[str, Any],
+    modify_intent: Mapping[str, Any] | None,
+) -> bool:
     return modify_intent is not None and has_current_modify_response_payload(state, modify_intent)
-
-
-def _modify_intent(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
-    intent = state.get("intent")
-    if not isinstance(intent, Mapping):
-        return None
-    modify_intent = intent.get("modify_intent")
-    if isinstance(modify_intent, Mapping):
-        return modify_intent
-    if intent.get("intent_type") == "modification":
-        return intent
-    return None
 
 
 def _has_profile_result(state: Mapping[str, Any]) -> bool:

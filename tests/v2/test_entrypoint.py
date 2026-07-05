@@ -186,6 +186,35 @@ def test_handle_v2_invocation_resumes_existing_thread(
 
 
 @patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
+def test_handle_v2_invocation_sends_clarify_request_as_resume(
+    mock_cached_harness: MagicMock,
+) -> None:
+    mock_harness_instance = MagicMock()
+    mock_harness_instance.invoke.return_value = {
+        "response": {"response_payload": {"recommendationId": "REC-CORRECTED"}},
+    }
+    mock_cached_harness.return_value = mock_harness_instance
+
+    result = handle_v2_invocation(
+        {
+            "entryType": "clarify",
+            "country": "KR",
+            "travelMonth": 8,
+            "tripType": "daytrip",
+            "themes": ["바다·해안"],
+            "includeFestivals": False,
+            "sessionId": "session-xyz",
+            "naturalLanguageQuery": "강릉 바다 당일 여행지를 추천해줘.",
+        },
+    )
+
+    payload = mock_harness_instance.invoke.call_args.args[0]
+    assert payload.resume["entryType"] == "clarify"
+    assert payload.resume["naturalLanguageQuery"] == "강릉 바다 당일 여행지를 추천해줘."
+    assert result == {"recommendationId": "REC-CORRECTED"}
+
+
+@patch("lovv_agent_v2.agentcore_entrypoint._cached_live_harness")
 @patch("lovv_agent_v2.agentcore_entrypoint._cached_profile_evidence_resolver")
 def test_handle_v2_invocation_continues_when_profile_evidence_lookup_fails(
     mock_profile_resolver: MagicMock,

@@ -51,12 +51,13 @@ def handle_v2_invocation(event: Any, context: Any | None = None) -> dict[str, An
     thread_id = extract_thread_id(event, fallback=request_id)
     actor_id = extract_actor_id(event) or thread_id
     resume_value = extract_resume_value(event)
+    clarify_resume = _clarify_resume_value(event) if resume_value is None else None
     payload = (
-        Command(resume=resume_value)
-        if resume_value is not None
+        Command(resume=resume_value if resume_value is not None else clarify_resume)
+        if resume_value is not None or clarify_resume is not None
         else extract_graph_payload(event, request_id=request_id)
     )
-    if resume_value is None:
+    if resume_value is None and clarify_resume is None:
         payload = _payload_with_profile_evidence(
             payload,
             actor_id=actor_id,
@@ -109,6 +110,13 @@ def _payload_with_profile_evidence(
         }
         enriched["profile"] = profile
         return enriched
+
+
+def _clarify_resume_value(event: Any) -> dict[str, Any] | None:
+    decoded = _decode_json_if_needed(event)
+    if not isinstance(decoded, Mapping) or _entry_type(decoded) != "clarify":
+        return None
+    return extract_recommendation_payload(decoded)
 
 
 def extract_graph_payload(event: Any, *, request_id: str | None = None) -> dict[str, Any]:

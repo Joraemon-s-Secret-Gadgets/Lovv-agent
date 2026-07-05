@@ -47,6 +47,52 @@ def has_current_modify_response_payload(
     return isinstance(target_name, str) and destination.get("name") == target_name
 
 
+def modify_intent_from_state(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    intent = state.get("intent")
+    if not isinstance(intent, Mapping):
+        return None
+    modify_intent = intent.get("modify_intent")
+    if isinstance(modify_intent, Mapping):
+        return modify_intent
+    if intent.get("intent_type") == "modification":
+        return intent
+    return None
+
+
+def modify_intent_needs_response(modify_intent: Mapping[str, Any] | None) -> bool:
+    if modify_intent is None:
+        return False
+    status = modify_intent.get("status")
+    if status in {"needs_clarification", "unsupported"}:
+        return True
+    routing_hint = modify_intent.get("routing_hint")
+    if routing_hint == "planner_apply_edit":
+        return not slot_replace_edit_is_supported(modify_intent)
+    return routing_hint in {"response_packager_wait_user", "response_packager_notice"}
+
+
+def modify_intent_routes_slot_replace_planner(
+    state: Mapping[str, Any],
+    modify_intent: Mapping[str, Any] | None,
+) -> bool:
+    if modify_intent is None or not slot_replace_edit_is_supported(modify_intent):
+        return False
+    if slot_replace_applied(state) or slot_replace_failed(state):
+        return False
+    return True
+
+
+def slot_replace_edit_is_supported(modify_intent: Mapping[str, Any]) -> bool:
+    edit_ops = modify_intent.get("edit_ops")
+    return (
+        modify_intent.get("status") == "ok"
+        and modify_intent.get("kind") == "slot_replace"
+        and modify_intent.get("routing_hint") == "planner_apply_edit"
+        and isinstance(edit_ops, list)
+        and len(edit_ops) >= 1
+    )
+
+
 def _targetless_city_change_matches_response(
     city_change: Mapping[str, Any],
     destination: Mapping[str, Any],

@@ -196,6 +196,25 @@ def test_supervisor_routes_modify_clarification_to_response_packager() -> None:
     assert result["routing"]["clarification_reason_code"] == "modify_seed_theme_conflict"
 
 
+def test_supervisor_routes_intent_clarification_to_response_packager() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "intent_type": "create",
+                "clarification": {
+                    "reason_code": "contradiction",
+                    "prompt": "선호와 비선호 조건을 확인해야 합니다.",
+                    "options": [],
+                },
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "response_packager"
+    assert result["routing"]["needs_clarification"] is True
+    assert result["routing"]["clarification_reason_code"] == "contradiction"
+
+
 def test_supervisor_routes_modify_unsupported_to_response_packager() -> None:
     result = supervisor_node(
         {

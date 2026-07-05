@@ -42,7 +42,8 @@ def test_response_packager_packages_failed_slot_replace_clarification(monkeypatc
     assert response["response_status"] == "END_WAIT_USER"
     assert payload["itinerary"]["days"] == []
     assert payload["clarification"]["reasonCode"] == "slot_replace_no_candidate"
-    assert response["clarification_resume"] == {"selectedOptionId": "keep_current_place"}
+    assert response["clarification_resume"]["option_id"] == "keep_current_place"
+    assert response["clarification_resume"]["then"] == "abort"
 
 
 def test_response_packager_packages_unresolved_slot_clarification(monkeypatch) -> None:
