@@ -142,12 +142,32 @@ def _modify_intent(
             retry_limit=prompt_runtime.schema_retry_limit,
         )
         if prompt_result is not None:
+            if _should_keep_rule_modify_intent(rule_result, prompt_result):
+                return rule_result
             return prompt_result
     return rule_result
 
 
 def _is_rule_city_change(modify_intent: Mapping[str, Any]) -> bool:
     return modify_intent.get("status") == "ok" and modify_intent.get("kind") == "city_change"
+
+
+def _should_keep_rule_modify_intent(
+    rule_result: Mapping[str, Any],
+    prompt_result: Mapping[str, Any],
+) -> bool:
+    if rule_result.get("status") != "ok" or rule_result.get("kind") != "slot_replace":
+        return False
+    edit_ops = rule_result.get("edit_ops")
+    if isinstance(edit_ops, Sequence) and not isinstance(edit_ops, (str, bytes)) and len(edit_ops) > 1:
+        return True
+    if prompt_result.get("status") != "needs_clarification":
+        return False
+    clarification = prompt_result.get("clarification")
+    return (
+        isinstance(clarification, Mapping)
+        and clarification.get("reason_code") == "modify_target_unresolved"
+    )
 
 
 def _city_select_input(

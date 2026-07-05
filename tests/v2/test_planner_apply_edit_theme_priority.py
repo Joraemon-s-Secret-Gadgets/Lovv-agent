@@ -3,7 +3,7 @@ from __future__ import annotations
 from lovv_agent_v2.agents.planner.steps.apply_edit.node import apply_edit_node
 
 
-def test_apply_edit_with_query_without_theme_prefers_active_themes() -> None:
+def test_apply_edit_with_query_without_theme_keeps_retrieval_order() -> None:
     result = apply_edit_node(
         {
             "request": _request_current_order(),
@@ -21,10 +21,31 @@ def test_apply_edit_with_query_without_theme_prefers_active_themes() -> None:
     )
 
     itinerary = result["planner"]["planner_output"]["itinerary"]
-    assert itinerary[1]["placeId"] == "attraction#active-theme"
+    assert itinerary[1]["placeId"] == "attraction#off-theme"
 
 
-def _slot_replace_intent() -> dict[str, object]:
+def test_apply_edit_with_query_prefers_condition_theme_only() -> None:
+    result = apply_edit_node(
+        {
+            "request": _request_current_order(),
+            "intent": _slot_replace_intent(theme="예술·감성"),
+            "planner": {"planner_output": _planner_output(), "modify_context": {"reserve_pool": []}},
+            "runtime": {
+                "planner_runtime": _FakePlannerRuntime(
+                    [
+                        _candidate("attraction#active-theme", "활성 테마 후보", "자연·트레킹"),
+                        _candidate("attraction#condition-theme", "조건 테마 후보", "예술·감성"),
+                    ],
+                ),
+            },
+        },
+    )
+
+    itinerary = result["planner"]["planner_output"]["itinerary"]
+    assert itinerary[1]["placeId"] == "attraction#condition-theme"
+
+
+def _slot_replace_intent(*, replacement_query: str | None = "조금 더 한적한 곳", theme: str | None = None) -> dict[str, object]:
     return {
         "intent_type": "modification",
         "city_select_input": {
@@ -45,8 +66,8 @@ def _slot_replace_intent() -> dict[str, object]:
                     "op": "REPLACE",
                     "target": {"content_id": "attraction#old", "day": 1, "order": 2},
                     "condition": {
-                        "replacement_query": "조금 더 한적한 곳",
-                        "theme": None,
+                        "replacement_query": replacement_query,
+                        "theme": theme,
                         "avoid_content_ids": ["attraction#old"],
                     },
                     "seed_policy": {"target_is_seed": False, "policy": "not_seed"},

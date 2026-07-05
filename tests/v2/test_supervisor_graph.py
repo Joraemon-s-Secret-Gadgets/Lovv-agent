@@ -294,6 +294,36 @@ def test_supervisor_routes_applied_slot_replace_to_explain() -> None:
     assert result["routing"]["next_node"] == "explain_itinerary"
 
 
+def test_supervisor_routes_multi_applied_slot_replace_to_explain() -> None:
+    result = supervisor_node(
+        {
+            "request": {"requestId": "REQ-MULTI"},
+            "intent": {
+                "intent_type": "modification",
+                "status": "ok",
+                "modify_intent": {
+                    "status": "ok",
+                    "kind": "slot_replace",
+                    "routing_hint": "planner_apply_edit",
+                    "edit_ops": [{"op_id": "op-1"}, {"op_id": "op-2"}],
+                },
+            },
+            "planner": {
+                "planner_output": {"itinerary": [{"title": "새 장소"}]},
+                "modify_context": {
+                    "applied_edits": [
+                        {"request_id": "REQ-MULTI", "op_id": "op-1"},
+                        {"request_id": "REQ-MULTI", "op_id": "op-2"},
+                    ],
+                },
+                "validation_result": {"planner_status_gate": "ok"},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "explain_itinerary"
+
+
 def test_supervisor_ends_after_slot_replace_response_payload() -> None:
     result = supervisor_node(
         {
@@ -327,6 +357,39 @@ def test_supervisor_ends_after_slot_replace_response_payload() -> None:
     assert result["routing"]["next_node"] == "end"
 
 
+def test_supervisor_ends_after_failed_slot_replace_response_payload() -> None:
+    result = supervisor_node(
+        {
+            "request": {"requestId": "REQ-SLOT"},
+            "intent": {
+                "intent_type": "modification",
+                "status": "ok",
+                "modify_intent": {
+                    "status": "ok",
+                    "kind": "slot_replace",
+                    "routing_hint": "planner_apply_edit",
+                    "edit_ops": [{"op_id": "op-1"}, {"op_id": "op-2"}],
+                },
+            },
+            "planner": {
+                "planner_output": {
+                    "itinerary": [],
+                    "validation_result": {"planner_copy_generation_used_llm": True},
+                },
+                "modify_context": {
+                    "failed_edits": [{"request_id": "REQ-SLOT", "op_id": "op-2"}],
+                },
+            },
+            "response": {
+                "response_status": "modification_pending",
+                "response_payload": {"recommendationId": "REQ-SLOT"},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "end"
+
+
 def test_supervisor_routes_failed_slot_replace_to_response_packager() -> None:
     result = supervisor_node(
         {
@@ -346,6 +409,34 @@ def test_supervisor_routes_failed_slot_replace_to_response_packager() -> None:
                         "reason_code": "slot_replace_no_candidate",
                         "target": {"title": "기존 장소"},
                     },
+                },
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "response_packager"
+
+
+def test_supervisor_routes_multi_failed_slot_replace_to_response_packager() -> None:
+    result = supervisor_node(
+        {
+            "request": {"requestId": "REQ-MULTI"},
+            "intent": {
+                "intent_type": "modification",
+                "status": "ok",
+                "modify_intent": {
+                    "status": "ok",
+                    "kind": "slot_replace",
+                    "routing_hint": "planner_apply_edit",
+                    "edit_ops": [{"op_id": "op-1"}, {"op_id": "op-2"}],
+                },
+            },
+            "planner": {
+                "modify_context": {
+                    "failed_edits": [
+                        {"request_id": "REQ-MULTI", "op_id": "op-1"},
+                        {"request_id": "REQ-MULTI", "op_id": "op-2"},
+                    ],
                 },
             },
         },

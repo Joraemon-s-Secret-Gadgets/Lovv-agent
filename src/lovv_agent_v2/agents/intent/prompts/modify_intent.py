@@ -12,6 +12,12 @@ Rules:
 - Output status=ok only when the edit is executable and target resolution is exact.
 - V2 supports only REPLACE edit ops and city_change.
 - For slot replacement, set kind=slot_replace, routing_hint=planner_apply_edit.
+- Resolve mildly off-rule Korean slot expressions against currentOrder instead of
+  asking clarification when the target is still exact:
+  "첫날/다음날" -> day 1/2, "두번째/세번째/마지막 코스" -> order,
+  and "중간 코스" -> the middle item of that day when unambiguous.
+- If you resolve by fuzzy Korean slot wording, still copy the canonical
+  currentOrder item_id/content_id/day/order into edit_ops[].target.
 - For destination city changes with an explicit target city, set kind=city_change,
   routing_hint=planner_direct_anchor, and leave edit_ops empty.
 - For targetless city changes such as "다른 도시로 바꿔줘", set kind=city_change,
@@ -25,6 +31,17 @@ Rules:
 - When a new replacement condition exists, emit condition.replacement_query as one
   Korean HyDE-style place-description sentence for retrieval, and keep the short
   extracted phrase in condition.replacement_query_raw.
+- Build replacement_query from the desired mood, activity, scenery, and place type
+  after removing slot words such as "첫날", "두번째", "가운데 코스", "장소".
+  Do not require known theme keywords. General freeform requests still need a
+  retrieval sentence.
+- Examples:
+  raw "첫날 가운데 코스는 사진 찍기 좋은 레트로 골목으로 바꿔줘"
+  -> replacement_query_raw="사진 찍기 좋은 레트로 골목",
+     replacement_query="사진 찍기 좋은 레트로 골목 분위기와 장소 유형이 잘 드러나는 방문지."
+  raw "2일차 마지막은 아이랑 천천히 쉬는 곳으로"
+  -> replacement_query_raw="아이랑 천천히 쉬는 곳",
+     replacement_query="아이와 함께 천천히 머물며 편안하게 쉴 수 있는 방문지."
 - Keep audit concise."""
 
 __all__ = ["MODIFY_PROMPT_TEXT"]

@@ -39,6 +39,8 @@ def route_next_action(state: UnifiedAgentState) -> str:
 def _next_node(state: Mapping[str, Any], *, reason_code: str | None) -> str:
     if is_itinerary_confirmation_state(state):
         return END_ROUTE if _has_profile_update(state) else "profile"
+    if _has_current_modify_response_payload(state):
+        return END_ROUTE
     if slot_replace_failed(state):
         return "response_packager"
     if _modify_intent_routes_slot_replace_planner(state):

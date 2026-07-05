@@ -7,13 +7,17 @@ from typing import Any
 def slot_replace_applied(state: Mapping[str, Any]) -> bool:
     context = planner_modify_context(state)
     applied = context.get("applied_edit")
-    return isinstance(applied, Mapping) and _belongs_to_current_request(state, applied)
+    if isinstance(applied, Mapping) and _belongs_to_current_request(state, applied):
+        return True
+    return _has_current_result(context.get("applied_edits"), state)
 
 
 def slot_replace_failed(state: Mapping[str, Any]) -> bool:
     context = planner_modify_context(state)
     failed = context.get("failed_edit")
-    return isinstance(failed, Mapping) and _belongs_to_current_request(state, failed)
+    if isinstance(failed, Mapping) and _belongs_to_current_request(state, failed):
+        return True
+    return _has_current_result(context.get("failed_edits"), state)
 
 
 def has_current_modify_response_payload(
@@ -87,6 +91,15 @@ def _belongs_to_current_request(
     if current_id is None:
         return True
     return isinstance(result_id, str) and result_id == current_id
+
+
+def _has_current_result(value: Any, state: Mapping[str, Any]) -> bool:
+    if not isinstance(value, (list, tuple)):
+        return False
+    return any(
+        isinstance(item, Mapping) and _belongs_to_current_request(state, item)
+        for item in value
+    )
 
 
 def _request_id(state: Mapping[str, Any]) -> str | None:

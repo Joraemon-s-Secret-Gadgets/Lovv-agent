@@ -97,6 +97,62 @@ def test_apply_edit_with_query_uses_retrieval_before_old_reserve_pool() -> None:
     assert itinerary[1]["placeId"] == "attraction#retrieved"
 
 
+def test_apply_edit_with_query_does_not_hard_filter_retrieval_by_theme() -> None:
+    runtime = _FakePlannerRuntime(
+        _candidate(
+            "attraction#retrieved",
+            "검색된 후보",
+            35.833,
+            129.219,
+            theme="예술·감성",
+        ),
+    )
+    apply_edit_node(
+        {
+            "request": _request_current_order(),
+            "intent": _slot_replace_intent(
+                replacement_query="감성적인 전시 공간",
+                theme="예술·감성",
+            ),
+            "planner": {"planner_output": _planner_output(), "modify_context": {"reserve_pool": []}},
+            "runtime": {"planner_runtime": runtime},
+        },
+    )
+
+    assert runtime.destination_search.calls[0]["theme"] is None
+
+
+def test_apply_edit_with_query_excludes_existing_itinerary_items() -> None:
+    result = apply_edit_node(
+        {
+            "request": _request_current_order(),
+            "intent": _slot_replace_intent(replacement_query="사진 찍기 좋은 곳"),
+            "planner": {"planner_output": _planner_output(), "modify_context": {"reserve_pool": []}},
+            "runtime": {
+                "planner_runtime": _FakePlannerRuntime(
+                    [
+                        _candidate(
+                            "attraction#seed",
+                            "기존 1순위 장소",
+                            35.8296,
+                            129.2147,
+                        ),
+                        _candidate(
+                            "attraction#new",
+                            "새 후보",
+                            35.833,
+                            129.219,
+                        ),
+                    ],
+                ),
+            },
+        },
+    )
+
+    itinerary = result["planner"]["planner_output"]["itinerary"]
+    assert itinerary[1]["placeId"] == "attraction#new"
+
+
 def _slot_replace_intent(
     *,
     replacement_query: str | None = None,
@@ -257,8 +313,10 @@ class _FakePlannerRuntime:
 class _FakeDestinationSearch:
     def __init__(self, candidates: dict[str, object] | list[dict[str, object]]) -> None:
         self.candidates = [candidates] if isinstance(candidates, dict) else candidates
+        self.calls: list[dict[str, object]] = []
 
     def search_candidates(self, *args, **kwargs):
+        self.calls.append(dict(kwargs))
         return self.candidates
 
 

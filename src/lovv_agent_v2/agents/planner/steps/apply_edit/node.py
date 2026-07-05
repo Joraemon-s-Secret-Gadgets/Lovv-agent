@@ -111,7 +111,7 @@ def _retrieved_candidates(
             top_k=50,
             city_id=_destination_id(state, target),
             ddb_pk=None,
-            theme=_optional_text(condition.get("theme")),
+            theme=None,
         ),
         similarity_key="raw_similarity",
     )
@@ -186,6 +186,8 @@ def _preferred_themes(
     explicit_theme = _optional_text(condition.get("theme"))
     if explicit_theme is not None:
         return (explicit_theme,)
+    if _optional_text(condition.get("replacement_query")) is not None:
+        return ()
     active_themes = tuple(
         theme
         for theme in planner_city_input(state).get("active_required_themes", ())

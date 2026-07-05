@@ -44,7 +44,7 @@ def hyde_replacement_query(raw_phrase: str | None) -> str | None:
         return "조용하고 한적한 숲길을 천천히 걸을 수 있는 자연 산책 장소."
     if any(keyword in normalized for keyword in ("온천", "휴양", "힐링", "쉬")):
         return "따뜻하고 평온한 분위기에서 조용히 휴식할 수 있는 장소."
-    return f"{normalized} 조건에 어울리는 장소."
+    return f"{normalized} 분위기와 장소 유형이 잘 드러나는 방문지."
 
 
 __all__ = [
