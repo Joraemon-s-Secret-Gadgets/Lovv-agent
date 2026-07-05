@@ -218,7 +218,7 @@ def test_intent_node_builds_city_change_modify_intent() -> None:
     assert modify_intent["edit_ops"] == []
     assert modify_intent["city_change"]["target_city_id"] == "KR-47-130"
     assert modify_intent["city_change"]["target_city_name"] == "경주시"
-    assert modify_intent["city_change"]["avoid_city_ids"] == ["KR-51-150"]
+    assert modify_intent["city_change"]["avoid_city_ids"] == ("KR-51-150",)
     assert modify_intent["routing_hint"] == "planner_direct_anchor"
 
 

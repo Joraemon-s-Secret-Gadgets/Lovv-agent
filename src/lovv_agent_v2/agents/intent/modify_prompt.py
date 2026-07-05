@@ -99,6 +99,10 @@ def validate_modify_prompt_output(
     )
     status = _choice(payload.get("status"), ("ok", "needs_clarification", "unsupported"), "status")
     kind = _choice(payload.get("kind"), ("slot_replace", "city_change", "backlog"), "kind")
+    city_change = normalize_prompt_city_change(
+        _mapping_or_none(payload.get("city_change"), "city_change"),
+        request,
+    )
     result = {
         "intent_type": "modification",
         "status": status,
@@ -116,10 +120,7 @@ def validate_modify_prompt_output(
             _list(payload.get("edit_ops"), "edit_ops"),
             request,
         ),
-        "city_change": normalize_prompt_city_change(
-            _mapping_or_none(payload.get("city_change"), "city_change"),
-            request,
-        ),
+        "city_change": city_change,
         "clarification": _clarification(
             payload.get("clarification"),
             status=status,
@@ -133,6 +134,7 @@ def validate_modify_prompt_output(
             status=status,
             kind=kind,
             value=payload.get("routing_hint"),
+            city_change=city_change,
         ),
         "audit": dict(_mapping(payload.get("audit"), "audit")),
     }
@@ -153,12 +155,22 @@ def _validate_status_shape(result: Mapping[str, Any]) -> None:
         raise SchemaValidationError("clarification modify intent requires clarification")
 
 
-def _routing_hint(*, status: str, kind: str, value: Any) -> str:
+def _routing_hint(
+    *,
+    status: str,
+    kind: str,
+    value: Any,
+    city_change: Mapping[str, Any] | None,
+) -> str:
     if status == "needs_clarification":
         return "response_packager_wait_user"
     if status == "unsupported":
         return "response_packager_notice"
     if kind == "city_change":
+        if city_change is not None and _optional_text(city_change.get("target_city_id")) is not None:
+            return "planner_direct_anchor"
+        if city_change is not None or value == "city_select_rediscovery":
+            return "city_select_rediscovery"
         return "planner_direct_anchor"
     if kind == "slot_replace":
         return "planner_apply_edit"

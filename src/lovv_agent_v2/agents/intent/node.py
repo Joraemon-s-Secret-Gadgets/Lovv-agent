@@ -33,7 +33,7 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
             case "clarify":
                 return {"intent": build_clarify_intent(request, state)}
             case "modify":
-                return modify_state_update(intent, _modify_intent(state, request))
+                return modify_state_update(intent, _modify_intent(state, request), state)
             case "confirm":
                 return {"intent": _confirm_intent(request)}
             case "create":

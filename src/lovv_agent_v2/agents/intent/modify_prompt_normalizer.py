@@ -13,7 +13,10 @@ from lovv_agent_v2.agents.intent.modify_slots import (
     slot_replace_operations,
 )
 from lovv_agent_v2.agents.intent.parser import parse_initial_query
-from lovv_agent_v2.models.city_identity import load_default_city_identity_map
+from lovv_agent_v2.models.city_identity import (
+    load_default_city_identity_map,
+)
+from lovv_agent_v2.models.city_identity_text import find_city_identity_in_text
 
 
 def normalize_prompt_edit_ops(
@@ -36,13 +39,15 @@ def normalize_prompt_city_change(
 ) -> dict[str, Any] | None:
     if value is None:
         return None
-    if "target_city_id" in value and "target_city_name" in value:
-        return value
-    city_name = _optional_text(
-        value.get("new_city", value.get("target_city", value.get("city"))),
-    )
     raw_query = _optional_text(
         request.get("rawModifyQuery", request.get("raw_modify_query")),
+    )
+    if _target_city_id(value) is not None and "target_city_name" in value:
+        return value
+    if _is_targetless_city_change(value, raw_query):
+        return _targetless_city_change(raw_query, request)
+    city_name = _optional_text(
+        value.get("new_city", value.get("target_city", value.get("city"))),
     )
     city_map = load_default_city_identity_map()
     identity = _identity_from_city_name(city_map, city_name)
@@ -60,6 +65,33 @@ def normalize_prompt_city_change(
     }
 
 
+def _target_city_id(value: Mapping[str, Any]) -> str | None:
+    return _optional_text(value.get("target_city_id", value.get("targetCityId")))
+
+
+def _is_targetless_city_change(value: Mapping[str, Any], raw_query: str | None) -> bool:
+    if _target_city_id(value) is not None:
+        return False
+    if value.get("target_city_name") is None and value.get("targetCityName") is None:
+        return raw_query is not None and _targetless_query(raw_query)
+    return False
+
+
+def _targetless_city_change(raw_query: str | None, request: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "target_city_id": None,
+        "target_city_name": None,
+        "city_preference_query": raw_query,
+        "carry_over_themes": True,
+        "carry_over_festivals": True,
+        "avoid_city_ids": avoid_city_ids(current_order(request, {})),
+    }
+
+
+def _targetless_query(raw_query: str) -> bool:
+    return "다른" in raw_query and any(token in raw_query for token in ("도시", "지역", "목적지"))
+
+
 def _identity_from_city_name(city_map: Any, city_name: str | None) -> Any:
     if city_name is None:
         return None
@@ -67,11 +99,7 @@ def _identity_from_city_name(city_map: Any, city_name: str | None) -> Any:
 
 
 def _identity_from_raw_query(city_map: Any, raw_query: str) -> Any:
-    for city_name in ("경주", "안동", "속초", "강릉", "삼척", "영주", "울진"):
-        identity = _identity_from_city_name(city_map, city_name)
-        if city_name in raw_query and identity is not None:
-            return identity
-    return None
+    return find_city_identity_in_text(city_map, raw_query)
 
 
 def _normalize_prompt_edit_op(

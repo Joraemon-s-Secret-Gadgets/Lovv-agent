@@ -38,7 +38,22 @@ def has_current_modify_response_payload(
     if isinstance(target_id, str) and destination.get("destinationId") == target_id:
         return True
     target_name = city_change.get("target_city_name")
+    if not isinstance(target_id, str) and not isinstance(target_name, str):
+        return _targetless_city_change_matches_response(city_change, destination)
     return isinstance(target_name, str) and destination.get("name") == target_name
+
+
+def _targetless_city_change_matches_response(
+    city_change: Mapping[str, Any],
+    destination: Mapping[str, Any],
+) -> bool:
+    destination_id = destination.get("destinationId")
+    if not isinstance(destination_id, str) or not destination_id.strip():
+        return False
+    avoid_city_ids = city_change.get("avoid_city_ids")
+    if not isinstance(avoid_city_ids, (list, tuple)):
+        return True
+    return destination_id not in {item for item in avoid_city_ids if isinstance(item, str)}
 
 
 def _has_current_slot_replace_response(state: Mapping[str, Any]) -> bool:

@@ -154,6 +154,20 @@ def _nationwide_region_filters(
     if context.include_festivals or context.candidate_input.destination_id is not None:
         return (), ()
     return (
-        tuple(context.candidate_input.preferred_region_ids),
-        tuple(context.candidate_input.disliked_region_ids),
+        tuple(
+            dict.fromkeys(
+                (
+                    *context.candidate_input.preferred_city_ids,
+                    *context.candidate_input.preferred_region_ids,
+                ),
+            ),
+        ),
+        tuple(
+            dict.fromkeys(
+                (
+                    *context.candidate_input.disliked_city_ids,
+                    *context.candidate_input.disliked_region_ids,
+                ),
+            ),
+        ),
     )

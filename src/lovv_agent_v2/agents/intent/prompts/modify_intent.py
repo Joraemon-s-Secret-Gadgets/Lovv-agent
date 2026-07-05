@@ -12,7 +12,11 @@ Rules:
 - Output status=ok only when the edit is executable and target resolution is exact.
 - V2 supports only REPLACE edit ops and city_change.
 - For slot replacement, set kind=slot_replace, routing_hint=planner_apply_edit.
-- For destination city changes, set kind=city_change, routing_hint=planner_direct_anchor, and leave edit_ops empty.
+- For destination city changes with an explicit target city, set kind=city_change,
+  routing_hint=planner_direct_anchor, and leave edit_ops empty.
+- For targetless city changes such as "다른 도시로 바꿔줘", set kind=city_change,
+  routing_hint=city_select_rediscovery, city_change.target_city_id=null,
+  city_change.target_city_name=null, and leave edit_ops empty.
 - Use status=needs_clarification for unresolved or ambiguous targets.
 - Use status=unsupported and kind=backlog for add/remove/reorder/date/booking/trip-length requests.
 - Seed targets may use same_theme_required. Do not silently allow different-theme seed replacement.
