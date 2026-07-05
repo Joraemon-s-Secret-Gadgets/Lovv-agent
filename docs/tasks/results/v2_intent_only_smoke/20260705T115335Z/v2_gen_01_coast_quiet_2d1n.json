@@ -1,0 +1,91 @@
+{
+  "case_id": "v2_gen_01_coast_quiet_2d1n",
+  "source": "docs/tasks/results/v2_intent_mocks/generation/v2_gen_01_coast_quiet_2d1n.json",
+  "summary": {
+    "intent_type": "create",
+    "status": null,
+    "kind": null,
+    "routing_hint": null,
+    "edit_ops_count": 0,
+    "clarification_reason": null,
+    "themes": [
+      "바다·해안"
+    ],
+    "soft_preference_query": "",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown"
+  },
+  "output": {
+    "intent": {
+      "intent_type": "create",
+      "city_select_input": {
+        "country": "KR",
+        "travel_month": 9,
+        "travel_year": 2026,
+        "trip_type": "2d1n",
+        "active_required_themes": [
+          "바다·해안"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "조용한 동해안에서 1박 2일 머물며 한적하게 쉬고 싶어요 싶어요",
+        "soft_preference_query": "",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "neutral",
+        "transport_pref": "unknown",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null,
+        "preferred_theme_ids": [
+          "sea_coast"
+        ],
+        "disliked_theme_ids": [],
+        "preferred_city_ids": [],
+        "disliked_city_ids": [],
+        "preferred_region_ids": [
+          "KR-51-170"
+        ],
+        "disliked_region_ids": [],
+        "preferred_region_spans": [
+          "동해"
+        ],
+        "disliked_region_spans": [],
+        "unresolved_region_spans": [],
+        "preferred_region_names": [
+          "동해시"
+        ],
+        "disliked_region_names": [],
+        "needs_clarification": false,
+        "clarifying_question": null,
+        "contradiction_reasons": []
+      },
+      "cleaned_raw_query": "조용한 동해안에서 1박 2일 머물며 한적하게 쉬고 싶어요 싶어요",
+      "soft_preference_query": "",
+      "unsupported_conditions": [],
+      "intent_extraction_mode": "code_parser",
+      "preferred_theme_ids": [
+        "sea_coast"
+      ],
+      "disliked_theme_ids": [],
+      "preferred_region_ids": [
+        "KR-51-170"
+      ],
+      "disliked_region_ids": [],
+      "preferred_region_spans": [
+        "동해"
+      ],
+      "disliked_region_spans": [],
+      "unresolved_region_spans": [],
+      "preferred_region_names": [
+        "동해시"
+      ],
+      "disliked_region_names": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "contradiction_reasons": []
+    }
+  }
+}

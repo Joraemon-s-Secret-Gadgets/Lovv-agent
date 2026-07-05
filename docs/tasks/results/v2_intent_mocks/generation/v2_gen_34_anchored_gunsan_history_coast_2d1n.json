@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_34_anchored_gunsan_history_coast_2d1n",
+  "scenario_ref": "SC-ANCH-34",
+  "note": "앵커 고정: 군산 역사+해안",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 4,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "역사·전통",
+      "바다·해안"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "군산에서 근대 역사 거리와 바다 근처 산책을 함께 하고 싶어요.",
+    "soft_preference_query": "근대 건축과 항구 풍경을 천천히 보는 일정.",
+    "congestion_pref": "neutral",
+    "transport_pref": "walk",
+    "destination_id": "KR-37-2",
+    "user_location": null,
+    "execution_mode": "anchored_place_search",
+    "fixed_city_id": "KR-37-2",
+    "unsupported_conditions": []
+  },
+  "expected": "anchored mixed theme와 walk notice 확인"
+}

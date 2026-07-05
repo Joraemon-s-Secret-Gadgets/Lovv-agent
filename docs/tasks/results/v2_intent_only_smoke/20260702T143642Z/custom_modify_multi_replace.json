@@ -1,0 +1,160 @@
+{
+  "case_id": "custom_modify_multi_replace",
+  "source": "inline",
+  "summary": {
+    "intent_type": "modification",
+    "status": "ok",
+    "kind": "slot_replace",
+    "routing_hint": "planner_apply_edit",
+    "edit_ops_count": 2,
+    "clarification_reason": null,
+    "themes": [],
+    "soft_preference_query": null,
+    "congestion_pref": null,
+    "transport_pref": null
+  },
+  "output": {
+    "intent": {
+      "intent_type": "modification",
+      "thread_id": "thread-smoke",
+      "itinerary_revision": "rev-smoke",
+      "raw_modify_query": "1일차 오전은 조용한 숲길로 바꾸고 1일차 오후는 실내 전시 공간으로 바꿔줘.",
+      "status": "ok",
+      "kind": "slot_replace",
+      "edit_ops": [
+        {
+          "op_id": "op-1",
+          "op": "REPLACE",
+          "target": {
+            "item_id": "item-1",
+            "content_id": "attraction#morning",
+            "item_type": "attraction",
+            "day": 1,
+            "order": 1,
+            "target_text": "1일차 1번째 장소",
+            "resolution": "exact"
+          },
+          "condition": {
+            "replacement_query": "조용한 숲길",
+            "theme": "자연·트레킹",
+            "mood": "quiet",
+            "place_type": null,
+            "location": null,
+            "avoid_content_ids": [
+              "attraction#morning"
+            ]
+          },
+          "seed_policy": {
+            "target_is_seed": false,
+            "policy": "not_seed"
+          }
+        },
+        {
+          "op_id": "op-2",
+          "op": "REPLACE",
+          "target": {
+            "item_id": "item-2",
+            "content_id": "attraction#afternoon",
+            "item_type": "attraction",
+            "day": 1,
+            "order": 2,
+            "target_text": "1일차 2번째 장소",
+            "resolution": "exact"
+          },
+          "condition": {
+            "replacement_query": "실내 전시 공간",
+            "theme": "예술·감성",
+            "mood": null,
+            "place_type": null,
+            "location": null,
+            "avoid_content_ids": [
+              "attraction#afternoon"
+            ]
+          },
+          "seed_policy": {
+            "target_is_seed": false,
+            "policy": "not_seed"
+          }
+        }
+      ],
+      "city_change": null,
+      "clarification": null,
+      "unsupported_reasons": [],
+      "routing_hint": "planner_apply_edit",
+      "audit": {
+        "parser": "rule_v2"
+      },
+      "modify_intent": {
+        "intent_type": "modification",
+        "thread_id": "thread-smoke",
+        "itinerary_revision": "rev-smoke",
+        "raw_modify_query": "1일차 오전은 조용한 숲길로 바꾸고 1일차 오후는 실내 전시 공간으로 바꿔줘.",
+        "status": "ok",
+        "kind": "slot_replace",
+        "edit_ops": [
+          {
+            "op_id": "op-1",
+            "op": "REPLACE",
+            "target": {
+              "item_id": "item-1",
+              "content_id": "attraction#morning",
+              "item_type": "attraction",
+              "day": 1,
+              "order": 1,
+              "target_text": "1일차 1번째 장소",
+              "resolution": "exact"
+            },
+            "condition": {
+              "replacement_query": "조용한 숲길",
+              "theme": "자연·트레킹",
+              "mood": "quiet",
+              "place_type": null,
+              "location": null,
+              "avoid_content_ids": [
+                "attraction#morning"
+              ]
+            },
+            "seed_policy": {
+              "target_is_seed": false,
+              "policy": "not_seed"
+            }
+          },
+          {
+            "op_id": "op-2",
+            "op": "REPLACE",
+            "target": {
+              "item_id": "item-2",
+              "content_id": "attraction#afternoon",
+              "item_type": "attraction",
+              "day": 1,
+              "order": 2,
+              "target_text": "1일차 2번째 장소",
+              "resolution": "exact"
+            },
+            "condition": {
+              "replacement_query": "실내 전시 공간",
+              "theme": "예술·감성",
+              "mood": null,
+              "place_type": null,
+              "location": null,
+              "avoid_content_ids": [
+                "attraction#afternoon"
+              ]
+            },
+            "seed_policy": {
+              "target_is_seed": false,
+              "policy": "not_seed"
+            }
+          }
+        ],
+        "city_change": null,
+        "clarification": null,
+        "unsupported_reasons": [],
+        "routing_hint": "planner_apply_edit",
+        "audit": {
+          "parser": "rule_v2"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_21_festival_history_art_daytrip",
+  "scenario_ref": "SC-FEST-21",
+  "note": "축제 포함: 역사+예술 당일",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 9,
+    "travel_year": 2026,
+    "trip_type": "daytrip",
+    "active_required_themes": [
+      "역사·전통",
+      "예술·감성"
+    ],
+    "include_festivals": true,
+    "cleaned_raw_query": "가을 축제가 있는 도시에서 역사 거리와 문화 공간을 하루 동안 보고 싶어요.",
+    "soft_preference_query": "축제 분위기와 전통적인 골목, 전시 공간이 가까운 일정.",
+    "congestion_pref": "vibrant",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "festival_seeded_city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "복합 테마 festival gate 이후 planner 배치 확인"
+}

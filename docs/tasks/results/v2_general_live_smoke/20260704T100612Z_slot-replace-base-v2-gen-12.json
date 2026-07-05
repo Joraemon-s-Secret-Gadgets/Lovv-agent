@@ -1,0 +1,184 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 10,
+    "travelYear": 2026,
+    "tripType": "2d1n",
+    "themes": [
+      "자연·트레킹"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "차로 여기저기 자유롭게 다니며 자연을 즐기는 1박 2일이요.",
+    "softPreferenceQuery": "",
+    "congestionPref": "neutral",
+    "transportPref": "car",
+    "sessionId": "slot-replace-live-gen12-20260704-01",
+    "threadId": "slot-replace-live-gen12-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen12-20260704-01-create"
+  },
+  "response": {
+    "recommendationId": "slot-replace-live-gen12-20260704-01-create",
+    "expiresAt": "2026-07-04T10:36:29Z",
+    "destination": {
+      "destinationId": "KR-34-8",
+      "name": "서천군",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#2782213",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "금강2경 도보여행길",
+              "body": "금강의 두 경치를 따라 트레킹하며 자연을 만끽한다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-34-8",
+              "theme": "자연·트레킹",
+              "moveMinutes": 0,
+              "latitude": 36.0199865334,
+              "longitude": 126.7367014591
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#3036904",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "국립생태원에코리움",
+              "body": "5대 기후관과 4D 영상관에서 다양한 생태를 체험한다.",
+              "reason": "국립생태원 내 전시 시설로 다양한 기후와 생태를 소개한다.",
+              "isSeed": false,
+              "cityId": "KR-34-8",
+              "theme": "자연·트레킹",
+              "moveMinutes": 2,
+              "latitude": 36.0271354218,
+              "longitude": 126.7194583721
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#129622",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "부사방조제",
+              "body": "방조제 산책길에서 바다와 호수 풍경을 동시에 감상한다.",
+              "reason": "바다와 갈대호가 마주보는 경관이 특징이다.",
+              "isSeed": false,
+              "cityId": "KR-34-8",
+              "theme": "자연·트레킹",
+              "moveMinutes": 28,
+              "latitude": 36.17594568,
+              "longitude": 126.5275106079
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#1055310",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 4,
+              "title": "서천식물예술원",
+              "body": "연꽃·미로·분재 정원을 거닐다가 체험 프로그램에 참여한다.",
+              "reason": "연꽃정원·미로정원 등 다양한 정원과 체험이 제공된다.",
+              "isSeed": false,
+              "cityId": "KR-34-8",
+              "theme": "자연·트레킹",
+              "moveMinutes": 0,
+              "latitude": 36.07741942,
+              "longitude": 126.7692859379
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#129457",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "신성리 갈대밭",
+              "body": "넓은 갈대밭에서 바람 소리와 철새 모습을 관찰한다.",
+              "reason": "광활한 갈대밭과 철새 군락지로 자연 학습에 적합하다.",
+              "isSeed": false,
+              "cityId": "KR-34-8",
+              "theme": "자연·트레킹",
+              "moveMinutes": 13,
+              "latitude": 36.0677915439,
+              "longitude": 126.8610335349
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#129623",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "천방산",
+              "body": "가벼운 산행으로 정상에서 해돋이와 주변 전경을 즐긴다.",
+              "reason": "완만한 코스로 가볍게 산행하며 해돋이를 감상할 수 있다.",
+              "isSeed": false,
+              "cityId": "KR-34-8",
+              "theme": "자연·트레킹",
+              "moveMinutes": 24,
+              "latitude": 36.134834362,
+              "longitude": 126.7275548444
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "자연·트레킹",
+        "travelMonth:10"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "서천군의 다양한 자연명소가 1박 2일 일정에 고르게 배치됐다.",
+        "도보와 전시, 체험 등 활동 종류가 골고루 포함돼 자유로운 여행 스타일에 맞는다."
+      ],
+      "itineraryFlowReason": "첫날 트레킹과 생태전시, 둘째 날 방조제·식물예술·갈대밭·천방산을 차례로 탐험한다.",
+      "confidence": 0.76,
+      "userNotice": ""
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "slot-replace-live-gen12-20260704-01",
+    "threadId": "slot-replace-live-gen12-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen12-20260704-01-create",
+    "elapsedSeconds": 18.691,
+    "recommendationId": "slot-replace-live-gen12-20260704-01-create",
+    "destinationId": "KR-34-8",
+    "destinationName": "서천군",
+    "dayCount": 2,
+    "itemCount": 6,
+    "clarificationReason": null
+  }
+}

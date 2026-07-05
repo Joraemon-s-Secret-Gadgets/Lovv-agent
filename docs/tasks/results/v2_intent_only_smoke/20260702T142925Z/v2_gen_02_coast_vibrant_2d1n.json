@@ -1,0 +1,59 @@
+{
+  "case_id": "v2_gen_02_coast_vibrant_2d1n",
+  "source": "docs/tasks/results/v2_intent_mocks/generation/v2_gen_02_coast_vibrant_2d1n.json",
+  "summary": {
+    "intent_type": "create",
+    "status": null,
+    "kind": null,
+    "routing_hint": null,
+    "edit_ops_count": 0,
+    "clarification_reason": null,
+    "themes": [
+      "바다·해안"
+    ],
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown"
+  },
+  "output": {
+    "intent": {
+      "intent_type": "create",
+      "city_select_input": {
+        "country": "KR",
+        "travel_month": 8,
+        "travel_year": 2026,
+        "trip_type": "2d1n",
+        "active_required_themes": [
+          "바다·해안"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "활기찬 바닷가 핫플 위주로 1박 2일 신나게 보내고 싶어요.",
+        "soft_preference_query": "사람들로 북적이고 생기 넘치는 활기찬 바닷가 분위기.",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "neutral",
+        "transport_pref": "unknown",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "cleaned_raw_query": "활기찬 바닷가 핫플 위주로 1박 2일 신나게 보내고 싶어요.",
+      "soft_preference_query": "사람들로 북적이고 생기 넘치는 활기찬 바닷가 분위기.",
+      "unsupported_conditions": [],
+      "intent_extraction_mode": "code_parser",
+      "preferred_theme_ids": [
+        "sea_coast"
+      ],
+      "disliked_theme_ids": [],
+      "preferred_region_ids": [],
+      "disliked_region_ids": [],
+      "preferred_region_names": [],
+      "disliked_region_names": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "contradiction_reasons": []
+    }
+  }
+}

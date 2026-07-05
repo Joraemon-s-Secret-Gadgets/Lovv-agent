@@ -1,0 +1,185 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 10,
+    "travelYear": 2026,
+    "tripType": "2d1n",
+    "themes": [
+      "역사·전통"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "역사 유적과 전통 마을을 천천히 둘러보는 1박 2일 일정을 원해요.",
+    "softPreferenceQuery": "고즈넉하게 옛 정취를 느낄 수 있는 차분한 분위기.",
+    "congestionPref": "neutral",
+    "transportPref": "car",
+    "sessionId": "slot-replace-live-20260704-02",
+    "threadId": "slot-replace-live-20260704-02",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-20260704-02-create"
+  },
+  "response": {
+    "recommendationId": "slot-replace-live-20260704-02-create",
+    "expiresAt": "2026-07-04T10:06:54Z",
+    "destination": {
+      "destinationId": "KR-47-770",
+      "name": "영덕군",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#127714",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "괴시리 전통마을",
+              "body": "전통가옥과 골목길을 천천히 산책합니다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-47-770",
+              "theme": "역사·전통",
+              "moveMinutes": 0,
+              "latitude": 36.5431729856,
+              "longitude": 129.4165708929
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#252544",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "영해향교",
+              "body": "역사적 건축물과 교육 현장을 여유롭게 감상합니다.",
+              "reason": "영해향교는 전학후묘 방식의 전통 건축을 보여줍니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "역사·전통",
+              "moveMinutes": 2,
+              "latitude": 36.5385790072,
+              "longitude": 129.4136296221
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#127227",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "신돌석장군 생가 및 유적지",
+              "body": "의병 장군의 생가와 전시물을 차분히 둘러봅니다.",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "역사·전통",
+              "moveMinutes": 5,
+              "latitude": 36.51973065002451,
+              "longitude": 129.4038385182397
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#128026",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 4,
+              "title": "인량리 전통테마마을",
+              "body": "한옥 마을과 자연을 천천히 체험합니다.",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "역사·전통",
+              "moveMinutes": 0,
+              "latitude": 36.5522294128,
+              "longitude": 129.3712746237
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#128720",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "영덕 안동권씨 옥천재사",
+              "body": "조선시대 누각 건물을 여유롭게 관람합니다.",
+              "reason": "화수루 등 전통 누각 건축이 보존돼 있습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "역사·전통",
+              "moveMinutes": 14,
+              "latitude": 36.59762052,
+              "longitude": 129.3222276108
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#126187",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "장육사",
+              "body": "템플스테이 체험으로 차분히 명상을 합니다.",
+              "reason": "불교 사찰의 역사와 체험 프로그램을 제공합니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "역사·전통",
+              "moveMinutes": 5,
+              "latitude": 36.5986811076,
+              "longitude": 129.3013599803
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "역사·전통",
+        "travelMonth:10"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "영덕군은 역사·전통 유적이 풍부해 요청 테마에 적합합니다.",
+        "선택한 장소들은 모두 도보로 여유롭게 둘러볼 수 있어 차분한 분위기를 유지합니다.",
+        "1박 2일 일정에 알맞은 거리와 집중도를 고려해 구성되었습니다."
+      ],
+      "itineraryFlowReason": "첫날 전통마을과 향교를 거쳐 유적지를 탐방하고, 둘째날 누각과 사찰에서 여유롭게 마무리합니다.",
+      "confidence": 0.76,
+      "userNotice": ""
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "slot-replace-live-20260704-02",
+    "threadId": "slot-replace-live-20260704-02",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-20260704-02-create",
+    "elapsedSeconds": 17.752,
+    "recommendationId": "slot-replace-live-20260704-02-create",
+    "destinationId": "KR-47-770",
+    "destinationName": "영덕군",
+    "dayCount": 2,
+    "itemCount": 6,
+    "clarificationReason": null
+  }
+}

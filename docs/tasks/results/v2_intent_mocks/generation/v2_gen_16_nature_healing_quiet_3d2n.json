@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_16_nature_healing_quiet_3d2n",
+  "scenario_ref": "SC-COV-16",
+  "note": "자유 탐색: 자연+힐링, 조용 선호",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 6,
+    "travel_year": 2026,
+    "trip_type": "3d2n",
+    "active_required_themes": [
+      "자연·트레킹",
+      "온천·휴양"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "숲길과 계곡을 천천히 걷고 조용한 숙소 근처에서 쉬는 2박 3일 여행을 가고 싶어요.",
+    "soft_preference_query": "한적한 자연 속에서 쉬고 가볍게 걷는 회복형 여행.",
+    "congestion_pref": "quiet",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "희소한 힐링 테마와 자연 backfill 동작 확인"
+}

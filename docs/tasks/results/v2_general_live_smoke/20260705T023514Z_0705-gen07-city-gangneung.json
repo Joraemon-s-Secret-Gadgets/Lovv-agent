@@ -1,0 +1,270 @@
+{
+  "event": {
+    "entryType": "modify",
+    "actorId": "P00_new_user_uniform",
+    "itineraryRevision": "rev-live-gen07-city-change-gangneung",
+    "destinationId": "KR-51-170",
+    "rawModifyQuery": "도시는 강릉으로 바꿔줘.",
+    "currentOrder": [
+      {
+        "itemId": "item-1",
+        "contentId": "attraction#2714889",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 1,
+        "title": "가원습지 생태자연공원",
+        "isSeed": true,
+        "cityId": "KR-51-170",
+        "theme": "자연·트레킹",
+        "latitude": 37.4736521046,
+        "longitude": 129.1070564038,
+        "timeOfDay": "afternoon",
+        "sortOrder": 1
+      }
+    ],
+    "sessionId": "v2-live-regression-0705-gen07-city",
+    "threadId": "v2-live-regression-0705-gen07-city",
+    "requestId": "v2-live-regression-0705-gen07-city-to-gangneung"
+  },
+  "response": {
+    "recommendationId": "v2-live-regression-0705-gen07-city-to-gangneung",
+    "expiresAt": "2026-07-05T03:05:33Z",
+    "destination": {
+      "destinationId": "KR-51-150",
+      "name": "강릉시",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "3d2n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#125699",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "주문진해변",
+              "body": "넓은 백사장과 맑은 물, 해송 그늘에서 산책",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 37.9105787154618,
+              "longitude": 128.818821192809
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#129585",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "소돌아들바위공원",
+              "body": "기암괴석과 해안 산책로에서 바다 감상",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "자연·트레킹",
+              "moveMinutes": 3,
+              "latitude": 37.9057,
+              "longitude": 128.8302
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#128728",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "영진해변",
+              "body": "조용한 어촌 해변에서 바다 냄새와 휴식",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 7,
+              "latitude": 37.8695,
+              "longitude": 128.8449
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#2706354",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 4,
+              "title": "강릉 안목해맞이공원",
+              "body": "일출 감상과 바다 전망 벤치에서 휴식",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-51-150",
+              "theme": "자연·트레킹",
+              "moveMinutes": 0,
+              "latitude": 37.7742755493868,
+              "longitude": 128.945118827483
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#128722",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "칠성산",
+              "body": "산책과 기암괴석, 바다 조망 트레킹",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "자연·트레킹",
+              "moveMinutes": 25,
+              "latitude": 37.6768308321018,
+              "longitude": 128.895279461427
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#128998",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "썬크루즈 테마공원",
+              "body": "절벽 위 유람선 전시와 조각공원 산책",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "자연·트레킹",
+              "moveMinutes": 33,
+              "latitude": 37.6835162541018,
+              "longitude": 129.041981783225
+            },
+            {
+              "itemId": "item-7",
+              "contentId": "attraction#2946241",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 4,
+              "timeOfDay": "evening",
+              "sortOrder": 7,
+              "title": "향호해변",
+              "body": "소나무 숲 뒤 조용한 백사장에서 바다 감상",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 44,
+              "latitude": 37.9129,
+              "longitude": 128.8166
+            }
+          ]
+        },
+        {
+          "day": 3,
+          "items": [
+            {
+              "itemId": "item-8",
+              "contentId": "attraction#2775497",
+              "itemType": "attraction",
+              "day": 3,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 8,
+              "title": "순포해변",
+              "body": "모래질 좋은 얕은 물과 한적한 바다 풍경",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 37.8193190673,
+              "longitude": 128.8902985428
+            },
+            {
+              "itemId": "item-9",
+              "contentId": "attraction#2775508",
+              "itemType": "attraction",
+              "day": 3,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 9,
+              "title": "순포습지",
+              "body": "생태 습지에서 조류와 자연 관찰",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "자연·트레킹",
+              "moveMinutes": 1,
+              "latitude": 37.8204549924,
+              "longitude": 128.887526536
+            },
+            {
+              "itemId": "item-10",
+              "contentId": "attraction#128758",
+              "itemType": "attraction",
+              "day": 3,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 10,
+              "title": "경포해수욕장",
+              "body": "넓은 백사장과 숲이 어우러진 해변 산책",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 5,
+              "latitude": 37.8034055083,
+              "longitude": 128.9102102476
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "자연·트레킹",
+        "바다·해안",
+        "travelMonth:9"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "자연과 해변을 조화롭게 배치해 조용한 분위기를 제공합니다.",
+        "다양한 트레킹 코스와 해변 산책로가 포함돼 천천히 걷기에 좋습니다."
+      ],
+      "itineraryFlowReason": "첫날 바다 해변을 거닐고, 중간에 산과 습지를 탐방하며 마지막 날 해변에서 여유를 마무리합니다.",
+      "confidence": 0.76,
+      "userNotice": ""
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "modify",
+    "sessionId": "v2-live-regression-0705-gen07-city",
+    "threadId": "v2-live-regression-0705-gen07-city",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-regression-0705-gen07-city-to-gangneung",
+    "elapsedSeconds": 22.351,
+    "recommendationId": "v2-live-regression-0705-gen07-city-to-gangneung",
+    "destinationId": "KR-51-150",
+    "destinationName": "강릉시",
+    "dayCount": 3,
+    "itemCount": 10,
+    "clarificationReason": null
+  }
+}

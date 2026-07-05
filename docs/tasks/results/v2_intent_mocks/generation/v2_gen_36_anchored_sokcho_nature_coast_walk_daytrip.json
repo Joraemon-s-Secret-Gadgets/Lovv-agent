@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_36_anchored_sokcho_nature_coast_walk_daytrip",
+  "scenario_ref": "SC-ANCH-36",
+  "note": "앵커 고정: 속초 자연+해안 도보",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 8,
+    "travel_year": 2026,
+    "trip_type": "daytrip",
+    "active_required_themes": [
+      "자연·트레킹",
+      "바다·해안"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "속초에서 차 없이 바다와 자연 풍경을 하루에 보고 싶어요.",
+    "soft_preference_query": "해변과 가벼운 자연 산책을 걷기 중심으로 잇는 일정.",
+    "congestion_pref": "neutral",
+    "transport_pref": "walk",
+    "destination_id": "KR-51-210",
+    "user_location": null,
+    "execution_mode": "anchored_place_search",
+    "fixed_city_id": "KR-51-210",
+    "unsupported_conditions": []
+  },
+  "expected": "walk routing 초과 trim과 mixed theme seed 확인"
+}

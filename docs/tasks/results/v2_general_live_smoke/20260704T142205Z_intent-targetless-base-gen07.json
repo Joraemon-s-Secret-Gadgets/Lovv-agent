@@ -1,0 +1,264 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 9,
+    "travelYear": 2026,
+    "tripType": "3d2n",
+    "themes": [
+      "자연·트레킹",
+      "바다·해안"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+    "softPreferenceQuery": "조용하고 탁 트인, 여유로운 자연 속에서 평온하게 거닐 수 있는 분위기.",
+    "congestionPref": "quiet",
+    "transportPref": "unknown",
+    "sessionId": "intent-targetless-rediscovery-20260704-09",
+    "threadId": "intent-targetless-rediscovery-20260704-09",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "intent-targetless-rediscovery-20260704-09-create"
+  },
+  "response": {
+    "recommendationId": "intent-targetless-rediscovery-20260704-09-create",
+    "expiresAt": "2026-07-04T14:52:40Z",
+    "destination": {
+      "destinationId": "KR-51-170",
+      "name": "동해시",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "3d2n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#2714889",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "가원습지 생태자연공원",
+              "body": "다양한 습지 식생과 자연관찰을 즐길 수 있어요.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-51-170",
+              "theme": "자연·트레킹",
+              "moveMinutes": 0,
+              "latitude": 37.4736521046,
+              "longitude": 129.1070564038
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#127713",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "추암해변",
+              "body": "해돋이와 촛대바위 풍경을 감상할 수 있어요.",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "바다·해안",
+              "moveMinutes": 9,
+              "latitude": 37.4794635856,
+              "longitude": 129.1602375728
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#2773848",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "무릉 달빛 호암소길",
+              "body": "계곡 탐방과 폭포 소리를 들으며 트레킹해요.",
+              "reason": "자연 트레킹 코스로 청아한 물소리를 체험합니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "자연·트레킹",
+              "moveMinutes": 18,
+              "latitude": 37.465351,
+              "longitude": 129.031328
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#2710184",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 4,
+              "title": "한섬해변&한섬감성바닷길",
+              "body": "한섬 해변에서 조용히 바다를 거닐 수 있어요.",
+              "reason": "조용한 해변 산책 코스로 분위기에 맞습니다.",
+              "isSeed": true,
+              "cityId": "KR-51-170",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 37.5211569389572,
+              "longitude": 129.121740306786
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#2712723",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "냉천공원",
+              "body": "봄꽃과 야생화를 감상하며 산책하기에 좋습니다.",
+              "reason": "꽃과 야생화가 풍부한 평온한 공원입니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "자연·트레킹",
+              "moveMinutes": 1,
+              "latitude": 37.5192498675,
+              "longitude": 129.1193122353
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#2364047",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "천곡천연동굴 자연학습체험공원",
+              "body": "동굴 탐험과 야생화 관찰을 함께 즐겨요.",
+              "reason": "동굴과 자연 학습이 결합된 힐링 장소입니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "자연·트레킹",
+              "moveMinutes": 1,
+              "latitude": 37.517422114,
+              "longitude": 129.109754815
+            },
+            {
+              "itemId": "item-7",
+              "contentId": "attraction#2714155",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 4,
+              "timeOfDay": "evening",
+              "sortOrder": 7,
+              "title": "일출공원",
+              "body": "일출과 동해 바다 전경을 한눈에 볼 수 있어요.",
+              "reason": "아침 일출과 바다 전망이 조화를 이룹니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "자연·트레킹",
+              "moveMinutes": 9,
+              "latitude": 37.554794786994094,
+              "longitude": 129.11831701266576
+            }
+          ]
+        },
+        {
+          "day": 3,
+          "items": [
+            {
+              "itemId": "item-8",
+              "contentId": "attraction#2714642",
+              "itemType": "attraction",
+              "day": 3,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 8,
+              "title": "고불개해변",
+              "body": "조용한 해변에서 바다와 암석을 감상합니다.",
+              "reason": "소박하고 평온한 해변 풍경을 제공합니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 37.5277366978172,
+              "longitude": 129.121701216105
+            },
+            {
+              "itemId": "item-9",
+              "contentId": "attraction#2716757",
+              "itemType": "attraction",
+              "day": 3,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 9,
+              "title": "하평해변",
+              "body": "얕은 바다와 해송 숲이 조용한 분위기를 줍니다.",
+              "reason": "맑은 물과 숲이 어우러진 한적한 해변입니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "바다·해안",
+              "moveMinutes": 1,
+              "latitude": 37.5335842697,
+              "longitude": 129.1164092756
+            },
+            {
+              "itemId": "item-10",
+              "contentId": "attraction#125713",
+              "itemType": "attraction",
+              "day": 3,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 10,
+              "title": "망상해변",
+              "body": "넓은 백사장과 청정 해수로 여유로운 휴식이 가능해요.",
+              "reason": "넓은 모래와 깨끗한 바다 물이 편안함을 줍니다.",
+              "isSeed": false,
+              "cityId": "KR-51-170",
+              "theme": "바다·해안",
+              "moveMinutes": 9,
+              "latitude": 37.5922143704,
+              "longitude": 129.0896411696
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "자연·트레킹",
+        "바다·해안",
+        "travelMonth:9"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "동해시는 숲길과 바다 풍경을 모두 품고 있어 요청 테마에 적합합니다.",
+        "선정된 명소들은 조용하고 탁 트인 자연 환경을 제공해 여유로운 여행을 돕습니다.",
+        "2박 3일 일정에 자연·해변·트레킹을 고르게 배치해 편안한 흐름을 만들었습니다."
+      ],
+      "itineraryFlowReason": "첫날 자연습지와 해변을, 중간엔 삼림·동굴 트레킹, 마지막엔 일출과 해변을 차례로 즐깁니다.",
+      "confidence": 0.76,
+      "userNotice": ""
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "intent-targetless-rediscovery-20260704-09",
+    "threadId": "intent-targetless-rediscovery-20260704-09",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "intent-targetless-rediscovery-20260704-09-create",
+    "elapsedSeconds": 35.345,
+    "recommendationId": "intent-targetless-rediscovery-20260704-09-create",
+    "destinationId": "KR-51-170",
+    "destinationName": "동해시",
+    "dayCount": 3,
+    "itemCount": 10,
+    "clarificationReason": null
+  }
+}

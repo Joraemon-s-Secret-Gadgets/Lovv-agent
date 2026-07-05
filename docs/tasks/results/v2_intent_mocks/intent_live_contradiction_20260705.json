@@ -1,0 +1,22 @@
+{
+  "cases": [
+    {
+      "case_id": "live_create_region_contradiction_sokcho",
+      "source": "inline-live",
+      "state": {
+        "request": {
+          "entryType": "create",
+          "country": "KR",
+          "travel_month": 8,
+          "travel_year": 2026,
+          "trip_type": "daytrip",
+          "themes": [
+            "바다·해안"
+          ],
+          "include_festivals": false,
+          "naturalLanguageQuery": "속초는 싫은데 속초 바다 여행지를 추천해줘."
+        }
+      }
+    }
+  ]
+}

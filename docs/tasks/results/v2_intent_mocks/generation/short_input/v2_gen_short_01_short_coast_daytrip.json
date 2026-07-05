@@ -1,0 +1,25 @@
+{
+  "id": "v2_gen_short_01_short_coast_daytrip",
+  "scenario_ref": "SC-입력형태",
+  "note": "짧은 입력(soft 미생성)",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 8,
+    "travel_year": 2026,
+    "trip_type": "daytrip",
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "동해 바다 보고 싶어",
+    "soft_preference_query": "",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "soft_preference_query 비어있음 → soft re-rank 없이 raw+테마만으로 동작(희소 입력 경로)"
+}

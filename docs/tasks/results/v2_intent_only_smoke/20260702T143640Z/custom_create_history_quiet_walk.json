@@ -1,0 +1,90 @@
+{
+  "case_id": "custom_create_history_quiet_walk",
+  "source": "inline",
+  "summary": {
+    "intent_type": "create",
+    "status": null,
+    "kind": null,
+    "routing_hint": null,
+    "edit_ops_count": 0,
+    "clarification_reason": null,
+    "themes": [
+      "역사·전통"
+    ],
+    "soft_preference_query": "",
+    "congestion_pref": "quiet",
+    "transport_pref": "walk"
+  },
+  "output": {
+    "intent": {
+      "intent_output": {
+        "country": "KR",
+        "travel_month": 10,
+        "travel_year": 2026,
+        "trip_type": "2d1n",
+        "active_required_themes": [
+          "역사·전통"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "강원도는 피하고 경북의 조용한 역사 골목을 걸어서 보고 싶어.",
+        "soft_preference_query": "",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "quiet",
+        "transport_pref": "walk",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "intent_extraction_mode": "prompt_structured_output",
+      "preferred_theme_ids": [
+        "history_tradition"
+      ],
+      "disliked_theme_ids": [],
+      "preferred_region_ids": [
+        "gyeongbuk"
+      ],
+      "disliked_region_ids": [
+        "gangwon"
+      ],
+      "preferred_region_names": [
+        "경북"
+      ],
+      "disliked_region_names": [
+        "강원도"
+      ],
+      "contradiction_reasons": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "intent_type": "create",
+      "city_select_input": {
+        "country": "KR",
+        "travel_month": 10,
+        "travel_year": 2026,
+        "trip_type": "2d1n",
+        "active_required_themes": [
+          "역사·전통"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "강원도는 피하고 경북의 조용한 역사 골목을 걸어서 보고 싶어.",
+        "soft_preference_query": "",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "quiet",
+        "transport_pref": "walk",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "cleaned_raw_query": "강원도는 피하고 경북의 조용한 역사 골목을 걸어서 보고 싶어.",
+      "soft_preference_query": "",
+      "unsupported_conditions": []
+    }
+  }
+}

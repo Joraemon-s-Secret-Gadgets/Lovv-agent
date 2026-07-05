@@ -1,0 +1,82 @@
+{
+  "case_id": "v2_gen_11_coast_walk_daytrip",
+  "source": "docs/tasks/results/v2_intent_mocks/generation/v2_gen_11_coast_walk_daytrip.json",
+  "summary": {
+    "intent_type": "create",
+    "status": null,
+    "kind": null,
+    "routing_hint": null,
+    "edit_ops_count": 0,
+    "clarification_reason": null,
+    "themes": [
+      "바다·해안"
+    ],
+    "soft_preference_query": "도보로 부담 없이 다닐 수 있는 편안한 분위기의 곳.",
+    "congestion_pref": "neutral",
+    "transport_pref": "walk"
+  },
+  "output": {
+    "intent": {
+      "intent_output": {
+        "country": "KR",
+        "travel_month": 8,
+        "travel_year": 2026,
+        "trip_type": "daytrip",
+        "active_required_themes": [
+          "바다·해안"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "차 없이 뚜벅이로 다니기 좋은 바닷가를 당일로 보고 싶어요. 도보로 편하게 다닐 수 있으면 좋겠어요.",
+        "soft_preference_query": "도보로 부담 없이 다닐 수 있는 편안한 분위기의 곳.",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "neutral",
+        "transport_pref": "walk",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "intent_extraction_mode": "prompt_structured_output",
+      "preferred_theme_ids": [
+        "sea_coast"
+      ],
+      "disliked_theme_ids": [],
+      "preferred_region_ids": [],
+      "disliked_region_ids": [],
+      "preferred_region_names": [],
+      "disliked_region_names": [],
+      "contradiction_reasons": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "intent_type": "create",
+      "city_select_input": {
+        "country": "KR",
+        "travel_month": 8,
+        "travel_year": 2026,
+        "trip_type": "daytrip",
+        "active_required_themes": [
+          "바다·해안"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "차 없이 뚜벅이로 다니기 좋은 바닷가를 당일로 보고 싶어요. 도보로 편하게 다닐 수 있으면 좋겠어요.",
+        "soft_preference_query": "도보로 부담 없이 다닐 수 있는 편안한 분위기의 곳.",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "neutral",
+        "transport_pref": "walk",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "cleaned_raw_query": "차 없이 뚜벅이로 다니기 좋은 바닷가를 당일로 보고 싶어요. 도보로 편하게 다닐 수 있으면 좋겠어요.",
+      "soft_preference_query": "도보로 부담 없이 다닐 수 있는 편안한 분위기의 곳.",
+      "unsupported_conditions": []
+    }
+  }
+}

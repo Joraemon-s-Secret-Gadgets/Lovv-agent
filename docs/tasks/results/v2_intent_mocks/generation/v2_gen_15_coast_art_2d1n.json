@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_15_coast_art_2d1n",
+  "scenario_ref": "SC-COV-15",
+  "note": "자유 탐색: 해안+예술 복합",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 5,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "바다·해안",
+      "예술·감성"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "바닷가 풍경도 보고 작은 미술관이나 벽화마을도 들르는 1박 2일 여행을 원해요.",
+    "soft_preference_query": "사진 찍기 좋고 산책하기 편한 해안 예술 마을 분위기.",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "복합 테마 coverage와 planner subtype diversity 확인"
+}

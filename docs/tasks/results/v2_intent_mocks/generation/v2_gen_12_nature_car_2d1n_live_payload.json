@@ -1,0 +1,15 @@
+{
+  "entryType": "create",
+  "country": "KR",
+  "travelMonth": 10,
+  "travelYear": 2026,
+  "tripType": "2d1n",
+  "themes": [
+    "자연·트레킹"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "차로 여기저기 자유롭게 다니며 자연을 즐기는 1박 2일이요.",
+  "softPreferenceQuery": "",
+  "congestionPref": "neutral",
+  "transportPref": "car"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "v2_festival_m12_history_tradition",
+  "scenario_ref": "FESTIVAL-MATRIX",
+  "note": "festival live matrix 12월 역사·전통",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 12,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "역사·전통"
+    ],
+    "include_festivals": true,
+    "cleaned_raw_query": "전통과 역사 분위기가 살아있는 축제 여행을 원해요. 12월에 확정된 축제가 있는 도시로 1박 2일 여행을 추천해줘.",
+    "soft_preference_query": "전통과 역사 분위기가 살아있는 축제 여행을 원해요.",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "festival gate month-theme matrix smoke"
+}

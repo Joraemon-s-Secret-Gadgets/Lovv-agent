@@ -1,0 +1,125 @@
+{
+  "event": {
+    "entryType": "clarify",
+    "country": "KR",
+    "travelMonth": 8,
+    "travelYear": 2026,
+    "tripType": "daytrip",
+    "themes": [
+      "바다·해안"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "강릉 바다 당일 여행지를 추천해줘.",
+    "sessionId": "live-contradiction-common-20260705",
+    "threadId": "live-contradiction-common-20260705",
+    "actorId": "v2-intent-live",
+    "requestId": "live-contradiction-common-20260705-clarify"
+  },
+  "response": {
+    "recommendationId": "live-contradiction-common-20260705-clarify",
+    "expiresAt": "2026-07-05T13:26:46Z",
+    "destination": {
+      "destinationId": "KR-51-150",
+      "name": "강릉시",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "daytrip",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#127722",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 1,
+              "title": "안목해변",
+              "body": "푸른 바다와 커피거리 구경, 해변 산책",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 37.7722617595,
+              "longitude": 128.9482754051,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#2731193",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "강릉항",
+              "body": "항구에서 낚시 체험 및 백사장 산책",
+              "reason": "낚시와 백사장 풍경이 바다 테마에 부합합니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 2,
+              "latitude": 37.7728055375,
+              "longitude": 128.9530277727,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#2946241",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "향호해변",
+              "body": "BTS 포토존에서 사진 촬영, 조용한 바다 감상",
+              "reason": "솔밭 뒤 벤치와 포토존이 해변 체험을 돕습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-150",
+              "theme": "바다·해안",
+              "moveMinutes": 27,
+              "latitude": 37.9129,
+              "longitude": 128.8166,
+              "indoorOutdoor": "outdoor"
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "바다·해안",
+        "travelMonth:8"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "강릉시의 대표 해변들을 골라 한 번에 다양한 바다 풍경을 즐길 수 있다.",
+        "각 해변마다 독특한 체험(커피거리, 낚시, 포토존)으로 일정이 풍부하다."
+      ],
+      "itineraryFlowReason": "첫날 안목해변, 둘째 날 강릉항, 셋째 날 향호해변 순으로 바다를 따라 이동합니다.",
+      "confidence": 0.76,
+      "userNotice": "선택한 도시의 해당 월은 평년 기준 비가 잦고 야외 일정 비중이 높아, 실내 중심 대체 일정을 함께 검토할 수 있습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "clarify",
+    "sessionId": "live-contradiction-common-20260705",
+    "threadId": "live-contradiction-common-20260705",
+    "actorId": "v2-intent-live",
+    "requestId": "live-contradiction-common-20260705-clarify",
+    "elapsedSeconds": 18.474,
+    "recommendationId": "live-contradiction-common-20260705-clarify",
+    "destinationId": "KR-51-150",
+    "destinationName": "강릉시",
+    "dayCount": 1,
+    "itemCount": 3,
+    "clarificationReason": null
+  }
+}

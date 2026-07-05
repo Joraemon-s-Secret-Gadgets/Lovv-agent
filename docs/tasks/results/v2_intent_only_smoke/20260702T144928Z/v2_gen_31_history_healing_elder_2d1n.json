@@ -1,0 +1,86 @@
+{
+  "case_id": "v2_gen_31_history_healing_elder_2d1n",
+  "source": "docs/tasks/results/v2_intent_mocks/generation/v2_gen_31_history_healing_elder_2d1n.json",
+  "summary": {
+    "intent_type": "create",
+    "status": null,
+    "kind": null,
+    "routing_hint": null,
+    "edit_ops_count": 0,
+    "clarification_reason": null,
+    "themes": [
+      "역사·전통",
+      "온천·휴양"
+    ],
+    "soft_preference_query": "이동 부담이 적고 조용하며 전통적인 분위기의, 편안하게 즐길 수 있는 곳.",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown"
+  },
+  "output": {
+    "intent": {
+      "intent_output": {
+        "country": "KR",
+        "travel_month": 10,
+        "travel_year": 2026,
+        "trip_type": "2d1n",
+        "active_required_themes": [
+          "역사·전통",
+          "온천·휴양"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "부모님과 오래 걷지 않고 역사적인 분위기와 편안한 휴식을 함께 느끼고 싶어요.",
+        "soft_preference_query": "이동 부담이 적고 조용하며 전통적인 분위기의, 편안하게 즐길 수 있는 곳.",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "neutral",
+        "transport_pref": "unknown",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "intent_extraction_mode": "prompt_structured_output",
+      "preferred_theme_ids": [
+        "history_tradition",
+        "healing_rest"
+      ],
+      "disliked_theme_ids": [],
+      "preferred_region_ids": [],
+      "disliked_region_ids": [],
+      "preferred_region_names": [],
+      "disliked_region_names": [],
+      "contradiction_reasons": [],
+      "needs_clarification": false,
+      "clarifying_question": null,
+      "intent_type": "create",
+      "city_select_input": {
+        "country": "KR",
+        "travel_month": 10,
+        "travel_year": 2026,
+        "trip_type": "2d1n",
+        "active_required_themes": [
+          "역사·전통",
+          "온천·휴양"
+        ],
+        "include_festivals": false,
+        "cleaned_raw_query": "부모님과 오래 걷지 않고 역사적인 분위기와 편안한 휴식을 함께 느끼고 싶어요.",
+        "soft_preference_query": "이동 부담이 적고 조용하며 전통적인 분위기의, 편안하게 즐길 수 있는 곳.",
+        "unsupported_conditions": [],
+        "destination_id": null,
+        "user_location": null,
+        "execution_mode": "city_discovery",
+        "congestion_pref": "neutral",
+        "transport_pref": "unknown",
+        "theme_weights": null,
+        "city_key": null,
+        "ddb_pk": null,
+        "destination_label": null
+      },
+      "cleaned_raw_query": "부모님과 오래 걷지 않고 역사적인 분위기와 편안한 휴식을 함께 느끼고 싶어요.",
+      "soft_preference_query": "이동 부담이 적고 조용하며 전통적인 분위기의, 편안하게 즐길 수 있는 곳.",
+      "unsupported_conditions": []
+    }
+  }
+}

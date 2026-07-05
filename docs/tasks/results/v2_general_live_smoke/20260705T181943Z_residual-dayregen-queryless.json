@@ -1,0 +1,271 @@
+{
+  "event": {
+    "entryType": "modify",
+    "sessionId": "residual-dayregen-20260706-05",
+    "threadId": "residual-dayregen-20260706-05",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "residual-dayregen-gen04-queryless",
+    "itineraryRevision": "rev-residual-dayregen-gen04-queryless",
+    "destinationId": "KR-47-770",
+    "rawModifyQuery": "1일차 전체 바꿔줘.",
+    "currentOrder": [
+      {
+        "itemId": "item-1",
+        "contentId": "attraction#127714",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 1,
+        "title": "괴시리 전통마을",
+        "isSeed": true,
+        "cityId": "KR-47-770",
+        "theme": null,
+        "latitude": 36.5431729856,
+        "longitude": 129.4165708929,
+        "timeOfDay": "afternoon",
+        "sortOrder": 1
+      },
+      {
+        "itemId": "item-2",
+        "contentId": "attraction#252544",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 2,
+        "title": "영해향교",
+        "isSeed": false,
+        "cityId": "KR-47-770",
+        "theme": null,
+        "latitude": 36.5385790072,
+        "longitude": 129.4136296221,
+        "timeOfDay": "afternoon",
+        "sortOrder": 2
+      },
+      {
+        "itemId": "item-3",
+        "contentId": "attraction#127227",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 3,
+        "title": "신돌석장군 생가 및 유적지",
+        "isSeed": false,
+        "cityId": "KR-47-770",
+        "theme": null,
+        "latitude": 36.51973065002451,
+        "longitude": 129.4038385182397,
+        "timeOfDay": "evening",
+        "sortOrder": 3
+      },
+      {
+        "itemId": "item-4",
+        "contentId": "attraction#128026",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 1,
+        "title": "인량리 전통테마마을",
+        "isSeed": false,
+        "cityId": "KR-47-770",
+        "theme": null,
+        "latitude": 36.5522294128,
+        "longitude": 129.3712746237,
+        "timeOfDay": "morning",
+        "sortOrder": 4
+      },
+      {
+        "itemId": "item-5",
+        "contentId": "attraction#128720",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 2,
+        "title": "영덕 안동권씨 옥천재사",
+        "isSeed": false,
+        "cityId": "KR-47-770",
+        "theme": null,
+        "latitude": 36.59762052,
+        "longitude": 129.3222276108,
+        "timeOfDay": "afternoon",
+        "sortOrder": 5
+      },
+      {
+        "itemId": "item-6",
+        "contentId": "attraction#126187",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 3,
+        "title": "장육사",
+        "isSeed": false,
+        "cityId": "KR-47-770",
+        "theme": null,
+        "latitude": 36.5986811076,
+        "longitude": 129.3013599803,
+        "timeOfDay": "afternoon",
+        "sortOrder": 6
+      }
+    ]
+  },
+  "response": {
+    "recommendationId": "residual-dayregen-gen04-queryless",
+    "expiresAt": "2026-07-05T18:49:51Z",
+    "destination": {
+      "destinationId": "KR-47-770",
+      "name": "영덕군",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "modify",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#1804600",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "축산항",
+              "body": "바다 풍경과 어시장 구경.",
+              "reason": "같은 도시 안에서 예비 후보 적합성과 이동 가능성을 확인했습니다.",
+              "isSeed": true,
+              "cityId": "KR-47-770",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 36.5083414217,
+              "longitude": 129.4468109259,
+              "indoorOutdoor": "unknown"
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#2614555",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "철암산 화석산지 (경북 동해안 국가지질공원)",
+              "body": "화석 지층과 산책로 감상.",
+              "reason": "같은 도시 안에서 예비 후보 적합성과 이동 가능성을 확인했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "자연·트레킹",
+              "moveMinutes": 0,
+              "latitude": 36.618816934,
+              "longitude": 129.405255752,
+              "indoorOutdoor": "unknown"
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#2912266",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "부흥해변",
+              "body": "해변 산책과 바다 전망.",
+              "reason": "같은 도시 안에서 예비 후보 적합성과 이동 가능성을 확인했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 36.2890848388562,
+              "longitude": 129.374448221733,
+              "indoorOutdoor": "unknown"
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#128026",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 4,
+              "title": "인량리 전통테마마을",
+              "body": "전통 가옥과 문화 체험.",
+              "reason": "기존 일정을 유지했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": null,
+              "moveMinutes": 0,
+              "latitude": 36.5522294128,
+              "longitude": 129.3712746237,
+              "indoorOutdoor": "unknown"
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#128720",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "영덕 안동권씨 옥천재사",
+              "body": "사찰 건축과 고요함 경험.",
+              "reason": "기존 일정을 유지했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": null,
+              "moveMinutes": 0,
+              "latitude": 36.59762052,
+              "longitude": 129.3222276108,
+              "indoorOutdoor": "unknown"
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#126187",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "장육사",
+              "body": "사찰 탐방과 역사 학습.",
+              "reason": "기존 일정을 유지했습니다.",
+              "isSeed": false,
+              "cityId": "KR-47-770",
+              "theme": null,
+              "moveMinutes": 0,
+              "latitude": 36.5986811076,
+              "longitude": 129.3013599803,
+              "indoorOutdoor": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "travelMonth:None"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "영덕군 내 해안·자연·전통을 고루 체험할 수 있어요."
+      ],
+      "itineraryFlowReason": "해안과 산, 전통마을을 순차적으로 탐방합니다.",
+      "confidence": 0.7,
+      "userNotice": "요청한 장소를 같은 일정 안에서 대체했습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "modify",
+    "sessionId": "residual-dayregen-20260706-05",
+    "threadId": "residual-dayregen-20260706-05",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "residual-dayregen-gen04-queryless",
+    "elapsedSeconds": 9.608,
+    "recommendationId": "residual-dayregen-gen04-queryless",
+    "destinationId": "KR-47-770",
+    "destinationName": "영덕군",
+    "dayCount": 2,
+    "itemCount": 6,
+    "clarificationReason": null
+  }
+}

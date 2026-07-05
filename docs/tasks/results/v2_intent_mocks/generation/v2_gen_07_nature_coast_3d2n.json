@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_07_nature_coast_3d2n",
+  "scenario_ref": "SC-G1",
+  "note": "멀티 soft 게이트(구체화)",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 9,
+    "travel_year": 2026,
+    "trip_type": "3d2n",
+    "active_required_themes": [
+      "자연·트레킹",
+      "바다·해안"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "숲길도 걷고 동해 바다 풍경도 보는 2박 3일 여행을 하고 싶어요. 조용하고 탁 트인 자연 분위기면 좋겠어요.",
+    "soft_preference_query": "조용하고 탁 트인, 여유로운 자연 속에서 평온하게 거닐 수 있는 분위기.",
+    "congestion_pref": "quiet",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "soft 게이트로 두 테마 부분충족 소도시 생존(AND였으면 탈락)"
+}

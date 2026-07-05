@@ -1,0 +1,240 @@
+{
+  "event": {
+    "entryType": "modify",
+    "sessionId": "v2-live-slot-replace-0705",
+    "threadId": "v2-live-slot-replace-0705",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen02-20260704-01-seed-replace-query",
+    "itineraryRevision": "rev-live-gen02-seed-replace-query",
+    "destinationId": "KR-38-13",
+    "rawModifyQuery": "1일차 1번째 장소를 다른 바다 전망지로 바꿔줘.",
+    "currentOrder": [
+      {
+        "itemId": "item-1",
+        "contentId": "attraction#988129",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 1,
+        "title": "거문도 신선바위",
+        "isSeed": true,
+        "cityId": "KR-38-13",
+        "theme": "바다·해안",
+        "latitude": 34.0123585069,
+        "longitude": 127.3072485707,
+        "timeOfDay": "afternoon",
+        "sortOrder": 1
+      },
+      {
+        "itemId": "item-2",
+        "contentId": "attraction#127547",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 1,
+        "title": "만성리 검은모래해변",
+        "isSeed": false,
+        "cityId": "KR-38-13",
+        "theme": "바다·해안",
+        "latitude": 34.7771528453,
+        "longitude": 127.7447914615,
+        "timeOfDay": "morning",
+        "sortOrder": 2
+      },
+      {
+        "itemId": "item-3",
+        "contentId": "attraction#128753",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 2,
+        "title": "모사금해수욕장",
+        "isSeed": false,
+        "cityId": "KR-38-13",
+        "theme": "바다·해안",
+        "latitude": 34.7965564174,
+        "longitude": 127.7557650074,
+        "timeOfDay": "afternoon",
+        "sortOrder": 3
+      },
+      {
+        "itemId": "item-4",
+        "contentId": "attraction#2795106",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 3,
+        "title": "여수신항",
+        "isSeed": false,
+        "cityId": "KR-38-13",
+        "theme": "바다·해안",
+        "latitude": 34.7432290287,
+        "longitude": 127.7541303976,
+        "timeOfDay": "afternoon",
+        "sortOrder": 4
+      },
+      {
+        "itemId": "item-5",
+        "contentId": "attraction#2783148",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 4,
+        "title": "국동항",
+        "isSeed": false,
+        "cityId": "KR-38-13",
+        "theme": "바다·해안",
+        "latitude": 34.7263609059,
+        "longitude": 127.7213781344,
+        "timeOfDay": "afternoon",
+        "sortOrder": 5
+      }
+    ]
+  },
+  "response": {
+    "recommendationId": "slot-replace-live-gen02-20260704-01-seed-replace-query",
+    "expiresAt": "2026-07-05T14:54:21Z",
+    "destination": {
+      "destinationId": "KR-38-13",
+      "name": "여수시",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#2723663",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "거문도해수욕장",
+              "body": "수정 요청에 맞춰 대체한 방문지입니다.",
+              "reason": "기존 슬롯을 유지하면서 후보 적합성과 이동 가능성을 확인했습니다.",
+              "isSeed": true,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 34.0199742783,
+              "longitude": 127.3043097534,
+              "indoorOutdoor": "unknown"
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#127547",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 2,
+              "title": "만성리 검은모래해변",
+              "body": "검은 모래 해변에서 독특한 모래와 바다를 체험",
+              "reason": "검은 모래 해변이 활기찬 바다 핫플이라 선택했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 34.7771528453,
+              "longitude": 127.7447914615,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#128753",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 3,
+              "title": "모사금해수욕장",
+              "body": "모사금해수욕장에서 깨끗한 물과 해변 드라이브",
+              "reason": "부드러운 백사장과 해변 드라이브가 요청 분위기에 맞습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 3,
+              "latitude": 34.7965564174,
+              "longitude": 127.7557650074,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#2795106",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 4,
+              "title": "여수신항",
+              "body": "여수신항에서 해양 역사와 풍경을 둘러봄",
+              "reason": "해안가 역사가 풍부해 바다 테마와 연계했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 9,
+              "latitude": 34.7432290287,
+              "longitude": 127.7541303976,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#2783148",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 4,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "국동항",
+              "body": "국동항 수변공원에서 바다와 휴식을 즐김",
+              "reason": "수변공원의 여유가 활기와 휴식을 동시에 제공합니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 10,
+              "latitude": 34.7263609059,
+              "longitude": 127.7213781344,
+              "indoorOutdoor": "outdoor"
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "바다·해안",
+        "travelMonth:8"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "여수시는 바다·해안 명소가 집중돼 요청 테마에 적합합니다.",
+        "다양한 해변과 등대가 있어 1박 2일 일정에 알맞습니다.",
+        "활기찬 바닷가와 조용한 휴식 공간을 모두 제공합니다."
+      ],
+      "itineraryFlowReason": "첫날 바다 풍경을 탐험하고, 둘째 날 해변과 등대를 둘러보는 흐름",
+      "confidence": 0.76,
+      "userNotice": "선택한 도시의 해당 월은 평년 기준 비가 잦고 야외 일정 비중이 높아, 실내 중심 대체 일정을 함께 검토할 수 있습니다. 요청한 장소를 같은 일정 안에서 대체했습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "modify",
+    "sessionId": "v2-live-slot-replace-0705",
+    "threadId": "v2-live-slot-replace-0705",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen02-20260704-01-seed-replace-query",
+    "elapsedSeconds": 9.191,
+    "recommendationId": "slot-replace-live-gen02-20260704-01-seed-replace-query",
+    "destinationId": "KR-38-13",
+    "destinationName": "여수시",
+    "dayCount": 2,
+    "itemCount": 5,
+    "clarificationReason": null
+  }
+}

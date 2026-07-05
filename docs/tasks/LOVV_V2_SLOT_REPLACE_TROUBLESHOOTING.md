@@ -199,3 +199,56 @@ Graph compile:
 ```powershell
 .venv\Scripts\python.exe -c "from lovv_agent_v2.core.graph import compile_v2_graph; compile_v2_graph(); print('compile_v2_graph ok')"
 ```
+
+## 9. 2026-07-06 Day Regenerate Timeout Was a Weather Routing Loop
+
+Observed:
+- `1일차 전체 바꿔줘` day-regenerate live smoke timed out at about 180 seconds.
+- A stream log showed the graph had already passed `intent -> supervisor -> planner -> supervisor -> explain_itinerary`.
+- After that, it looped rapidly between:
+
+```text
+supervisor -> weather_alternative -> supervisor -> weather_alternative -> ...
+```
+
+Cause:
+- `weather_alternative_node` returned early when `planner_output.itinerary` was empty.
+- That early return did not write `validation_result.weather_audit`.
+- Supervisor therefore saw post-explain planner output with no completed post-explain weather audit and routed back to `weather_alternative` forever.
+
+Resolution:
+- Empty itinerary now receives a weather audit:
+  - `status=unavailable`
+  - `evaluation_stage=post_explain`
+  - `unavailable_reason=empty_itinerary`
+- Supervisor can then continue to response packaging instead of looping.
+- Regression test:
+  - `test_weather_node_marks_empty_itinerary_as_processed_after_explain`
+
+## 10. 2026-07-06 Checkpoint-less Modify Is a Defense Test, Not the Service Path
+
+Observed:
+- A queryless day-regenerate smoke using a fresh session completed after the weather-loop fix, but initially returned `dayCount=0`, `itemCount=0`.
+
+Cause:
+- Normal modify requests are expected to use the same `threadId/sessionId` as the original generation.
+- The fresh-session smoke had `currentOrder`, but no checkpointed `planner_output`.
+- `day_regenerate_update` built the new itinerary from previous planner output only, so there was no base item list to rewrite.
+
+Decision:
+- The primary service path remains checkpoint-backed modify.
+- `currentOrder` is still a valid frontend truth source and should prevent catastrophic empty responses when checkpoint state is missing or stale.
+
+Resolution:
+- `day_regenerate_update` now falls back to full `currentOrder` when previous planner output has no itinerary.
+- This is defensive behavior for local smoke and degraded recovery, not a replacement for checkpointer-backed modify.
+- Regression test:
+  - `test_apply_edit_day_regenerate_uses_current_order_without_checkpoint_output`
+
+Live confirmation:
+- `docs/tasks/results/v2_general_live_smoke/20260705T181943Z_residual-dayregen-queryless.json`
+- Result:
+  - destination: `KR-47-770 / 영덕군`
+  - day 1 regenerated
+  - day 2 preserved
+  - `dayCount=2`, `itemCount=6`

@@ -1,0 +1,461 @@
+{
+  "event": {
+    "entryType": "clarify",
+    "selectedOptionId": "search_other_city",
+    "sessionId": "v2-live-gen-insufficient-other-city-0705",
+    "threadId": "v2-live-gen-insufficient-other-city-0705",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-gen-insufficient-other-city-0705-clarify"
+  },
+  "response": {
+    "recommendationId": "v2-live-gen-insufficient-other-city-0705-create",
+    "expiresAt": "2026-07-05T14:52:37Z",
+    "destination": {
+      "destinationId": "KR-33-2",
+      "name": "단양군",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#129193",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "소선암자연휴양림",
+              "body": "선암계곡과 온열테라피로 힐링을 즐긴다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-33-2",
+              "theme": "온천·휴양",
+              "moveMinutes": 0,
+              "latitude": 36.9185756949,
+              "longitude": 128.3095443831,
+              "indoorOutdoor": "mixed"
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#407236",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 2,
+              "title": "국립 황정산자연휴양림",
+              "body": "황정산 숲속 숙소와 산책로로 몸과 마음을 회복한다.",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-33-2",
+              "theme": "온천·휴양",
+              "moveMinutes": 0,
+              "latitude": 36.8412603023,
+              "longitude": 128.3489930942,
+              "indoorOutdoor": "mixed"
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "온천·휴양",
+        "travelMonth:12"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "두 휴양림 모두 온천·휴양 테마를 만족한다.",
+        "자연 속 숙박 시설로 편안한 1박 2일 회복 여행이다."
+      ],
+      "itineraryFlowReason": "첫날 소선암자연휴양림에서 휴식하고 둘째날 황정산자연휴양림으로 이동해 힐링을 이어갑니다.",
+      "confidence": 0.35,
+      "userNotice": "조건을 만족하는 장소 수가 부족해 대안 도시 재실행이 필요할 수 있습니다. 대안 도시 후보를 함께 남겨 후속 재실행에 사용할 수 있습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {},
+    "clarification": {
+      "reasonCode": "generation_insufficient_candidates",
+      "prompt": "조건에 맞는 일정 후보가 부족합니다. 조건을 완화하거나 다른 도시를 찾아볼까요?",
+      "options": [
+        {
+          "optionId": "relax_generation_themes",
+          "label": "테마 완화",
+          "helperText": "필수 테마 조건을 넓혀 같은 요청으로 다시 찾습니다.",
+          "apply": {
+            "includeFestivals": null,
+            "destinationId": null,
+            "destinationLabel": null,
+            "festivalId": null,
+            "festivalLabel": null,
+            "allowTentativeFestivals": null,
+            "acceptedFestivalRisk": null,
+            "travelMonth": null,
+            "activeRequiredThemes": [
+              "바다·해안",
+              "자연·트레킹",
+              "역사·전통",
+              "예술·감성",
+              "온천·휴양"
+            ],
+            "dislikedCityIds": null,
+            "festivalThemeAgnostic": null
+          },
+          "then": "rerun_discovery"
+        },
+        {
+          "optionId": "search_other_city",
+          "label": "다른 도시 찾아보기",
+          "helperText": "현재 도시는 제외하고 같은 조건에 더 맞는 다른 도시를 찾습니다.",
+          "apply": {
+            "includeFestivals": null,
+            "destinationId": null,
+            "destinationLabel": null,
+            "festivalId": null,
+            "festivalLabel": null,
+            "allowTentativeFestivals": null,
+            "acceptedFestivalRisk": null,
+            "travelMonth": null,
+            "activeRequiredThemes": null,
+            "dislikedCityIds": [
+              "KR-33-2"
+            ],
+            "festivalThemeAgnostic": null
+          },
+          "then": "rerun_discovery"
+        }
+      ],
+      "context": {
+        "selected_city_id": "KR-33-2",
+        "validation_result": {
+          "planner_status_gate": "insufficient_candidates",
+          "alternative_city_recommended": "KR-31-10",
+          "selection_audit": {
+            "relevance_ratio": null,
+            "relative_threshold": null,
+            "raw_relevance_policy": "disabled_use_active_theme_gate",
+            "raw_kept_count": 3,
+            "seed_preserved_count": 1,
+            "semantic_anchor_seed_count": 0,
+            "semantic_anchor_seed_ids": [],
+            "semantic_anchor_seed_policy": "theme_top1_after_planner_gate",
+            "soft_threshold": null,
+            "soft_relevance_policy": "disabled_use_theme_gate",
+            "soft_on_theme_added_count": 0,
+            "preferred_theme_backfill_count": 0,
+            "preferred_themes": [],
+            "soft_off_theme_excluded_count": 34,
+            "raw_soft_overlap_count": 2,
+            "no_theme_gate_added_count": 0,
+            "no_theme_gate_policy": "disabled_by_v2_26_theme_scope",
+            "facet_expansion_added_count": 0,
+            "off_theme_excluded_count": 68,
+            "theme_scope_policy": "active_theme_only_no_facet_expansion",
+            "theme_quota": {
+              "온천·휴양": 6
+            },
+            "theme_counts": {
+              "온천·휴양": 2
+            },
+            "subtype_counts": {
+              "NA040600": 2
+            },
+            "subtype_cap_policy": "per_theme_quota_distinct_subtype_cap",
+            "subtype_cap_limit": 6,
+            "subtype_cap_limits": {
+              "온천·휴양": 6
+            },
+            "subtype_cap_relaxed": true,
+            "availability_policy": "unknown_availability_kept_with_audit",
+            "profile_cap_policy": "profile_cap_not_applied_without_profile_payload",
+            "min_count": 4,
+            "target_count": 6,
+            "selected_count": 2,
+            "routable_count": 2
+          },
+          "route_audit": {
+            "duration_unit": "minutes",
+            "duration_profile": "driving-car",
+            "fallback_used": "",
+            "max_leg_min": null,
+            "soft_leg_limit_min": null,
+            "day_limit_min": 180.0,
+            "hard_leg_limit_min": 120.0,
+            "outlier_anchor_policy": "medoid_not_farthest",
+            "transport_notice": "",
+            "trimmed_place_ids": [],
+            "snap_provider": "ors_external",
+            "snap_profile": "driving-car",
+            "snap_fallback_used": false,
+            "snap_radius_m": 300.0,
+            "snapped_place_ids": [
+              "attraction#129193",
+              "attraction#407236"
+            ],
+            "unroutable_place_ids": [],
+            "matrix_provider": "ors_external",
+            "ors_source": "ors",
+            "day_place_targets": [
+              3,
+              3
+            ],
+            "day_min_place_targets": [
+              2,
+              2
+            ],
+            "place_density_policy": "edge_days_lighter",
+            "trim_floor_policy": "preserve_min_day_place_targets",
+            "cross_day_rescued_place_ids": []
+          },
+          "planner_audit": {
+            "subgraph_nodes": [
+              "retrieve_places",
+              "route_days",
+              "assemble_itinerary"
+            ],
+            "thin_city_fallback_policy": "alternative_city_notice",
+            "itinerary_count": 2
+          },
+          "itinerary_structure": {
+            "days": [
+              {
+                "day": 1,
+                "anchor_place_id": "attraction#129193",
+                "anchor_type": "seed",
+                "places": [
+                  {
+                    "place": {
+                      "key": "attraction#129193#0",
+                      "place_id": "attraction#129193",
+                      "distance": 0.7446508407592773,
+                      "entity_type": "attraction",
+                      "city_id": "KR-33-2",
+                      "city_name_ko": "단양군",
+                      "title": "소선암자연휴양림",
+                      "theme_tags": [
+                        "온천·휴양"
+                      ],
+                      "latitude": 36.9185756949,
+                      "longitude": 128.3095443831,
+                      "ddb_pk": "CITY#DANYANG",
+                      "ddb_sk": "ATTRACTION#129193",
+                      "metadata": {
+                        "ddb_sk": "ATTRACTION#129193",
+                        "latitude": 36.9185756949,
+                        "country": "KR",
+                        "city_name_en": "DANYANG",
+                        "entity_type": "attraction",
+                        "embedding_model": "amazon.titan-embed-text-v2:0",
+                        "raw_s3_uri": "raw/KR/details/20260629/DANYANG.json",
+                        "longitude": 128.3095443831,
+                        "attraction_subtype_code": "NA040600",
+                        "schema_version": "2",
+                        "companion_fit": [
+                          "family",
+                          "kids",
+                          "couple",
+                          "solo",
+                          "parents",
+                          "seniors",
+                          "pet"
+                        ],
+                        "title": "소선암자연휴양림",
+                        "ddb_pk": "CITY#DANYANG",
+                        "experience_tags": [
+                          "walking",
+                          "nature_observation",
+                          "hands_on_experience"
+                        ],
+                        "place_id": "attraction#129193",
+                        "city_id": "KR-33-2",
+                        "indoor_outdoor": "mixed",
+                        "province": "충청북도",
+                        "theme_tags": [
+                          "온천·휴양"
+                        ],
+                        "vibe_tags": [
+                          "healing",
+                          "relaxing",
+                          "forest_view",
+                          "mountain_view",
+                          "autumn_leaves"
+                        ],
+                        "source_type": "attraction",
+                        "source_id": "129193",
+                        "city_name_ko": "단양군"
+                      },
+                      "details": null,
+                      "indoor_outdoor": "mixed",
+                      "attraction_subtype_code": "NA040600",
+                      "raw_similarity": 0.25534915924072266,
+                      "score_audit": {
+                        "score_components": {
+                          "raw_similarity": 0.25534915924072266,
+                          "soft_similarity": 0.2687528729438782,
+                          "raw_soft_blended_similarity": 0.2594
+                        }
+                      },
+                      "soft_similarity": 0.2687528729438782,
+                      "raw_soft_blended_similarity": 0.2594,
+                      "retrieval_channels": [
+                        "raw",
+                        "soft"
+                      ],
+                      "assigned_theme": null,
+                      "similarity": 0.25534915924072266,
+                      "is_seed": true
+                    },
+                    "move_min_from_prev": 0
+                  }
+                ],
+                "day_travel_min": 0
+              },
+              {
+                "day": 2,
+                "anchor_place_id": "attraction#407236",
+                "anchor_type": "medoid",
+                "places": [
+                  {
+                    "place": {
+                      "key": "attraction#407236#0",
+                      "place_id": "attraction#407236",
+                      "distance": 0.8177481293678284,
+                      "entity_type": "attraction",
+                      "city_id": "KR-33-2",
+                      "city_name_ko": "단양군",
+                      "title": "국립 황정산자연휴양림",
+                      "theme_tags": [
+                        "온천·휴양"
+                      ],
+                      "latitude": 36.8412603023,
+                      "longitude": 128.3489930942,
+                      "ddb_pk": "CITY#DANYANG",
+                      "ddb_sk": "ATTRACTION#407236",
+                      "metadata": {
+                        "schema_version": "2",
+                        "experience_tags": [
+                          "walking",
+                          "hands_on_experience",
+                          "nature_observation"
+                        ],
+                        "ddb_sk": "ATTRACTION#407236",
+                        "place_id": "attraction#407236",
+                        "indoor_outdoor": "mixed",
+                        "country": "KR",
+                        "title": "국립 황정산자연휴양림",
+                        "city_name_en": "DANYANG",
+                        "companion_fit": [
+                          "family",
+                          "kids",
+                          "couple",
+                          "solo",
+                          "seniors",
+                          "parents"
+                        ],
+                        "source_type": "attraction",
+                        "city_name_ko": "단양군",
+                        "latitude": 36.8412603023,
+                        "ddb_pk": "CITY#DANYANG",
+                        "province": "충청북도",
+                        "vibe_tags": [
+                          "refreshing",
+                          "healing",
+                          "forest_view",
+                          "mountain_view",
+                          "peaceful"
+                        ],
+                        "theme_tags": [
+                          "온천·휴양"
+                        ],
+                        "longitude": 128.3489930942,
+                        "raw_s3_uri": "raw/KR/details/20260629/DANYANG.json",
+                        "entity_type": "attraction",
+                        "embedding_model": "amazon.titan-embed-text-v2:0",
+                        "attraction_subtype_code": "NA040600",
+                        "city_id": "KR-33-2",
+                        "source_id": "407236"
+                      },
+                      "details": null,
+                      "indoor_outdoor": "mixed",
+                      "attraction_subtype_code": "NA040600",
+                      "raw_similarity": 0.18225187063217163,
+                      "score_audit": {
+                        "score_components": {
+                          "raw_similarity": 0.18225187063217163,
+                          "soft_similarity": 0.20320117473602295,
+                          "raw_soft_blended_similarity": 0.1885
+                        }
+                      },
+                      "soft_similarity": 0.20320117473602295,
+                      "raw_soft_blended_similarity": 0.1885,
+                      "retrieval_channels": [
+                        "raw",
+                        "soft"
+                      ],
+                      "assigned_theme": null,
+                      "similarity": 0.18225187063217163,
+                      "is_seed": false
+                    },
+                    "move_min_from_prev": 0
+                  }
+                ],
+                "day_travel_min": 0
+              }
+            ],
+            "reserve": []
+          },
+          "weather_audit": {
+            "status": "unavailable",
+            "overall": null,
+            "risk_dimensions": {},
+            "reason_codes": [],
+            "notice_level": "none",
+            "should_offer_alternative": false,
+            "known_item_count": 2,
+            "weather_sensitive_item_count": 2,
+            "weather_sensitive_ratio": null,
+            "exposure_counts": {
+              "outdoor": 0,
+              "indoor": 0,
+              "mixed": 2,
+              "unknown": 0
+            },
+            "evaluation_stage": "post_explain",
+            "unavailable_reason": "city_weather_map_missing"
+          },
+          "detail_enrichment_warning_count": 0,
+          "planner_copy_generation_used_llm": true,
+          "itinerary_explanation_item_count": 2
+        }
+      },
+      "failureSignals": [
+        "insufficient_planner_candidates"
+      ]
+    }
+  },
+  "summary": {
+    "entryType": "clarify",
+    "sessionId": "v2-live-gen-insufficient-other-city-0705",
+    "threadId": "v2-live-gen-insufficient-other-city-0705",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-gen-insufficient-other-city-0705-clarify",
+    "elapsedSeconds": 27.666,
+    "recommendationId": "v2-live-gen-insufficient-other-city-0705-create",
+    "destinationId": "KR-33-2",
+    "destinationName": "단양군",
+    "dayCount": 2,
+    "itemCount": 2,
+    "clarificationReason": "generation_insufficient_candidates"
+  }
+}

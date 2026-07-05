@@ -1,0 +1,25 @@
+{
+  "id": "v2_gen_short_07_healing_2d1n",
+  "scenario_ref": "SC-입력형태",
+  "note": "짧은 입력(힐링)",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 6,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "온천·휴양"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "조용히 쉬고 싶어",
+    "soft_preference_query": "",
+    "congestion_pref": "quiet",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "짧은 힐링 입력, 희소 테마 fallback 확인"
+}

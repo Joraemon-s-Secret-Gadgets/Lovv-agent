@@ -1,0 +1,191 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 8,
+    "travelYear": 2026,
+    "tripType": "2d1n",
+    "themes": [
+      "바다·해안"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "활기찬 바닷가 핫플 위주로 1박 2일 신나게 보내고 싶어요.",
+    "softPreferenceQuery": "사람들로 북적이고 생기 넘치는 활기찬 바닷가 분위기.",
+    "congestionPref": "vibrant",
+    "transportPref": "unknown",
+    "sessionId": "v2-live-slot-replace-fail-0705",
+    "threadId": "v2-live-slot-replace-fail-0705",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-slot-replace-fail-0705-create"
+  },
+  "response": {
+    "recommendationId": "v2-live-slot-replace-fail-0705-create",
+    "expiresAt": "2026-07-05T14:55:31Z",
+    "destination": {
+      "destinationId": "KR-38-13",
+      "name": "여수시",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#988129",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "거문도 신선바위",
+              "body": "신선바위에서 바다와 등산 풍경 감상",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 34.0123585069,
+              "longitude": 127.3072485707,
+              "indoorOutdoor": "outdoor"
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#127547",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 2,
+              "title": "만성리 검은모래해변",
+              "body": "검은 모래 해변에서 시원한 바다와 모래찜질 체험",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 34.7771528453,
+              "longitude": 127.7447914615,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#128753",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 3,
+              "title": "모사금해수욕장",
+              "body": "고운 백사장과 낚시 포인트를 즐기는 해변",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 3,
+              "latitude": 34.7965564174,
+              "longitude": 127.7557650074,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#129152",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 4,
+              "title": "오동도 등대",
+              "body": "등대와 기암절벽을 둘러보며 바다 전경 감상",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 13,
+              "latitude": 34.7444013572,
+              "longitude": 127.7678097276,
+              "indoorOutdoor": "mixed"
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#2795106",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 4,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "여수신항",
+              "body": "신항 주변 해양 풍경과 역사적 분위기 탐방",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 9,
+              "latitude": 34.7432290287,
+              "longitude": 127.7541303976,
+              "indoorOutdoor": "outdoor"
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#2783148",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 5,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "국동항",
+              "body": "수산물 집산지와 수변공원에서 바다 여유 체험",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-13",
+              "theme": "바다·해안",
+              "moveMinutes": 10,
+              "latitude": 34.7263609059,
+              "longitude": 127.7213781344,
+              "indoorOutdoor": "outdoor"
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "바다·해안",
+        "travelMonth:8"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "여수시의 해안 테마가 활기찬 바닷가 체험에 최적이다",
+        "선택된 장소들이 모두 바다·해안 분위기를 제공한다",
+        "1박 2일 일정으로 주요 해변과 등대를 효율적으로 탐방 가능하다"
+      ],
+      "itineraryFlowReason": "첫날 바다 풍경을 탐험하고 둘째날 해변과 등대로 여유를 마무리한다",
+      "confidence": 0.76,
+      "userNotice": "선택한 도시의 해당 월은 평년 기준 비가 잦고 야외 일정 비중이 높아, 실내 중심 대체 일정을 함께 검토할 수 있습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "v2-live-slot-replace-fail-0705",
+    "threadId": "v2-live-slot-replace-fail-0705",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-slot-replace-fail-0705-create",
+    "elapsedSeconds": 25.549,
+    "recommendationId": "v2-live-slot-replace-fail-0705-create",
+    "destinationId": "KR-38-13",
+    "destinationName": "여수시",
+    "dayCount": 2,
+    "itemCount": 6,
+    "clarificationReason": null
+  }
+}

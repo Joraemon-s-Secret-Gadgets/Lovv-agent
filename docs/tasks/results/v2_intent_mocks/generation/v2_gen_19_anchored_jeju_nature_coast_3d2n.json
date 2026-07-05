@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_19_anchored_jeju_nature_coast_3d2n",
+  "scenario_ref": "SC-ANCH-19",
+  "note": "앵커 고정: 제주 자연+해안 2박 3일",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 4,
+    "travel_year": 2026,
+    "trip_type": "3d2n",
+    "active_required_themes": [
+      "자연·트레킹",
+      "바다·해안"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "제주시에서 오름과 바다를 함께 보는 2박 3일 코스를 원해요.",
+    "soft_preference_query": "탁 트인 풍경과 쉬운 산책이 섞인 자연 여행.",
+    "congestion_pref": "neutral",
+    "transport_pref": "car",
+    "destination_id": "KR-39-4",
+    "user_location": null,
+    "execution_mode": "anchored_place_search",
+    "fixed_city_id": "KR-39-4",
+    "unsupported_conditions": []
+  },
+  "expected": "대형 후보 풀에서 planner quota와 route split 확인"
+}

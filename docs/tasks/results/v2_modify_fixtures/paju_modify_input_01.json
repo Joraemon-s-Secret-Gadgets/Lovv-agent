@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "purpose": "수정(modification) 입력 픽스처 — V2_11 계약을 실제 성공 생성결과(v2_gen_08 파주)에 박아 edit_mode 설계를 구동.",
+    "source_generation": "docs/tasks/results/v2_generation_planner_smoke/20260630T133535Z/v2_gen_08_history_nature_2d1n_userloc.json",
+    "scenario": "사용자가 (1) front 드래그로 D1의 2·3번째 순서를 바꾸고, (2) D1 저녁의 비-seed 슬롯을 '조용한 자연 산책'으로 교체 요청.",
+    "note_gaps_exposed": [
+      "reserve=0 → 교체는 재인출 필수(스왑 불가)",
+      "D1 afternoon 항목 2개 → target {day,time_slot}만으론 슬롯 지정 불가(항목 단위 식별 필요)",
+      "역사 비-seed를 자연으로 교체 → 테마 균형 역사2/자연2 → 역사1/자연3 (재균형 정책 필요)",
+      "front 순서 변경이 slot 라벨(slot_label_for_order)을 바꾸는가? 배열=front이면 slot은 재유도되어야"
+    ]
+  },
+
+  "thread_id": "smoke-v2_gen_08-paju-0001",
+
+  "resume_context": {
+    "_from": "checkpoint(생성 시 persist된 UnifiedAgentState)",
+    "selected_city": {
+      "city_id": "KR-31-27", "city_name_ko": "파주시", "country": "KR",
+      "ddb_pk": "CITY#PAJU", "province": "경기도"
+    },
+    "trip_type": "2d1n",
+    "active_required_themes": ["역사·전통", "자연·트레킹"],
+    "cleaned_raw_query": "역사 유적과 자연을 함께 보고 싶고, 이동 부담은 적었으면 해요. 1박 2일이요.",
+    "soft_preference_query": "고즈넉하고 차분하게 둘러볼 수 있는 분위기.",
+    "transport_pref": "unknown",
+    "congestion_pref": "neutral",
+    "user_location": {"latitude": 37.5665, "longitude": 126.978},
+    "seeds": [
+      {"placeId": "attraction#2569494", "theme": "역사·전통", "title": "파주 가월리와 주월리 유적"},
+      {"placeId": "attraction#2764911", "theme": "자연·트레킹", "title": "교하중앙공원"}
+    ]
+  },
+
+  "current_itinerary_from_front": {
+    "_rule": "배열·순서는 front가 정본(드래그 반영본). is_seed는 front가 표시해 동봉(V2_11). slot 라벨은 배열 순서로 재유도 대상.",
+    "_reorder_applied": "원본 D1 순서 [가월리주월리(seed), 율곡습지공원, 이이유적] → front가 율곡습지공원과 이이유적의 순서를 맞바꿈.",
+    "tripType": "2d1n",
+    "days": [
+      {"day": 1, "items": [
+        {"order": 1, "slot": "afternoon", "placeId": "attraction#2569494", "title": "파주 가월리와 주월리 유적", "theme_tags": ["역사·전통"], "is_seed": true,  "ddb_pk": "CITY#PAJU", "ddb_sk": "ATTRACTION#2569494"},
+        {"order": 2, "slot": "afternoon", "placeId": "attraction#127691",  "title": "파주 이이 유적",        "theme_tags": ["역사·전통"], "is_seed": false, "ddb_pk": "CITY#PAJU", "ddb_sk": "ATTRACTION#127691"},
+        {"order": 3, "slot": "evening",   "placeId": "attraction#2609813", "title": "파주 율곡습지공원",      "theme_tags": ["자연·트레킹"], "is_seed": false, "ddb_pk": "CITY#PAJU", "ddb_sk": "ATTRACTION#2609813"}
+      ]},
+      {"day": 2, "items": [
+        {"order": 1, "slot": "morning", "placeId": "attraction#2764911", "title": "교하중앙공원", "theme_tags": ["자연·트레킹"], "is_seed": true, "ddb_pk": "CITY#PAJU", "ddb_sk": "ATTRACTION#2764911"}
+      ]}
+    ]
+  },
+
+  "modify_result": {
+    "_from": "Intent 수정 파싱(현재 modify_parser.py는 스텁 — 이 출력이 목표 형태)",
+    "kind": "slot_replace",
+    "raw_modify_query": "1일차 오후 이이 유적 말고, 조용히 산책하기 좋은 자연 쪽으로 바꿔줘.",
+    "edit_ops": [
+      {
+        "target": {"day": 1, "time_slot": "afternoon", "placeId": "attraction#127691"},
+        "_target_note": "D1 afternoon은 2개(가월리주월리 seed + 이이 유적)라 time_slot만으론 지정 불가 → placeId로 항목 단위 지정(설계 제안). 대상 이이 유적은 재배열 뒤 afternoon 위치.",
+        "op": "REPLACE",
+        "condition": {"mood": "차분한", "place_type": "자연 산책로", "themes_hint": ["자연·트레킹"]}
+      }
+    ],
+    "reset": null
+  }
+}

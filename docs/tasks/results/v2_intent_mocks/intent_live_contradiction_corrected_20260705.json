@@ -1,0 +1,12 @@
+{
+  "entryType": "create",
+  "country": "KR",
+  "travelMonth": 8,
+  "travelYear": 2026,
+  "tripType": "daytrip",
+  "themes": [
+    "바다·해안"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "강릉 바다 당일 여행지를 추천해줘."
+}

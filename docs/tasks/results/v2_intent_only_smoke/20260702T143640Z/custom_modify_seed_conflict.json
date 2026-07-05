@@ -1,0 +1,58 @@
+{
+  "case_id": "custom_modify_seed_conflict",
+  "source": "inline",
+  "summary": {
+    "intent_type": "modification",
+    "status": "needs_clarification",
+    "kind": "slot_replace",
+    "routing_hint": "response_packager_wait_user",
+    "edit_ops_count": 0,
+    "clarification_reason": "modify_seed_theme_conflict",
+    "themes": [],
+    "soft_preference_query": null,
+    "congestion_pref": null,
+    "transport_pref": null
+  },
+  "output": {
+    "intent": {
+      "intent_type": "modification",
+      "status": "needs_clarification",
+      "thread_id": "thread-smoke",
+      "itinerary_revision": "rev-smoke",
+      "raw_modify_query": "1일차 오전 핵심 유적 말고 자연 산책지로 바꿔줘.",
+      "kind": "slot_replace",
+      "edit_ops": [],
+      "city_change": null,
+      "clarification": {
+        "reason_code": "modify_seed_theme_conflict",
+        "prompt": "seed replacement requires same theme",
+        "options": []
+      },
+      "unsupported_reasons": [],
+      "routing_hint": "response_packager_wait_user",
+      "audit": {
+        "message": "User requested replace seed attraction with nature walk, but seed replacement requires same theme. Needs clarification."
+      },
+      "modify_intent": {
+        "intent_type": "modification",
+        "status": "needs_clarification",
+        "thread_id": "thread-smoke",
+        "itinerary_revision": "rev-smoke",
+        "raw_modify_query": "1일차 오전 핵심 유적 말고 자연 산책지로 바꿔줘.",
+        "kind": "slot_replace",
+        "edit_ops": [],
+        "city_change": null,
+        "clarification": {
+          "reason_code": "modify_seed_theme_conflict",
+          "prompt": "seed replacement requires same theme",
+          "options": []
+        },
+        "unsupported_reasons": [],
+        "routing_hint": "response_packager_wait_user",
+        "audit": {
+          "message": "User requested replace seed attraction with nature walk, but seed replacement requires same theme. Needs clarification."
+        }
+      }
+    }
+  }
+}

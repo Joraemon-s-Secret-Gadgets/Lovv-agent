@@ -1,0 +1,268 @@
+{
+  "event": {
+    "entryType": "modify",
+    "sessionId": "slot-replace-live-gen17-20260704-01",
+    "threadId": "slot-replace-live-gen17-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen17-20260704-01-replace-no-query-run",
+    "itineraryRevision": "rev-live-gen17-slot-replace-no-query",
+    "destinationId": "KR-1-23",
+    "rawModifyQuery": "1일차 2번째 장소 바꿔줘.",
+    "currentOrder": [
+      {
+        "itemId": "item-1",
+        "contentId": "attraction#127642",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 1,
+        "title": "창덕궁과 후원 [유네스코 세계유산]",
+        "isSeed": true,
+        "cityId": "KR-1-23",
+        "theme": "역사·전통",
+        "latitude": 37.5777031595,
+        "longitude": 126.9902446339,
+        "timeOfDay": "afternoon",
+        "sortOrder": 1
+      },
+      {
+        "itemId": "item-2",
+        "contentId": "attraction#126537",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 2,
+        "title": "북촌한옥마을",
+        "isSeed": false,
+        "cityId": "KR-1-23",
+        "theme": "역사·전통",
+        "latitude": 37.5790529392,
+        "longitude": 126.9867060298,
+        "timeOfDay": "afternoon",
+        "sortOrder": 2
+      },
+      {
+        "itemId": "item-3",
+        "contentId": "attraction#129760",
+        "itemType": "attraction",
+        "day": 1,
+        "order": 3,
+        "title": "환기미술관",
+        "isSeed": false,
+        "cityId": "KR-1-23",
+        "theme": "예술·감성",
+        "latitude": 37.5940980426,
+        "longitude": 126.9661269237,
+        "timeOfDay": "evening",
+        "sortOrder": 3
+      },
+      {
+        "itemId": "item-4",
+        "contentId": "attraction#129903",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 1,
+        "title": "동산방화랑",
+        "isSeed": true,
+        "cityId": "KR-1-23",
+        "theme": "예술·감성",
+        "latitude": 37.5729813628,
+        "longitude": 126.9833898373,
+        "timeOfDay": "morning",
+        "sortOrder": 4
+      },
+      {
+        "itemId": "item-5",
+        "contentId": "attraction#2739448",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 2,
+        "title": "공근혜갤러리",
+        "isSeed": false,
+        "cityId": "KR-1-23",
+        "theme": "예술·감성",
+        "latitude": 37.5840827831,
+        "longitude": 126.9796815273,
+        "timeOfDay": "afternoon",
+        "sortOrder": 5
+      },
+      {
+        "itemId": "item-6",
+        "contentId": "attraction#2993372",
+        "itemType": "attraction",
+        "day": 2,
+        "order": 3,
+        "title": "윤동주 하숙집 터",
+        "isSeed": false,
+        "cityId": "KR-1-23",
+        "theme": "역사·전통",
+        "latitude": 37.5815022773,
+        "longitude": 126.9656884317,
+        "timeOfDay": "afternoon",
+        "sortOrder": 6
+      }
+    ]
+  },
+  "response": {
+    "recommendationId": "slot-replace-live-gen17-20260704-01-replace-no-query-run",
+    "expiresAt": "2026-07-04T10:40:14Z",
+    "destination": {
+      "destinationId": "KR-1-23",
+      "name": "종로구",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#127642",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "창덕궁과 후원 [유네스코 세계유산]",
+              "body": "왕궁 건축과 비밀 후원을 관람합니다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-1-23",
+              "theme": "역사·전통",
+              "moveMinutes": 0,
+              "latitude": 37.5777031595,
+              "longitude": 126.9902446339
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#129838",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 2,
+              "title": "성균관대학교 인문사회과학캠퍼스박물관",
+              "body": "수정 요청에 맞춰 대체한 방문지입니다.",
+              "reason": "기존 슬롯을 유지하면서 후보 적합성과 이동 가능성을 확인했습니다.",
+              "isSeed": false,
+              "cityId": "KR-1-23",
+              "theme": "역사·전통",
+              "moveMinutes": 0,
+              "latitude": 37.5849607702,
+              "longitude": 126.9969632609
+            },
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#129760",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 3,
+              "timeOfDay": "evening",
+              "sortOrder": 3,
+              "title": "환기미술관",
+              "body": "현대미술 전시를 감상하며 예술 감성을 즐깁니다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-1-23",
+              "theme": "예술·감성",
+              "moveMinutes": 48,
+              "latitude": 37.5940980426,
+              "longitude": 126.9661269237
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#129903",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 4,
+              "title": "동산방화랑",
+              "body": "전시된 작품을 관람하며 문화적 여유를 갖습니다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-1-23",
+              "theme": "예술·감성",
+              "moveMinutes": 0,
+              "latitude": 37.5729813628,
+              "longitude": 126.9833898373
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#2739448",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "공근혜갤러리",
+              "body": "다양한 현대 미술 전시를 관람해 예술을 체험합니다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-1-23",
+              "theme": "예술·감성",
+              "moveMinutes": 20,
+              "latitude": 37.5840827831,
+              "longitude": 126.9796815273
+            },
+            {
+              "itemId": "item-6",
+              "contentId": "attraction#2993372",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 6,
+              "title": "윤동주 하숙집 터",
+              "body": "시인 윤동주의 흔적을 찾아 소박한 역사 현장을 탐방합니다.",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-1-23",
+              "theme": "역사·전통",
+              "moveMinutes": 20,
+              "latitude": 37.5815022773,
+              "longitude": 126.9656884317
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "역사·전통",
+        "예술·감성",
+        "travelMonth:11"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "종로구는 역사와 예술이 공존하는 지역입니다.",
+        "선택한 명소들이 골목·전시·저녁 산책을 모두 충족합니다."
+      ],
+      "itineraryFlowReason": "역사 명소를 시작으로 골목과 미술관을 거쳐 저녁 활기와 문화 체험으로 마무리합니다.",
+      "confidence": 0.76,
+      "userNotice": "walk 선호 기준으로 종로구는 대중교통이나 차량 이동을 권장합니다. 요청한 장소를 같은 일정 안에서 대체했습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "modify",
+    "sessionId": "slot-replace-live-gen17-20260704-01",
+    "threadId": "slot-replace-live-gen17-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen17-20260704-01-replace-no-query-run",
+    "elapsedSeconds": 10.622,
+    "recommendationId": "slot-replace-live-gen17-20260704-01-replace-no-query-run",
+    "destinationId": "KR-1-23",
+    "destinationName": "종로구",
+    "dayCount": 2,
+    "itemCount": 6,
+    "clarificationReason": null
+  }
+}

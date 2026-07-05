@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_short_10_multi_history_art",
+  "scenario_ref": "SC-입력형태",
+  "note": "짧은 입력(역사+예술)",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 11,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "역사·전통",
+      "예술·감성"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "역사랑 전시",
+    "soft_preference_query": "",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "짧은 복합 테마, soft 없이 theme coverage 확인"
+}

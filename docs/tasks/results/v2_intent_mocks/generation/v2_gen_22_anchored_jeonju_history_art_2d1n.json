@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_22_anchored_jeonju_history_art_2d1n",
+  "scenario_ref": "SC-ANCH-22",
+  "note": "앵커 고정: 전주 역사+예술",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 5,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "역사·전통",
+      "예술·감성"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "전주에서 한옥마을만이 아니라 전시와 문화 공간까지 묶어서 1박 2일로 보고 싶어요.",
+    "soft_preference_query": "전통적인 분위기와 감각적인 문화 공간이 이어지는 도보 중심 일정.",
+    "congestion_pref": "neutral",
+    "transport_pref": "walk",
+    "destination_id": "KR-37-12",
+    "user_location": null,
+    "execution_mode": "anchored_place_search",
+    "fixed_city_id": "KR-37-12",
+    "unsupported_conditions": []
+  },
+  "expected": "anchored 복합 테마와 도보 동선 확인"
+}

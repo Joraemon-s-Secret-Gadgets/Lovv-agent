@@ -1,0 +1,25 @@
+{
+  "id": "v2_gen_short_04_anchored_donghae_coast",
+  "scenario_ref": "SC-입력형태",
+  "note": "짧은 입력(앵커 해안)",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 8,
+    "travel_year": 2026,
+    "trip_type": "daytrip",
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "동해 바다",
+    "soft_preference_query": "",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown",
+    "destination_id": "KR-51-170",
+    "user_location": null,
+    "execution_mode": "anchored_place_search",
+    "fixed_city_id": "KR-51-170",
+    "unsupported_conditions": []
+  },
+  "expected": "짧은 앵커 입력, V2 city_id 기반 anchored_place_search"
+}

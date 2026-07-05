@@ -1,0 +1,25 @@
+{
+  "id": "v2_gen_06_healing_2d1n",
+  "scenario_ref": "SC-00",
+  "note": "단일 온천·휴양(구체화)",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 12,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "온천·휴양"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "온천에서 푹 쉬며 몸과 마음을 회복하는 힐링 1박 2일이요.",
+    "soft_preference_query": "따뜻한 온천에서 평온하고 나른하게 쉴 수 있는 분위기.",
+    "congestion_pref": "quiet",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "온천·휴양 단일"
+}

@@ -1,0 +1,169 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 5,
+    "travelYear": 2026,
+    "tripType": "2d1n",
+    "themes": [
+      "바다·해안",
+      "예술·감성"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "바닷가 풍경도 보고 작은 미술관이나 벽화마을도 들르는 1박 2일 여행을 원해요.",
+    "softPreferenceQuery": "사진 찍기 좋고 산책하기 편한 해안 예술 마을 분위기.",
+    "congestionPref": "neutral",
+    "transportPref": "unknown",
+    "sessionId": "slot-replace-live-gen15-20260704-01",
+    "threadId": "slot-replace-live-gen15-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen15-20260704-01-create"
+  },
+  "response": {
+    "recommendationId": "slot-replace-live-gen15-20260704-01-create",
+    "expiresAt": "2026-07-04T10:37:10Z",
+    "destination": {
+      "destinationId": "KR-38-12",
+      "name": "신안군",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#2705310",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "저녁노을미술관",
+              "body": "저녁노을을 배경으로 그림 감상",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-38-12",
+              "theme": "예술·감성",
+              "moveMinutes": 0,
+              "latitude": 34.844567344,
+              "longitude": 126.249768553
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#2742145",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "evening",
+              "sortOrder": 2,
+              "title": "채일봉 전망대",
+              "body": "전망대에서 섬과 바다 전경 감상",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-12",
+              "theme": "예술·감성",
+              "moveMinutes": 32,
+              "latitude": 34.7830358757,
+              "longitude": 126.1084075294
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#126723",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 3,
+              "title": "추포해변",
+              "body": "추포해변에서 바닷가 풍경 감상",
+              "reason": "요청 테마를 대표하는 장소라 일정에 우선 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-38-12",
+              "theme": "바다·해안",
+              "moveMinutes": 0,
+              "latitude": 34.8053493653,
+              "longitude": 126.0674578474
+            },
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#3352606",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 4,
+              "title": "1004섬 수석미술관&수석정원",
+              "body": "수석미술관과 정원에서 조각과 자연 감상",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-12",
+              "theme": "예술·감성",
+              "moveMinutes": 28,
+              "latitude": 34.8801314547,
+              "longitude": 125.9968817711
+            },
+            {
+              "itemId": "item-5",
+              "contentId": "attraction#127757",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 3,
+              "timeOfDay": "afternoon",
+              "sortOrder": 5,
+              "title": "분계해변",
+              "body": "분계해변에서 바다와 소나무 숲 산책",
+              "reason": "요청 분위기와 테마가 함께 맞아 작업셋에 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-38-12",
+              "theme": "바다·해안",
+              "moveMinutes": 4,
+              "latitude": 34.8708766886,
+              "longitude": 125.9810139529
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "바다·해안",
+        "예술·감성",
+        "travelMonth:5"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "신안군은 바다와 예술이 어우러진 장소다.",
+        "다양한 해변과 미술관이 1박 2일 일정에 적합하다.",
+        "자연과 문화 탐방을 동시에 할 수 있다."
+      ],
+      "itineraryFlowReason": "첫날 바다와 전망을, 둘째 날 문화와 해변을 차례로 즐깁니다.",
+      "confidence": 0.76,
+      "userNotice": ""
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "slot-replace-live-gen15-20260704-01",
+    "threadId": "slot-replace-live-gen15-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen15-20260704-01-create",
+    "elapsedSeconds": 22.937,
+    "recommendationId": "slot-replace-live-gen15-20260704-01-create",
+    "destinationId": "KR-38-12",
+    "destinationName": "신안군",
+    "dayCount": 2,
+    "itemCount": 5,
+    "clarificationReason": null
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 11,
+    "travelYear": 2026,
+    "tripType": "2d1n",
+    "themes": [
+      "예술·감성"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "미술관과 감성적인 골목, 전시를 둘러보는 1박 2일이요.",
+    "softPreferenceQuery": "차분하고 감성적인, 사진 찍기 좋은 분위기.",
+    "congestionPref": "neutral",
+    "transportPref": "unknown",
+    "sessionId": "slot-replace-live-gen05-20260704-01",
+    "threadId": "slot-replace-live-gen05-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen05-20260704-01-create"
+  },
+  "response": {
+    "recommendationId": "slot-replace-live-gen05-20260704-01-create",
+    "expiresAt": "2026-07-04T10:27:30Z",
+    "destination": {
+      "destinationId": "KR-51-810",
+      "name": "인제군",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#1835658",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "afternoon",
+              "sortOrder": 1,
+              "title": "내설악 백공미술관",
+              "body": "전시실에서 정·동 테마 작품 감상하고 조각 공원 산책",
+              "reason": "요청한 미술관 테마를 대표하는 장소라 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-51-810",
+              "theme": "예술·감성",
+              "moveMinutes": 0,
+              "latitude": 38.2132523005745,
+              "longitude": 128.362122716697
+            },
+            {
+              "itemId": "item-2",
+              "contentId": "attraction#2514804",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 2,
+              "timeOfDay": "evening",
+              "sortOrder": 2,
+              "title": "진부령미술관",
+              "body": "이중섭 상설 전시실에서 작가 자료와 대형 황소 작품 감상",
+              "reason": "요청 테마에 맞는 대표 미술관이어서 선택했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-810",
+              "theme": "예술·감성",
+              "moveMinutes": 10,
+              "latitude": 38.2654124845,
+              "longitude": 128.3588495234
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "items": [
+            {
+              "itemId": "item-3",
+              "contentId": "attraction#2773530",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 3,
+              "title": "공립인제내설악미술관",
+              "body": "현대미술 전시와 교육 프로그램을 통해 예술 체험",
+              "reason": "미술관 중심 일정에 부합하는 장소라 포함했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-810",
+              "theme": "예술·감성",
+              "moveMinutes": 0,
+              "latitude": 38.1455549761,
+              "longitude": 128.2533294992
+            },
+            {
+              "itemId": "item-4",
+              "contentId": "attraction#2773563",
+              "itemType": "attraction",
+              "day": 2,
+              "order": 2,
+              "timeOfDay": "afternoon",
+              "sortOrder": 4,
+              "title": "목공예 갤러리",
+              "body": "목공예 작품 전시 및 제작 과정 관람, 체험 프로그램 참여",
+              "reason": "예술 감성을 확장할 수 있는 독특한 체험 장소라 선택했습니다.",
+              "isSeed": false,
+              "cityId": "KR-51-810",
+              "theme": "예술·감성",
+              "moveMinutes": 15,
+              "latitude": 38.0644585009167,
+              "longitude": 128.174265091633
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "예술·감성",
+        "travelMonth:11"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "인제군 내에 다양한 미술관이 집중돼 1박 2일 일정에 효율적입니다.",
+        "자연 속 전시 공간과 목공예 체험으로 감성적인 골목 느낌을 충족합니다."
+      ],
+      "itineraryFlowReason": "첫날은 백공미술관과 진부령미술관을, 둘째 날은 내설악미술관과 목공예 갤러리를 차례로 방문합니다.",
+      "confidence": 0.76,
+      "userNotice": ""
+    },
+    "festivalDateVerifications": [],
+    "links": {}
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "slot-replace-live-gen05-20260704-01",
+    "threadId": "slot-replace-live-gen05-20260704-01",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "slot-replace-live-gen05-20260704-01-create",
+    "elapsedSeconds": 13.999,
+    "recommendationId": "slot-replace-live-gen05-20260704-01-create",
+    "destinationId": "KR-51-810",
+    "destinationName": "인제군",
+    "dayCount": 2,
+    "itemCount": 4,
+    "clarificationReason": null
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_31_history_healing_elder_2d1n",
+  "scenario_ref": "SC-COV-31",
+  "note": "자유 탐색: 역사+힐링, 이동 부담 낮게",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 10,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "역사·전통",
+      "온천·휴양"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "부모님과 오래 걷지 않고 역사적인 분위기와 편안한 휴식을 함께 느끼고 싶어요.",
+    "soft_preference_query": "이동 부담이 낮고 조용한 전통 여행.",
+    "congestion_pref": "quiet",
+    "transport_pref": "car",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "history+healing 복합에서 희소 테마 처리 확인"
+}

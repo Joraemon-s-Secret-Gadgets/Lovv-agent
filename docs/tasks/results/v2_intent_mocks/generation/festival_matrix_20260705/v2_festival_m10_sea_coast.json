@@ -1,0 +1,25 @@
+{
+  "id": "v2_festival_m10_sea_coast",
+  "scenario_ref": "FESTIVAL-MATRIX",
+  "note": "festival live matrix 10월 바다·해안",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 10,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "바다·해안"
+    ],
+    "include_festivals": true,
+    "cleaned_raw_query": "해안 축제와 바다 산책을 함께 즐기고 싶어요. 10월에 확정된 축제가 있는 도시로 1박 2일 여행을 추천해줘.",
+    "soft_preference_query": "해안 축제와 바다 산책을 함께 즐기고 싶어요.",
+    "congestion_pref": "neutral",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "festival gate month-theme matrix smoke"
+}

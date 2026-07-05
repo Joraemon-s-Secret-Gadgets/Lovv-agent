@@ -1,6 +1,6 @@
 # V2_45 Slot Replace Implementation Directive
 
-Status: implementation directive draft - waiting for final user edits
+Status: implemented baseline - slot replace and day regenerate live verified
 Date: 2026-07-04
 
 This document freezes the implementation direction for the first slot-replace slice.
@@ -12,6 +12,7 @@ Implement slot replacement, including small multi-slot replacement batches.
 
 In scope:
 - One or more target itinerary item replacements.
+- One day-level regeneration request.
 - `currentOrder` as the canonical latest itinerary order.
 - Planner-owned replacement execution.
 - Reserve-pool first path for queryless replace.
@@ -25,6 +26,7 @@ Out of scope for this slice:
 - Atomic rollback for multi-edit.
 - Add/remove/reorder/trip length/booking execution.
 - City-change execution.
+- Full-trip regeneration.
 
 ## 2. Confirmed Decisions
 
@@ -150,9 +152,10 @@ Example:
 Policy:
 1. Do not prioritize old reserve pool.
 2. Retrieve with the replacement query only.
-3. Apply theme filter if parser extracted a replacement theme.
-4. If no theme exists, filter only by city and existing-item exclusion.
-5. Exclude all current itinerary content ids plus already consumed candidates.
+3. Do not hard-filter by theme during retrieval.
+4. If parser extracted a replacement theme, use it as a soft priority only.
+5. If no theme exists, rank by raw replacement-query similarity after city and existing-item exclusion.
+6. Exclude all current itinerary content ids plus already consumed candidates.
 
 Reason:
 The user gave a new edit condition, so the replacement candidate should be grounded in that condition rather than in the previous generation reserve.
@@ -261,7 +264,29 @@ Therefore, a pending clarification followed by slot replacement is not a support
 `memory.pending_clarification` remains the resume source for clarification entry points only.
 Modify entry points should not try to merge old pending clarification with new slot edits.
 
-## 7. Response Contract
+## 7. Day Regenerate Behavior
+
+Example:
+
+```text
+1일차 전체 바꿔줘.
+```
+
+Policy:
+- Treat this as a planner edit op distinct from slot replace.
+- Regenerate only the requested day.
+- Preserve all non-target days.
+- Use `currentOrder` as the canonical itinerary order.
+- Queryless path uses the current reserve pool first, then conservative same-city residual retrieval.
+- Query path retrieves with the day-level replacement query.
+- Candidate selection uses medoid-first ordering and hard-leg feasibility.
+- Existing itinerary content ids and previous replacement history are excluded.
+
+Important boundary:
+- Normal service modify requests should run with the same `threadId/sessionId` so checkpointed `planner_output`, reserve pool, and memory are available.
+- If checkpoint state is missing but `currentOrder` is present, the implementation falls back to `currentOrder` to avoid empty itinerary responses. This is a defensive behavior, not the primary service path.
+
+## 8. Response Contract
 
 Successful slot replace response:
 - `response_status=modification_pending`
@@ -292,11 +317,11 @@ Failed slot replace response:
 Clarification scope for this slice:
 - build the structured `END_WAIT_USER` clarification payload from `failed_edit`.
 - rely on the existing LangGraph interrupt/resume plumbing to pause and receive a resume value.
-- store resume input as the existing `clarification_resume` surface when it returns.
-- do not implement application-level resume decision handling in this slice.
-- do not apply option `then/apply` actions yet; that loop will be implemented in a later clarification-resume task.
+- `broaden_replace_theme` resumes slot replace with relaxed theme constraints.
+- `keep_current_itinerary` preserves the current itinerary as `modification_pending`.
+- other natural-language clarification answer handling remains later scope.
 
-## 8. Implementation Tasks
+## 9. Implementation Tasks
 
 1. Update current order resolver.
    - request `currentOrder` first.
@@ -326,6 +351,7 @@ Clarification scope for this slice:
 7. Add candidate selection.
    - queryless: reserve first, retrieval fallback.
    - query-based: retrieval only.
+   - theme from modify query: soft priority, not retrieval filter.
 
 8. Add route feasibility retry.
    - reject hard-leg violations.
@@ -346,7 +372,14 @@ Clarification scope for this slice:
      `docs/tasks/results/v2_intent_mocks/generation/v2_gen_04_history_2d1n.json`,
      because these modify samples were built from that generated itinerary.
 
-## 9. Related Files
+11. Add day regenerate baseline.
+   - parse one-day full replacement requests.
+   - route `kind=day_regenerate` to planner apply-edit.
+   - regenerate only the requested day.
+   - preserve non-target days.
+   - use checkpoint planner state when present and `currentOrder` fallback only as a defense.
+
+## 10. Related Files
 
 Intent:
 - `src/lovv_agent_v2/agents/intent/modify_parser.py`
@@ -366,3 +399,34 @@ Response:
 
 Samples:
 - `docs/tasks/results/v2_intent_mocks/modify/`
+
+## 11. Final Progress Update - 2026-07-06
+
+Implemented:
+- deterministic and LLM-assisted slot target parsing, including Korean ordinal forms;
+- same-day multi-slot replace with sequential fold;
+- queryless slot replace reserve-first path with same-city residual retrieval fallback;
+- query-based slot replace with no theme hard filter and optional theme soft priority;
+- existing itinerary item exclusion for newly retrieved candidates;
+- seed same-theme enforcement and route-infeasible failure handling;
+- day regenerate for one requested day, preserving other days;
+- currentOrder fallback for day regenerate when checkpoint planner output is missing;
+- supervisor guards for stale modify responses and day-regenerate routing;
+- empty-itinerary weather audit completion to avoid supervisor/weather loops.
+
+Live evidence:
+- `docs/tasks/results/v2_general_live_smoke/20260705T175519Z_residual-slot-queryless.json`
+  - queryless slot replace: `영해향교 -> 축산항`;
+  - response stayed 2 days / 6 items.
+- `docs/tasks/results/v2_general_live_smoke/20260705T181943Z_residual-dayregen-queryless.json`
+  - day 1 regenerated to `축산항`, `철암산 화석산지 (경북 동해안 국가지질공원)`, `부흥해변`;
+  - day 2 preserved;
+  - response stayed 2 days / 6 items.
+
+Focused verification:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests\v2\test_planner_slot_replace_backfill.py tests\v2\test_planner_day_regenerate.py tests\v2\test_planner_apply_edit.py tests\v2\test_planner_apply_edit_multi.py tests\v2\test_planner_apply_edit_theme_priority.py tests\v2\test_planner_apply_edit_seed_policy.py tests\v2\test_weather_alternative.py::test_weather_node_marks_empty_itinerary_as_processed_after_explain tests\v2\test_modify_intent_dispatch.py::test_resolve_modify_intent_keeps_rule_day_regenerate_without_prompt -q
+```
+
+Result: `18 passed`.

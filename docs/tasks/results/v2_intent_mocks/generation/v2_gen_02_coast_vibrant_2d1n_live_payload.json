@@ -1,0 +1,15 @@
+{
+  "entryType": "create",
+  "country": "KR",
+  "travelMonth": 8,
+  "travelYear": 2026,
+  "tripType": "2d1n",
+  "themes": [
+    "바다·해안"
+  ],
+  "includeFestivals": false,
+  "naturalLanguageQuery": "활기찬 바닷가 핫플 위주로 1박 2일 신나게 보내고 싶어요.",
+  "softPreferenceQuery": "사람들로 북적이고 생기 넘치는 활기찬 바닷가 분위기.",
+  "congestionPref": "vibrant",
+  "transportPref": "unknown"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "v2_gen_17_history_art_vibrant_2d1n",
+  "scenario_ref": "SC-COV-17",
+  "note": "자유 탐색: 역사+예술, 활기 선호",
+  "intent_output": {
+    "country": "KR",
+    "travel_month": 11,
+    "travel_year": 2026,
+    "trip_type": "2d1n",
+    "active_required_themes": [
+      "역사·전통",
+      "예술·감성"
+    ],
+    "include_festivals": false,
+    "cleaned_raw_query": "역사 골목과 전시 공간을 함께 보고 저녁에는 활기 있는 동네를 걷고 싶어요.",
+    "soft_preference_query": "전통적인 거리와 현대적인 문화 공간이 함께 있는 lively한 분위기.",
+    "congestion_pref": "vibrant",
+    "transport_pref": "unknown",
+    "destination_id": null,
+    "user_location": null,
+    "execution_mode": "city_discovery",
+    "fixed_city_id": null,
+    "unsupported_conditions": []
+  },
+  "expected": "history+art 복합 랭킹과 vibrant 선호 확인"
+}

@@ -1,0 +1,350 @@
+{
+  "event": {
+    "entryType": "create",
+    "country": "KR",
+    "travelMonth": 12,
+    "travelYear": 2026,
+    "tripType": "2d1n",
+    "themes": [
+      "온천·휴양"
+    ],
+    "includeFestivals": false,
+    "naturalLanguageQuery": "온천에서 푹 쉬며 몸과 마음을 회복하는 힐링 1박 2일이요.",
+    "sessionId": "v2-live-gen-insufficient-relax-0705b",
+    "threadId": "v2-live-gen-insufficient-relax-0705b",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-gen-insufficient-relax-0705b-create"
+  },
+  "response": {
+    "recommendationId": "v2-live-gen-insufficient-relax-0705b-create",
+    "expiresAt": "2026-07-05T14:50:31Z",
+    "destination": {
+      "destinationId": "KR-2-4",
+      "name": "남동구",
+      "country": "KR",
+      "region": null
+    },
+    "itinerary": {
+      "tripType": "2d1n",
+      "days": [
+        {
+          "day": 1,
+          "items": [
+            {
+              "itemId": "item-1",
+              "contentId": "attraction#3422770",
+              "itemType": "attraction",
+              "day": 1,
+              "order": 1,
+              "timeOfDay": "morning",
+              "sortOrder": 1,
+              "title": "인천대공원 치유숲길",
+              "body": "평탄한 숲길을 걸으며 자연 소리와 향기를 즐겨 몸과 마음을 회복합니다.",
+              "reason": "요청한 온천·휴양 테마를 대표하는 장소이므로 포함했습니다.",
+              "isSeed": true,
+              "cityId": "KR-2-4",
+              "theme": "온천·휴양",
+              "moveMinutes": 0,
+              "latitude": 37.4577461335,
+              "longitude": 126.749303301,
+              "indoorOutdoor": "outdoor"
+            }
+          ]
+        }
+      ]
+    },
+    "explainability": {
+      "matchedConditions": [
+        "온천·휴양",
+        "travelMonth:12"
+      ],
+      "unsupportedConditions": [],
+      "recommendationReasons": [
+        "치유숲길은 자연 속에서 스트레스를 풀며 몸과 마음을 회복할 수 있는 곳입니다.",
+        "평탄한 산책로와 휴식 공간이 있어 편안한 힐링 활동에 적합합니다."
+      ],
+      "itineraryFlowReason": "첫날 남동구 인천대공원 치유숲길을 방문해 여유롭게 힐링합니다.",
+      "confidence": 0.35,
+      "userNotice": "조건을 만족하는 장소 수가 부족해 대안 도시 재실행이 필요할 수 있습니다. 대안 도시 후보를 함께 남겨 후속 재실행에 사용할 수 있습니다."
+    },
+    "festivalDateVerifications": [],
+    "links": {},
+    "clarification": {
+      "reasonCode": "generation_insufficient_candidates",
+      "prompt": "조건에 맞는 일정 후보가 부족합니다. 조건을 완화하거나 다른 도시를 찾아볼까요?",
+      "options": [
+        {
+          "optionId": "relax_generation_themes",
+          "label": "테마 완화",
+          "helperText": "필수 테마 조건을 넓혀 같은 요청으로 다시 찾습니다.",
+          "apply": {
+            "includeFestivals": null,
+            "destinationId": null,
+            "destinationLabel": null,
+            "festivalId": null,
+            "festivalLabel": null,
+            "allowTentativeFestivals": null,
+            "acceptedFestivalRisk": null,
+            "travelMonth": null,
+            "activeRequiredThemes": [
+              "바다·해안",
+              "자연·트레킹",
+              "역사·전통",
+              "예술·감성",
+              "온천·휴양"
+            ],
+            "dislikedCityIds": null,
+            "festivalThemeAgnostic": null
+          },
+          "then": "rerun_discovery"
+        },
+        {
+          "optionId": "search_other_city",
+          "label": "다른 도시 찾아보기",
+          "helperText": "현재 도시는 제외하고 같은 조건에 더 맞는 다른 도시를 찾습니다.",
+          "apply": {
+            "includeFestivals": null,
+            "destinationId": null,
+            "destinationLabel": null,
+            "festivalId": null,
+            "festivalLabel": null,
+            "allowTentativeFestivals": null,
+            "acceptedFestivalRisk": null,
+            "travelMonth": null,
+            "activeRequiredThemes": null,
+            "dislikedCityIds": [
+              "KR-2-4"
+            ],
+            "festivalThemeAgnostic": null
+          },
+          "then": "rerun_discovery"
+        }
+      ],
+      "context": {
+        "selected_city_id": "KR-2-4",
+        "validation_result": {
+          "planner_status_gate": "insufficient_candidates",
+          "alternative_city_recommended": "KR-31-10",
+          "selection_audit": {
+            "relevance_ratio": null,
+            "relative_threshold": null,
+            "raw_relevance_policy": "disabled_use_active_theme_gate",
+            "raw_kept_count": 2,
+            "seed_preserved_count": 1,
+            "semantic_anchor_seed_count": 0,
+            "semantic_anchor_seed_ids": [],
+            "semantic_anchor_seed_policy": "theme_top1_after_planner_gate",
+            "soft_threshold": null,
+            "soft_relevance_policy": "disabled_use_theme_gate",
+            "soft_on_theme_added_count": 0,
+            "preferred_theme_backfill_count": 0,
+            "preferred_themes": [],
+            "soft_off_theme_excluded_count": 3,
+            "raw_soft_overlap_count": 1,
+            "no_theme_gate_added_count": 0,
+            "no_theme_gate_policy": "disabled_by_v2_26_theme_scope",
+            "facet_expansion_added_count": 0,
+            "off_theme_excluded_count": 7,
+            "theme_scope_policy": "active_theme_only_no_facet_expansion",
+            "theme_quota": {
+              "온천·휴양": 6
+            },
+            "theme_counts": {
+              "온천·휴양": 1
+            },
+            "subtype_counts": {
+              "NA040600": 1
+            },
+            "subtype_cap_policy": "per_theme_quota_distinct_subtype_cap",
+            "subtype_cap_limit": 6,
+            "subtype_cap_limits": {
+              "온천·휴양": 6
+            },
+            "subtype_cap_relaxed": true,
+            "availability_policy": "unknown_availability_kept_with_audit",
+            "profile_cap_policy": "profile_cap_not_applied_without_profile_payload",
+            "min_count": 4,
+            "target_count": 6,
+            "selected_count": 1,
+            "routable_count": 1
+          },
+          "route_audit": {
+            "duration_unit": "minutes",
+            "duration_profile": "driving-car",
+            "fallback_used": "ors_haversine",
+            "max_leg_min": null,
+            "soft_leg_limit_min": null,
+            "day_limit_min": 180.0,
+            "hard_leg_limit_min": 120.0,
+            "outlier_anchor_policy": "medoid_not_farthest",
+            "transport_notice": "",
+            "trimmed_place_ids": [],
+            "snap_provider": "ors_external",
+            "snap_profile": "driving-car",
+            "snap_fallback_used": false,
+            "snap_radius_m": 300.0,
+            "snapped_place_ids": [
+              "attraction#3422770"
+            ],
+            "unroutable_place_ids": [],
+            "matrix_provider": "ors_external",
+            "ors_source": "ors_haversine",
+            "day_place_targets": [
+              3
+            ],
+            "day_min_place_targets": [
+              2
+            ],
+            "place_density_policy": "edge_days_lighter",
+            "trim_floor_policy": "preserve_min_day_place_targets",
+            "cross_day_rescued_place_ids": []
+          },
+          "planner_audit": {
+            "subgraph_nodes": [
+              "retrieve_places",
+              "route_days",
+              "assemble_itinerary"
+            ],
+            "thin_city_fallback_policy": "alternative_city_notice",
+            "itinerary_count": 1
+          },
+          "itinerary_structure": {
+            "days": [
+              {
+                "day": 1,
+                "anchor_place_id": "attraction#3422770",
+                "anchor_type": "seed",
+                "places": [
+                  {
+                    "place": {
+                      "key": "attraction#3422770#0",
+                      "place_id": "attraction#3422770",
+                      "distance": 0.7248650789260864,
+                      "entity_type": "attraction",
+                      "city_id": "KR-2-4",
+                      "city_name_ko": "남동구",
+                      "title": "인천대공원 치유숲길",
+                      "theme_tags": [
+                        "온천·휴양"
+                      ],
+                      "latitude": 37.4577461335,
+                      "longitude": 126.749303301,
+                      "ddb_pk": "CITY#NAMDONG-GU",
+                      "ddb_sk": "ATTRACTION#3422770",
+                      "metadata": {
+                        "place_id": "attraction#3422770",
+                        "province": "인천",
+                        "entity_type": "attraction",
+                        "city_id": "KR-2-4",
+                        "title": "인천대공원 치유숲길",
+                        "embedding_model": "amazon.titan-embed-text-v2:0",
+                        "city_name_en": "NAMDONG-GU",
+                        "theme_tags": [
+                          "온천·휴양"
+                        ],
+                        "country": "KR",
+                        "ddb_pk": "CITY#NAMDONG-GU",
+                        "source_id": "3422770",
+                        "vibe_tags": [
+                          "healing",
+                          "calm",
+                          "peaceful",
+                          "meditative",
+                          "forest_view"
+                        ],
+                        "city_name_ko": "남동구",
+                        "longitude": 126.749303301,
+                        "raw_s3_uri": "raw/KR/details/20260629/NAMDONG-GU.json",
+                        "companion_fit": [
+                          "family",
+                          "kids",
+                          "seniors",
+                          "parents",
+                          "solo",
+                          "couple"
+                        ],
+                        "indoor_outdoor": "outdoor",
+                        "experience_tags": [
+                          "walking",
+                          "nature_observation",
+                          "slow_travel"
+                        ],
+                        "schema_version": "2",
+                        "latitude": 37.4577461335,
+                        "source_type": "attraction",
+                        "ddb_sk": "ATTRACTION#3422770",
+                        "attraction_subtype_code": "NA040600"
+                      },
+                      "details": null,
+                      "indoor_outdoor": "outdoor",
+                      "attraction_subtype_code": "NA040600",
+                      "raw_similarity": 0.2751349210739136,
+                      "score_audit": {
+                        "score_components": {
+                          "raw_similarity": 0.2751349210739136,
+                          "soft_similarity": 0.2666513919830322,
+                          "raw_soft_blended_similarity": 0.2726
+                        }
+                      },
+                      "soft_similarity": 0.2666513919830322,
+                      "raw_soft_blended_similarity": 0.2726,
+                      "retrieval_channels": [
+                        "raw",
+                        "soft"
+                      ],
+                      "assigned_theme": null,
+                      "similarity": 0.2751349210739136,
+                      "is_seed": true
+                    },
+                    "move_min_from_prev": 0
+                  }
+                ],
+                "day_travel_min": 0
+              }
+            ],
+            "reserve": []
+          },
+          "weather_audit": {
+            "status": "unavailable",
+            "overall": null,
+            "risk_dimensions": {},
+            "reason_codes": [],
+            "notice_level": "none",
+            "should_offer_alternative": false,
+            "known_item_count": 1,
+            "weather_sensitive_item_count": 1,
+            "weather_sensitive_ratio": null,
+            "exposure_counts": {
+              "unknown": 0,
+              "outdoor": 1,
+              "mixed": 0,
+              "indoor": 0
+            },
+            "evaluation_stage": "post_explain",
+            "unavailable_reason": "city_weather_map_missing"
+          },
+          "detail_enrichment_warning_count": 0,
+          "planner_copy_generation_used_llm": true,
+          "itinerary_explanation_item_count": 1
+        }
+      },
+      "failureSignals": [
+        "insufficient_planner_candidates"
+      ]
+    }
+  },
+  "summary": {
+    "entryType": "create",
+    "sessionId": "v2-live-gen-insufficient-relax-0705b",
+    "threadId": "v2-live-gen-insufficient-relax-0705b",
+    "actorId": "P00_new_user_uniform",
+    "requestId": "v2-live-gen-insufficient-relax-0705b-create",
+    "elapsedSeconds": 20.015,
+    "recommendationId": "v2-live-gen-insufficient-relax-0705b-create",
+    "destinationId": "KR-2-4",
+    "destinationName": "남동구",
+    "dayCount": 1,
+    "itemCount": 1,
+    "clarificationReason": "generation_insufficient_candidates"
+  }
+}
