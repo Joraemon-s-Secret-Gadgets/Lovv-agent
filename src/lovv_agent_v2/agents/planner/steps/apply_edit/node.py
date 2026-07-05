@@ -77,10 +77,15 @@ def _candidate_pool(
     payloads = _retrieved_candidates(state, operation, target, query) if query else _reserve_pool(state)
     excluded = _excluded_ids(state, target, condition)
     candidates = tuple(
-        _seed_adjusted(_coerced(candidate), operation, target)
+        _seed_adjusted(coerce_place(candidate), operation, target)
         for candidate in payloads
         if _candidate_id(candidate) not in excluded and _same_destination(candidate, state, target)
     )
+    policy = _mapping(operation.get("seed_policy"))
+    if policy.get("policy") == "same_theme_required":
+        required = _optional_text(policy.get("required_theme")) or _optional_text(target.get("theme"))
+        if required is not None:
+            candidates = tuple(place for place in candidates if required in place.theme_tags)
     themes = _preferred_themes(state, condition, target)
     sorted_candidates = sorted(candidates, key=selection_sort_key, reverse=True)
     if not themes:
@@ -161,10 +166,6 @@ def _excluded_ids(
     if target_id is not None:
         excluded.add(target_id)
     return {item for item in excluded if item}
-
-
-def _coerced(candidate: Mapping[str, Any]) -> PlannerPlace:
-    return coerce_place(candidate)
 
 
 def _seed_adjusted(place: PlannerPlace, operation: Mapping[str, Any], target: Mapping[str, Any]) -> PlannerPlace:
@@ -254,9 +255,7 @@ def _same_slot(item: Mapping[str, Any], target: Mapping[str, Any]) -> bool:
 
 def _operations(modify_intent: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
     ops = modify_intent.get("edit_ops")
-    if not isinstance(ops, list):
-        return ()
-    return tuple(op for op in ops if isinstance(op, Mapping))
+    return tuple(op for op in ops if isinstance(op, Mapping)) if isinstance(ops, list) else ()
 
 
 def _failed_edit(reason_code: str, **fields: Any) -> dict[str, Any]:
