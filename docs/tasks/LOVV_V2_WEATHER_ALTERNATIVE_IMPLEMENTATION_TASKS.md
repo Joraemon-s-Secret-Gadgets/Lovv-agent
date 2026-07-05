@@ -16,7 +16,7 @@ Implemented in the first slice:
 - Missing weather-map coverage is non-fatal:
   - `weather_audit.status = unavailable`
   - `weather_audit.unavailable_reason = city_weather_map_missing`
-- Response packager can expose `alternativeItinerary` when planner later provides one.
+- Response packager can expose `alternativeItinerary` after a user explicitly asks to view a weather backup.
 
 Not implemented yet:
 - Real alternative itinerary item generation.
@@ -26,6 +26,13 @@ Not implemented yet:
 ## 2. Design Constraints
 
 The primary itinerary must not be silently mutated.
+
+Weather alternatives should be generated on demand, not precomputed on every normal response.
+Reason:
+- many users will not choose the backup;
+- reserve/route checks add latency to the happy path;
+- the backup should be generated against the checkpointed current itinerary the user is responding to;
+- failure to build a backup can be explained at the moment the user asks for it.
 
 Weather handling is a backup surface:
 - same city only;
@@ -39,32 +46,101 @@ If the city is outside the weather map, record audit only and return the normal 
 
 ## 3. Remaining Implementation Tasks
 
-### 3.1 Reserve-based alternative generation
+### 3.0 Proposed module boundary
+
+Keep the weather decision policy separate from candidate replacement.
+
+Logical units:
+
+| unit | responsibility |
+|---|---|
+| `weather_alternative.policy` | weather risk level, exposure ratio, notice/offer decision |
+| `weather_alternative.exposure` | `indoor_outdoor` counting and sensitive-slot detection |
+| `weather_alternative.reserve_pool` | read reserve candidates from planner state without knowing weather policy |
+| `weather_alternative.indoor_search` | run same-city fallback retrieval when reserve candidates are insufficient |
+| `weather_alternative.replacement` | choose indoor/mixed replacements and preserve day/order shape |
+| `weather_alternative.route_check` | affected-day feasibility check using the same constraints as slot replace |
+| `response_packager` | expose `alternativeItinerary` and ask whether to view it |
+
+The policy module should not know where candidates came from.
+The replacement module should not decide whether the weather risk is high enough to ask the user.
+
+### 3.1 Request-time reserve-based alternative generation
 
 Use existing planner candidate reserves before doing any new retrieval.
+This step runs only after the user chooses `use_weather_alternative`.
 
 Candidate source priority:
-1. `planner.validation_result.itinerary_structure.reserve`
-2. `state.planner.modify_context.reserve_pool`
-3. selected-but-unused same-city planner pool if made available later
+1. `state.planner.modify_context.reserve_pool`
+2. `planner_output.validation_result.itinerary_structure.reserve`
+3. selected-but-unused same-city planner pool if exposed later
+4. same-city fallback retrieval with indoor-first selection
+
+Reserve candidate contract:
+
+```json
+{
+  "placeId": "attraction#...",
+  "title": "...",
+  "city_id": "KR-...",
+  "theme_tags": ["..."],
+  "indoor_outdoor": "indoor|outdoor|mixed|unknown",
+  "latitude": 0.0,
+  "longitude": 0.0,
+  "distance": 0.0
+}
+```
+
+Required fields for replacement:
+- `placeId` or `contentId`
+- `city_id`
+- `latitude`
+- `longitude`
+- `indoor_outdoor`
+
+Candidates missing coordinates are ignored for route-safe replacement.
 
 Replacement policy:
 - target only outdoor/mixed non-seed items;
 - prefer `indoor`;
 - allow `mixed` only when there are not enough indoor candidates;
+- add a user notice when `mixed` replacements are included;
+- never use `unknown` as a weather-safe replacement in the first slice;
 - keep the original day/order shape;
 - require same city id;
 - exclude current itinerary content ids.
+- exclude already used replacement ids while building the backup.
+- preserve festival/seed slots unless a later policy explicitly allows replacing them.
 
 Output:
-- `state.planner.alternative_itinerary`
-- `planner_output.alternative_itinerary`
+- `state.planner.weather_alternative_result`
+- `planner_output.alternative_itinerary` only in the response produced after user confirmation
 - `validation_result.weather_audit.alternative_generation`
 
+Alternative generation audit:
+
+```json
+{
+  "status": "not_needed|generated|no_candidate|route_infeasible",
+  "target_slot_count": 3,
+  "replaced_slot_count": 2,
+  "candidate_source": "modify_context.reserve_pool|validation_result.reserve|same_city_retrieval",
+  "rejected_counts": {
+    "current_itinerary": 0,
+    "wrong_city": 0,
+    "missing_coordinates": 0,
+    "not_weather_safe": 0,
+    "route_infeasible": 0
+  }
+}
+```
+
 Failure mode:
-- if reliable reserve candidates are insufficient, keep only the weather notice;
+- if reliable reserve candidates are insufficient, silently run same-city retrieval without theme filtering;
+- select fallback candidates as `indoor` first, then `mixed` if needed;
+- if fallback retrieval also cannot produce feasible replacements, return a user-visible no-backup notice;
 - do not fabricate indoor replacements.
-- if no feasible backup is produced, do not ask the user whether to view a weather alternative.
+- primary itinerary remains unchanged.
 
 ### 3.2 Affected-day route feasibility
 
@@ -80,22 +156,44 @@ If a replacement fails feasibility:
 - if none pass, record `alternative_generation = route_infeasible`;
 - keep primary itinerary unchanged.
 
-### 3.3 Optional retrieval fallback
+Route check scope:
+- only the day containing the replaced slot is recalculated;
+- other days remain byte-for-byte equivalent except metadata/audit additions;
+- hard leg threshold follows the current planner hard-leg rule;
+- walk-specific threshold applies only when `transport_pref=walk`.
 
-Only add this after reserve-based quality is measured.
+This mirrors slot replace: weather backup is a local patch, not full itinerary regeneration.
+
+### 3.3 Indoor-first retrieval fallback
+
+This fallback is part of the request-time generation path.
+Do not ask the user before running it.
 
 Fallback retrieval should:
 - search within the same city;
-- reuse active themes and weather-resilient subtype hints;
-- prefer indoor subtypes from `attraction_subtypes.json`;
+- ignore original themes if reserve candidates are insufficient;
+- rank `indoor` first and allow `mixed` only as a shortage fallback;
+- prefer weather-resilient indoor subtypes from `attraction_subtypes.json` when ranking;
+- exclude current itinerary content ids and already used replacement ids;
+- still pass affected-day route feasibility;
 - avoid raw weather reason codes in user-facing text.
 
-This should be a separate step from the first reserve-based implementation so the added S3 Vector cost is measurable.
+Indoor-first fallback result states:
+
+| status | meaning |
+|---|---|
+| `not_needed` | reserve candidates were enough |
+| `searched` | same-city fallback retrieval was attempted |
+| `generated` | fallback produced feasible replacements |
+| `no_candidate` | retrieval returned no usable indoor/mixed candidates |
+| `route_infeasible` | candidates existed but could not fit affected-day route constraints |
+
+Only `no_candidate` and `route_infeasible` should produce the final no-backup notice.
 
 ### 3.4 Weather clarification and resume
 
-Weather alternatives are precomputed before asking the user.
-The user chooses whether to view/apply that already-computed backup.
+Weather alternatives are not precomputed before asking the user.
+The normal response only detects risk and asks whether the user wants a backup.
 
 Target UX:
 
@@ -105,9 +203,11 @@ Target UX:
 ```
 
 If the user answers yes:
-- do not regenerate;
-- read the checkpointed `planner_output.alternative_itinerary`;
-- show that alternative itinerary as the new visible itinerary.
+- read checkpointed `planner_output.itinerary`, `weather_audit`, and reserve pool;
+- generate a same-city weather backup at that moment;
+- if reserve candidates are insufficient, run same-city retrieval without another user question;
+- if feasible, show the backup as `alternativeItinerary` or as the visible itinerary depending on final product UX;
+- if reserve plus fallback retrieval are both infeasible, return a clear notice that no reliable weather backup could be made.
 
 If the user answers no:
 - keep the primary itinerary unchanged.
@@ -119,19 +219,46 @@ Clarification shape:
   - `use_weather_alternative`
   - `keep_primary_itinerary`
 
+Public option text:
+
+```json
+{
+  "weather_alternative_available": {
+    "_prompt": "평년 기준 날씨 리스크가 높은 달이라 야외 일정 비중이 큽니다. 날씨 대체 일정을 보시겠습니까?",
+    "use_weather_alternative": {
+      "label": "대체 일정 보기",
+      "helperText": "현재 일정을 기준으로 실내 중심 대체 일정을 만들어 보여줍니다."
+    },
+    "keep_primary_itinerary": {
+      "label": "현재 일정 유지",
+      "helperText": "대체 일정은 적용하지 않고 현재 일정을 유지합니다."
+    }
+  }
+}
+```
+
+Prompt should be shown only if `weather_audit.status = alternative_available` and the checkpoint has enough itinerary context to attempt a backup.
+
 Checkpoint requirements:
 - preserve `planner_output.itinerary`;
-- preserve `planner_output.alternative_itinerary`;
 - preserve `validation_result.weather_audit`;
-- preserve enough response context to repackage without re-running retrieval.
+- preserve reserve candidates or enough same-city planner context to attempt request-time replacement;
+- preserve enough response context to repackage after request-time generation.
 
 Implementation split:
-- This weather task should implement precomputed `alternativeItinerary` and the clarification payload.
-- Application-level resume meaning handling may remain deferred until the global clarification loop is finished.
+- First implement the clarification prompt and checkpoint-safe resume marker.
+- Then implement `then=weather_alternative` as request-time backup generation.
+- Do not compute backup routes in the normal create/modify response.
+
+Current branch target:
+- create `weather_alternative_available` clarification when risk/exposure warrant it;
+- ensure checkpoint keeps primary itinerary and reserve context;
+- implement `weather_alternative` resume as the entrypoint for actual backup generation.
 
 Current expected behavior:
-- when `alternativeItinerary` exists, response may ask whether the user wants to view it;
-- user selection is not automatically applied through resume until the global resume handler consumes `weather_alternative`.
+- normal response asks whether the user wants a weather backup;
+- yes triggers request-time backup generation;
+- no keeps the primary itinerary.
 
 ### 3.5 Policy configurability
 
@@ -163,8 +290,33 @@ Metrics to record:
 - known exposure ratio;
 - weather-sensitive ratio;
 - notice level;
-- alternative generation status;
+- request-time alternative generation status;
 - route feasibility failures.
+
+### 3.7 Implementation progress 2026-07-05
+
+Implemented in the current scope:
+- `weather_audit.status=alternative_available` now produces `weather_alternative_available` clarification;
+- `use_weather_alternative` resume generates the backup at request time;
+- backup generation uses indoor reserve candidates first, then mixed candidates if indoor is insufficient;
+- same-city fallback retrieval runs without a theme filter and selects indoor first, mixed second;
+- mixed replacements add a user-facing notice that some places are indoor/outdoor mixed;
+- if indoor/mixed candidates remain insufficient, the primary itinerary is preserved with a failure notice;
+- map-missing weather cases remain audit-only and do not produce user-facing weather clarification.
+
+Live smoke evidence:
+- `20260705T150402Z_weather-donghae-create.json`: Donghae July coast create produced `weather_alternative_available`;
+- `20260705T150511Z_weather-donghae-alternative.json`: Donghae resume preserved primary itinerary under the earlier indoor-only policy;
+- `20260705T152115Z_weather-donghae-mixed-create.json`: Donghae July coast create still produced `weather_alternative_available`;
+- `20260705T152202Z_weather-donghae-mixed-alternative.json`: Donghae resume still preserved primary itinerary because usable indoor/mixed candidates were insufficient;
+- `20260705T150740Z_weather-gangneung-create.json`: Gangneung July coast create produced `weather_alternative_available`;
+- `20260705T150814Z_weather-gangneung-alternative.json`: Gangneung resume returned 6 indoor replacement items.
+
+Still open in this scope:
+- affected-day route feasibility is specified but not yet enforced in the weather backup generator;
+- `keep_primary_itinerary` should return a clean primary response without leaving the clarification block;
+- fallback candidate ranking is currently exposure-first only and does not yet use subtype duration/resilience weights;
+- weather backup smoke coverage is still limited to a few city-month cases.
 
 ## 4. Acceptance Criteria
 
@@ -172,8 +324,11 @@ The remaining implementation is complete when:
 - primary itinerary remains unchanged in all weather cases;
 - weather audit is present for every planner output;
 - map-missing cities return normal itineraries without user-visible weather notice;
-- high-risk outdoor-heavy cases either return a feasible `alternativeItinerary` or an explicit no-candidate audit;
-- weather alternative prompt is shown only when a feasible `alternativeItinerary` exists;
-- yes/no weather alternative options are checkpoint-safe and do not trigger regeneration by themselves;
+- high-risk outdoor-heavy cases ask whether the user wants a weather backup;
+- choosing yes attempts backup generation from checkpointed itinerary/reserve context;
+- reserve shortage triggers same-city fallback retrieval without an extra question;
+- choosing no preserves the primary itinerary;
+- if reserve plus fallback retrieval both fail, the response explains that no reliable weather-safe backup was found;
+- normal create/modify responses do not precompute route-safe backup itineraries;
 - response payload shape remains backward compatible;
 - targeted unit tests and at least one live smoke batch pass.
