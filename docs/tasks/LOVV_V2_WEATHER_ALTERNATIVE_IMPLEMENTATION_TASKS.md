@@ -21,8 +21,6 @@ Implemented in the first slice:
 
 Not implemented yet:
 - Weather-aware live smoke matrix.
-- Affected-day route feasibility for generated backup slots.
-- Clean primary response for `keep_primary_itinerary`.
 
 ## 2. Design Constraints
 
@@ -103,6 +101,8 @@ Candidates missing coordinates are ignored for route-safe replacement.
 
 Replacement policy:
 - target only outdoor/mixed non-seed items;
+- keep an existing seed when it is already `indoor`;
+- if the seed is weather-sensitive, choose the replacement seed first by day-center medoid distance, then search feasible combinations for the remaining targets;
 - prefer `indoor`;
 - allow `mixed` only when there are not enough indoor candidates;
 - add a user notice when `mixed` replacements are included;
@@ -153,7 +153,7 @@ Use the same route constraints already used by slot replace:
 - affected day only.
 
 If a replacement fails feasibility:
-- try the next reserve candidate;
+- try the next indoor/mixed candidate combination before giving up;
 - if none pass, record `alternative_generation = route_infeasible`;
 - keep primary itinerary unchanged.
 
@@ -302,6 +302,10 @@ Implemented in the current scope:
 - backup generation uses indoor reserve candidates first, then mixed candidates if indoor is insufficient;
 - same-city fallback retrieval runs without a theme filter and selects indoor first, mixed second;
 - mixed replacements add a user-facing notice that some places are indoor/outdoor mixed;
+- indoor seeds are preserved; weather-sensitive seeds are replaced first with a day-center medoid candidate and keep their seed flag;
+- generated backup slots pass affected-day travel-time hard-leg feasibility before being returned;
+- route-infeasible backup combinations are skipped before the primary itinerary is preserved;
+- `keep_primary_itinerary` returns the primary itinerary as `modification_pending` without a stale clarification block;
 - if indoor/mixed candidates remain insufficient, the primary itinerary is preserved with a failure notice;
 - map-missing weather cases remain audit-only and do not produce user-facing weather clarification.
 
@@ -337,8 +341,6 @@ Live verification conclusion:
 - Response contract: `indoorOutdoor` is present in public itinerary items and weather backup responses stay backward compatible.
 
 Still open in this scope:
-- affected-day route feasibility is specified but not yet enforced in the weather backup generator;
-- `keep_primary_itinerary` should return a clean primary response without leaving the clarification block;
 - fallback candidate ranking is currently exposure-first only and does not yet use subtype duration/resilience weights;
 - weather backup smoke coverage is still limited to a few city-month cases.
 

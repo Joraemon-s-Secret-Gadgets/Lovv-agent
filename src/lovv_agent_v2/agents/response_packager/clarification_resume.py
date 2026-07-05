@@ -7,6 +7,9 @@ from lovv_agent_v2.agents.intent.node import intent_node
 from lovv_agent_v2.agents.response_packager.weather_alternative_resume import (
     weather_alternative_response_update,
 )
+from lovv_agent_v2.agents.response_packager.weather_primary_resume import (
+    primary_weather_response_update,
+)
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
 
 
@@ -26,6 +29,8 @@ def response_resume_update(
         case "weather_alternative":
             return weather_alternative_response_update(state, response, action)
         case "abort":
+            if action["option_id"] == "keep_primary_itinerary":
+                return primary_weather_response_update(state, response, action)
             next_response = dict(response)
             next_response["clarification_resume"] = action
             return {"response": next_response}
