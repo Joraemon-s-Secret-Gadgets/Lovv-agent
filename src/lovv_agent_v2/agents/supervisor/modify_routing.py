@@ -24,7 +24,7 @@ def has_current_modify_response_payload(
     state: Mapping[str, Any],
     modify_intent: Mapping[str, Any],
 ) -> bool:
-    if modify_intent.get("kind") == "slot_replace":
+    if modify_intent.get("kind") in {"slot_replace", "day_regenerate"}:
         return _has_current_slot_replace_response(state)
     city_change = modify_intent.get("city_change")
     if not isinstance(city_change, Mapping):
@@ -67,7 +67,7 @@ def modify_intent_needs_response(modify_intent: Mapping[str, Any] | None) -> boo
         return True
     routing_hint = modify_intent.get("routing_hint")
     if routing_hint == "planner_apply_edit":
-        return not slot_replace_edit_is_supported(modify_intent)
+        return not planner_edit_is_supported(modify_intent)
     return routing_hint in {"response_packager_wait_user", "response_packager_notice"}
 
 
@@ -75,7 +75,7 @@ def modify_intent_routes_slot_replace_planner(
     state: Mapping[str, Any],
     modify_intent: Mapping[str, Any] | None,
 ) -> bool:
-    if modify_intent is None or not slot_replace_edit_is_supported(modify_intent):
+    if modify_intent is None or not planner_edit_is_supported(modify_intent):
         return False
     if slot_replace_applied(state) or slot_replace_failed(state):
         return False
@@ -90,6 +90,19 @@ def slot_replace_edit_is_supported(modify_intent: Mapping[str, Any]) -> bool:
         and modify_intent.get("routing_hint") == "planner_apply_edit"
         and isinstance(edit_ops, list)
         and len(edit_ops) >= 1
+    )
+
+
+def planner_edit_is_supported(modify_intent: Mapping[str, Any]) -> bool:
+    if slot_replace_edit_is_supported(modify_intent):
+        return True
+    day_regenerate = modify_intent.get("day_regenerate")
+    return (
+        modify_intent.get("status") == "ok"
+        and modify_intent.get("kind") == "day_regenerate"
+        and modify_intent.get("routing_hint") == "planner_apply_edit"
+        and isinstance(day_regenerate, Mapping)
+        and isinstance(day_regenerate.get("day"), int)
     )
 
 

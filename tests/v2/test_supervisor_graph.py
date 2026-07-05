@@ -284,6 +284,29 @@ def test_supervisor_routes_multi_slot_replace_to_planner() -> None:
     assert result["routing"]["next_node"] == "planner"
 
 
+def test_supervisor_routes_day_regenerate_to_planner() -> None:
+    result = supervisor_node(
+        {
+            "intent": {
+                "intent_type": "modification",
+                "status": "ok",
+                "modify_intent": {
+                    "status": "ok",
+                    "kind": "day_regenerate",
+                    "routing_hint": "planner_apply_edit",
+                    "day_regenerate": {"day": 1, "condition": {}},
+                },
+            },
+            "planner": {
+                "planner_output": {"itinerary": [{"title": "이전 장소"}]},
+                "validation_result": {"planner_status_gate": "ok"},
+            },
+        },
+    )
+
+    assert result["routing"]["next_node"] == "planner"
+
+
 def test_supervisor_routes_applied_slot_replace_to_explain() -> None:
     result = supervisor_node(
         {

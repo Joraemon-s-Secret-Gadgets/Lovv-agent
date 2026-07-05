@@ -61,7 +61,7 @@ def _entry_point(state: UnifiedAgentState) -> str:
         return "retrieve_places"
     if (
         modify_intent.get("status") == "ok"
-        and modify_intent.get("kind") == "slot_replace"
+        and modify_intent.get("kind") in {"slot_replace", "day_regenerate"}
         and modify_intent.get("routing_hint") == "planner_apply_edit"
     ):
         return "apply_edit"
