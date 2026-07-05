@@ -16,12 +16,13 @@ Implemented in the first slice:
 - Missing weather-map coverage is non-fatal:
   - `weather_audit.status = unavailable`
   - `weather_audit.unavailable_reason = city_weather_map_missing`
-- Response packager can expose `alternativeItinerary` after a user explicitly asks to view a weather backup.
+- Response packager asks `weather_alternative_available` when the weather audit says a backup can be offered.
+- `use_weather_alternative` resume generates a same-city backup at request time.
 
 Not implemented yet:
-- Real alternative itinerary item generation.
-- Weather-specific clarification prompt and resume action handling.
 - Weather-aware live smoke matrix.
+- Affected-day route feasibility for generated backup slots.
+- Clean primary response for `keep_primary_itinerary`.
 
 ## 2. Design Constraints
 
@@ -305,12 +306,35 @@ Implemented in the current scope:
 - map-missing weather cases remain audit-only and do not produce user-facing weather clarification.
 
 Live smoke evidence:
-- `20260705T150402Z_weather-donghae-create.json`: Donghae July coast create produced `weather_alternative_available`;
-- `20260705T150511Z_weather-donghae-alternative.json`: Donghae resume preserved primary itinerary under the earlier indoor-only policy;
-- `20260705T152115Z_weather-donghae-mixed-create.json`: Donghae July coast create still produced `weather_alternative_available`;
-- `20260705T152202Z_weather-donghae-mixed-alternative.json`: Donghae resume still preserved primary itinerary because usable indoor/mixed candidates were insufficient;
-- `20260705T150740Z_weather-gangneung-create.json`: Gangneung July coast create produced `weather_alternative_available`;
-- `20260705T150814Z_weather-gangneung-alternative.json`: Gangneung resume returned 6 indoor replacement items.
+- `20260705T150402Z_weather-donghae-create.json`
+  - input: July 2026, Donghae, `바다·해안`, anchored create;
+  - observed: primary response kept the outdoor-heavy coast itinerary and returned `weather_alternative_available`;
+  - evidence: public items preserved `indoorOutdoor=outdoor`, proving exposure tags survive to response packaging.
+- `20260705T150511Z_weather-donghae-alternative.json`
+  - input: `use_weather_alternative` resume for the same Donghae session;
+  - observed: primary itinerary was preserved because indoor-only replacement candidates were insufficient in that earlier slice;
+  - evidence: no fabricated indoor backup was returned.
+- `20260705T152115Z_weather-donghae-mixed-create.json`
+  - input: July 2026, Donghae, same coast request after `mixed` fallback support;
+  - observed: create still returned `weather_alternative_available`;
+  - evidence: weather prompt remained stable after allowing `mixed` as a shortage fallback.
+- `20260705T152202Z_weather-donghae-mixed-alternative.json`
+  - input: `use_weather_alternative` resume after `mixed` fallback support;
+  - observed: primary itinerary was still preserved because usable indoor/mixed candidates were insufficient;
+  - evidence: failure path remained conservative even after broadening from indoor-only to indoor+mixed.
+- `20260705T150740Z_weather-gangneung-create.json`
+  - input: July 2026, Gangneung, anchored coast create;
+  - observed: primary response returned `weather_alternative_available`;
+  - evidence: weather clarification is not Donghae-specific and works for another mapped coastal city.
+- `20260705T150814Z_weather-gangneung-alternative.json`
+  - input: `use_weather_alternative` resume for Gangneung;
+  - observed: response returned 6 replacement items, all `indoorOutdoor=indoor`;
+  - evidence: request-time backup generation can produce a visible indoor-centered itinerary when same-city candidates are available.
+
+Live verification conclusion:
+- Create path: weather risk detection and clarification offer are working for mapped high-risk coastal cities.
+- Resume path: successful backup generation works for Gangneung; conservative no-backup preservation works for Donghae when candidates are insufficient.
+- Response contract: `indoorOutdoor` is present in public itinerary items and weather backup responses stay backward compatible.
 
 Still open in this scope:
 - affected-day route feasibility is specified but not yet enforced in the weather backup generator;
