@@ -23,6 +23,7 @@ def modify_state_update(
             next_intent["trip_intent"] = trip_intent
         return {
             "intent": next_intent,
+            "festival_gate": {},
             "city_select": {},
             "planner": {},
             "response": {},
