@@ -119,6 +119,7 @@ def _itinerary_item(
             "longitude": replacement.longitude,
             "city_id": payload.get("city_id", item.get("cityId")),
             "city_name_ko": payload.get("city_name_ko"),
+            "indoor_outdoor": _indoor_outdoor(payload),
             "theme_tags": replacement.theme_tags,
             "source": payload.get("source"),
             "isSeed": item.get("isSeed") is True,
@@ -150,6 +151,7 @@ def _existing_itinerary_item(
         "latitude": item.get("latitude"),
         "longitude": item.get("longitude"),
         "city_id": item.get("cityId"),
+        "indoor_outdoor": _indoor_outdoor(item),
         "theme_tags": (theme,) if theme else (),
         "isSeed": item.get("isSeed") is True,
         "reason_code": "modify_unchanged",
@@ -164,6 +166,13 @@ def _previous_item(previous_output: Mapping[str, Any], content_id: str | None) -
         if isinstance(item, Mapping) and item.get("placeId") == content_id:
             return dict(item)
     return None
+
+
+def _indoor_outdoor(item: Mapping[str, Any]) -> str:
+    value = _optional_text(item.get("indoor_outdoor", item.get("indoorOutdoor")))
+    if value in {"indoor", "outdoor", "mixed", "unknown"}:
+        return value
+    return "unknown"
 
 
 def _modify_context(planner: Mapping[str, Any], **updates: Any) -> dict[str, Any]:

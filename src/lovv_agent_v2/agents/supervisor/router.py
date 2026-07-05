@@ -50,7 +50,9 @@ def _next_node(state: Mapping[str, Any], *, reason_code: str | None) -> str:
     if _modify_intent_has_planner_output(state):
         if _has_current_modify_response_payload(state):
             return END_ROUTE
-        return "explain_itinerary" if not _has_itinerary_explanation(state) else "response_packager"
+        if not _has_itinerary_explanation(state):
+            return "explain_itinerary"
+        return "response_packager" if _has_post_explain_weather(state) else "weather_alternative"
     if _has_response_payload(state):
         return END_ROUTE
     if reason_code is not None:
@@ -69,6 +71,8 @@ def _next_node(state: Mapping[str, Any], *, reason_code: str | None) -> str:
         return "planner"
     if not _has_itinerary_explanation(state):
         return "explain_itinerary"
+    if not _has_post_explain_weather(state):
+        return "weather_alternative"
     return "response_packager"
 
 
@@ -293,6 +297,27 @@ def _has_itinerary_explanation(state: Mapping[str, Any]) -> bool:
         or "detail_enrichment_warning_count" in validation
         or "itinerary_explanation_item_count" in validation
     )
+
+
+def _has_post_explain_weather(state: Mapping[str, Any]) -> bool:
+    validation = _planner_validation(state)
+    weather_audit = validation.get("weather_audit")
+    return isinstance(weather_audit, Mapping) and weather_audit.get("evaluation_stage") == "post_explain"
+
+
+def _planner_validation(state: Mapping[str, Any]) -> Mapping[str, Any]:
+    planner = state.get("planner")
+    if not isinstance(planner, Mapping):
+        return {}
+    validation = planner.get("validation_result")
+    if isinstance(validation, Mapping):
+        return validation
+    planner_output = planner.get("planner_output")
+    if isinstance(planner_output, Mapping):
+        output_validation = planner_output.get("validation_result")
+        if isinstance(output_validation, Mapping):
+            return output_validation
+    return {}
 
 
 def _has_response_payload(state: Mapping[str, Any]) -> bool:

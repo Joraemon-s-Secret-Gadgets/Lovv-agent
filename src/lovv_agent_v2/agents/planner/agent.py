@@ -228,8 +228,19 @@ def _candidate_payload(candidate: object) -> Mapping[str, object]:
         return candidate
     to_dict = getattr(candidate, "to_dict", None)
     if callable(to_dict) and isinstance(payload := to_dict(), Mapping):
-        return payload
+        return _with_promoted_metadata(payload)
     raise SchemaValidationError("candidate must be a mapping or expose to_dict")
+
+
+def _with_promoted_metadata(payload: Mapping[str, object]) -> Mapping[str, object]:
+    metadata = payload.get("metadata")
+    if not isinstance(metadata, Mapping):
+        return payload
+    promoted = dict(payload)
+    for key in ("indoor_outdoor", "attraction_subtype_code", "attraction_subtype_name"):
+        if key in metadata and key not in promoted:
+            promoted[key] = metadata[key]
+    return promoted
 
 
 def _seed_places(seeds: Sequence[Mapping[str, object]]) -> tuple[Mapping[str, object], ...]:

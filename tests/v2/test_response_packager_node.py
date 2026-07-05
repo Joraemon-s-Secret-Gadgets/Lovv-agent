@@ -237,3 +237,40 @@ def test_response_packager_adds_notice_for_generation_unsupported_conditions() -
 
     assert response["explainability"]["unsupportedConditions"] == ("실시간 혼잡도 보장",)
     assert "실시간 혼잡도 보장" in response["explainability"]["userNotice"]
+
+
+def test_response_packager_exposes_optional_alternative_itinerary() -> None:
+    response = package_recommendation_response(
+        planner_output={
+            "itinerary": [],
+            "recommendation_reasons": (),
+            "itinerary_flow_reason": "요청 조건을 반영한 일정입니다.",
+            "external_links": {},
+            "confidence": 0.5,
+            "user_notice": (),
+            "validation_result": {"planner_status_gate": "ok"},
+            "alternative_itinerary": (
+                {
+                    "day": 1,
+                    "slot": "morning",
+                    "placeId": "p-alt",
+                    "title": "실내 전시관",
+                    "city_id": "KR-TEST",
+                    "indoor_outdoor": "indoor",
+                },
+            ),
+        },
+        request={
+            "request_id": "REQ-WEATHER",
+            "country": "KR",
+            "travel_month": 7,
+            "trip_type": "daytrip",
+            "destination_id": None,
+            "themes": ("예술·감성",),
+        },
+        selected_city=None,
+    )
+
+    item = response["alternativeItinerary"]["days"][0]["items"][0]
+    assert item["contentId"] == "p-alt"
+    assert item["indoorOutdoor"] == "indoor"

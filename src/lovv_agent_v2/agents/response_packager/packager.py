@@ -60,6 +60,11 @@ def package_recommendation_response(
     }
     if internal_clarification is not None:
         response["clarification"] = internal_clarification.to_public_dict()
+    if planner is not None and planner.alternative_itinerary:
+        response["alternativeItinerary"] = _itinerary_items_payload(
+            planner.alternative_itinerary,
+            request_payload,
+        )
     if response_status == "END_WAIT_USER" and internal_clarification is None:
         raise SchemaValidationError("END_WAIT_USER response requires clarification")
     return response
@@ -111,8 +116,15 @@ def _itinerary_payload(
 ) -> dict[str, Any]:
     if planner is None:
         return {"tripType": request["trip_type"], "days": []}
+    return _itinerary_items_payload(planner.itinerary, request)
+
+
+def _itinerary_items_payload(
+    itinerary: Sequence[Mapping[str, Any]],
+    request: Mapping[str, Any],
+) -> dict[str, Any]:
     days: dict[int, list[dict[str, Any]]] = {}
-    for sort_order, item in enumerate(planner.itinerary, start=1):
+    for sort_order, item in enumerate(itinerary, start=1):
         day = int(item.get("day", 1) or 1)
         day_items = days.setdefault(day, [])
         item_with_order = {**item, "order": len(day_items) + 1}

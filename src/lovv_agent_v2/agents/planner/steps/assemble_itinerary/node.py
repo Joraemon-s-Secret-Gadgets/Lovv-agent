@@ -127,6 +127,7 @@ def _itinerary_item(
         "longitude": place.get("longitude"),
         "city_id": place.get("city_id"),
         "city_name_ko": place.get("city_name_ko"),
+        "indoor_outdoor": _indoor_outdoor(place),
         "theme_tags": tuple(string_tuple(place.get("theme_tags", ()))),
         "source": place.get("source"),
         "ddb_pk": place.get("ddb_pk"),
@@ -145,6 +146,14 @@ def _itinerary_item(
         _add_optional(item, "eventEndDate", place.get("event_end_date", place.get("end_date")))
         _add_optional(item, "dateStatus", place.get("date_status"))
     return item
+
+
+def _indoor_outdoor(place: Mapping[str, object]) -> str:
+    value = optional_text(place.get("indoor_outdoor")) or optional_text(place.get("indoorOutdoor"))
+    if value in {"indoor", "outdoor", "mixed", "unknown"}:
+        return value
+    return "unknown"
+
 
 def _body(place: Mapping[str, object]) -> str:
     if place.get("item_type") == "festival":

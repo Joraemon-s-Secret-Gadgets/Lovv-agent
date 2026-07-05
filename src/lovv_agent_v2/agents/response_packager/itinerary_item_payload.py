@@ -29,6 +29,7 @@ def build_itinerary_item_payload(
         "moveMinutes": _optional_number(item, "moveMinutes", "move_minutes"),
         "latitude": _optional_number(item, "latitude", "lat"),
         "longitude": _optional_number(item, "longitude", "lng", "lon"),
+        "indoorOutdoor": item.get("indoorOutdoor") or item.get("indoor_outdoor"),
     }
 
 
