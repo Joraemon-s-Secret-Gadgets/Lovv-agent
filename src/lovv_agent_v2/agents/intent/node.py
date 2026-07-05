@@ -4,6 +4,11 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from lovv_agent_v2.agents.intent.clarify_parser import build_clarify_intent
+from lovv_agent_v2.agents.intent.clarifications import (
+    PREFERENCE_CLARIFYING_QUESTION,
+    set_contradiction_clarification,
+    set_unsupported_region_clarification,
+)
 from lovv_agent_v2.agents.intent.modify_dispatch import resolve_modify_intent
 from lovv_agent_v2.agents.intent.modify_reanchor import modify_state_update
 from lovv_agent_v2.agents.intent.prompt import PromptIntentResult, prompt_intent_from_request
@@ -12,26 +17,21 @@ from lovv_agent_v2.agents.intent.parser import (
     clean_preference_query,
     parse_initial_query,
 )
+from lovv_agent_v2.agents.intent.request_shape import entry_type, has_create_request_fields
 from lovv_agent_v2.agents.intent.tools import intent_prompt_runtime_from_state
 from lovv_agent_v2.agents.intent.validator import validate_preference_sets
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.models.city_identity import enrich_city_select_identity
-from lovv_agent_v2.models.clarification_texts import clarification_helper_text as _helper_text
 from lovv_agent_v2.models.schemas import CitySelectInput, SchemaValidationError
-
-_PREFERENCE_CLARIFYING_QUESTION = (
-    "선호와 비선호가 동시에 언급된 테마나 지역이 있어 우선순위를 확인해야 합니다."
-)
 
 
 def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
     intent = _intent_payload(state)
     request = state.get("request")
     if isinstance(request, Mapping):
-        entry_type = _entry_type(request)
-        match entry_type:
+        match entry_type(request):
             case "clarify":
-                if _has_create_request_fields(request):
+                if has_create_request_fields(request):
                     pass
                 else:
                     return {"intent": build_clarify_intent(request, state)}
@@ -43,7 +43,7 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
                 pass
             case unreachable:
                 _ = unreachable
-    fresh_create_request = isinstance(request, Mapping) and _entry_type(request) in {
+    fresh_create_request = isinstance(request, Mapping) and entry_type(request) in {
         "create",
         "clarify",
     }
@@ -85,6 +85,11 @@ def intent_node(state: UnifiedAgentState) -> dict[str, Any]:
         _apply_preference_result(
             next_intent, parse_initial_query(_request_raw_query(request))
         )
+    set_unsupported_region_clarification(
+        next_intent,
+        request if isinstance(request, Mapping) else None,
+        normalized_input,
+    )
     if fresh_create_request:
         return {
             "intent": next_intent,
@@ -102,37 +107,6 @@ def _intent_payload(state: Mapping[str, Any]) -> dict[str, Any]:
     if isinstance(intent, Mapping):
         return dict(intent)
     return {}
-
-
-def _entry_type(request: Mapping[str, Any]) -> str:
-    value = request.get("entryType", request.get("entry_type", "create"))
-    if not isinstance(value, str):
-        return "create"
-    normalized = value.strip().lower().replace("-", "_")
-    match normalized:
-        case "clarify":
-            return "clarify"
-        case "modify":
-            return "modify"
-        case "confirm":
-            return "confirm"
-        case "create" | "chat" | "":
-            return "create"
-        case _:
-            return "create"
-
-
-def _has_create_request_fields(request: Mapping[str, Any]) -> bool:
-    required_fields = ("country", "travelMonth", "tripType", "includeFestivals")
-    snake_fields = ("country", "travel_month", "trip_type", "include_festivals")
-    has_core = all(key in request for key in required_fields) or all(
-        key in request for key in snake_fields
-    )
-    has_query = any(
-        key in request
-        for key in ("rawQuery", "raw_query", "naturalLanguageQuery")
-    )
-    return has_core and has_query
 
 
 def _confirm_intent(request: Mapping[str, Any]) -> dict[str, Any]:
@@ -264,7 +238,7 @@ def _apply_preference_result(
     intent.setdefault("needs_clarification", preference_result.needs_clarification)
     intent.setdefault("clarifying_question", preference_result.clarifying_question)
     intent.setdefault("contradiction_reasons", preference_result.contradiction_reasons)
-    _set_contradiction_clarification(intent)
+    set_contradiction_clarification(intent)
 
 
 def _reconcile_preference_fields(intent: dict[str, Any]) -> None:
@@ -278,30 +252,9 @@ def _reconcile_preference_fields(intent: dict[str, Any]) -> None:
         intent.setdefault("contradiction_reasons", ())
         return
     intent["needs_clarification"] = True
-    intent["clarifying_question"] = _PREFERENCE_CLARIFYING_QUESTION
+    intent["clarifying_question"] = PREFERENCE_CLARIFYING_QUESTION
     intent["contradiction_reasons"] = validation.contradiction_reasons
-    _set_contradiction_clarification(intent)
-
-
-def _set_contradiction_clarification(intent: dict[str, Any]) -> None:
-    reasons = _text_tuple(intent.get("contradiction_reasons", ()))
-    if not reasons:
-        return
-    intent["clarification"] = {
-        "reason_code": "contradiction",
-        "prompt": _PREFERENCE_CLARIFYING_QUESTION,
-        "options": [
-            {
-                "option_id": "revise_conditions",
-                "label": "조건 다시 입력",
-                "helper_text": _helper_text("contradiction", "revise_conditions", "충돌하는 선호/비선호 조건을 정리해 다시 입력합니다."),
-                "apply": {},
-                "then": "abort",
-            },
-        ],
-        "context": {"contradiction_reasons": list(reasons)},
-        "failure_signals": list(reasons),
-    }
+    set_contradiction_clarification(intent)
 
 
 def _text_tuple(value: Any) -> tuple[str, ...]:

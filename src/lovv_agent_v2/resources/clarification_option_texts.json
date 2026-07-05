@@ -47,6 +47,13 @@
       "helperText": "충돌하는 선호/비선호 조건을 정리해 다시 입력합니다."
     }
   },
+  "unsupported_region": {
+    "_prompt": "현재는 국내 여행지만 추천할 수 있습니다. 국내 지역으로 다시 입력해 주세요.",
+    "revise_conditions": {
+      "label": "국내 여행지로 다시 입력",
+      "helperText": "현재 지원 범위인 국내 여행지로 조건을 다시 입력합니다."
+    }
+  },
   "modify_seed_theme_conflict": {
     "_prompt": "핵심 장소는 같은 테마 안에서만 바꿀 수 있습니다.",
     "revise_modify_query": {

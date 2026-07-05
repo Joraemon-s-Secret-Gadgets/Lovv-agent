@@ -461,6 +461,30 @@ def test_prompt_intent_reconciles_preference_contradictions() -> None:
     assert intent["clarification"]["options"][0]["then"] == "abort"
 
 
+def test_intent_node_clarifies_unsupported_country_request() -> None:
+    output = intent_node(
+        {
+            "request": {
+                "entryType": "create",
+                "country": "JP",
+                "travelMonth": 8,
+                "travelYear": 2026,
+                "tripType": "daytrip",
+                "themes": ["바다·해안"],
+                "includeFestivals": False,
+                "naturalLanguageQuery": "도쿄 바다 여행지를 추천해줘.",
+            },
+        },
+    )
+
+    intent = output["intent"]
+    assert intent["needs_clarification"] is True
+    assert intent["clarification"]["reason_code"] == "unsupported_region"
+    assert intent["clarification"]["options"][0]["option_id"] == "revise_conditions"
+    assert intent["clarification"]["options"][0]["then"] == "abort"
+    assert output["response"] == {}
+
+
 def test_intent_prompt_defines_transport_and_congestion_enum_rules() -> None:
     assert "transport_pref=walk" in INTENT_PROMPT_TEXT
     assert "transport_pref=car" in INTENT_PROMPT_TEXT
