@@ -5,7 +5,7 @@ from typing import Any
 
 from lovv_agent_v2.agents.intent.modify_parser import build_modify_intent
 from lovv_agent_v2.agents.intent.modify_prompt import prompt_modify_intent_from_request
-from lovv_agent_v2.agents.intent.tools import intent_prompt_runtime_from_state
+from lovv_agent_v2.tools.runtime_extractors import intent_prompt_runtime_from_state
 
 
 def resolve_modify_intent(

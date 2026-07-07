@@ -4,7 +4,7 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.domain.contracts import (
+from lovv_agent_v2.tools.city_select_contracts import (
     ANCHORED_PLACE_SEARCH_MODE,
     CITY_DISCOVERY_MODE,
     FESTIVAL_SEEDED_CITY_DISCOVERY_MODE,
@@ -58,13 +58,13 @@ def prune_cities(
         if allowed_city_ids is not None
         else None
     )
-    allowed_pks = {allowed_city_pk(cid) for cid in allowed} if allowed is not None else None
     grouped: dict[str, list[AttractionCandidate]] = {}
     for candidate in candidates:
         city_key = candidate_city_key(candidate)
         if city_key is None:
             continue
         if allowed is not None:
+            allowed_pks = {allowed_city_pk(cid) for cid in allowed}
             ddb_pk = (candidate.ddb_pk or "").upper()
             cand_city_id_upper = candidate.city_id.upper()
             if cand_city_id_upper not in allowed and ddb_pk not in allowed_pks:

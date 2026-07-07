@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.retrieval.policy import ATTRACTION_ENTITY_TYPE
+from lovv_agent_v2.tools.destination_policy import ATTRACTION_ENTITY_TYPE
 from lovv_agent_v2.agents.city_select.scoring.service_candidates import (
     coerce_scored_place,
     similarity_from_distance,

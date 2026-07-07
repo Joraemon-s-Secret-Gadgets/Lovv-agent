@@ -1,10 +1,18 @@
+"""RDS/MySQL saved-itinerary signal read tool.
+
+Moved verbatim from the old per-agent ``rds_mysql_tool`` module under
+``lovv_agent_v2/agents/profile/`` as part of the V2 tool code consolidation (see
+docs/specs/v2/LOVV_V2_TOOL_CODE_CONSOLIDATION_SPEC.md). SQL text is
+unchanged.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from lovv_agent_v2.agents.profile.rds_mysql_rows import (
+from lovv_agent_v2.tools.rds_mysql_rows import (
     JsonValue,
     SqlParameters,
     SqlRow,

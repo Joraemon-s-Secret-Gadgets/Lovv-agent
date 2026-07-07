@@ -12,7 +12,7 @@ from lovv_agent_v2.agents.planner.steps.weather_alternative.resource import (
     WeatherRiskIndex,
     WeatherRiskRow,
 )
-from lovv_agent_v2.agents.city_select.retrieval.policy import normalize_attraction_candidate
+from lovv_agent_v2.tools.destination_policy import normalize_attraction_candidate
 from lovv_agent_v2.agents.planner.agent import _candidate_payload
 from lovv_agent_v2.agents.supervisor.router import route_next_action
 

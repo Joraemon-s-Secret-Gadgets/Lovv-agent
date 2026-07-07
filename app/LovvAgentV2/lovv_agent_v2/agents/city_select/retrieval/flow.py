@@ -4,11 +4,11 @@ from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.domain.contracts import (
+from lovv_agent_v2.tools.city_select_contracts import (
     AttractionCandidate,
     CitySelectContext,
 )
-from lovv_agent_v2.agents.city_select.retrieval.policy import allowed_city_pk
+from lovv_agent_v2.tools.destination_policy import allowed_city_pk
 from lovv_agent_v2.models.schemas import CitySelectResult, SchemaValidationError
 
 

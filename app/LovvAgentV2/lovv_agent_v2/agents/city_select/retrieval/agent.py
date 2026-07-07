@@ -5,8 +5,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.domain.contracts import CitySelectContext
-from lovv_agent_v2.agents.city_select.retrieval.policy import (
+from lovv_agent_v2.tools.city_select_contracts import CitySelectContext
+from lovv_agent_v2.tools.destination_policy import (
     allowed_city_pk,
     prepare_city_select_context,
 )
@@ -20,7 +20,7 @@ from lovv_agent_v2.agents.city_select.retrieval.flow import (
     retrieve_allowed_city_pool_by_theme,
     retrieve_by_theme,
 )
-from lovv_agent_v2.agents.city_select.tools import CitySelectTools
+from lovv_agent_v2.tools.runtime_containers import CitySelectTools
 
 
 @dataclass(frozen=True, slots=True)

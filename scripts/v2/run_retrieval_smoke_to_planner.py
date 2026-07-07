@@ -16,9 +16,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from lovv_agent_v2.agents.planner.external.travel_time import HaversineTravelTimeProvider
+from lovv_agent_v2.tools.travel_time_provider import HaversineTravelTimeProvider
 from lovv_agent_v2.agents.planner.subgraph import compile_planner_subgraph
-from lovv_agent_v2.agents.planner.tools import PlannerRuntimeTools
+from lovv_agent_v2.tools.runtime_containers import PlannerRuntimeTools
 
 DEFAULT_OUT_DIR = Path("docs/tasks/results/v2_retrieval_planner_smoke")
 RAW_VECTOR = (0.0,)

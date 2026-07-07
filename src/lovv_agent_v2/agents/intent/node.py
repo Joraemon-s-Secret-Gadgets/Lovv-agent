@@ -18,7 +18,7 @@ from lovv_agent_v2.agents.intent.parser import (
     parse_initial_query,
 )
 from lovv_agent_v2.agents.intent.request_shape import entry_type, has_create_request_fields
-from lovv_agent_v2.agents.intent.tools import intent_prompt_runtime_from_state
+from lovv_agent_v2.tools.runtime_extractors import intent_prompt_runtime_from_state
 from lovv_agent_v2.agents.intent.validator import validate_preference_sets
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.models.city_identity import enrich_city_select_identity

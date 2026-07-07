@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-from lovv_agent_v2.agents.city_select.retrieval.policy import GOURMET_EXTERNAL_THEME_LABELS
+from lovv_agent_v2.tools.destination_policy import GOURMET_EXTERNAL_THEME_LABELS
 from lovv_agent_v2.agents.city_select.scoring.service_validation import string_tuple
 
 
