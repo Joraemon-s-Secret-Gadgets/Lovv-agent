@@ -9,7 +9,7 @@ from lovv_agent_v2.agents.planner.steps.route_days.route_metrics import (
     max_leg_min,
 )
 from lovv_agent_v2.agents.planner.steps.route_days.trim_policy import MAX_HARD_LEG_MIN
-from lovv_agent_v2.agents.planner.tools import travel_time_provider_from_value
+from lovv_agent_v2.tools.travel_time import travel_time_provider_from_value
 from lovv_agent_v2.core.runtime_state import runtime_value
 from lovv_agent_v2.models.schemas import SchemaValidationError
 

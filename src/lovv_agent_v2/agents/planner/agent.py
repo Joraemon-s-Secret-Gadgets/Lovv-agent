@@ -10,8 +10,8 @@ from lovv_agent_v2.agents.planner.steps.route_days.place_selection import (
     build_working_set,
 )
 from lovv_agent_v2.agents.planner.steps.route_days.routing import route_days
-from lovv_agent_v2.agents.planner.tools import PlannerRuntimeTools
-from lovv_agent_v2.agents.planner.external.travel_time import TravelTimeProvider
+from lovv_agent_v2.tools.runtime_containers import PlannerRuntimeTools
+from lovv_agent_v2.tools.travel_time_provider import TravelTimeProvider
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
 PLANNER_RETRIEVAL_TOP_K = 50

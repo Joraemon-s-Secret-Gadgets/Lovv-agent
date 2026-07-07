@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import lovv_agent_v2.agents.city_select.nodes as city_select_nodes
-from lovv_agent_v2.agents.city_select.domain.contracts import (
+from lovv_agent_v2.tools.city_select_contracts import (
     AttractionCandidate,
     PrunedCityGroups,
     prepare_city_select_context,
@@ -15,7 +15,7 @@ from lovv_agent_v2.agents.city_select.retrieval.flow import (
     package_failure as _package_failure,
 )
 from lovv_agent_v2.agents.city_select.subgraph import compile_city_select_subgraph
-from lovv_agent_v2.agents.city_select.tools import CitySelectTools
+from lovv_agent_v2.tools.runtime_containers import CitySelectTools
 from lovv_agent_v2.agents.profile.node import profile_node
 from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.infra.dynamo_lookup import DynamoLookupTool
@@ -63,7 +63,9 @@ def test_planner_agent_and_tools_do_not_import_unified_state() -> None:
     root = Path(__file__).parents[2]
     for relative_path in (
         "src/lovv_agent_v2/agents/planner/agent.py",
-        "src/lovv_agent_v2/agents/planner/tools.py",
+        "src/lovv_agent_v2/tools/runtime_containers.py",
+        "src/lovv_agent_v2/tools/runtime_extractors.py",
+        "src/lovv_agent_v2/tools/travel_time.py",
     ):
         source = (root / relative_path).read_text(encoding="utf-8")
         assert "UnifiedAgentState" not in source
@@ -73,7 +75,14 @@ def test_planner_agent_and_tools_do_not_import_unified_state() -> None:
 def test_planner_agent_keeps_state_adapter_out_of_core_orchestration() -> None:
     root = Path(__file__).parents[2]
     agent_source = (root / "src/lovv_agent_v2/agents/planner/agent.py").read_text(encoding="utf-8")
-    tools_source = (root / "src/lovv_agent_v2/agents/planner/tools.py").read_text(encoding="utf-8")
+    tools_source = "".join(
+        (root / relative_path).read_text(encoding="utf-8")
+        for relative_path in (
+            "src/lovv_agent_v2/tools/runtime_containers.py",
+            "src/lovv_agent_v2/tools/runtime_extractors.py",
+            "src/lovv_agent_v2/tools/travel_time.py",
+        )
+    )
 
     for forbidden in (
         "planner.state.context",

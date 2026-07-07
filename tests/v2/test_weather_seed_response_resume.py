@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from lovv_agent_v2.agents.planner.external.travel_time import MatrixResponse, SnapResponse
+from lovv_agent_v2.tools.travel_time_provider import MatrixResponse, SnapResponse
 from lovv_agent_v2.agents.response_packager.clarification_resume import response_resume_update
 
 

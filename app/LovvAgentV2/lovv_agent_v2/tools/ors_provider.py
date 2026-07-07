@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
 
-from lovv_agent_v2.agents.planner.external.agentcore_credentials import resolve_agentcore_api_key
-from lovv_agent_v2.agents.planner.external.ors_results import durations_minutes, snapped_payloads
-from lovv_agent_v2.agents.planner.external.travel_time import (
+from lovv_agent_v2.tools.agentcore_credentials import resolve_agentcore_api_key
+from lovv_agent_v2.tools.ors_results import durations_minutes, snapped_payloads
+from lovv_agent_v2.tools.travel_time_provider import (
     HaversineTravelTimeProvider,
     MatrixResponse,
     SnapResponse,

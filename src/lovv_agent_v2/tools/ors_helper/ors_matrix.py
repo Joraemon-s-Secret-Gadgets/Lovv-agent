@@ -67,12 +67,13 @@ class OrsMatrixClient:
         if not original_places:
             return _snap_result(profile, original_places, (), (), (), False, "ors_empty")
         try:
+            payload: dict[str, JsonValue] = {
+                "locations": _locations(original_places),
+                "radius": radius_m,
+            }
             response = _post_json(
                 f"/v2/snap/{profile}",
-                {
-                    "locations": _locations(original_places),
-                    "radius": radius_m,
-                },
+                payload,
                 self.timeout_sec,
             )
             return _parse_snap_response(profile, original_places, response)
@@ -90,13 +91,15 @@ class OrsMatrixClient:
         if not matrix_places:
             return MatrixResult(profile, (), (), False, "ors_empty")
         try:
+            metrics: list[JsonValue] = ["duration"]
+            payload: dict[str, JsonValue] = {
+                "locations": _locations(matrix_places),
+                "metrics": metrics,
+                "units": "m",
+            }
             response = _post_json(
                 f"/v2/matrix/{profile}",
-                {
-                    "locations": _locations(matrix_places),
-                    "metrics": ["duration"],
-                    "units": "m",
-                },
+                payload,
                 self.timeout_sec,
             )
             return _parse_matrix_response(profile, matrix_places, response)
@@ -231,7 +234,7 @@ def _snap_result(
     )
 
 
-def _locations(places: Sequence[PlaceCandidate]) -> list[list[float]]:
+def _locations(places: Sequence[PlaceCandidate]) -> list[JsonValue]:
     return [[place.lon, place.lat] for place in places]
 
 

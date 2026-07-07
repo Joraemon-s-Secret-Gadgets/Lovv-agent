@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from lovv_agent_v2.agents.planner.subgraph import compile_planner_subgraph
-from lovv_agent_v2.agents.planner.external.travel_time import MatrixResponse, SnapResponse, TravelTimeProvider
+from lovv_agent_v2.tools.travel_time_provider import MatrixResponse, SnapResponse, TravelTimeProvider
 from lovv_agent_v2.agents.planner.steps.retry_alternative_city.node import should_retry_alternative_city
 
 

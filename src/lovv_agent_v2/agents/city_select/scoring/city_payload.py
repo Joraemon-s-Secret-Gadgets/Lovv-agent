@@ -9,7 +9,7 @@ from lovv_agent_v2.agents.city_select.scoring.ranking import (
     _candidate_attr,
     _city_name_from_group,
 )
-from lovv_agent_v2.agents.city_select.domain.contracts import CitySelectContext
+from lovv_agent_v2.tools.city_select_contracts import CitySelectContext
 from lovv_agent_v2.models.schemas import SelectedCity
 
 

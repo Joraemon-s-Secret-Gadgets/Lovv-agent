@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.domain.contracts import PrunedCityGroups
+from lovv_agent_v2.tools.city_select_contracts import PrunedCityGroups
 from lovv_agent_v2.agents.city_select.retrieval.flow import (
     city_select_failure_state,
     package_failure,

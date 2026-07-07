@@ -1,10 +1,19 @@
+"""S3 Vector attraction destination search tool.
+
+Moved from ``lovv_agent_v2.agents.city_select.tools`` as part of the V2 tool
+code consolidation (see
+docs/specs/v2/LOVV_V2_TOOL_CODE_CONSOLIDATION_SPEC.md). The S3 Vector
+query/filter payload shape below is behavior-preserving: it must stay
+byte-identical to what ``tests/v2/test_destination_search.py`` expects.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from lovv_agent_v2.agents.city_select.retrieval.policy import (
+from lovv_agent_v2.tools.destination_policy import (
     ATTRACTION_ENTITY_TYPE,
     DEFAULT_RETURN_DISTANCE,
     DEFAULT_RETURN_METADATA,
@@ -18,15 +27,7 @@ from lovv_agent_v2.agents.city_select.retrieval.policy import (
     prune_cities,
     resolve_place_search_theme,
 )
-from lovv_agent_v2.infra.adapters.embeddings import BedrockEmbeddingAdapter
-from lovv_agent_v2.infra.aws_clients import (
-    AwsClientFactory,
-    AwsClientProvider,
-    create_boto3_client_factory,
-)
-from lovv_agent_v2.infra.config import RuntimeConfig, SearchBudgetSettings
-from lovv_agent_v2.infra.dynamo_lookup import DynamoLookupTool
-from lovv_agent_v2.infra.repositories.dynamodb import DynamoDbRepository
+from lovv_agent_v2.infra.config import SearchBudgetSettings
 from lovv_agent_v2.infra.repositories.s3_vectors import S3VectorRepository, extract_vector_records
 from lovv_agent_v2.models.schemas import SchemaValidationError
 
@@ -180,100 +181,10 @@ def _resolve_top_k(top_k: int | None, search_budget: SearchBudgetSettings) -> in
     return selected
 
 
-@dataclass(frozen=True, slots=True)
-class CitySelectTools:
-    destination_search: DestinationSearchTool
-    dynamo_lookup: DynamoLookupTool
-    embedding: BedrockEmbeddingAdapter
-
-
-@dataclass(frozen=True, slots=True)
-class CitySelectScoringTools:
-    dynamo_lookup: DynamoLookupTool
-
-
-def build_city_select_tools(
-    config: RuntimeConfig,
-    client_factory: AwsClientFactory,
-) -> CitySelectTools:
-    provider = AwsClientProvider.from_factory(
-        client_factory,
-        config=config,
-    )
-    runtime_clients = provider.create_runtime_clients()
-    return CitySelectTools(
-        destination_search=DestinationSearchTool(
-            s3_vectors=S3VectorRepository(
-                client=runtime_clients.s3_vectors,
-                settings=config.s3_vectors,
-            ),
-            search_budget=config.search_budget,
-        ),
-        dynamo_lookup=DynamoLookupTool(
-            dynamodb=DynamoDbRepository(
-                client=runtime_clients.dynamodb,
-                settings=config.dynamodb,
-            ),
-            search_budget=config.search_budget,
-        ),
-        embedding=BedrockEmbeddingAdapter(
-            client=runtime_clients.bedrock_runtime,
-            model_id=_required_embedding_model_id(config.embeddings.model_id),
-        ),
-    )
-
-
-def build_city_select_scoring_tools(
-    config: RuntimeConfig,
-    client_factory: AwsClientFactory,
-) -> CitySelectScoringTools:
-    provider = AwsClientProvider.from_factory(
-        client_factory,
-        config=config,
-    )
-    return CitySelectScoringTools(
-        dynamo_lookup=DynamoLookupTool(
-            dynamodb=DynamoDbRepository(
-                client=provider.create_dynamodb_client(),
-                settings=config.dynamodb,
-            ),
-            search_budget=config.search_budget,
-        ),
-    )
-
-
-def build_default_city_select_tools() -> CitySelectTools:
-    config = RuntimeConfig.from_env()
-    return build_city_select_tools(
-        config,
-        create_boto3_client_factory(profile_name=config.aws.profile_name),
-    )
-
-
-def build_default_city_select_scoring_tools() -> CitySelectScoringTools:
-    config = RuntimeConfig.from_env()
-    return build_city_select_scoring_tools(
-        config,
-        create_boto3_client_factory(profile_name=config.aws.profile_name),
-    )
-
-
-def _required_embedding_model_id(model_id: str | None) -> str:
-    if model_id is None:
-        raise SchemaValidationError("LOVV_EMBEDDING_MODEL_ID is required for city_select")
-    return model_id
-
-
 __all__ = [
     "RESPONSIBILITY",
     "TOOL_NAME",
-    "CitySelectTools",
-    "CitySelectScoringTools",
     "DestinationSearchTool",
     "build_attraction_filter",
     "build_attraction_search_request",
-    "build_city_select_tools",
-    "build_city_select_scoring_tools",
-    "build_default_city_select_scoring_tools",
-    "build_default_city_select_tools",
 ]

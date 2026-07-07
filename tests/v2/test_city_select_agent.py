@@ -9,12 +9,12 @@ from lovv_agent_v2.agents.city_select.retrieval.agent import (
     CitySelectRetrievalAgent,
     CitySelectRetrievalRequest,
 )
-from lovv_agent_v2.agents.city_select.domain.contracts import (
+from lovv_agent_v2.tools.city_select_contracts import (
     AttractionCandidate,
     PrunedCityGroups,
 )
 from lovv_agent_v2.agents.city_select.subgraph import compile_city_select_subgraph
-from lovv_agent_v2.agents.city_select.tools import CitySelectScoringTools, CitySelectTools
+from lovv_agent_v2.tools.runtime_containers import CitySelectScoringTools, CitySelectTools
 
 
 def _city_input() -> dict[str, object]:

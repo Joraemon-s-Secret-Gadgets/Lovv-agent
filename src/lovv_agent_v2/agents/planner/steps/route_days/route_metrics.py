@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from lovv_agent_v2.agents.planner.domain.place_model import PlannerPlace
-from lovv_agent_v2.agents.planner.external.travel_time import DRIVING_KMH
+from lovv_agent_v2.tools.travel_time_provider import DRIVING_KMH
 
 
 @dataclass(frozen=True, slots=True)

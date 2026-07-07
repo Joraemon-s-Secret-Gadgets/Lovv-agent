@@ -11,9 +11,8 @@ from lovv_agent_v2.agents.city_select.scoring.agent import (
     CitySelectScoringAgent,
     CitySelectScoringRequest,
 )
-from lovv_agent_v2.agents.city_select.tools import (
-    CitySelectScoringTools,
-    CitySelectTools,
+from lovv_agent_v2.tools.runtime_containers import CitySelectScoringTools, CitySelectTools
+from lovv_agent_v2.tools.factories import (
     build_default_city_select_scoring_tools,
     build_default_city_select_tools,
 )
