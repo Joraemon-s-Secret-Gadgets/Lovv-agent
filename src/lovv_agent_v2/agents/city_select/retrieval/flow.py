@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
+from lovv_agent_v2.common.telemetry_threading import submit_with_context
 from lovv_agent_v2.tools.city_select_contracts import (
     AttractionCandidate,
     CitySelectContext,
@@ -27,22 +28,26 @@ def retrieve_by_theme(
         raw_futures = {}
         for theme in themes:
             if preferred_city_ids or disliked_city_ids:
-                future = executor.submit(
-                    destination_search.search_candidates,
-                    query_vector,
-                    city_id=city_id,
-                    ddb_pk=ddb_pk,
-                    theme=theme,
-                    preferred_city_ids=preferred_city_ids,
-                    disliked_city_ids=disliked_city_ids,
+                future = submit_with_context(
+                    executor,
+                    lambda theme=theme: destination_search.search_candidates(
+                        query_vector,
+                        city_id=city_id,
+                        ddb_pk=ddb_pk,
+                        theme=theme,
+                        preferred_city_ids=preferred_city_ids,
+                        disliked_city_ids=disliked_city_ids,
+                    ),
                 )
             else:
-                future = executor.submit(
-                    destination_search.search_candidates,
-                    query_vector,
-                    city_id=city_id,
-                    ddb_pk=ddb_pk,
-                    theme=theme,
+                future = submit_with_context(
+                    executor,
+                    lambda theme=theme: destination_search.search_candidates(
+                        query_vector,
+                        city_id=city_id,
+                        ddb_pk=ddb_pk,
+                        theme=theme,
+                    ),
                 )
             raw_futures[future] = theme
         for future, theme in raw_futures.items():
