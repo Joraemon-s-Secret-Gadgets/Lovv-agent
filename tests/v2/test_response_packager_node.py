@@ -192,6 +192,37 @@ def test_response_packager_node_packages_modify_clarification(monkeypatch) -> No
     assert response["clarification_resume"]["then"] == "abort"
 
 
+def test_response_packager_node_skips_interrupt_when_runtime_disables_it(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "lovv_agent_v2.agents.response_packager.node.interrupt",
+        lambda payload: (_ for _ in ()).throw(AssertionError("interrupt should not run")),
+    )
+
+    result = response_packager_node(
+        {
+            "runtime": {"interrupts_enabled": False},
+            "request": {
+                "request_id": "REQ-MOD-NO-INTERRUPT",
+                "entryType": "modify",
+                "rawModifyQuery": "두 번째 장소 바꿔줘.",
+            },
+            "planner": {
+                "modify_context": {
+                    "failed_edit": {
+                        "reason_code": "slot_replace_no_candidate",
+                        "target": {"day": 1, "order": 2},
+                    },
+                },
+            },
+        },
+    )
+
+    response = result["response"]
+    assert response["response_status"] == "END_WAIT_USER"
+    assert response["response_payload"]["recommendationId"] == "REQ-MOD-NO-INTERRUPT"
+    assert "clarification_resume" not in response
+
+
 def test_response_packager_node_uses_resource_text_for_failed_slot_replace(monkeypatch) -> None:
     monkeypatch.setattr(
         "lovv_agent_v2.agents.response_packager.node.interrupt",

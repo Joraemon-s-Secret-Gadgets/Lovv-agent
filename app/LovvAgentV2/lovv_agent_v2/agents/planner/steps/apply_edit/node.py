@@ -17,19 +17,20 @@ from lovv_agent_v2.agents.planner.steps.apply_edit.result import (
     finalized_update,
 )
 from lovv_agent_v2.agents.planner.steps.apply_edit.slot_candidates import candidate_pool
+from lovv_agent_v2.common.telemetry_lifecycle import emit_modify_result
 
 
 def apply_edit_node(state: Mapping[str, Any]) -> dict[str, Any]:
     modify_intent = _modify_intent(state)
     if modify_intent.get("kind") == "day_regenerate":
-        return apply_day_regenerate(state, modify_intent)
+        return _with_modify_metric(state, apply_day_regenerate(state, modify_intent))
     operations = _operations(modify_intent)
     if not operations:
-        return failed_update(state, _failed_edit("modify_multi_edit_deferred"))
+        return _with_modify_metric(state, failed_update(state, _failed_edit("modify_multi_edit_deferred")))
     current_state: Mapping[str, Any] = state
     for operation in operations:
         current_state = _merged_state(current_state, _apply_operation(current_state, operation))
-    return finalized_update(current_state, len(operations))
+    return _with_modify_metric(state, finalized_update(current_state, len(operations)))
 
 
 def _apply_operation(state: Mapping[str, Any], operation: Mapping[str, Any]) -> dict[str, Any]:
@@ -57,6 +58,11 @@ def _apply_operation(state: Mapping[str, Any], operation: Mapping[str, Any]) -> 
             ),
         )
     return applied_update(state, operation, order, target, selected, candidates)
+
+
+def _with_modify_metric(state: Mapping[str, Any], update: dict[str, Any]) -> dict[str, Any]:
+    emit_modify_result(state, update)
+    return update
 
 
 def _merged_state(state: Mapping[str, Any], update: Mapping[str, Any]) -> dict[str, Any]:
