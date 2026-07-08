@@ -14,7 +14,16 @@
       "entrypoint": "main.py",
       "codeLocation": "app/LovvAgentV2/",
       "runtimeVersion": "PYTHON_3_12",
-      "networkMode": "PUBLIC",
+      "networkMode": "VPC",
+      "networkConfig": {
+        "subnets": [
+          "subnet-0b3d1d99edd282504",
+          "subnet-0e04f80cfb58e0f35"
+        ],
+        "securityGroups": [
+          "sg-0c50468427a3239ac"
+        ]
+      },
       "protocol": "HTTP",
       "envVars": [
         {
@@ -44,6 +53,10 @@
         {
           "name": "LOVV_EXPLANATION_LLM_MODEL_ID",
           "value": "openai.gpt-oss-120b-1:0"
+        },
+        {
+          "name": "LOVV_SEARCH_RAW_SOFT_TOP_K",
+          "value": "50"
         },
         {
           "name": "LOVV_SEARCH_PER_THEME_TOP_K",
