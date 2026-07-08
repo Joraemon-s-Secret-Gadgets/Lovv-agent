@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from collections.abc import Mapping
 from typing import Any
 
+from langgraph.checkpoint.memory import MemorySaver
+
 import lovv_agent_v2.harness as harness_module
 from lovv_agent_v2.tools.runtime_containers import IntentPromptRuntime, ItineraryExplanationRuntime
 from lovv_agent_v2.core.runtime_state import runtime_value
@@ -108,6 +110,27 @@ def test_build_live_harness_wires_default_itinerary_explanation_runtime(
     assert "runtime" not in graph.payloads[0]
     assert "itinerary_explanation_runtime" not in graph.payloads[0]
     assert graph.runtime_values[0]["runtime"] is runtime
+
+
+def test_build_live_harness_uses_local_checkpointer_when_memory_is_disabled(
+    monkeypatch: Any,
+) -> None:
+    captured: dict[str, Any] = {}
+
+    def compile_graph(*, checkpointer: Any | None = None) -> CapturingGraph:
+        captured["checkpointer"] = checkpointer
+        return CapturingGraph()
+
+    monkeypatch.setattr(harness_module, "compile_v2_graph", compile_graph)
+    monkeypatch.setattr(
+        harness_module,
+        "_build_live_graph_runtime",
+        lambda config: {"itinerary_explanation_runtime": ItineraryExplanationRuntime()},
+    )
+
+    harness_module.build_live_harness(config=RuntimeConfig())
+
+    assert isinstance(captured["checkpointer"], MemorySaver)
 
 
 def test_live_graph_runtime_uses_injected_aws_runtime_clients(monkeypatch: Any) -> None:

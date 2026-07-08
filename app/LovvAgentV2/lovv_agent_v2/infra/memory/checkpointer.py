@@ -5,18 +5,20 @@ from __future__ import annotations
 from importlib import import_module
 from typing import Any
 
+from langgraph.checkpoint.memory import MemorySaver
+
 from lovv_agent_v2.infra.config import MemorySettings
 
 
-def build_checkpointer(memory: MemorySettings) -> Any | None:
-    """Build and return the AgentCoreMemorySaver checkpointer if enabled.
+def build_checkpointer(memory: MemorySettings) -> Any:
+    """Build the configured checkpointer.
 
-    Returns None if memory is disabled. Dynamically imports langgraph-checkpoint-aws
-    to ensure import safety in local non-AWS environments.
+    Memory-disabled local runs still need multi-turn state, so they use LangGraph's
+    process-local MemorySaver. AgentCore Memory is used only when explicitly enabled.
     """
 
     if not memory.enabled:
-        return None
+        return MemorySaver()
 
     try:
         # Dynamic import to avoid module loading errors in local dev environments
