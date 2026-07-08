@@ -81,6 +81,7 @@ flowchart LR
   end
 
   Intent --> IntentRuntime --> BedrockLLM
+  BedrockLLM -. "create extraction\nmodify intent assist" .-> Intent
 
   Profile --> ProfileDDB
   Profile -. "saved itinerary evidence" .-> RDS

@@ -140,20 +140,22 @@ flowchart TD
 flowchart TD
   In["state.request + 기존 state.intent"] --> EntryType{"entry_type(request)"}
   EntryType -->|"clarify + create fields 없음"| Clarify["build_clarify_intent"]
-  EntryType -->|"modify"| Modify["resolve_modify_intent\nmodify_state_update"]
+  EntryType -->|"modify"| Modify["resolve_modify_intent"]
   EntryType -->|"confirm"| Confirm["confirm intent\nthread/recommendation/revision"]
   EntryType -->|"create 또는 clarify create"| Create["fresh create"]
 
   Create --> Prompt{"기존 city_select_input 있음?"}
   Prompt -->|"없음"| PromptRuntime["IntentPromptRuntime\nBedrock Converse 가능"]
   Prompt -->|"있음"| Reuse["기존 city_select_input 재사용"]
+  Modify --> PromptRuntime
+  PromptRuntime --> ModifyUpdate["modify_state_update"]
   PromptRuntime --> Parse["CitySelectInput.from_mapping"]
   Reuse --> Parse
   Parse --> Normalize["destination identity 보강\nquery/theme 정규화\nunsupported region clarification"]
   Normalize --> Reset["fresh create면 festival_gate/city_select/planner/response/routing 초기화"]
 
   Clarify --> Out["intent update"]
-  Modify --> Out
+  ModifyUpdate --> Out
   Confirm --> Out
   Reset --> Out
 ```

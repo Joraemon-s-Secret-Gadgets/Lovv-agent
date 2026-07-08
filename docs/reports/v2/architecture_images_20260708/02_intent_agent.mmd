@@ -8,15 +8,17 @@ flowchart LR
   Shape --> Confirm["confirm<br/>confirmation intent"]
 
   Create --> Runtime["IntentPromptRuntime"]
+  Modify --> Runtime
   Runtime --> Bedrock["Bedrock Converse<br/>Intent LLM"]
+  Bedrock --> ModifyUpdate["modify_state_update"]
   Create --> Output["intent state"]
   Clarify --> Output
-  Modify --> Output
+  ModifyUpdate --> Output
   Confirm --> Output
 
   classDef agent fill:#dbeafe,stroke:#2563eb,stroke-width:3px;
   classDef tool fill:#ecfdf5,stroke:#059669,stroke-width:2px;
   classDef output fill:#fff7ed,stroke:#ea580c,stroke-width:2px;
   class Intent agent;
-  class Runtime,Bedrock tool;
+  class Runtime,Bedrock,ModifyUpdate tool;
   class Output output;

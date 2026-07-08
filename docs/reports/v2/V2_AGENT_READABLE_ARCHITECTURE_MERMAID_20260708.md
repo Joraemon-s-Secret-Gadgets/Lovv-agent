@@ -85,7 +85,7 @@ flowchart TD
 ```mermaid
 flowchart LR
   subgraph Input["Input Layer"]
-    Intent["Intent\nentry_type 판별\ncity_select_input 생성\nmodify_intent 생성"]
+    Intent["Intent\nentry_type 판별\ncity_select_input 생성\nLLM 보조 modify_intent 생성"]
     Profile["Profile\nsaved_trip_count\ntheme_weights\nprofile_update"]
   end
 
