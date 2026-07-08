@@ -7,6 +7,10 @@ from typing import Any
 
 from langgraph.checkpoint.memory import MemorySaver
 
+from lovv_agent_v2.common.telemetry_memory import (
+    emit_memory_guard,
+    memory_guard_log_entry,
+)
 from lovv_agent_v2.infra.config import MemorySettings
 
 
@@ -18,6 +22,7 @@ def build_checkpointer(memory: MemorySettings) -> Any:
     """
 
     if not memory.enabled:
+        _emit_checkpointer_guard("local_memory_saver", "agentcore_memory_disabled", False)
         return MemorySaver()
 
     try:
@@ -27,12 +32,27 @@ def build_checkpointer(memory: MemorySettings) -> Any:
 
         if not memory.memory_id:
             raise RuntimeError("LOVV_MEMORY_ID is required when LOVV_MEMORY_ENABLED=True")
+        _emit_checkpointer_guard("agentcore_memory_saver", "agentcore_memory_enabled", True)
         return AgentCoreMemorySaver(memory.memory_id)
     except (ModuleNotFoundError, AttributeError) as exc:
         raise RuntimeError(
             "langgraph-checkpoint-aws package is required when LOVV_MEMORY_ENABLED=True. "
             "Please ensure it is installed in the target runtime environment."
         ) from exc
+
+
+def _emit_checkpointer_guard(
+    memory_mode: str,
+    event_guard: str,
+    memory_id_configured: bool,
+) -> None:
+    emit_memory_guard(
+        memory_guard_log_entry(
+            memory_mode=memory_mode,
+            event_guard=event_guard,
+            memory_id_configured=memory_id_configured,
+        ),
+    )
 
 
 __all__ = ["build_checkpointer"]

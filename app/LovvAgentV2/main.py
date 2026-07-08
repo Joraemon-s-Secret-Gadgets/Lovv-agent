@@ -11,11 +11,10 @@ from dotenv import load_dotenv
 # The V2 env file is absent from the deployed CodeZip, and override=False
 # preserves variables explicitly supplied by the environment.
 APP_DIR = Path(__file__).resolve().parent
-REPO_ROOT = Path(__file__).resolve().parents[2]
 
 for env_path in (
     APP_DIR / ".env.v2.local",
-    REPO_ROOT / ".env.v2.local",
+    *(parent / ".env.v2.local" for parent in APP_DIR.parents),
 ):
     load_dotenv(env_path, override=False)
 
