@@ -51,6 +51,8 @@ def trace_invocation(
     request_id = _request_id(state)
     started_at = time.perf_counter()
     with _TRACER.start_as_current_span("LovvAgentInvocation") as span:
+        span.set_attribute("gen_ai.agent.name", "LovvAgentV2")
+        span.set_attribute("gen_ai.system", "lovv")
         span.set_attribute("request.id", request_id)
         span.set_attribute(
             "agent.run_id",
@@ -89,6 +91,7 @@ def trace_invocation(
             restore_llm_usage(llm_token)
             restore_step_durations(step_token)
             restore_tool_calls(tool_token)
+            _force_flush_traces()
 
 
 def _emit_invocation(
@@ -142,6 +145,17 @@ def _record_span_error(span, exc: Exception) -> None:
 
 def _duration_ms(started_at: float) -> int:
     return max(0, int((time.perf_counter() - started_at) * 1000))
+
+
+def _force_flush_traces() -> None:
+    provider = trace.get_tracer_provider()
+    force_flush = getattr(provider, "force_flush", None)
+    if not callable(force_flush):
+        return
+    try:
+        force_flush(timeout_millis=2000)
+    except Exception:  # noqa: BLE001 - telemetry flush must not change graph outcome.
+        return
 
 
 __all__ = ["trace_invocation"]

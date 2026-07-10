@@ -129,6 +129,14 @@
         {
           "name": "OTEL_PYTHON_STARLETTE_EXCLUDED_URLS",
           "value": "ping"
+        },
+        {
+          "name": "AGENT_OBSERVABILITY_ENABLED",
+          "value": "true"
+        },
+        {
+          "name": "OTEL_TRACES_SAMPLER",
+          "value": "always_on"
         }
       ],
       "tags": {

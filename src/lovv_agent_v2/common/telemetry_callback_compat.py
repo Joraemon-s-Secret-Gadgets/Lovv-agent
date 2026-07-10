@@ -8,12 +8,17 @@ def patch_langchain_callback_resume_compat() -> None:
         from langchain_core.callbacks.base import BaseCallbackHandler
     except ImportError:
         return
-    if hasattr(BaseCallbackHandler, "on_resume"):
-        return
-    setattr(BaseCallbackHandler, "on_resume", _noop_on_resume)
+    if not hasattr(BaseCallbackHandler, "on_resume"):
+        setattr(BaseCallbackHandler, "on_resume", _noop_on_resume)
+    if not hasattr(BaseCallbackHandler, "on_interrupt"):
+        setattr(BaseCallbackHandler, "on_interrupt", _noop_on_interrupt)
 
 
 def _noop_on_resume(self: object, value: Any = None, **kwargs: Any) -> None:
+    return None
+
+
+def _noop_on_interrupt(self: object, value: Any = None, **kwargs: Any) -> None:
     return None
 
 

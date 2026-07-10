@@ -19,9 +19,26 @@ for env_path in (
     load_dotenv(env_path, override=False)
 
 from lovv_agent_v2.agentcore_entrypoint import handle_v2_invocation
+from lovv_agent_v2.common.runtime_logging import configure_runtime_logging
 from lovv_agent_v2.common.telemetry import init_telemetry
 
+configure_runtime_logging()
 init_telemetry()
+
+# Activate ADOT LangChain instrumentation manually.
+# When the runtime process is NOT launched via `opentelemetry-instrument` CLI,
+# the distro's instrumentors are not auto-loaded. We explicitly instrument
+# LangChain so that ADOT's callback handler creates invoke_agent/chain/llm
+# spans that AgentCore observability can display.
+try:
+    from amazon.opentelemetry.distro.instrumentation.langchain import LangChainInstrumentor
+    LangChainInstrumentor().instrument()
+    import json as _json
+    print(_json.dumps({"logType": "LANGCHAIN_INSTRUMENTOR", "status": "success"}))
+except Exception as _instr_err:  # noqa: BLE001
+    import json as _json
+    print(_json.dumps({"logType": "LANGCHAIN_INSTRUMENTOR", "status": "failed", "error": str(_instr_err)}))
+
 app = BedrockAgentCoreApp()
 
 

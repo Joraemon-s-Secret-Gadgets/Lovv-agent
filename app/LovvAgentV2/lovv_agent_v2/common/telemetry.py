@@ -12,6 +12,7 @@ from lovv_agent_v2.core.state import UnifiedAgentState
 from lovv_agent_v2.common.telemetry_callback_compat import (
     patch_langchain_callback_resume_compat,
 )
+from lovv_agent_v2.common.telemetry_init_log import add_span_processor, build_tracer_provider, emit_telemetry_init, telemetry_init_base
 from lovv_agent_v2.common.telemetry_metrics import (
     LlmUsageMetric,
     context_window_for_model,
@@ -48,7 +49,7 @@ _TELEMETRY_INITIALIZED = False
 
 
 def init_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
-    global _TELEMETRY_INITIALIZED
+    global _TELEMETRY_INITIALIZED, _TRACER
     patch_langchain_callback_resume_compat()
     if _TELEMETRY_INITIALIZED:
         return
@@ -57,21 +58,75 @@ def init_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
         from opentelemetry.sdk.resources import Resource
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    except ImportError:
+        from opentelemetry.sdk.trace.sampling import ALWAYS_ON
+    except ImportError as exc:
+        emit_telemetry_init(
+            {
+                "sdkAvailable": False,
+                "exporterAvailable": False,
+                "missingModule": exc.name or type(exc).__name__,
+                **telemetry_init_base(service_name),
+            },
+        )
         return
 
     resource = Resource.create({"service.name": service_name})
-    provider = _build_tracer_provider(TracerProvider, resource)
-
+    exporter_type = None
     try:
         from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     except ImportError:
         pass
     else:
-        provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+        exporter_type = OTLPSpanExporter
 
-    trace.set_tracer_provider(provider)
+    # Check whether ADOT or another framework already installed an SDK provider.
+    # If so, DO NOT replace it — replacing the provider breaks the AgentCore
+    # observability pipeline that ADOT configures.  Instead, just attach our
+    # own exporter processor to the existing provider so our spans also flow.
+    current_provider = trace.get_tracer_provider()
+    adot_provider_active = isinstance(current_provider, TracerProvider)
+
+    provider_processor_attached = existing_provider_processor_attached = False
+
+    if adot_provider_active:
+        # ADOT (or auto-instrumentation) already set up a real SDK provider.
+        # Reuse it — only add our OTLP exporter if the env var is set (local dev).
+        import os
+        if exporter_type is not None and os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
+            existing_provider_processor_attached = add_span_processor(
+                current_provider,
+                BatchSpanProcessor,
+                exporter_type,
+            )
+    else:
+        # No SDK provider — we're running locally or without auto-instrumentation.
+        # Create and install our own provider.
+        provider = build_tracer_provider(TracerProvider, resource, ALWAYS_ON)
+        if exporter_type is not None:
+            provider_processor_attached = add_span_processor(
+                provider,
+                BatchSpanProcessor,
+                exporter_type,
+            )
+        trace.set_tracer_provider(provider)
+        current_provider = trace.get_tracer_provider()
+
+    _TRACER = trace.get_tracer("lovv_agent_v2.common.telemetry")
     _configure_xray_propagator()
+    emit_telemetry_init(
+        {
+            "sdkAvailable": True,
+            "exporterAvailable": exporter_type is not None,
+            "providerType": type(current_provider).__name__,
+            "activeProviderType": type(current_provider).__name__,
+            "setProviderActive": not adot_provider_active,
+            "adotProviderReused": adot_provider_active,
+            "providerProcessorAttached": provider_processor_attached,
+            "existingProviderProcessorAttached": existing_provider_processor_attached,
+            "samplerName": "ALWAYS_ON" if not adot_provider_active else "adot-managed",
+            **telemetry_init_base(service_name),
+        },
+    )
     _TELEMETRY_INITIALIZED = True
 
 
@@ -100,7 +155,11 @@ def _trace_with_state(
         request_id = _request_id(state)
         metric_start = llm_usage_count()
         started_at = time.perf_counter()
-        with _TRACER.start_as_current_span(f"node.{node_name}") as span:
+        with _TRACER.start_as_current_span(
+            f"node.{node_name}", record_exception=False, set_status_on_exception=False
+        ) as span:
+            span.set_attribute("gen_ai.operation.name", f"node.{node_name}")
+            span.set_attribute("gen_ai.system", "lovv")
             _set_node_span_attributes(span, node_name, state, request_id)
             try:
                 result = node_func(node_input)
@@ -156,14 +215,6 @@ def _trace_with_state(
             return result
 
     return wrapper
-
-
-def _build_tracer_provider(provider_type, resource):
-    try:
-        from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
-    except ImportError:
-        return provider_type(resource=resource)
-    return provider_type(resource=resource, id_generator=AwsXRayIdGenerator())
 
 
 def _configure_xray_propagator() -> None:
