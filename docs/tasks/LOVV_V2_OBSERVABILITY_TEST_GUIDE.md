@@ -151,7 +151,170 @@ $payload.response.clarification
 - `responseStatus = "END_WAIT_USER"`이면 clarification interrupt가 정상 발생한 것이다.
 - `response.clarification.options[].helperText`가 있으면 front 표시 문구까지 포함된 상태이다.
 
-## 7. 기존 live E2E 예시
+## 7. E2E 단일 JSON 캡처
+
+`run_general_live_smoke.py`는 response JSON과 stdout 로그를 분리해서 남긴다. 특정 이슈를 재현하며 한 파일 안에서 public response, `AGENT_*` 로그, 로컬 span 목록, public 출처 필드 노출 여부를 같이 확인하려면 아래처럼 inline capture를 사용한다.
+
+주의:
+
+- live AWS 호출이므로 sandbox 밖에서 실행한다.
+- 비용/메모리 과금 방지를 위해 local live 검증에서는 `LOVV_MEMORY_ENABLED=false`를 강제한다.
+- 이 캡처는 로컬 in-process span 확인용이다. AgentCore/X-Ray 화면에 표시되는 deployed trace 확인은 §10을 따른다.
+
+```powershell
+@'
+import contextlib, datetime as dt, io, json, os
+from pathlib import Path
+
+for line in Path(".env.v2.local").read_text(encoding="utf-8").splitlines():
+    stripped = line.strip()
+    if stripped and not stripped.startswith("#") and "=" in stripped:
+        key, value = stripped.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip())
+
+os.environ["LOVV_MEMORY_ENABLED"] = "false"
+os.environ["LOVV_ENABLE_AGENTCORE_MEMORY"] = "false"
+os.environ["AWS_REGION"] = os.environ.get("LOVV_AWS_REGION", "us-east-1")
+os.environ["AWS_DEFAULT_REGION"] = os.environ.get("LOVV_AWS_REGION", "us-east-1")
+
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+try:
+    from opentelemetry.sdk.trace.export import InMemorySpanExporter
+except ImportError:
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+span_exporter = InMemorySpanExporter()
+provider = TracerProvider()
+provider.add_span_processor(SimpleSpanProcessor(span_exporter))
+trace.set_tracer_provider(provider)
+
+from lovv_agent_v2.agentcore_entrypoint import handle_v2_invocation
+
+stamp = dt.datetime.now(dt.UTC).strftime("%Y%m%dT%H%M%SZ")
+session = f"sess-source-trace-{stamp.lower()}"
+event = {
+    "entryType": "create",
+    "requestId": f"req-source-trace-{stamp.lower()}",
+    "sessionId": session,
+    "threadId": session,
+    "actorId": "local-live-source-trace",
+    "country": "KR",
+    "travelYear": 2026,
+    "travelMonth": 7,
+    "tripType": "2d1n",
+    "includeFestivals": False,
+    "rawQuery": "7월에 동해 바다를 조용히 산책하는 1박 2일 여행을 추천해줘",
+    "themes": ["바다·해안"],
+    "preferredThemeIds": ["sea_coast"],
+    "destinationId": "KR-51-170",
+}
+
+stdout = io.StringIO()
+with contextlib.redirect_stdout(stdout):
+    response = handle_v2_invocation(event)
+
+logs = []
+for line in stdout.getvalue().splitlines():
+    try:
+        entry = json.loads(line)
+    except json.JSONDecodeError:
+        continue
+    if isinstance(entry, dict):
+        logs.append(entry)
+
+spans = [
+    {
+        "name": span.name,
+        "status": str(span.status.status_code).split(".")[-1],
+        "spanId": f"{span.context.span_id:016x}",
+        "traceId": f"{span.context.trace_id:032x}",
+    }
+    for span in span_exporter.get_finished_spans()
+]
+
+items = [
+    item
+    for day in response.get("itinerary", {}).get("days", [])
+    for item in day.get("items", [])
+]
+source_probe = [
+    {
+        "title": item.get("title"),
+        "publicKeys": sorted(item.keys()),
+        "contentId": item.get("contentId"),
+        "source": item.get("source"),
+        "sourceType": item.get("sourceType"),
+        "sourceUrl": item.get("sourceUrl"),
+        "evidence": item.get("evidence"),
+        "links": item.get("links"),
+        "indoorOutdoor": item.get("indoorOutdoor"),
+    }
+    for item in items[:5]
+]
+
+payload = {
+    "capturedAt": stamp,
+    "event": event,
+    "response": response,
+    "sourceFieldProbe": {
+        "topLevelLinks": response.get("links"),
+        "festivalDateVerifications": response.get("festivalDateVerifications"),
+        "itemSamples": source_probe,
+    },
+    "logs": logs,
+    "spanSummary": spans,
+    "summary": {
+        "logCount": len(logs),
+        "nodeMetricCount": sum(1 for entry in logs if entry.get("logType") == "AGENT_NODE_METRIC"),
+        "lifecycleMetricCount": sum(1 for entry in logs if entry.get("logType") == "AGENT_LIFECYCLE_METRIC"),
+        "spanCount": len(spans),
+        "spanNames": [span["name"] for span in spans],
+        "clarificationReason": (response.get("clarification") or {}).get("reasonCode"),
+        "destination": response.get("destination"),
+        "itemCount": len(items),
+    },
+}
+
+out_dir = Path("docs/tasks/results/v2_e2e_trace_live")
+out_dir.mkdir(parents=True, exist_ok=True)
+out_path = out_dir / f"{stamp}_source_trace_e2e.json"
+out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(out_path)
+print(json.dumps(payload["summary"], ensure_ascii=False, indent=2))
+'@ | .venv\Scripts\python.exe -
+```
+
+생성된 JSON에서 바로 확인할 항목:
+
+```powershell
+$path = "docs\tasks\results\v2_e2e_trace_live\20260710T081655Z_source_trace_e2e.json"
+$payload = Get-Content $path -Raw | ConvertFrom-Json
+$payload.summary
+$payload.sourceFieldProbe.topLevelLinks
+$payload.sourceFieldProbe.itemSamples | Select-Object title, contentId, source, sourceType, sourceUrl, evidence, links
+$payload.spanSummary | Select-Object name, status
+$payload.logs | Group-Object logType | Select-Object Name, Count
+```
+
+2026-07-10 기준 샘플:
+
+```text
+docs/tasks/results/v2_e2e_trace_live/20260710T081655Z_source_trace_e2e.json
+```
+
+관측값:
+
+- `spanCount`: 21
+- `AGENT_NODE_METRIC`: 15
+- `AGENT_LIFECYCLE_METRIC`: 3
+- 주요 span: `LovvAgentInvocation`, `node.intent`, `node.planner.retrieve_places`, `node.planner.route_days`, `node.explain_itinerary`, `node.response_packager`, `s3vectors.QueryVectors`, `dynamodb.BatchGetItem`, `BedrockConverse`
+- public response의 `links`: `{}`
+- public itinerary item의 `source`, `sourceType`, `sourceUrl`, `evidence`, `links`: 현재 `null`
+- public item에서 출처를 추적할 수 있는 값은 현재 `contentId` 정도다.
+
+## 8. 기존 live E2E 예시
 
 기준 결과:
 
@@ -174,7 +337,7 @@ docs/tasks/results/v2_observability_live_e2e/20260708T160734Z/
 - `toolMetrics`: `bedrock.Converse`, `bedrock.InvokeModel`, `dynamodb.BatchGetItem`, `s3vectors.QueryVectors`, `ors.SnapPlaces`, `ors.GetMatrix`.
 - `AGENT_MEMORY_GUARD`: local memory saver 또는 AgentCore memory event page 상태.
 
-## 8. 분석 기준
+## 9. 분석 기준
 
 우선 확인할 항목:
 
@@ -197,7 +360,7 @@ docs/tasks/results/v2_observability_live_e2e/20260708T160734Z/
 - `toolMetrics.bedrock.Converse.maxMs` 또는 `ors.GetMatrix.maxMs`가 전체 지연 대부분을 차지함.
 - clarification이 필요한 케이스인데 `END_WAIT_USER`가 아닌 완료 응답으로 내려감.
 
-## 9. CloudWatch에서 확인할 때
+## 10. CloudWatch에서 확인할 때
 
 배포 runtime에서는 같은 JSON line이 CloudWatch Logs에 남는다. Logs Insights에서는 `logType` 기준으로 필터링한다.
 
@@ -218,7 +381,7 @@ fields @timestamp, logType, nodeName, lifecycleType, event, durationMs, status
 
 외부 tool 병목은 `AGENT_INVOCATION_METRIC.toolMetrics`를 펼쳐서 확인한다. CloudWatch Logs Insights에서 nested JSON 집계가 불편하면, stdout log를 내려받아 §5의 PowerShell 분석 절차를 사용한다.
 
-## 10. 운영 메모
+## 11. 운영 메모
 
 - live test를 많이 반복할 때는 memory off local harness로 라우팅/성능 문제를 먼저 해결한다.
 - AgentCore Memory를 켠 검증은 session 수와 반복 횟수를 제한한다.
