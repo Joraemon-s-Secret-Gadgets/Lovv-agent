@@ -14,7 +14,6 @@ from lovv_agent_v2.common.telemetry_state import (
     bool_value,
     mapping_value,
     nested_mapping,
-    request_mapping,
     text_value,
     themes,
 )
@@ -63,18 +62,24 @@ def emit_node_metric(entry: LogEntry) -> None:
 
 
 def _input_summary(state: UnifiedAgentState) -> dict[str, JsonValue]:
-    request = request_mapping(state)
+    request = mapping_value(state.get("request")) or {}
+    city_input = nested_mapping(state, "intent", "city_select_input") or {}
     request_themes = themes(request)
+    active_themes = themes(city_input)
+    summary_source = request or city_input
     return {
         "themes": list(request_themes),
         "themeCount": len(request_themes),
-        "tripType": text_value(request.get("trip_type", request.get("tripType"))),
+        "requestThemes": list(request_themes),
+        "activeRequiredThemes": list(active_themes),
+        "activeThemeCount": len(active_themes),
+        "tripType": text_value(summary_source.get("trip_type", summary_source.get("tripType"))),
         "includeFestivals": bool_value(
-            request.get("include_festivals", request.get("includeFestivals")),
+            summary_source.get("include_festivals", summary_source.get("includeFestivals")),
         ),
         "queryLength": len(
             text_value(
-                request.get("natural_language_query", request.get("naturalLanguageQuery")),
+                summary_source.get("natural_language_query", summary_source.get("naturalLanguageQuery")),
             ),
         ),
     }
