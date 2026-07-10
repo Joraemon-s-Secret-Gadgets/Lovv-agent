@@ -45,6 +45,26 @@ app = BedrockAgentCoreApp()
 @app.entrypoint
 async def invoke(payload, context):
     """Invoke the Lovv V2 recommendation graph inside AgentCore Runtime."""
+    import os
+    if not os.getenv("ORS_API_KEY"):
+        try:
+            import boto3, json as _j
+            sm = boto3.client("secretsmanager", region_name="us-east-1")
+            secret = sm.get_secret_value(
+                SecretId="bedrock-agentcore-identity!default/apikey/ors_service_key-95fa23b5"
+            )
+            secret_data = _j.loads(secret["SecretString"])
+            # Token Vault stores the key as {"api_key_value": "..."}
+            api_key = (
+                secret_data.get("api_key_value")
+                or secret_data.get("apiKey")
+                or secret_data.get("api_key")
+                or (secret_data if isinstance(secret_data, str) else None)
+            )
+            if api_key:
+                os.environ["ORS_API_KEY"] = str(api_key)
+        except Exception:  # noqa: BLE001
+            pass
 
     return handle_v2_invocation(payload, context)
 
