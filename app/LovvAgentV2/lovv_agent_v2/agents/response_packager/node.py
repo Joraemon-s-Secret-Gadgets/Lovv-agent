@@ -301,16 +301,19 @@ def _modify_clarification_payload(clarification: Mapping[str, Any]) -> dict[str,
     options = payload.get("options")
     if isinstance(options, list) and options:
         return payload
+    reason_code = str(payload.get("reason_code", "modify_seed_theme_conflict"))
+    if reason_code == "modify_target_unresolved":
+        return _target_unresolved_clarification(payload, reason_code)
     payload["options"] = [
         {
             "option_id": "revise_modify_query",
             "label": _label_text(
-                str(payload.get("reason_code", "modify_seed_theme_conflict")),
+                reason_code,
                 "revise_modify_query",
                 "수정 요청 다시 입력",
             ),
             "helper_text": _helper_text(
-                str(payload.get("reason_code", "modify_seed_theme_conflict")),
+                reason_code,
                 "revise_modify_query",
                 "수정할 일자나 순서를 포함해 다시 요청합니다.",
             ),
