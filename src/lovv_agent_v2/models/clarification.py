@@ -13,6 +13,7 @@ REASON_CODES: tuple[str, ...] = (
     "anchor_festival_conflict",
     "no_candidate_city",
     "contradiction",
+    "unsupported_region",
     "thin_city",
     "weather_alternative_available",
     "modify_target_unresolved",
