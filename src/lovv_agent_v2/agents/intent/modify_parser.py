@@ -44,8 +44,6 @@ def build_modify_intent(
             "audit": {"parser": "rule_v2"},
         }
     current_order_items = current_order(request, state)
-    if not current_order_items:
-        return _missing_current_itinerary_result(base)
     city_change = _city_change(raw_query, current_order_items)
     if city_change is not None:
         return {
@@ -59,6 +57,8 @@ def build_modify_intent(
             "routing_hint": _city_change_routing_hint(city_change),
             "audit": {"parser": "rule_v2"},
         }
+    if not current_order_items:
+        return _missing_current_itinerary_result(base)
     day_regenerate = day_regenerate_request(raw_query, current_order_items)
     if day_regenerate is not None:
         return {
