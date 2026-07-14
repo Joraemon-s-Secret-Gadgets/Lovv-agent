@@ -4,6 +4,10 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from lovv_agent_v2.agents.planner.domain.place_model import PlannerPlace
+from lovv_agent_v2.agents.planner.steps.apply_edit.explanation_scope import (
+    EXPLANATION_MARKERS,
+    explanation_place_ids,
+)
 
 REPLACEMENT_NOTICE = "요청한 장소를 같은 일정 안에서 대체했습니다."
 PARTIAL_NOTICE_TEMPLATE = "{total}개 수정 중 {applied}개를 반영했고, {failed}개는 반영하지 못했습니다."
@@ -81,9 +85,12 @@ def _planner_output(
     applied_edit: Mapping[str, Any],
 ) -> dict[str, Any]:
     validation = dict(_mapping(previous_output.get("validation_result")))
+    for marker in EXPLANATION_MARKERS:
+        validation.pop(marker, None)
     validation["planner_status_gate"] = "ok"
     validation["modification_status"] = "applied"
     validation["applied_edit"] = dict(applied_edit)
+    validation["explanation_item_place_ids"] = explanation_place_ids(applied_edit)
     notice = _with_notice(previous_output.get("user_notice", ()))
     return {
         "itinerary": itinerary,

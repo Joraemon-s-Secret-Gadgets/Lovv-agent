@@ -13,6 +13,7 @@ from lovv_agent_v2.agents.response_packager.planner_copy_composer import (
     validate_planner_copy_explanation_output,
 )
 from lovv_agent_v2.core.graph import compile_v2_graph
+from lovv_agent_v2.agents.supervisor.router import route_next_action
 from lovv_agent_v2.models.schemas import SchemaValidationError
 from lovv_agent_v2.models.schemas import PlannerOutput
 
@@ -91,6 +92,31 @@ def _planner_output() -> dict[str, Any]:
     ).to_dict()
 
 
+def _planner_output_with_modified_item() -> dict[str, Any]:
+    output = _planner_output()
+    output["itinerary"] = (
+        output["itinerary"][0],
+        {
+            **output["itinerary"][0],
+            "placeId": "P-2",
+            "title": "새 실내 전시관",
+            "body": "수정 요청에 맞춰 대체한 방문지입니다.",
+            "reason": "기존 슬롯을 유지하면서 후보 적합성과 이동 가능성을 확인했습니다.",
+            "copy_source": "deterministic_modify_copy",
+        },
+    )
+    output["validation_result"] = {
+        **output["validation_result"],
+        "planner_copy_generation_used_llm": True,
+        "itinerary_explanation_item_count": 1,
+        "modification_status": "applied",
+        "applied_edit": {
+            "replacement": {"content_id": "P-2", "title": "새 실내 전시관"},
+        },
+    }
+    return output
+
+
 def _state(
     runtime: ItineraryExplanationRuntime | None = None,
     *,
@@ -128,6 +154,51 @@ def _state(
     if runtime_bucket is not None:
         state["runtime"] = runtime_bucket
     return state
+
+
+def test_explain_itinerary_only_updates_modified_items() -> None:
+    runtime = PlannerCopyRuntime(
+        {
+            "structured_output": {
+                "item_copies": [
+                    {
+                        "item_ref": "item:1",
+                        "title": "설명된 새 실내 전시관",
+                        "body": "수정된 실내 전시관의 공개 설명을 바탕으로 보강했습니다.",
+                        "reason": "요청한 실내 전시 분위기에 맞춰 새로 대체된 장소입니다.",
+                    },
+                ],
+                "recommendation_reasons": ["수정된 장소만 새 설명으로 보강했습니다."],
+                "itinerary_flow_reason": "기존 흐름은 유지하고 바뀐 슬롯만 설명했습니다.",
+            },
+        },
+    )
+    state = _state(
+        ItineraryExplanationRuntime(
+            explanation_runtime=runtime,
+            dynamo_lookup=RecordingDynamoLookup(),
+            schema_retry_limit=0,
+        ),
+    )
+    state["planner"]["planner_output"] = _planner_output_with_modified_item()
+
+    result = explain_itinerary_node(state)
+
+    output = _planner_output_from_result(result)
+    assert output["itinerary"][0]["title"] == "해변"
+    assert output["itinerary"][1]["title"] == "설명된 새 실내 전시관"
+    assert output["itinerary"][1]["copy_source"] == "llm_planner_copy"
+    assert len(runtime.requests) == 1
+
+
+def test_supervisor_routes_modified_output_back_to_explain_itinerary() -> None:
+    state = _state()
+    state["profile"] = {"audit": {}}
+    state["festival_gate"] = {"result": None, "audit": {"skipped": True}}
+    state["planner"]["planner_output"] = _planner_output_with_modified_item()
+    state["planner"]["validation_result"] = state["planner"]["planner_output"]["validation_result"]
+
+    assert route_next_action(state) == "explain_itinerary"
 
 
 def test_explain_itinerary_node_uses_v1_composer_with_enriched_v2_items() -> None:

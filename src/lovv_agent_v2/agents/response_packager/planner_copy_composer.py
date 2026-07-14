@@ -87,8 +87,9 @@ def compose_planner_copy_explanation(
     fallback_recommendation_reasons: Sequence[str],
     fallback_itinerary_flow_reason: str,
     fallback_explanation_audit: PlannerExplanationAudit,
+    target_item_refs: Sequence[str] = (),
 ) -> PlannerCopyExplanation:
-    item_refs = tuple(_item_ref(index) for index, _ in enumerate(itinerary))
+    item_refs = tuple(target_item_refs) or tuple(_item_ref(index) for index, _ in enumerate(itinerary))
     request = build_structured_converse_request(
         messages=[{"role": "user", "content": [{"text": json.dumps(safe_summary, ensure_ascii=False)}]}],
         system=[{"text": _prompt_text()}],

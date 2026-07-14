@@ -59,6 +59,13 @@ def explain_planner_output(explanation_input: ItineraryExplanationInput) -> Plan
             validation_result=planner_output.validation_result,
         ),
     )
+    target_refs = _target_item_refs(itinerary, planner_output.validation_result)
+    if target_refs:
+        safe_summary = {
+            **safe_summary,
+            "copy_target_item_refs": list(target_refs),
+            "copy_scope": "changed_items_only",
+        }
     audit = fallback_audit(itinerary)
     validation_result = _validation_result(
         planner_output,
@@ -77,6 +84,7 @@ def explain_planner_output(explanation_input: ItineraryExplanationInput) -> Plan
         fallback_recommendation_reasons=planner_output.recommendation_reasons,
         fallback_itinerary_flow_reason=planner_output.itinerary_flow_reason,
         fallback_explanation_audit=audit,
+        target_item_refs=target_refs,
     )
     validation_result["planner_copy_generation_used_llm"] = composed.used_llm
     return PlannerOutput(
@@ -106,8 +114,37 @@ def _validation_result(
     if detail_warnings:
         validation["detail_enrichment_warnings"] = tuple(dict(warning) for warning in detail_warnings)
     if itinerary:
-        validation["itinerary_explanation_item_count"] = len(itinerary)
+        target_refs = _target_item_refs(itinerary, validation)
+        validation["itinerary_explanation_item_count"] = len(target_refs) if target_refs else len(itinerary)
+        if target_refs:
+            validation["modification_explanation_completed"] = True
     return validation
+
+
+def _target_item_refs(
+    itinerary: Sequence[Mapping[str, Any]],
+    validation_result: Mapping[str, Any],
+) -> tuple[str, ...]:
+    place_ids = _text_tuple(validation_result.get("explanation_item_place_ids"))
+    if not place_ids:
+        return ()
+    target_ids = set(place_ids)
+    return tuple(
+        f"item:{index}"
+        for index, item in enumerate(itinerary)
+        if _place_id(item) in target_ids
+    )
+
+
+def _text_tuple(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        return ()
+    return tuple(item.strip() for item in value if isinstance(item, str) and item.strip())
+
+
+def _place_id(item: Mapping[str, Any]) -> str | None:
+    value = item.get("placeId", item.get("place_id"))
+    return value.strip() if isinstance(value, str) and value.strip() else None
 
 
 def _audit_with_note(audit: PlannerExplanationAudit, note: str) -> PlannerExplanationAudit:
