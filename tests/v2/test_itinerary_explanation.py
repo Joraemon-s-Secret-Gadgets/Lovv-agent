@@ -41,7 +41,10 @@ class RecordingDynamoLookup:
         enriched = tuple(
             replace(
                 place,
-                details={"overview": f"{place.title} 공개 개요입니다."},
+                details={
+                    "description": f"{place.title} 공개 description입니다.",
+                    "overview": f"{place.title} 공개 개요입니다.",
+                },
             )
             for place in final_places
         )
@@ -162,9 +165,15 @@ def test_explain_itinerary_node_uses_v1_composer_with_enriched_v2_items() -> Non
     assert item["copy_source"] == "llm_planner_copy"
     assert output["recommendation_reasons"] == ("속초의 해안 산책 요청에 맞춰 구성했습니다.",)
     assert output["validation_result"]["planner_copy_generation_used_llm"] is True
-    assert "해변 공개 개요입니다." in runtime.requests[0]["messages"][0]["content"][0]["text"]
+    assert "해변 공개 개요입니다." not in runtime.requests[0]["messages"][0]["content"][0]["text"]
+    assert "해변 공개 description입니다." in runtime.requests[0]["messages"][0]["content"][0]["text"]
     system_prompt = json.loads(runtime.requests[0]["system"][0]["text"])
     assert system_prompt["artifact"] == "planner_copy_explanation"
+    assert system_prompt["output_contract"]["body_max_chars"] == 120
+    assert system_prompt["output_contract"]["body_min_guideline"] == "description이 있으면 body는 70자 이상 권장"
+    assert system_prompt["output_contract"]["item_reason_length"] == "각 reason 70~130자 권장"
+    assert "인적 밀도" in system_prompt["style_rules"]["congestion_claim_rule"]
+    assert "final_itinerary_items.overview" not in system_prompt["grounding_policy"]["allowed_sources"]
     assert system_prompt["grounding_policy"]["itinerary_scope"] == "final_itinerary_only"
     assert dynamo_lookup.calls[0][0].ddb_pk == "CITY#SOKCHO"
 

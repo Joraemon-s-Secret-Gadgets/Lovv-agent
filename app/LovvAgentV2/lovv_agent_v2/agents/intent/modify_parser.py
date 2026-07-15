@@ -44,6 +44,8 @@ def build_modify_intent(
             "audit": {"parser": "rule_v2"},
         }
     current_order_items = current_order(request, state)
+    if not current_order_items:
+        return _missing_current_itinerary_result(base)
     city_change = _city_change(raw_query, current_order_items)
     if city_change is not None:
         return {
@@ -234,6 +236,25 @@ def _clarification_result(
             "options": [dict(option) for option in options],
         },
         "unsupported_reasons": [],
+        "routing_hint": "response_packager_wait_user",
+        "audit": {"parser": "rule_v2"},
+    }
+
+
+def _missing_current_itinerary_result(base: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        **base,
+        "status": "needs_clarification",
+        "kind": "unsupported",
+        "reason_code": "modify_missing_current_itinerary",
+        "edit_ops": [],
+        "city_change": None,
+        "clarification": {
+            "reason_code": "modify_missing_current_itinerary",
+            "prompt": "수정할 기존 일정을 찾지 못했습니다. 먼저 일정을 생성해 주세요.",
+            "options": [],
+        },
+        "unsupported_reasons": ["missing_current_itinerary"],
         "routing_hint": "response_packager_wait_user",
         "audit": {"parser": "rule_v2"},
     }

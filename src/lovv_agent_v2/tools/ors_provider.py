@@ -3,11 +3,13 @@ from __future__ import annotations
 import importlib.util
 import os
 import sys
+import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
 
+from lovv_agent_v2.common.telemetry_metrics import record_tool_call
 from lovv_agent_v2.tools.agentcore_credentials import resolve_agentcore_api_key
 from lovv_agent_v2.tools.ors_results import durations_minutes, snapped_payloads
 from lovv_agent_v2.tools.travel_time_provider import (
@@ -56,6 +58,7 @@ class OrsTravelTimeProvider:
             return _snap_with_audit(snap, "ors_external_haversine_presnap", missing_ids)
         module = self._ors_module()
         client = self._client(module)
+        start = time.perf_counter()
         try:
             result = client.snap_places(
                 list(candidates.values()),
@@ -63,10 +66,12 @@ class OrsTravelTimeProvider:
                 radius_m=self.config.snap_radius_m,
             )
         except (ImportError, OSError, RuntimeError, ValueError):
+            record_tool_call("ors", "SnapPlaces", _duration_ms(start))
             snap = fallback.snap_places(places, transport_pref)
             self._snap_payloads = {place_id: payload for place_id, payload in payload_by_id.items()}
             self._snapped_places = {place_id: candidate for place_id, candidate in candidates.items()}
             return _snap_with_audit(snap, "ors_external_snap_failure_fallback", missing_ids)
+        record_tool_call("ors", "SnapPlaces", _duration_ms(start))
         snapped = snapped_payloads(payload_by_id, result)
         self._snap_payloads = snapped
         self._snapped_places = {
@@ -97,12 +102,14 @@ class OrsTravelTimeProvider:
             return MatrixResponse(durations={}, audit={"matrix_provider": "ors_external_empty"})
         module = self._ors_module()
         client = self._client(module)
+        start = time.perf_counter()
         result = client.get_matrix(
             matrix_places,
             profile=_profile(transport_pref),
             use_cache=True,
             allow_fallback=self.config.allow_fallback,
         )
+        record_tool_call("ors", "GetMatrix", _duration_ms(start))
         return MatrixResponse(
             durations=durations_minutes(result),
             audit={
@@ -212,6 +219,10 @@ def _cache_dir() -> Path | None:
 
 def _profile(transport_pref: str) -> str:
     return "foot-walking" if transport_pref == "walk" else "driving-car"
+
+
+def _duration_ms(start: float) -> int:
+    return int((time.perf_counter() - start) * 1000)
 
 
 def _snap_with_audit(
