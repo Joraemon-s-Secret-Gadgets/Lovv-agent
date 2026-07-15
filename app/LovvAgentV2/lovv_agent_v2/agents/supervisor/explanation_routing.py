@@ -5,7 +5,10 @@ from typing import Any
 
 
 def has_pending_explanation_scope(validation: Mapping[str, Any]) -> bool:
-    if validation.get("modification_explanation_completed") is True:
+    if (
+        validation.get("modification_explanation_completed") is True
+        or validation.get("modification_explanation_attempted") is True
+    ):
         return False
     value = validation.get("explanation_item_place_ids")
     if isinstance(value, (list, tuple)) and bool(value):

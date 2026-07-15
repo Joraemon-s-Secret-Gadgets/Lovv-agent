@@ -64,6 +64,8 @@ def planner_with_weather_alternative(
             "detail_enrichment_warning_count",
             "detail_enrichment_warnings",
             "itinerary_explanation_item_count",
+            "modification_explanation_attempted",
+            "modification_explanation_completed",
         ):
             validation.pop(marker, None)
     else:

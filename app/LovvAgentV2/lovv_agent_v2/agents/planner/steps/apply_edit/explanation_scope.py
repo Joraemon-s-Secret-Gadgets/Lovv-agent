@@ -8,20 +8,25 @@ EXPLANATION_MARKERS = (
     "detail_enrichment_warning_count",
     "detail_enrichment_warnings",
     "itinerary_explanation_item_count",
+    "modification_explanation_attempted",
+    "modification_explanation_completed",
 )
 
 
-def explanation_place_ids(applied_edit: Mapping[str, Any]) -> tuple[str, ...]:
-    replacement = _mapping(applied_edit.get("replacement"))
-    replacement_id = _optional_text(replacement.get("content_id"))
-    if replacement_id is not None:
-        return (replacement_id,)
-    replacements = _mapping_sequence(applied_edit.get("replacements"))
-    return tuple(
-        content_id
-        for item in replacements
-        if (content_id := _optional_text(item.get("content_id"))) is not None
-    )
+def explanation_place_ids(
+    applied_edits: Sequence[Mapping[str, Any]],
+) -> tuple[str, ...]:
+    place_ids: list[str] = []
+    for applied_edit in applied_edits:
+        replacements = (
+            _mapping_sequence(applied_edit.get("replacements"))
+            or (_mapping(applied_edit.get("replacement")),)
+        )
+        for replacement in replacements:
+            replacement_id = _optional_text(replacement.get("content_id"))
+            if replacement_id is not None and replacement_id not in place_ids:
+                place_ids.append(replacement_id)
+    return tuple(place_ids)
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:

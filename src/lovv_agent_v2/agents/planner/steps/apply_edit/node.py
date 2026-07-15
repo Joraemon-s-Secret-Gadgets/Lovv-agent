@@ -21,13 +21,21 @@ from lovv_agent_v2.common.telemetry_lifecycle import emit_modify_result
 
 
 def apply_edit_node(state: Mapping[str, Any]) -> dict[str, Any]:
-    modify_intent = _modify_intent(state)
+    planner = dict(_mapping(state.get("planner")))
+    context = dict(_mapping(planner.get("modify_context")))
+    for key in ("applied_edit", "failed_edit", "applied_edits", "failed_edits"):
+        context.pop(key, None)
+    planner["modify_context"] = context
+    current_state: Mapping[str, Any] = {**state, "planner": planner}
+    modify_intent = _modify_intent(current_state)
     if modify_intent.get("kind") == "day_regenerate":
-        return _with_modify_metric(state, apply_day_regenerate(state, modify_intent))
+        return _with_modify_metric(state, apply_day_regenerate(current_state, modify_intent))
     operations = _operations(modify_intent)
     if not operations:
-        return _with_modify_metric(state, failed_update(state, _failed_edit("modify_multi_edit_deferred")))
-    current_state: Mapping[str, Any] = state
+        return _with_modify_metric(
+            state,
+            failed_update(current_state, _failed_edit("modify_multi_edit_deferred")),
+        )
     for operation in operations:
         current_state = _merged_state(current_state, _apply_operation(current_state, operation))
     return _with_modify_metric(state, finalized_update(current_state, len(operations)))
