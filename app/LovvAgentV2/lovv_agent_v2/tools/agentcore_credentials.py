@@ -40,38 +40,8 @@ def resolve_agentcore_api_key(
     client: AgentCoreIdentityClient | None = None,
 ) -> str | None:
     provider_name = _env_text(credential_env_var)
-    if provider_name is None:
-        return None
-
-    # Primary: SDK helper that resolves workload identity automatically
-    try:
-        from bedrock_agentcore.identity import get_workload_access_token as _get_token
-        import asyncio
-
-        loop = None
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            pass
-
-        if loop and loop.is_running():
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                token = pool.submit(asyncio.run, _get_token()).result(timeout=10)
-        else:
-            token = asyncio.run(_get_token())
-
-        identity_client = client or _agentcore_client()
-        return identity_client.get_resource_api_key(
-            workloadIdentityToken=token,
-            resourceCredentialProviderName=provider_name,
-        )["apiKey"]
-    except Exception:  # noqa: BLE001
-        pass
-
-    # Fallback: manual workloadName approach
     workload_name = _env_text("LOVV_AGENTCORE_WORKLOAD_NAME")
-    if workload_name is None:
+    if provider_name is None or workload_name is None:
         return None
     user_id = _env_text("LOVV_AGENTCORE_USER_ID") or DEFAULT_USER_ID
     try:
