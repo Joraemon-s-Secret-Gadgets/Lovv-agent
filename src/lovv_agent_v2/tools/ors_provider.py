@@ -39,6 +39,7 @@ class OrsTravelTimeProvider:
     _module: ModuleType | None = None
     _snapped_places: dict[str, object] | None = None
     _snap_payloads: dict[str, Mapping[str, object]] | None = None
+    _fallback_provider: HaversineTravelTimeProvider | None = None
 
     @classmethod
     def from_default(cls) -> OrsTravelTimeProvider:
@@ -53,6 +54,7 @@ class OrsTravelTimeProvider:
         fallback = HaversineTravelTimeProvider()
         if not candidates or not self._has_api_key():
             snap = fallback.snap_places(places, transport_pref)
+            self._fallback_provider = fallback
             self._snap_payloads = {place_id: payload for place_id, payload in payload_by_id.items()}
             self._snapped_places = {place_id: candidate for place_id, candidate in candidates.items()}
             return _snap_with_audit(snap, "ors_external_haversine_presnap", missing_ids)
@@ -68,11 +70,17 @@ class OrsTravelTimeProvider:
         except (ImportError, OSError, RuntimeError, ValueError):
             record_tool_call("ors", "SnapPlaces", _duration_ms(start))
             snap = fallback.snap_places(places, transport_pref)
+            self._fallback_provider = fallback
             self._snap_payloads = {place_id: payload for place_id, payload in payload_by_id.items()}
             self._snapped_places = {place_id: candidate for place_id, candidate in candidates.items()}
             return _snap_with_audit(snap, "ors_external_snap_failure_fallback", missing_ids)
         record_tool_call("ors", "SnapPlaces", _duration_ms(start))
         snapped = snapped_payloads(payload_by_id, result)
+        if result.fallback_used:
+            fallback.snap_places(tuple(snapped.values()), transport_pref)
+            self._fallback_provider = fallback
+        else:
+            self._fallback_provider = None
         self._snap_payloads = snapped
         self._snapped_places = {
             place_id: place
@@ -96,6 +104,11 @@ class OrsTravelTimeProvider:
         place_ids: tuple[str, ...],
         transport_pref: str,
     ) -> MatrixResponse:
+        if self._fallback_provider is not None:
+            matrix = self._fallback_provider.matrix_minutes(place_ids, transport_pref)
+            audit = dict(matrix.audit)
+            audit.update(matrix_provider="ors_external", fallback_used="ors_haversine", ors_source="ors_haversine")
+            return MatrixResponse(durations=matrix.durations, audit=audit)
         snapped_places = self._snapped_places or {}
         matrix_places = [snapped_places[place_id] for place_id in place_ids if place_id in snapped_places]
         if not matrix_places:

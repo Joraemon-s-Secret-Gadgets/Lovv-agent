@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+import os
 import time
+from collections.abc import Callable, Mapping
 from typing import Final, TypeVar
 
 from langgraph.errors import GraphInterrupt
@@ -28,7 +29,10 @@ from lovv_agent_v2.common.telemetry_node_metrics import (
     node_log_entry,
 )
 from lovv_agent_v2.common.telemetry_route_guard import record_route_visit
-from lovv_agent_v2.common.telemetry_safety import sanitize_text
+from lovv_agent_v2.common.telemetry_safety import (
+    sanitize_text,
+    sanitized_exception_attributes,
+)
 from lovv_agent_v2.common.telemetry_state import (
     bool_value,
     mapping_value,
@@ -52,6 +56,19 @@ def init_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
     global _TELEMETRY_INITIALIZED, _TRACER
     patch_langchain_callback_resume_compat()
     if _TELEMETRY_INITIALIZED:
+        return
+    if not _telemetry_enabled():
+        emit_telemetry_init(
+            {
+                "telemetryEnabled": False,
+                "sdkAvailable": False,
+                "exporterAvailable": False,
+                "providerProcessorAttached": False,
+                "existingProviderProcessorAttached": False,
+                **telemetry_init_base(service_name),
+            },
+        )
+        _TELEMETRY_INITIALIZED = True
         return
 
     try:
@@ -88,17 +105,7 @@ def init_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
 
     provider_processor_attached = existing_provider_processor_attached = False
 
-    if adot_provider_active:
-        # ADOT (or auto-instrumentation) already set up a real SDK provider.
-        # Reuse it — only add our OTLP exporter if the env var is set (local dev).
-        import os
-        if exporter_type is not None and os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
-            existing_provider_processor_attached = add_span_processor(
-                current_provider,
-                BatchSpanProcessor,
-                exporter_type,
-            )
-    else:
+    if not adot_provider_active:
         # No SDK provider — we're running locally or without auto-instrumentation.
         # Create and install our own provider.
         provider = build_tracer_provider(TracerProvider, resource, ALWAYS_ON)
@@ -115,6 +122,7 @@ def init_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
     _configure_xray_propagator()
     emit_telemetry_init(
         {
+            "telemetryEnabled": True,
             "sdkAvailable": True,
             "exporterAvailable": exporter_type is not None,
             "providerType": type(current_provider).__name__,
@@ -273,10 +281,15 @@ def _request_id(state: UnifiedAgentState) -> str:
 
 
 def _record_span_error(span, exc: Exception) -> None:
-    span.record_exception(exc)
+    span.add_event("exception", attributes=sanitized_exception_attributes(exc))
     span.set_status(
         Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
     )
+
+
+def _telemetry_enabled() -> bool:
+    value = os.getenv("AGENT_OBSERVABILITY_ENABLED", "true").strip().lower()
+    return value not in {"0", "false", "no", "off"}
 
 
 def _duration_ms(started_at: float) -> int:

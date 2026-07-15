@@ -26,7 +26,10 @@ from lovv_agent_v2.common.telemetry_metrics import (
     step_durations_since,
     tool_calls_since,
 )
-from lovv_agent_v2.common.telemetry_safety import sanitize_text
+from lovv_agent_v2.common.telemetry_safety import (
+    sanitize_text,
+    sanitized_exception_attributes,
+)
 from lovv_agent_v2.common.telemetry_state import (
     mapping_value,
     nested_text,
@@ -50,7 +53,11 @@ def trace_invocation(
     tool_token = reset_tool_calls()
     request_id = _request_id(state)
     started_at = time.perf_counter()
-    with _TRACER.start_as_current_span("LovvAgentInvocation") as span:
+    with _TRACER.start_as_current_span(
+        "LovvAgentInvocation",
+        record_exception=False,
+        set_status_on_exception=False,
+    ) as span:
         span.set_attribute("gen_ai.agent.name", "LovvAgentV2")
         span.set_attribute("gen_ai.system", "lovv")
         span.set_attribute("request.id", request_id)
@@ -137,7 +144,7 @@ def _request_id(state: UnifiedAgentState) -> str:
 
 
 def _record_span_error(span, exc: Exception) -> None:
-    span.record_exception(exc)
+    span.add_event("exception", attributes=sanitized_exception_attributes(exc))
     span.set_status(
         Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
     )

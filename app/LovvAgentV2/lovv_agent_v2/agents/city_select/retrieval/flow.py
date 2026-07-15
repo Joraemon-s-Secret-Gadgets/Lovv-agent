@@ -168,9 +168,12 @@ def city_select_failure_state(result: CitySelectResult) -> dict[str, Any]:
 
 def embedding_query_text(context: CitySelectContext) -> str:
     query = context.candidate_input.cleaned_raw_query.strip()
-    if not query:
-        raise SchemaValidationError("cleaned_raw_query is required for city_select embedding")
-    return query
+    if query:
+        return query
+    theme_query = " ".join(context.theme_split.searchable_place_themes)
+    if theme_query:
+        return theme_query
+    raise SchemaValidationError("cleaned_raw_query is required for city_select embedding")
 
 
 __all__ = [
