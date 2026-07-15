@@ -34,6 +34,8 @@ Rules:
   keep preferred region words in cleaned_raw_query and remove only disliked region clauses.
 - For "A 말고 B" or "A 빼고 B", put A in disliked_* and B in preferred_*.
 - For "A는 피하고 B에서 C 위주", put A in disliked_region_spans, B in preferred_region_spans, and C in preferred_theme_ids.
+- A region mentioned only in a negative clause must appear only in disliked_region_spans.
+  Example: "해변을 걷고 싶은데 강릉은 싫어" -> preferred_region_spans=[], disliked_region_spans=["강릉"].
 - Region spans may be 시, 군, or 구 names. Preserve qualifiers when present.
 - Example: "대구 동구" or "대구광역시 동구" -> preferred_region_spans=["동구 (대구광역시)"].
 - Example: "종로구" -> preferred_region_spans=["종로구"].

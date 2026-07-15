@@ -247,6 +247,7 @@ def test_intent_node_uses_prompt_runtime_before_code_parser() -> None:
     assert intent["clarifying_question"] is None
     assert intent["intent_extraction_mode"] == "prompt_structured_output"
     assert runtime.requests[0]["outputConfig"]["textFormat"]["type"] == "json_schema"
+    assert runtime.requests[0]["inferenceConfig"]["maxTokens"] == 2048
     assert "Lovv V2 Intent Agent" in runtime.requests[0]["system"][0]["text"]
 
 
@@ -525,6 +526,54 @@ def test_prompt_intent_reconciles_preference_contradictions() -> None:
     assert intent["clarifying_question"] is not None
     assert intent["clarification"]["reason_code"] == "contradiction"
     assert intent["clarification"]["options"][0]["then"] == "abort"
+
+
+def test_prompt_intent_keeps_disliked_city_out_of_preferred_regions() -> None:
+    runtime = RecordingIntentRuntime(
+        {
+            "cleaned_raw_query": "해변을 걷고 싶은데 강릉은 싫어.",
+            "soft_preference_query": "걷기 좋은 해변",
+            "unsupported_conditions": [],
+            "congestion_pref": "neutral",
+            "transport_pref": "walk",
+            "preferred_theme_ids": ["sea_coast"],
+            "disliked_theme_ids": [],
+            "preferred_region_spans": ["강릉"],
+            "disliked_region_spans": ["강릉"],
+            "needs_clarification": False,
+            "clarifying_question": "",
+            "contradiction_reasons": [],
+        },
+    )
+
+    with invocation_runtime(
+        {
+            "intent_prompt_runtime": {
+                "runtime": runtime,
+                "schema_retry_limit": 0,
+            },
+        },
+    ):
+        output = intent_node(
+            {
+                "request": {
+                    "entryType": "create",
+                    "country": "KR",
+                    "travelMonth": 8,
+                    "travelYear": 2026,
+                    "tripType": "daytrip",
+                    "themes": ["바다·해안"],
+                    "includeFestivals": False,
+                    "naturalLanguageQuery": "해변을 걷고 싶은데 강릉은 싫어.",
+                },
+            },
+        )
+
+    intent = output["intent"]
+    assert intent["preferred_region_ids"] == ()
+    assert intent["disliked_region_ids"] == ("KR-51-150",)
+    assert intent["needs_clarification"] is False
+    assert "clarification" not in intent
 
 
 def test_prompt_intent_uses_rule_parser_to_recover_theme_contradiction() -> None:

@@ -83,7 +83,7 @@ def build_intent_prompt_request(request: Mapping[str, Any]) -> dict[str, Any]:
         schema_description="Lovv V2 prompt-based intent output",
         reasoning_effort="low",
     )
-    request_payload["inferenceConfig"] = {"maxTokens": 512, "temperature": 0}
+    request_payload["inferenceConfig"] = {"maxTokens": 2048, "temperature": 0}
     return request_payload
 
 
