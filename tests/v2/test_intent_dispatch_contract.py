@@ -281,6 +281,16 @@ def test_intent_node_builds_city_change_modify_intent() -> None:
                     },
                 ],
             },
+            "intent": {
+                "city_select_input": {
+                    "country": "KR",
+                    "travel_month": 10,
+                    "trip_type": "2d1n",
+                    "active_required_themes": ("역사·전통",),
+                    "include_festivals": False,
+                    "cleaned_raw_query": "역사 여행",
+                },
+            },
         },
     )
 
