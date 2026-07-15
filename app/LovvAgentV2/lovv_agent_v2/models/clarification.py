@@ -16,6 +16,7 @@ REASON_CODES: tuple[str, ...] = (
     "unsupported_region",
     "thin_city",
     "weather_alternative_available",
+    "modify_missing_current_itinerary",
     "modify_target_unresolved",
     "modify_target_ambiguous",
     "modify_ops_conflict",
