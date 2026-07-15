@@ -74,6 +74,7 @@ def test_init_telemetry_reuses_existing_sdk_provider(
     monkeypatch.setattr(telemetry.trace, "get_tracer_provider", lambda: existing_provider)
     monkeypatch.setattr(telemetry.trace, "set_tracer_provider", set_calls.append)
     monkeypatch.setattr(telemetry, "_TELEMETRY_INITIALIZED", False)
+    monkeypatch.setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://collector:4317")
 
     # When: V2 telemetry initializes inside the runtime.
     telemetry.init_telemetry()
@@ -90,6 +91,26 @@ def test_init_telemetry_reuses_existing_sdk_provider(
     assert init_log["providerProcessorAttached"] is False
     assert init_log["existingProviderProcessorAttached"] is False
     assert init_log["samplerName"] == "adot-managed"
+
+
+def test_init_telemetry_skips_provider_when_disabled(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    _install_fake_otel_modules(monkeypatch)
+    set_calls: list[FakeTracerProvider] = []
+    monkeypatch.setattr(telemetry.trace, "get_tracer_provider", lambda: ProxyTracerProvider())
+    monkeypatch.setattr(telemetry.trace, "set_tracer_provider", set_calls.append)
+    monkeypatch.setattr(telemetry, "_TELEMETRY_INITIALIZED", False)
+    monkeypatch.setenv("AGENT_OBSERVABILITY_ENABLED", "false")
+    monkeypatch.setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://collector:4317")
+
+    telemetry.init_telemetry()
+
+    assert set_calls == []
+    init_log = json.loads(capsys.readouterr().out)
+    assert init_log["telemetryEnabled"] is False
+    assert init_log["providerProcessorAttached"] is False
 
 
 def test_init_telemetry_sets_provider_when_no_sdk_provider_exists(

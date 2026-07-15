@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from langgraph.errors import GraphInterrupt
 import pytest
 
@@ -22,6 +24,21 @@ class FakeSpan:
 
     def set_status(self, *args: object) -> None:
         return None
+
+
+class ErrorRecordingSpan:
+    def __init__(self) -> None:
+        self.events: list[tuple[str, dict[str, str | bool]]] = []
+        self.status = None
+
+    def add_event(self, name: str, attributes: dict[str, str | bool]) -> None:
+        self.events.append((name, attributes))
+
+    def record_exception(self, *args: object) -> None:
+        raise AssertionError("raw exceptions must not be recorded")
+
+    def set_status(self, status: object) -> None:
+        self.status = status
 
 
 class FakeTracer:
@@ -94,6 +111,31 @@ def test_trace_node_disables_automatic_exception_status_for_interrupt(
 
     assert tracer.kwargs["record_exception"] is False
     assert tracer.kwargs["set_status_on_exception"] is False
+
+
+@pytest.mark.parametrize(
+    "record_error",
+    [telemetry._record_span_error, telemetry_invocation._record_span_error],
+)
+def test_span_error_redacts_exception_event(
+    record_error: Callable[[ErrorRecordingSpan, Exception], None],
+) -> None:
+    span = ErrorRecordingSpan()
+
+    record_error(span, RuntimeError("api_key=super-secret-value user@example.com"))
+
+    assert span.events == [
+        (
+            "exception",
+            {
+                "exception.type": "RuntimeError",
+                "exception.message": "[REDACTED_SECRET] [REDACTED_EMAIL]",
+                "exception.escaped": True,
+            },
+        ),
+    ]
+    assert span.status is not None
+    assert span.status.description == "[REDACTED_SECRET] [REDACTED_EMAIL]"
 
 
 def _patch_invocation_dependencies(

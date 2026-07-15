@@ -26,7 +26,10 @@ from lovv_agent_v2.common.telemetry_metrics import (
     step_durations_since,
     tool_calls_since,
 )
-from lovv_agent_v2.common.telemetry_safety import sanitize_text
+from lovv_agent_v2.common.telemetry_safety import (
+    sanitize_text,
+    sanitized_exception_attributes,
+)
 from lovv_agent_v2.common.telemetry_state import (
     mapping_value,
     nested_text,
@@ -137,7 +140,7 @@ def _request_id(state: UnifiedAgentState) -> str:
 
 
 def _record_span_error(span, exc: Exception) -> None:
-    span.record_exception(exc)
+    span.add_event("exception", attributes=sanitized_exception_attributes(exc))
     span.set_status(
         Status(StatusCode.ERROR, sanitize_text(str(exc) or type(exc).__name__)),
     )
