@@ -244,6 +244,13 @@ def test_explain_itinerary_node_uses_v1_composer_with_enriched_v2_items() -> Non
     assert system_prompt["output_contract"]["body_min_guideline"] == "description이 있으면 body는 70자 이상 권장"
     assert system_prompt["output_contract"]["item_reason_length"] == "각 reason 70~130자 권장"
     assert "인적 밀도" in system_prompt["style_rules"]["congestion_claim_rule"]
+    assert "해요체" in system_prompt["style_rules"]["tone"]
+    assert "-한다" in system_prompt["style_rules"]["ending_style"]
+    assert "-습니다" in system_prompt["style_rules"]["ending_style"]
+    assert "추천해요" in system_prompt["style_rules"]["ending_style"]
+    assert "함께 여행을 준비" in system_prompt["style_rules"]["friendliness_rule"]
+    assert "반말" in system_prompt["style_rules"]["friendliness_rule"]
+    assert "같은 종결" in system_prompt["style_rules"]["friendliness_rule"]
     assert "final_itinerary_items.overview" not in system_prompt["grounding_policy"]["allowed_sources"]
     assert system_prompt["grounding_policy"]["itinerary_scope"] == "final_itinerary_only"
     assert dynamo_lookup.calls[0][0].ddb_pk == "CITY#SOKCHO"
