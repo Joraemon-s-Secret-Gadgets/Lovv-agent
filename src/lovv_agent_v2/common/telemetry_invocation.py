@@ -53,7 +53,11 @@ def trace_invocation(
     tool_token = reset_tool_calls()
     request_id = _request_id(state)
     started_at = time.perf_counter()
-    with _TRACER.start_as_current_span("LovvAgentInvocation") as span:
+    with _TRACER.start_as_current_span(
+        "LovvAgentInvocation",
+        record_exception=False,
+        set_status_on_exception=False,
+    ) as span:
         span.set_attribute("gen_ai.agent.name", "LovvAgentV2")
         span.set_attribute("gen_ai.system", "lovv")
         span.set_attribute("request.id", request_id)
