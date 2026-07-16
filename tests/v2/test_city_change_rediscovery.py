@@ -1,17 +1,25 @@
 from __future__ import annotations
 
+import pytest
+
 from lovv_agent_v2.agents.intent.node import intent_node
 from lovv_agent_v2.agents.supervisor.router import supervisor_node
 
 
-def test_intent_node_builds_targetless_city_rediscovery_modify_intent() -> None:
+@pytest.mark.parametrize(
+    "raw_modify_query",
+    ("다른 도시로 바꿔줘.", "도시 바꿔줘."),
+)
+def test_intent_node_builds_targetless_city_rediscovery_modify_intent(
+    raw_modify_query: str,
+) -> None:
     output = intent_node(
         {
             "request": {
                 "entryType": "modify",
                 "threadId": "thread-001",
                 "itineraryRevision": "rev-001",
-                "rawModifyQuery": "다른 도시로 바꿔줘.",
+                "rawModifyQuery": raw_modify_query,
                 "destinationId": "KR-51-170",
                 "currentOrder": [
                     {
