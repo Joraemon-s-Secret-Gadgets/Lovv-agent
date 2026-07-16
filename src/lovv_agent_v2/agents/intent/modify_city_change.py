@@ -21,6 +21,7 @@ _GENERIC_CHANGE_PHRASES: Final = (
     "지역 교체",
     "지역을 교체",
 )
+_NEGATIVE_CITY_MARKERS: Final = ("말고", "제외", "빼고", "싫")
 
 CurrentOrderValue = str | int | float | bool | None
 
@@ -44,6 +45,18 @@ def build_city_change(
         return None
     city_map = load_default_city_identity_map()
     identity = find_city_identity_in_text(city_map, raw_query)
+    excluded_city_ids = avoid_city_ids(current_order)
+    if identity is not None and any(marker in raw_query for marker in _NEGATIVE_CITY_MARKERS):
+        if identity.city_id not in excluded_city_ids:
+            excluded_city_ids.append(identity.city_id)
+        return {
+            "target_city_id": None,
+            "target_city_name": None,
+            "city_preference_query": raw_query,
+            "carry_over_themes": True,
+            "carry_over_festivals": True,
+            "avoid_city_ids": excluded_city_ids,
+        }
     if identity is not None:
         return {
             "target_city_id": identity.city_id,
@@ -51,7 +64,7 @@ def build_city_change(
             "city_preference_query": raw_query,
             "carry_over_themes": True,
             "carry_over_festivals": True,
-            "avoid_city_ids": avoid_city_ids(current_order),
+            "avoid_city_ids": excluded_city_ids,
         }
     if "다른" not in raw_query and not any(
         phrase in raw_query for phrase in _GENERIC_CHANGE_PHRASES
@@ -63,7 +76,7 @@ def build_city_change(
         "city_preference_query": raw_query,
         "carry_over_themes": True,
         "carry_over_festivals": True,
-        "avoid_city_ids": avoid_city_ids(current_order),
+        "avoid_city_ids": excluded_city_ids,
     }
 
 

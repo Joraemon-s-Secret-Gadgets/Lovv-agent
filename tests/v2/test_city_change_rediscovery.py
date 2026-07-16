@@ -77,6 +77,54 @@ def test_intent_node_builds_targetless_city_rediscovery_modify_intent(
     )
 
 
+def test_named_city_in_negative_context_becomes_rediscovery_exclusion() -> None:
+    output = intent_node(
+        {
+            "request": {
+                "entryType": "modify",
+                "threadId": "thread-negative-city",
+                "itineraryRevision": "rev-negative-city",
+                "rawModifyQuery": "군산 말고 다른 도시로 바꿔줘.",
+                "destinationId": "KR-51-170",
+                "currentOrder": [
+                    {
+                        "itemId": "item-1",
+                        "contentId": "attraction#old",
+                        "itemType": "attraction",
+                        "day": 1,
+                        "order": 1,
+                        "title": "기존 장소",
+                        "cityId": "KR-51-170",
+                    },
+                ],
+            },
+            "intent": {
+                "city_select_input": {
+                    "country": "KR",
+                    "travel_month": 10,
+                    "travel_year": 2026,
+                    "trip_type": "2d1n",
+                    "active_required_themes": ("바다·해안",),
+                    "include_festivals": False,
+                    "cleaned_raw_query": "조용한 바다 산책",
+                    "execution_mode": "anchored_place_search",
+                    "destination_id": "KR-51-170",
+                },
+            },
+        },
+    )
+
+    modify_intent = output["intent"]["modify_intent"]
+    city_input = output["intent"]["city_select_input"]
+    assert modify_intent["routing_hint"] == "city_select_rediscovery"
+    assert modify_intent["city_change"]["target_city_id"] is None
+    assert modify_intent["city_change"]["avoid_city_ids"] == (
+        "KR-51-170",
+        "KR-37-2",
+    )
+    assert city_input["disliked_city_ids"] == ("KR-51-170", "KR-37-2")
+
+
 def test_supervisor_routes_city_rediscovery_to_city_select() -> None:
     result = supervisor_node(
         {
