@@ -7,7 +7,10 @@ from lovv_agent_v2.agents.intent.modify_city_change import (
     build_city_change,
     city_change_routing_hint,
 )
-from lovv_agent_v2.agents.intent.modify_current_order import current_order
+from lovv_agent_v2.agents.intent.modify_current_order import (
+    current_order,
+    current_order_for_city,
+)
 from lovv_agent_v2.agents.intent.parser import IntentPreferenceResult, parse_initial_query
 from lovv_agent_v2.agents.intent.modify_day_regenerate import day_regenerate_request
 from lovv_agent_v2.agents.intent.modify_slots import (
@@ -43,7 +46,7 @@ def build_modify_intent(
             "audit": {"parser": "rule_v2"},
         }
     current_order_items = current_order(request, state)
-    city_change = build_city_change(raw_query, current_order_items)
+    city_change = build_city_change(raw_query, current_order_for_city(request, state))
     if city_change is not None:
         return {
             **base,

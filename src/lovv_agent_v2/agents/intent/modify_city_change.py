@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from typing import Final, TypedDict
 
@@ -46,7 +47,7 @@ def build_city_change(
     city_map = load_default_city_identity_map()
     identity = find_city_identity_in_text(city_map, raw_query)
     excluded_city_ids = avoid_city_ids(current_order)
-    if identity is not None and any(marker in raw_query for marker in _NEGATIVE_CITY_MARKERS):
+    if identity is not None and _city_is_negated(raw_query, identity.city_name_ko):
         if identity.city_id not in excluded_city_ids:
             excluded_city_ids.append(identity.city_id)
         return {
@@ -78,6 +79,22 @@ def build_city_change(
         "carry_over_festivals": True,
         "avoid_city_ids": excluded_city_ids,
     }
+
+
+def _city_is_negated(raw_query: str, city_name: str | None) -> bool:
+    if city_name is None:
+        return False
+    for mention in _city_mentions(city_name):
+        pattern = rf"{re.escape(mention)}(?:은|는|이|가|을|를)?\s*(?:{'|'.join(_NEGATIVE_CITY_MARKERS)})"
+        if re.search(pattern, raw_query) is not None:
+            return True
+    return False
+
+
+def _city_mentions(city_name: str) -> tuple[str, ...]:
+    if city_name.endswith(("시", "군", "구")) and len(city_name) > 1:
+        return city_name, city_name[:-1]
+    return (city_name,)
 
 
 def city_change_routing_hint(city_change: CityChange) -> str:

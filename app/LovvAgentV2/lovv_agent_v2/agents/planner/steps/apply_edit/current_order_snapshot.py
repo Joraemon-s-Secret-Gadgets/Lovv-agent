@@ -43,7 +43,7 @@ def merge_current_order_item(
     }
     result.update({key: value for key, value in request_fields.items() if value is not None})
     exposure = item.get("indoorOutdoor", item.get("indoor_outdoor"))
-    if exposure in {"indoor", "outdoor", "mixed", "unknown"}:
+    if isinstance(exposure, str) and exposure in {"indoor", "outdoor", "mixed", "unknown"}:
         result["indoor_outdoor"] = exposure
     theme = item.get("theme")
     if theme is not None:

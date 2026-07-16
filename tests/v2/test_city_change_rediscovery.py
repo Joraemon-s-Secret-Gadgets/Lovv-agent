@@ -125,6 +125,47 @@ def test_named_city_in_negative_context_becomes_rediscovery_exclusion() -> None:
     assert city_input["disliked_city_ids"] == ("KR-51-170", "KR-37-2")
 
 
+def test_unrelated_dislike_does_not_negate_named_destination() -> None:
+    output = intent_node(
+        {
+            "request": {
+                "entryType": "modify",
+                "threadId": "thread-positive-city-with-dislike",
+                "itineraryRevision": "rev-positive-city-with-dislike",
+                "rawModifyQuery": "복잡한 곳은 싫어서 군산으로 도시 바꿔줘.",
+                "currentOrder": [
+                    {
+                        "itemId": "item-1",
+                        "contentId": "attraction#old",
+                        "itemType": "attraction",
+                        "day": 1,
+                        "order": 1,
+                        "cityId": "KR-51-170",
+                    },
+                ],
+            },
+            "intent": {
+                "city_select_input": {
+                    "country": "KR",
+                    "travel_month": 10,
+                    "travel_year": 2026,
+                    "trip_type": "2d1n",
+                    "active_required_themes": ("바다·해안",),
+                    "include_festivals": False,
+                    "cleaned_raw_query": "조용한 바다 산책",
+                    "execution_mode": "anchored_place_search",
+                    "destination_id": "KR-51-170",
+                },
+            },
+        },
+    )
+
+    modify_intent = output["intent"]["modify_intent"]
+    assert modify_intent["routing_hint"] == "planner_direct_anchor"
+    assert modify_intent["city_change"]["target_city_id"] == "KR-37-2"
+    assert modify_intent["city_change"]["avoid_city_ids"] == ("KR-51-170",)
+
+
 def test_supervisor_routes_city_rediscovery_to_city_select() -> None:
     result = supervisor_node(
         {

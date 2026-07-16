@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from lovv_agent_v2.agents.planner.steps.apply_edit.node import apply_edit_node
+from lovv_agent_v2.agents.planner.steps.apply_edit.current_order_snapshot import (
+    merge_current_order_item,
+)
 
 
 def test_day_regenerate_preserves_latest_current_order_over_stale_checkpoint() -> None:
@@ -114,6 +117,16 @@ def test_day_regenerate_preserves_request_fields_for_same_content_id() -> None:
     assert untouched["slot"] == "evening"
     assert untouched["latitude"] == latest_day_two["latitude"]
     assert untouched["longitude"] == latest_day_two["longitude"]
+
+
+def test_current_order_overlay_ignores_invalid_optional_exposure_type() -> None:
+    result = merge_current_order_item(
+        {"placeId": "attraction#same", "indoor_outdoor": "outdoor"},
+        {"indoorOutdoor": []},
+        "attraction#same",
+    )
+
+    assert result["indoor_outdoor"] == "outdoor"
 
 
 def _current_item(day: int, order: int):
