@@ -8,8 +8,11 @@ def current_order(
     request: Mapping[str, Any],
     state: Mapping[str, Any],
 ) -> tuple[Mapping[str, Any], ...]:
+    if "currentOrder" in request:
+        return _mapping_sequence(request.get("currentOrder"))
+    if "current_order" in request:
+        return _mapping_sequence(request.get("current_order"))
     for value in (
-        request.get("currentOrder", request.get("current_order")),
         state.get("currentOrder", state.get("current_order")),
         _planner_current_order(state),
         _response_current_order(state),
@@ -81,7 +84,26 @@ def _order_from_itinerary(value: Any) -> tuple[dict[str, Any], ...]:
 def _mapping_sequence(value: Any) -> tuple[Mapping[str, Any], ...]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
         return ()
-    return tuple(item for item in value if isinstance(item, Mapping))
+    items = tuple(item for item in value if isinstance(item, Mapping))
+    if len(items) != len(value) or not all(_valid_order_item(item) for item in items):
+        return ()
+    return items
+
+
+def _valid_order_item(item: Mapping[str, Any]) -> bool:
+    content_id = _content_id(item)
+    day = item.get("day")
+    order = item.get("order")
+    return (
+        isinstance(content_id, str)
+        and bool(content_id.strip())
+        and isinstance(day, int)
+        and not isinstance(day, bool)
+        and day > 0
+        and isinstance(order, int)
+        and not isinstance(order, bool)
+        and order > 0
+    )
 
 
 def _order_item(item: Mapping[str, Any], day: Any, order: int) -> dict[str, Any]:

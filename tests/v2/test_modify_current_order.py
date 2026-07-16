@@ -139,3 +139,35 @@ def test_place_modify_after_city_change_uses_front_current_order() -> None:
     assert modify_intent["kind"] == "slot_replace"
     assert modify_intent["city_change"] is None
     assert modify_intent["edit_ops"][0]["target"]["content_id"] == "attraction#front-gangneung"
+
+
+def test_explicit_invalid_current_order_does_not_use_stale_checkpoint() -> None:
+    output = intent_node(
+        {
+            "request": {
+                "entryType": "modify",
+                "threadId": "thread-invalid-order",
+                "itineraryRevision": "rev-invalid-order",
+                "rawModifyQuery": "1일차 첫 번째 장소를 바꿔줘.",
+                "currentOrder": [{}],
+            },
+            "planner": {
+                "planner_output": {
+                    "itinerary": [
+                        {
+                            "day": 1,
+                            "order": 1,
+                            "placeId": "attraction#stale",
+                            "title": "상태의 이전 장소",
+                            "city_id": "KR-51-150",
+                            "theme_tags": ["자연·트레킹"],
+                        },
+                    ],
+                },
+            },
+        },
+    )
+
+    modify_intent = output["intent"]["modify_intent"]
+    assert modify_intent["status"] == "needs_clarification"
+    assert modify_intent["reason_code"] == "modify_missing_current_itinerary"
