@@ -1,7 +1,7 @@
 # LOVV V2 City Change / Day Regenerate Review Fix Tasks
 
 작성일: 2026-07-16  
-상태: 구현 및 검증 완료  
+상태: 후속 리뷰 패치 구현 및 검증 완료
 대상 브랜치: `fix/v2-city-change-generic-request`
 
 ## 1. 목표
@@ -194,3 +194,66 @@ uv run pytest `
 | `군산 말고 다른 도시로 바꿔줘` | 익산시 `KR-37-9` 선택, clarification 없음 | 15.849초 |
 
 `AGENT_MEMORY_GUARD`에서 `memoryMode=local_memory_saver`, `eventGuard=agentcore_memory_disabled`를 확인했다.
+
+## 10. PR 재검토 후속 작업
+
+PR HEAD `41786cd3` 재검토에서 확인된 세 merge blocker를 같은 입력 경계 task로 이어서 처리한다.
+
+### 10.1 도시 부정 표현의 범위 제한
+
+- 문장 전체의 `말고/제외/빼고/싫` 존재 여부로 목적 도시를 부정하지 않는다.
+- 식별된 도시명 바로 뒤의 조사와 부정 표현만 해당 도시 exclusion으로 해석한다.
+- `복잡한 곳은 싫어서 군산으로 도시 바꿔줘`는 군산 direct anchor를 유지한다.
+- `군산 말고 다른 도시로 바꿔줘`는 기존처럼 군산 exclusion rediscovery를 유지한다.
+
+### 10.2 `currentOrder` 상태와 consumer 계약 분리
+
+- request `currentOrder`의 missing, empty, valid, malformed 상태를 구분한다.
+- missing 또는 empty는 checkpoint fallback을 허용한다.
+- non-empty malformed는 stale checkpoint로 대체하지 않고 clarification으로 종료한다.
+- city exclusion 추출은 `cityId`만 필요하므로 day/order가 없는 city-only snapshot도 사용할 수 있다.
+- slot/day 수정은 canonical content ID와 양의 day/order를 계속 요구한다.
+
+### 10.3 Canonical item과 optional metadata
+
+- `contentId`, `content_id`, `placeId`, `festivalId`를 canonical `contentId`로 정규화한다.
+- prompt target은 canonical item만 사용해 alias가 `content_id=None`으로 내려가지 않게 한다.
+- `indoorOutdoor` 등 optional metadata는 허용 타입으로 좁힌 뒤 overlay에 사용한다.
+- 잘못된 optional 타입이 있어도 `TypeError`로 전체 수정 흐름을 중단하지 않는다.
+
+### 10.4 후속 완료 기준
+
+- unrelated dislike와 positive named destination이 함께 있어도 direct anchor가 유지된다.
+- empty request order는 checkpoint 일정으로 fallback한다.
+- city-only request order에서 기존 도시 exclusion을 복원한다.
+- ID alias가 slot target의 canonical content ID로 전달된다.
+- invalid optional exposure가 planner overlay에서 예외를 만들지 않는다.
+- 관련 focused regression, src/app mirror, local memory-off 수정 흐름이 통과한다.
+
+### 10.5 후속 검증 결과
+
+Red 단계에서는 다음 5개 회귀가 모두 재현됐다.
+
+- unrelated `싫` 표현이 군산 direct anchor를 rediscovery로 뒤집음
+- city-only `currentOrder`에서 기존 도시 exclusion 누락
+- empty `currentOrder`가 checkpoint fallback 차단
+- `placeId` alias가 prompt target에서 `content_id=None`으로 전달됨
+- `indoorOutdoor=[]`가 planner overlay에서 `TypeError` 발생
+
+최소 수정 후 검증 결과:
+
+- 신규 회귀: `5 passed`
+- 관련 city change, prompt normalizer, slot/day apply regression: `46 passed`
+- 변경 파일 compile: 통과
+- src/app mirror: 동일
+- 변경 Python 파일: 모두 250 pure LOC 이하
+
+Local memory-off E2E는 동일 session에서 다음 순서로 실행했다.
+
+| 단계 | 결과 |
+|---|---|
+| 역사·전통 2d1n 생성 | `KR-47-770`, 6개 일정 항목 |
+| `복잡한 곳은 싫어서 군산으로 도시 바꿔줘` | 군산 `KR-37-2` direct anchor |
+| `currentOrder=[]` 후 slot 수정 | checkpoint fallback 후 Planner 진입 |
+
+마지막 slot 수정은 대체 후보의 동선 불가로 `slot_replace_route_infeasible` clarification에 도달했다. 이는 기존 일정 부재 오류가 아니라 Planner의 정상적인 후보 검증 결과다. `AGENT_MEMORY_GUARD`는 `local_memory_saver`, `agentcore_memory_disabled`를 기록했다.
