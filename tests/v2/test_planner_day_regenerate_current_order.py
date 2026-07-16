@@ -59,6 +59,63 @@ def test_day_regenerate_preserves_latest_current_order_over_stale_checkpoint() -
     ]
 
 
+def test_day_regenerate_preserves_request_fields_for_same_content_id() -> None:
+    latest_day_two = _current_item(2, 1)
+    latest_day_two["timeOfDay"] = "evening"
+    stale_day_two = _stale_planner_item(2, 1)
+    stale_day_two.update(
+        {
+            "placeId": latest_day_two["contentId"],
+            "title": "checkpoint의 오래된 제목",
+            "slot": "morning",
+            "latitude": 33.1,
+            "longitude": 126.1,
+        },
+    )
+    result = apply_edit_node(
+        {
+            "request": {
+                "request_id": "REQ-SAME-CONTENT-ID",
+                "destinationId": "KR-47-130",
+                "currentOrder": [_current_item(1, 1), latest_day_two],
+            },
+            "intent": {
+                "modify_intent": {
+                    "status": "ok",
+                    "kind": "day_regenerate",
+                    "routing_hint": "planner_apply_edit",
+                    "day_regenerate": {
+                        "day": 1,
+                        "condition": {
+                            "replacement_query": None,
+                            "theme": None,
+                            "avoid_content_ids": [],
+                        },
+                    },
+                },
+            },
+            "planner": {
+                "planner_output": {
+                    "itinerary": [_stale_planner_item(1, 1), stale_day_two],
+                    "validation_result": {"planner_status_gate": "ok"},
+                },
+                "modify_context": {
+                    "reserve_pool": [_candidate("attraction#new-1", "새 첫 장소")],
+                },
+            },
+        },
+    )
+
+    untouched = next(
+        item for item in result["planner"]["planner_output"]["itinerary"] if item["day"] == 2
+    )
+    assert untouched["placeId"] == latest_day_two["contentId"]
+    assert untouched["title"] == latest_day_two["title"]
+    assert untouched["slot"] == "evening"
+    assert untouched["latitude"] == latest_day_two["latitude"]
+    assert untouched["longitude"] == latest_day_two["longitude"]
+
+
 def _current_item(day: int, order: int):
     return {
         "itemId": f"item-{day}-{order}",
